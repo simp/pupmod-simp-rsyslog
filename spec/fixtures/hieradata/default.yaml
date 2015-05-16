@@ -1,0 +1,4 @@
+---
+log_server: 'test.example.domain'
+client_nets: '1.2.3.4/32'
+rsyslog::stock::log_server::forward::forward_host: 'test.example.domain'

@@ -1,0 +1,11 @@
+---
+rsyslog::global::tcpserver: true
+rsyslog::global::udpserver: true
+rsyslog::global::udpServerAddress: '0.0.0.0'
+rsyslog::global::tcpAllowedSender:
+ - 127.0.0.1
+ - %{client_nets}
+rsyslog::global::udpAllowedSender:
+ - 127.0.0.1
+ - %{client_nets}
+rsyslog::global::ulimit_max_open_files: 'unlimited'

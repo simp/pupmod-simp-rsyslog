@@ -1,0 +1,140 @@
+<%
+  t_deftmp = "defaultTemplate"
+
+  if @defaultTemplate =~ /traditional/i then
+    t_deftmp = "RSYSLOG_TraditionalFileFormat"
+  elsif @defaultTemplate =~ /original/i then
+    t_deftmp = "RSYSLOG_FileFormat"
+  elsif @defaultTemplate =~ /forward/i then
+    t_deftmp = "RSYSLOG_ForwardFormat"
+  end
+
+  if @mainMsgQueueSize.empty? then
+    t_mainMsgQueueSize = [(([@memorysize_mb.to_i, 128].max * 1048576 * 0.01)/512).to_i,2097152].min
+  else
+    t_mainMsgQueueSize = @mainMsgQueueSize.to_i
+  end
+
+  t_mainMsgQueueHighWatermark = @mainMsgQueueHighWatermark
+  if @mainMsgQueueHighWatermark.empty? then
+    t_mainMsgQueueHighWatermark = (t_mainMsgQueueSize * 0.98).round
+  end
+
+  t_mainMsgQueueLowWatermark = @mainMsgQueueLowWatermark
+  if @mainMsgQueueLowWatermark.empty? then
+    t_mainMsgQueueLowWatermark = (t_mainMsgQueueSize * 0.70).round
+  end
+
+  t_mainMsgQueueDiscardmark = @mainMsgQueueDiscardmark.to_i
+  if @mainMsgQueueDiscardmark.empty? or (t_mainMsgQueueDiscardmark < t_mainMsgQueueHighWatermark) then
+    t_mainMsgQueueDiscardmark = (t_mainMsgQueueSize * 2).round
+  end
+
+  t_mainMsgQueueWorkerThreadMinimumMessages = @mainMsgQueueWorkerThreadMinimumMessages
+  if @mainMsgQueueWorkerThreadMinimumMessages.empty? then
+    t_mainMsgQueueWorkerThreadMinimumMessages =
+      t_mainMsgQueueSize / (([@processorcount.to_i, 2].max - 1)*4)
+  end
+
+  t_mainMsgQueueWorkerThreads = @mainMsgQueueWorkerThreads
+  if @mainMsgQueueWorkerThreads.empty? then
+    t_mainMsgQueueWorkerThreads = [@processorcount.to_i - 1, 1].max
+  end
+
+  t_mainMsgQueueMaxDiskSpace = @mainMsgQueueMaxDiskSpace
+  if @mainMsgQueueMaxDiskSpace.empty? then
+    t_mainMsgQueueMaxDiskSpace = "#{(t_mainMsgQueueSize / 1024).round}M"
+  end
+
+  # This pulls out all of the wildcard entries so that we don't try to validate
+  # them later on.
+  t_peers = @actionSendStreamDriverPermittedPeers.dup
+  t_wildcard_peers = []
+  t_peers.delete_if{|x| if x =~ /\*/ then t_wildcard_peers << x and true end}
+-%>
+<% if @preserveFQDN.eql?('on') then -%>
+$PreserveFQDN on
+<% else -%>
+$PreserveFQDN off
+<% end -%>
+$ModLoad imklog
+$ModLoad imuxsock
+$SystemLogRateLimitInterval <%= @system_log_rate_limit_interval %>
+$SystemLogRateLimitBurst <%= @system_log_rate_limit_burst %>
+$ModLoad imfile
+<% if @tcpserver -%>
+$ModLoad imptcp.so
+$InputPTCPServerRun <%= @tcpServerRun %>
+<% end -%>
+<% if @tls_tcpserver then -%>
+$ModLoad imtcp.so
+<% end -%>
+<% if @udpserver then -%>
+$ModLoad imudp.so
+<% end -%>
+<% if @use_tls or @tls_tcpserver -%>
+$DefaultNetstreamDriver gtls
+$DefaultNetstreamDriverCAFile <%= @defaultNetStreamDriverCAFile %>
+$DefaultNetstreamDriverCertFile <%= @defaultNetStreamDriverCertFile %>
+$DefaultNetstreamDriverKeyFile <%= @defaultNetStreamDriverKeyFile %>
+$ActionSendStreamDriverMode 1
+$ActionSendStreamDriverAuthMode <%= @actionSendStreamDriverAuthMode %>
+<%   (t_wildcard_peers + scope.function_strip_ports([t_peers])).each do |peer| -%>
+$ActionSendStreamDriverPermittedPeer <%= peer %>
+<%   end -%>
+<% end -%>
+<% if @tls_tcpserver or @tcpserver then -%>
+$AllowedSender TCP, <%= scope.function_bracketize([@tcpAllowedSender]).join(',') %>
+<% end -%>
+<% if @tls_tcpserver -%>
+$InputTCPServerStreamDriverMode 1
+$InputTCPServerStreamDriverAuthMode <%= @actionSendStreamDriverAuthMode %>
+<%   @tls_inputTCPServerStreamDriverPermittedPeers.each do |peer| -%>
+$InputTCPServerStreamDriverPermittedPeer <%= peer %>
+<%   end -%>
+$InputTCPMaxSessions <%= @tls_tcpMaxSessions %>
+$InputTCPServerRun <%= @tls_tcpServerRun %>
+<% end -%>
+<% if @udpserver then -%>
+$UDPServerAddress <%= @udpServerAddress %>
+$UDPServerRun <%= @udpServerRun %>
+$AllowedSender UDP, <%= scope.function_bracketize([@udpAllowedSender]).join(',') %>
+<% end -%>
+$WorkDirectory <%= @workDirectory %>
+$MainMsgQueueType <%= @mainMsgQueueType %>
+$MainMsgQueueFilename <%= @mainMsgQueueFilename %>
+$MainMsgQueueMaxFileSize <%= @mainMsgQueueMaxFileSize %>M
+$MainMsgQueueSize <%= t_mainMsgQueueSize %>
+$MainMsgQueueHighWatermark <%= t_mainMsgQueueHighWatermark %>
+$MainMsgQueueLowWatermark <%= t_mainMsgQueueLowWatermark %>
+$MainMsgQueueDiscardMark <%= t_mainMsgQueueDiscardmark %>
+$MainMsgQueueWorkerThreadMinimumMessages <%= t_mainMsgQueueWorkerThreadMinimumMessages %>
+$MainMsgQueueWorkerThreads <%= t_mainMsgQueueWorkerThreads %>
+$MainMsgQueueTimeoutEnqueue <%= @mainMsgQueueTimeoutEnqueue %>
+$MainMsgQueueDequeueSlowdown <%= @mainMsgQueueDequeueSlowdown %>
+$MainMsgQueueSaveOnShutdown <%= @mainMsgQueueSaveOnShutdown %>
+$MainMsgQueueMaxDiskSpace <%= t_mainMsgQueueMaxDiskSpace %>
+$ActionResumeInterval <%= @actionResumeInterval %>
+$ActionResumeRetryCount <%= @actionResumeRetryCount %>
+$ActionFileDefaultTemplate <%= t_deftmp %>
+$ControlCharacterEscapePrefix <%= @controlCharacterEscapePrefix %>
+$DirCreateMode <%= @dirCreateMode %>
+$DirGroup <%= @dirGroup %>
+$DirOwner <%= @dirOwner %>
+$DropMsgsWithMaliciousDnsPTRRecords <%= @dropMsgsWithMaliciousDnsPTRRecords %>
+$EscapeControlCharactersOnReceive <%= @escapeControlCharactersOnReceive %>
+$FileCreateMode <%= @fileCreateMode %>
+$FileGroup <%= @fileGroup %>
+$FileOwner <%= @fileOwner %>
+$UMASK <%= @umask %>
+
+<% if t_deftmp == 'defaultTemplate' -%>
+  $template defaultTemplate,"<%= @defaultTemplate %>"
+<% else -%>
+  $template defaultTemplate,"<%= t_deftmp %>"
+<% end -%>
+
+
+$IncludeConfig <%= @includeConfig %>
+
+$RepeatedMsgReduction <%= @repeatedMsgReduction %>
