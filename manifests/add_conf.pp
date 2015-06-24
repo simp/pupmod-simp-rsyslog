@@ -76,7 +76,7 @@ $RepeatedMsgReduction on
 <% end -%>
 ')
     },
-    notify => Service['rsyslog']
+    notify  => Service['rsyslog']
   }
 
   validate_array($dest)

@@ -234,19 +234,19 @@ class rsyslog::global (
   }
 
   file { '/etc/sysconfig/rsyslog':
-    owner    => 'root',
-    group    => 'root',
-    mode     => '0644',
-    content  => template('rsyslog/sysconfig.erb'),
-    notify   => Service['rsyslog']
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+    content => template('rsyslog/sysconfig.erb'),
+    notify  => Service['rsyslog']
   }
 
   # Set the maximum number of open files in the init script.
   init_ulimit { 'mod_open_files_rsyslog':
-    target      => 'rsyslog',
-    item        => 'max_open_files',
-    value       => $ulimit_max_open_files,
-    notify      => Service['rsyslog']
+    target => 'rsyslog',
+    item   => 'max_open_files',
+    value  => $ulimit_max_open_files,
+    notify => Service['rsyslog']
   }
 
   # This is blocked two other places, adding this to tcpwrappers is a bit
@@ -272,7 +272,7 @@ class rsyslog::global (
       include 'pki'
 
       ::pki::copy { '/etc/rsyslog.d':
-        notify  => Service['rsyslog']
+        notify => Service['rsyslog']
       }
     }
     else {

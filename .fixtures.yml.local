@@ -1,0 +1,16 @@
+---
+fixtures:
+  symlinks:
+    rsyslog: "#{source_dir}"
+    auditd: "#{source_dir}/../auditd"
+    common: "#{source_dir}/../common"
+    augeasproviders_core: "#{source_dir}/../augeasproviders_core"
+    augeasproviders_grub: "#{source_dir}/../augeasproviders_grub"
+    concat: "#{source_dir}/../concat"
+    functions: "#{source_dir}/../functions"
+    iptables: "#{source_dir}/../iptables"
+    logrotate: "#{source_dir}/../logrotate"
+    pki: "#{source_dir}/../pki"
+    stdlib: "#{source_dir}/../stdlib"
+    stunnel: "#{source_dir}/../stunnel"
+    tcpwrappers: "#{source_dir}/../tcpwrappers"
