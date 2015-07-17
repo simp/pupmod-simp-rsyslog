@@ -1,19 +1,17 @@
 <%
-opts = "-c#{@compat_mode}"
-
-if not @hostlist.empty? then
-  opts = opts + " -l #{Array(@hostlist).join(':')}"
+if not @host_list.empty?
+  opts = opts + " -l #{Array(@host_list).join(':')}"
 end
 
-if not @domainlist.empty? then
-  opts = opts + " -s #{Array(@domainlist).join(':')}"
+if not @domain_list.empty?
+  opts = opts + " -s #{Array(@domain_list).join(':')}"
 end
 
-if @suppress_noauth_warn then
+if @suppress_noauth_warn
   opts = opts + " -w"
 end
 
-if @disable_remote_dns then
+if @disable_remote_dns
   opts = opts + " -x"
 end
 -%>

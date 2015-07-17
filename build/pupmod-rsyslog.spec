@@ -1,15 +1,13 @@
 Summary: Rsyslog Puppet Module
 Name: pupmod-rsyslog
-Version: 4.1.0
-Release: 14
+Version: 5.0.0
+Release: 0
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
-Requires: pupmod-concat >= 4.0.0-0
 Requires: pupmod-functions >= 2.1.0-0
-Requires: puppet >= 3.3.0
-Requires: pupmod-stunnel >= 4.1.0-3
+Requires: puppet >= 3.7
 Requires: pupmod-logrotate >= 4.1.0-0
 Requires: pupmod-tcpwrappers >= 2.1.0-0
 Requires: pupmod-common >= 4.2.0-13
@@ -60,8 +58,10 @@ fi
 # Post uninstall stuff
 
 %changelog
-* Tue Feb 28 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.0-14
-- Ensure that the lack of specified rsyslog servers does not fail the compile.
+* Tue Jul 21 2015 Kendall Moore <kmoore@keywcorp.com> - 5.0.0-0
+- Support RSyslog versions >= 7
+- Remove legacy style RainerScript where possible
+- Use new style SIMP puppet module layout
 
 * Thu Feb 19 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.0-13
 - Migrated to the new 'simp' environment.

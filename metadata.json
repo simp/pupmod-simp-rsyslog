@@ -1,0 +1,53 @@
+{
+  "name":    "simp-rsyslog",
+  "version": "5.0.0",
+  "author":  "SIMP",
+  "summary": "A puppet module to support RSyslog versions 7 and higher using new style RainerScript.",
+  "license": "Apache-2.0",
+  "source":  "https://github.com/simp/pupmod-simp-rsyslog",
+  "project_page": "https://github.com/simp/pupmod-simp-rsyslog",
+  "issues_url":   "https://github.com/simp/pupmod-simp-rsyslog/issues",
+  "tags": [ "simp", "logging", "rsyslog" ],
+  "dependencies": [
+    {
+      "name": "puppetlabs-stdlib",
+      "version_requirement": ">= 4.1.0"
+    },
+    {
+      "name": "simp-iptables",
+      "version_requirement": ">= 4.1.0"
+    },
+    {
+      "name": "simp-logrotate",
+      "version_requirement": ">= 4.1.0-2"
+    },
+    {
+      "name": "simp-simplib",
+      "version_requirement": ">= 4.1.0"
+    },
+    {
+      "name": "simp-pki",
+      "version_requirement": ">= 4.1.0-4"
+    },
+    {
+      "name": "simp-tcpwrappers",
+      "version_requirement": ">= 3.0.0-2"
+    }
+  ],
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "CentOS",
+      "operatingsystemrelease": [
+        "6",
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "RedHat",
+      "operatingsystemrelease": [
+        "6",
+        "7"
+      ]
+    }
+  ]
+}
