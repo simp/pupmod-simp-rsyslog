@@ -1,53 +1,52 @@
 require 'spec_helper'
 
 describe 'rsyslog' do
-  let(:facts) {{
-    :hardwaremodel => 'x86_64'
-  }}
+  shared_examples_for 'a structured module' do
+    it { is_expected.to compile.with_all_deps }
+    it { is_expected.to create_class('rsyslog') }
+    it { is_expected.to contain_class('rsyslog') }
+    it { is_expected.to contain_class('rsyslog::params') }
+    it { is_expected.to contain_class('rsyslog::install').that_comes_before('rsyslog::config') }
+    it { is_expected.to contain_class('rsyslog::config') }
+    it { is_expected.to contain_class('rsyslog::service').that_subscribes_to('rsyslog::config') }
 
-  it { should create_class('rsyslog') }
+    it { is_expected.to contain_service('rsyslog') }
+    it { is_expected.to contain_package('rsyslog.x86_64').with_ensure('latest') }
+    it { is_expected.to contain_package('rsyslog.i386').with_ensure('absent') }
+  end
 
-  it { should compile.with_all_deps }
-  it { should contain_class('logrotate') }
-  it { should contain_package('rsyslog.x86_64') }
-  it { should contain_package('rsyslog.i386').with_ensure('absent') }
+  context 'supported operating systems' do
+    on_supported_os.each do |os, facts|
+      context "on #{os}" do
+        let(:facts) do
+          facts
+        end
 
-  it { should create_concat_build('rsyslog').with({
-      :target => '/etc/rsyslog.conf'
-    })
-  }
+        context 'rsyslog class without any parameters' do
+          let(:params) {{ }}
+          it_behaves_like 'a structured module'
+          it { is_expected.to contain_class('rsyslog').with_client_nets(['127.0.0.1/32']) }
+          it { is_expected.to contain_class('rsyslog').with_service_name('rsyslog') }
+          it { is_expected.to contain_class('rsyslog').with_package_name('rsyslog') }
+          it { is_expected.to contain_class('rsyslog').with_tls_package_name('rsyslog-gnutls') }
+        end
 
-  it { should create_file('/etc/rsyslog.conf').with({
-      :ensure    => 'present',
-      :notify    => 'Service[rsyslog]',
-      :require   => 'Package[rsyslog.x86_64]',
-      :subscribe => 'Concat_build[rsyslog]'
-    })
-  }
+        context 'rsyslog class with logging enabled' do
+          let(:parms) {{
+            :enable_logging => true
+          }}
+          ###it_behaves_like 'a structured module'
+          it { is_expected.to contain_class('rsyslog::config::logging') }
+        end
 
-  it { should create_file('/etc/rsyslog.d/puppet_managed').with({
-      :ensure  => 'directory',
-      :notify  => 'Concat_build[rsyslog]',
-      :require => 'Package[rsyslog.x86_64]'
-    })
-  }
-
-  it { should create_file('/etc/rsyslog.d/README.conf').with({
-      :ensure   => 'present',
-      :content  => /Place .conf files that rsyslog should process into this directory/,
-      :require  => 'Package[rsyslog.x86_64]'
-    })
-  }
-
-  it { should create_file('/var/spool/rsyslog').with({
-      :ensure  => 'directory',
-      :require => 'Package[rsyslog.x86_64]'
-    })
-  }
-
-  it { should contain_service('rsyslog').with({
-      :ensure  => 'running',
-      :require => ['File[/etc/rsyslog.conf]', 'Package[rsyslog.x86_64]']
-    })
-  }
+        context 'rsyslog class with PKI enabled' do
+          let(:parms) {{
+            :enable_pki => true
+          }}
+          ###it_behaves_like 'a structured module'
+          it { is_expected.to contain_class('rsyslog::config::pki') }
+        end
+      end
+    end
+  end
 end
