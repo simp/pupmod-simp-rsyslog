@@ -1,0 +1,16 @@
+<%
+  t_deftmp = "defaultTemplate"
+
+  if @default_template =~ /traditional/i then
+    t_deftmp = "RSYSLOG_TraditionalFileFormat"
+  elsif @default_template =~ /original/i then
+    t_deftmp = "RSYSLOG_FileFormat"
+  elsif @default_template =~ /forward/i then
+    t_deftmp = "RSYSLOG_ForwardFormat"
+  end
+-%>
+<% if t_deftmp == 'default_template' -%>
+$template defaultTemplate,"<%= @default_template %>"
+<% else -%>
+$template defaultTemplate,"<%= t_deftmp %>"
+<% end -%>

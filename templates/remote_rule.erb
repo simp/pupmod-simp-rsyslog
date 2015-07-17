@@ -1,0 +1,205 @@
+<% t_bool_xlat = {
+  true  => 'on',
+  false => 'off'
+} -%>
+<% t_host,t_port = @dest.first.split(":") -%>
+<% t_port = '514' if t_port.empty? -%>
+<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %>
+action(
+  type="omfwd"
+  protocol="<%= @dest_type %>"
+  target="<%= t_host %>"
+  port="<%= t_port %>"
+<% if !@tcp_framing.empty? -%>
+  TCP_Framing="<%= @tcp_framing %>"
+<% end -%>
+<% if !@zip_level.empty? -%>
+  ZipLevel="<%= @zip_level %>"
+<% end -%>
+<% if !@max_error_messages.empty? -%>
+# TODO: Implement this once we upgrade to a newer version of RSyslog.
+#  maxErrorMessages="<%= @max_error_messages %>"
+<% end -%>
+<% if !@compression_mode.empty? -%>
+# TODO: Implement this once we upgrade to a newer version of RSyslog.
+#  compression.mode="<%= @compression_mode %>"
+<% end -%>
+<% if @compression_stream_flush_on_tx_end -%>
+# TODO: Implement this once we upgrade to a newer version of RSyslog.
+#  compression.stream.flushOnTXEnd="on"
+<% else -%>
+# TODO: Implement this once we upgrade to a newer version of RSyslog.
+#  compression.stream.flushOnTXEnd="off"
+<% end -%>
+<% if !@rebind_interval.empty? -%>
+  RebindInterval="<%= @rebind_interval %>"
+<% end -%>
+<% if @l_use_tls -%>
+<%   if !@stream_driver.empty? -%>
+  StreamDriver="<%= @stream_driver %>"
+<%   end -%>
+<%   if !@stream_driver_mode.empty? -%>
+  StreamDriverMode="<%= @stream_driver_mode %>"
+<%   end -%>
+<%   if !@stream_driver_auth_mode.empty? -%>
+  StreamDriverAuthMode="<%= @stream_driver_auth_mode %>"
+<%   end -%>
+<%   if !@stream_driver_permitted_peers.empty? -%>
+  StreamDriverPermittedPeers="<%= @stream_driver_permitted_peers %>"
+<%   end -%>
+<% end -%>
+<% if @resend_last_msg_on_reconnect -%>
+  ResendLastMSGOnReconnect="on"
+<% else -%>
+  ResendLastMSGOnReconnect="off"
+<% end -%>
+<% if !@queue_filename.empty? -%>
+  queue.filename="<%= @queue_filename %>"
+<% end -%>
+<% if !@queue_spool_directory.empty? -%>
+  queue.spoolDirectory="<%= @queue_spool_directory %>"
+<% end -%>
+<% if !@queue_size.empty? -%>
+  queue.size="<%= @queue_size %>"
+<% end -%>
+  queue.dequeuebatchsize="<%= @queue_dequeue_batch_size %>"
+<% if !@queue_max_disk_space.empty? -%>
+  queue.maxdiskspace="<%= @queue_max_disk_space %>"
+<% end -%>
+<% if !@queue_high_watermark.empty? -%>
+  queue.highwatermark="<%= @queue_high_watermark %>"
+<% end -%>
+  queue.lowwatermark="<%= @queue_low_watermark %>"
+<% if !@queue_full_delay_mark.empty? -%>
+  queue.fulldelaymark="<%= @queue_full_delay_mark %>"
+<% end -%>
+<% if !@queue_light_delay_mark.empty? -%>
+  queue.lightdelaymark="<%= @queue_light_delay_mark %>"
+<% end -%>
+  queue.discardmark="<%= @queue_discard_mark %>"
+  queue.discardseverity="<%= @queue_discard_severity %>"
+<% if !@queue_checkpoint_interval.empty? -%>
+  queue.checkpointinterval="<%= @queue_checkpoint_interval %>"
+<% end -%>
+  queue.syncqueuefiles="<%= t_bool_xlat[@queue_sync_queue_files] %>"
+  queue.type="<%= @queue_type %>"
+  queue.workerthreads="<%= @queue_worker_threads %>"
+  queue.timeoutshutdown="<%= @queue_timeout_shutdown %>"
+  queue.timeoutactioncompletion="<%= @queue_timeout_action_completion %>"
+  queue.timeoutenqueue="<%= @queue_timeout_enqueue %>"
+  queue.timeoutworkerthreadshutdown="<%= @queue_timeout_worker_thread_shutdown %>"
+  queue.workerthreadminimummessages="<%= @queue_worker_thread_minimum_messages %>"
+  queue.maxfilesize="<%= @queue_max_file_size %>"
+  queue.saveonshutdown="<%= t_bool_xlat[@queue_save_on_shutdown] %>"
+  queue.dequeueslowdown="<%= @queue_dequeue_slowdown %>"
+<% if !@queue_dequeue_time_begin.empty? -%>
+  queue.dequeuetimebegin="<%= @queue_dequeue_time_begin %>"
+<% end -%>
+<% if !@queue_dequeue_time_end.empty? -%>
+  queue.dequeuetimeend="<%= @queue_dequeue_time_end %>"
+<% end -%>
+)
+<% if @l_allow_failover
+     if @l_failover_servers.length > 0
+       @l_failover_servers.each do |s_target|
+         s_host,s_port = s_target.split(":")
+         s_port = '514' if s_port.empty?
+-%>
+& action(
+  type="omfwd"
+  protocol="<%= @dest_type %>"
+  target="<%= s_host %>"
+  port="<%= s_port %>"
+  action.execOnlyWhenPreviousIsSuspended="on"
+<% if !@tcp_framing.empty? -%>
+  TCP_Framing="<%= @tcp_framing %>"
+<% end -%>
+<% if !@zip_level.empty? -%>
+  ZipLevel="<%= @zip_level %>"
+<% end -%>
+<% if !@max_error_messages.empty? -%>
+# TODO: Implement this once we upgrade to a newer version of RSyslog.
+#  maxErrorMessages="<%= @max_error_messages %>"
+<% end -%>
+<% if !@compression_mode.empty? -%>
+# TODO: Implement this once we upgrade to a newer version of RSyslog.
+#  compression.mode="<%= @compression_mode %>"
+<% end -%>
+<% if @compression_stream_flush_on_tx_end -%>
+# TODO: Implement this once we upgrade to a newer version of RSyslog.
+#  compression.stream.flushOnTXEnd="on"
+<% else -%>
+# TODO: Implement this once we upgrade to a newer version of RSyslog.
+#  compression.stream.flushOnTXEnd="off"
+<% end -%>
+<% if !@rebind_interval.empty? -%>
+  RebindInterval="<%= @rebind_interval %>"
+<% end -%>
+<% if @l_use_tls -%>
+<%   if !@stream_driver.empty? -%>
+  StreamDriver="<%= @stream_driver %>"
+<%   end -%>
+<%   if !@stream_driver_mode.empty? -%>
+  StreamDriverMode="<%= @stream_driver_mode %>"
+<%   end -%>
+<%   if !@stream_driver_auth_mode.empty? -%>
+  StreamDriverAuthMode="<%= @stream_driver_auth_mode %>"
+<%   end -%>
+<%   if !@stream_driver_permitted_peers.empty? -%>
+  StreamDriverPermittedPeers="<%= @stream_driver_permitted_peers %>"
+<%   end -%>
+<% end -%>
+<% if @resend_last_msg_on_reconnect -%>
+  ResendLastMSGOnReconnect="on"
+<% else -%>
+  ResendLastMSGOnReconnect="off"
+<% end -%>
+<% if !@queue_filename.empty? -%>
+  queue.filename="<%= @queue_filename %>"
+<% end -%>
+<% if !@queue_spool_directory.empty? -%>
+  queue.spoolDirectory="<%= @queue_spool_directory %>"
+<% end -%>
+<% if !@queue_size.empty? -%>
+  queue.size="<%= @queue_size %>"
+<% end -%>
+  queue.dequeuebatchsize="<%= @queue_dequeue_batch_size %>"
+<% if !@queue_max_disk_space.empty? -%>
+  queue.maxdiskspace="<%= @queue_max_disk_space %>"
+<% end -%>
+<% if !@queue_high_watermark.empty? -%>
+  queue.highwatermark="<%= @queue_high_watermark %>"
+<% end -%>
+  queue.lowwatermark="<%= @queue_low_watermark %>"
+<% if !@queue_full_delay_mark.empty? -%>
+  queue.fulldelaymark="<%= @queue_full_delay_mark %>"
+<% end -%>
+<% if !@queue_light_delay_mark.empty? -%>
+  queue.lightdelaymark="<%= @queue_light_delay_mark %>"
+<% end -%>
+  queue.discardmark="<%= @queue_discard_mark %>"
+  queue.discardseverity="<%= @queue_discard_severity %>"
+<% if !@queue_checkpoint_interval.empty? -%>
+  queue.checkpointinterval="<%= @queue_checkpoint_interval %>"
+<% end -%>
+  queue.syncqueuefiles="<%= t_bool_xlat[@queue_sync_queue_files] %>"
+  queue.type="<%= @queue_type %>"
+  queue.workerthreads="<%= @queue_worker_threads %>"
+  queue.timeoutshutdown="<%= @queue_timeout_shutdown %>"
+  queue.timeoutactioncompletion="<%= @queue_timeout_action_completion %>"
+  queue.timeoutenqueue="<%= @queue_timeout_enqueue %>"
+  queue.timeoutworkerthreadshutdown="<%= @queue_timeout_worker_thread_shutdown %>"
+  queue.workerthreadminimummessages="<%= @queue_worker_thread_minimum_messages %>"
+  queue.maxfilesize="<%= @queue_max_file_size %>"
+  queue.saveonshutdown="<%= t_bool_xlat[@queue_save_on_shutdown] %>"
+  queue.dequeueslowdown="<%= @queue_dequeue_slowdown %>"
+<% if !@queue_dequeue_time_begin.empty? -%>
+  queue.dequeuetimebegin="<%= @queue_dequeue_time_begin %>"
+<% end -%>
+<% if !@queue_dequeue_time_end.empty? -%>
+  queue.dequeuetimeend="<%= @queue_dequeue_time_end %>"
+<% end -%>
+)
+<% end
+  end
+end -%>
