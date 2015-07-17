@@ -1,0 +1,135 @@
+<% t_bool_xlat = {
+  true  => 'on',
+  false => 'off'
+} -%>
+<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %> {
+  action(
+    type="omfile"
+<% if !@target_log_file.empty? -%>
+    file="<%= @target_log_file %>"
+<% end -%>
+<% if !@dyna_file.empty? -%>
+    dynaFile="<%= @dyna_file %>"
+<% end -%>
+<% if !@template.empty? -%>
+    template="<%= @template %>"
+<% end -%>
+<% if !@dyna_file_cache_size.empty? -%>
+    dynaFileCacheSize="<%= @dyna_file_cache_size %>"
+<% end -%>
+<% if !@zip_level.empty? -%>
+    zipLevel="<%= @zip_level %>"
+<% end -%>
+<% if @very_robust_zip -%>
+    veryRobustZip="on"
+<% end -%>
+<% if !@flush_interval.empty? -%>
+    flushInterval="<%= @flush_interval %>"
+<% end -%>
+<% if @async_writing -%>
+    asyncWriting="on"
+<% end -%>
+<% if @flush_on_tx_end -%>
+    flushOnTXEnd="on"
+<% end -%>
+<% if !@io_buffer_size.empty? -%>
+    ioBufferSize="<%= @io_buffer_size %>"
+<% end -%>
+<% if !@io_buffer_size.empty? -%>
+    ioBufferSize="<%= @io_buffer_size %>"
+<% end -%>
+<% if !@dir_owner.empty? -%>
+    dirOwner="<%= @dir_owner %>"
+<% end -%>
+<% if !@dir_owner_num.empty? -%>
+    dirOwnerNum="<%= @dir_owner_num %>"
+<% end -%>
+<% if !@dir_group.empty? -%>
+    dirGroup="<%= @dir_group %>"
+<% end -%>
+<% if !@dir_group_num.empty? -%>
+    dirGroupNum="<%= @dir_group_num %>"
+<% end -%>
+<% if !@file_owner.empty? -%>
+    fileOwner="<%= @file_owner %>"
+<% end -%>
+<% if !@file_owner_num.empty? -%>
+    fileOwnerNum="<%= @file_owner_num %>"
+<% end -%>
+<% if !@file_group.empty? -%>
+    fileGroup="<%= @file_group %>"
+<% end -%>
+<% if !@file_group_num.empty? -%>
+    fileGroupNum="<%= @file_group_num %>"
+<% end -%>
+<% if !@file_create_mode.empty? -%>
+    fileCreateMode="<%= @file_create_mode %>"
+<% end -%>
+<% if !@dir_create_mode.empty? -%>
+    dirCreateMode="<%= @dir_create_mode %>"
+<% end -%>
+<% if @fail_on_chown_failure -%>
+    failOnChownFailure="on"
+<% end -%>
+<% if @create_dirs -%>
+    createDirs="on"
+<% end -%>
+<% if @sync -%>
+    sync="on"
+<% end -%>
+<% if !@sig_provider.empty? -%>
+    sig.provider="<%= @sig_provider %>"
+<% end -%>
+<% if !@cry_provider.empty? -%>
+    cry.provider="<%= @cry_provider %>"
+<% end -%>
+<% if !@queue_filename.empty? -%>
+    queue.filename="<%= @queue_filename %>"
+<% end -%>
+<% if !@queue_spool_directory.empty? -%>
+    queue.spoolDirectory="<%= @queue_spool_directory %>"
+<% end -%>
+<% if !@queue_size.empty? -%>
+    queue.size="<%= @queue_size %>"
+<% end -%>
+    queue.dequeuebatchsize="<%= @queue_dequeue_batch_size %>"
+<% if !@queue_max_disk_space.empty? -%>
+    queue.maxdiskspace="<%= @queue_max_disk_space %>"
+<% end -%>
+<% if !@queue_high_watermark.empty? -%>
+    queue.highwatermark="<%= @queue_high_watermark %>"
+<% end -%>
+    queue.lowwatermark="<%= @queue_low_watermark %>"
+<% if !@queue_full_delay_mark.empty? -%>
+    queue.fulldelaymark="<%= @queue_full_delay_mark %>"
+<% end -%>
+<% if !@queue_light_delay_mark.empty? -%>
+    queue.lightdelaymark="<%= @queue_light_delay_mark %>"
+<% end -%>
+    queue.discardmark="<%= @queue_discard_mark %>"
+    queue.discardseverity="<%= @queue_discard_severity %>"
+<% if !@queue_checkpoint_interval.empty? -%>
+    queue.checkpointinterval="<%= @queue_checkpoint_interval %>"
+<% end -%>
+    queue.syncqueuefiles="<%= t_bool_xlat[@queue_sync_queue_files] %>"
+    queue.type="<%= @queue_type %>"
+    queue.workerthreads="<%= @queue_worker_threads %>"
+    queue.timeoutshutdown="<%= @queue_timeout_shutdown %>"
+    queue.timeoutactioncompletion="<%= @queue_timeout_action_completion %>"
+    queue.timeoutenqueue="<%= @queue_timeout_enqueue %>"
+    queue.timeoutworkerthreadshutdown="<%= @queue_timeout_worker_thread_shutdown %>"
+    queue.workerthreadminimummessages="<%= @queue_worker_thread_minimum_messages %>"
+    queue.maxfilesize="<%= @queue_max_file_size %>"
+    queue.saveonshutdown="<%= t_bool_xlat[@queue_save_on_shutdown] %>"
+    queue.dequeueslowdown="<%= @queue_dequeue_slowdown %>"
+<% if !@queue_dequeue_time_begin.empty? -%>
+    queue.dequeuetimebegin="<%= @queue_dequeue_time_begin %>"
+<% end -%>
+<% if !@queue_dequeue_time_end.empty? -%>
+    queue.dequeuetimeend="<%= @queue_dequeue_time_end %>"
+<% end -%>
+  )
+<% if @stop_processing -%>
+  stop
+<% end -%>
+}
