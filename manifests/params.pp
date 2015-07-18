@@ -4,8 +4,8 @@
 #
 # == Authors
 #
-# * Mike Riddle <mriddle@onyxpoint.com>
 # * Kendall Moore <kmoore@keywcorp.com>
+# * Mike Riddle <mriddle@onyxpoint.com>
 #
 class rsyslog::params {
   $service_name       = 'rsyslog'

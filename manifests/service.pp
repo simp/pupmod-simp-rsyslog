@@ -13,10 +13,6 @@ class rsyslog::service {
     enable     => true,
     binary     => '/usr/bin/rsyslog',
     hasrestart => true,
-    hasstatus  => true,
-    require    => [
-      File['/etc/rsyslog.conf'],
-      Package["rsyslog.$::hardwaremodel"]
-    ]
+    hasstatus  => true
   }
 }

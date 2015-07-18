@@ -3,7 +3,15 @@
   false => 'off'
 } -%>
 <% t_host,t_port = @dest.first.split(":") -%>
-<% t_port = '514' if t_port.empty? -%>
+<%
+  if t_port.nil? || t_port.empty?
+    if @_use_tls
+      t_port = '6514'
+    else
+      t_port = '514'
+    end
+  end
+-%>
 <%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %>
 action(
   type="omfwd"
@@ -17,24 +25,16 @@ action(
   ZipLevel="<%= @zip_level %>"
 <% end -%>
 <% if !@max_error_messages.empty? -%>
-# TODO: Implement this once we upgrade to a newer version of RSyslog.
-#  maxErrorMessages="<%= @max_error_messages %>"
+  maxErrorMessages="<%= @max_error_messages %>"
 <% end -%>
 <% if !@compression_mode.empty? -%>
-# TODO: Implement this once we upgrade to a newer version of RSyslog.
-#  compression.mode="<%= @compression_mode %>"
+  compression.mode="<%= @compression_mode %>"
 <% end -%>
-<% if @compression_stream_flush_on_tx_end -%>
-# TODO: Implement this once we upgrade to a newer version of RSyslog.
-#  compression.stream.flushOnTXEnd="on"
-<% else -%>
-# TODO: Implement this once we upgrade to a newer version of RSyslog.
-#  compression.stream.flushOnTXEnd="off"
-<% end -%>
+  compression.stream.flushOnTXEnd="<%= t_bool_xlat[@compression_stream_flush_on_tx_end] %>"
 <% if !@rebind_interval.empty? -%>
   RebindInterval="<%= @rebind_interval %>"
 <% end -%>
-<% if @l_use_tls -%>
+<% if @_use_tls -%>
 <%   if !@stream_driver.empty? -%>
   StreamDriver="<%= @stream_driver %>"
 <%   end -%>
@@ -48,17 +48,8 @@ action(
   StreamDriverPermittedPeers="<%= @stream_driver_permitted_peers %>"
 <%   end -%>
 <% end -%>
-<% if @resend_last_msg_on_reconnect -%>
-  ResendLastMSGOnReconnect="on"
-<% else -%>
-  ResendLastMSGOnReconnect="off"
-<% end -%>
-<% if !@queue_filename.empty? -%>
-  queue.filename="<%= @queue_filename %>"
-<% end -%>
-<% if !@queue_spool_directory.empty? -%>
-  queue.spoolDirectory="<%= @queue_spool_directory %>"
-<% end -%>
+  ResendLastMSGOnReconnect="<%= t_bool_xlat[@resend_last_msg_on_reconnect] %>"
+  queue.filename="<%= @_queue_filename %>"
 <% if !@queue_size.empty? -%>
   queue.size="<%= @queue_size %>"
 <% end -%>
@@ -99,11 +90,18 @@ action(
   queue.dequeuetimeend="<%= @queue_dequeue_time_end %>"
 <% end -%>
 )
-<% if @l_allow_failover
-     if @l_failover_servers.length > 0
-       @l_failover_servers.each do |s_target|
-         s_host,s_port = s_target.split(":")
-         s_port = '514' if s_port.empty?
+<%
+  if @_allow_failover
+  if @_failover_servers.length > 0
+    @_failover_servers.each do |s_target|
+      s_host,s_port = s_target.split(":")
+      if s_port.nil? || s_port.empty?
+        if @_use_tls
+          s_port = '6514'
+        else
+          s_port = '514'
+        end
+      end
 -%>
 & action(
   type="omfwd"
@@ -118,24 +116,16 @@ action(
   ZipLevel="<%= @zip_level %>"
 <% end -%>
 <% if !@max_error_messages.empty? -%>
-# TODO: Implement this once we upgrade to a newer version of RSyslog.
-#  maxErrorMessages="<%= @max_error_messages %>"
+  maxErrorMessages="<%= @max_error_messages %>"
 <% end -%>
 <% if !@compression_mode.empty? -%>
-# TODO: Implement this once we upgrade to a newer version of RSyslog.
-#  compression.mode="<%= @compression_mode %>"
+  compression.mode="<%= @compression_mode %>"
 <% end -%>
-<% if @compression_stream_flush_on_tx_end -%>
-# TODO: Implement this once we upgrade to a newer version of RSyslog.
-#  compression.stream.flushOnTXEnd="on"
-<% else -%>
-# TODO: Implement this once we upgrade to a newer version of RSyslog.
-#  compression.stream.flushOnTXEnd="off"
-<% end -%>
+  compression.stream.flushOnTXEnd="<%= t_bool_xlat[@compression_stream_flush_on_tx_end] %>"
 <% if !@rebind_interval.empty? -%>
   RebindInterval="<%= @rebind_interval %>"
 <% end -%>
-<% if @l_use_tls -%>
+<% if @_use_tls -%>
 <%   if !@stream_driver.empty? -%>
   StreamDriver="<%= @stream_driver %>"
 <%   end -%>
@@ -149,17 +139,8 @@ action(
   StreamDriverPermittedPeers="<%= @stream_driver_permitted_peers %>"
 <%   end -%>
 <% end -%>
-<% if @resend_last_msg_on_reconnect -%>
-  ResendLastMSGOnReconnect="on"
-<% else -%>
-  ResendLastMSGOnReconnect="off"
-<% end -%>
-<% if !@queue_filename.empty? -%>
-  queue.filename="<%= @queue_filename %>"
-<% end -%>
-<% if !@queue_spool_directory.empty? -%>
-  queue.spoolDirectory="<%= @queue_spool_directory %>"
-<% end -%>
+  ResendLastMSGOnReconnect="<%= t_bool_xlat[@resend_last_msg_on_reconnect] %>"
+  queue.filename="<%= @_queue_filename %>"
 <% if !@queue_size.empty? -%>
   queue.size="<%= @queue_size %>"
 <% end -%>

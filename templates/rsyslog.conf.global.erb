@@ -6,7 +6,7 @@ $IncludeConfig /etc/rsyslog.simp.d/07_simp_drop_rules/
 # For failover to be defined and parse properly, we must place it somewhere
 # after the first rule is defined. Therefore, we are creating this noop rule.
 
-if $syslogfacility-test == 'local0' and $msg startswith 'placeholder_rule' then continue
+if $syslogfacility == 'local0' and $msg startswith 'placeholder_rule' then continue
 $IncludeConfig /etc/rsyslog.simp.d/10_simp_remote/
 <% if @include_rsyslog_d -%>
 $IncludeConfig /etc/rsyslog.d/

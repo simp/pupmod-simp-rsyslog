@@ -1,15 +1,6 @@
 <%
-  t_deftmp = "defaultTemplate"
-
-  if @default_template =~ /traditional/i
-    t_deftmp = "RSYSLOG_TraditionalFileFormat"
-  elsif @default_template =~ /original/i
-    t_deftmp = "RSYSLOG_FileFormat"
-  elsif @default_template =~ /forward/i
-    t_deftmp = "RSYSLOG_ForwardFormat"
-  end
-
   if @main_msg_queue_size.empty?
+    # The number of 512 byte messages that can fit into 1% of the total system memory. Or 2 gig max.
     t_main_msg_queue_size = [(([@memorysize_mb.to_i, 128].max * 1048576 * 0.01)/512).to_i,2097152].min
   else
     t_main_msg_queue_size = @main_msg_queue_size.to_i
@@ -17,7 +8,7 @@
 
   t_main_msg_queue_high_watermark = @main_msg_queue_high_watermark
   if @main_msg_queue_high_watermark.empty?
-    t_main_msg_queue_high_watermark = (t_main_msg_queue_size * 0.98).round
+    t_main_msg_queue_high_watermark = (t_main_msg_queue_size * 0.90).round
   end
 
   t_main_msg_queue_low_watermark = @main_msg_queue_low_watermark
@@ -27,7 +18,7 @@
 
   t_main_msg_queue_discardmark = @main_msg_queue_discardmark.to_i
   if @main_msg_queue_discardmark.empty? or (t_main_msg_queue_discardmark < t_main_msg_queue_high_watermark)
-    t_main_msg_queue_discardmark = (t_main_msg_queue_size * 2).round
+    t_main_msg_queue_discardmark = (t_main_msg_queue_size * 0.98).round
   end
 
   t_main_msg_queue_worker_thread_minimum_messages = @main_msg_queue_worker_thread_minimum_messages
@@ -56,15 +47,16 @@
 $UMASK <%= @umask %>
 $EscapeControlCharactersOnReceive <%= @escape_control_characters_on_receive %>
 $ControlCharacterEscapePrefix <%= @control_character_escape_prefix %>
-$ActionFileDefaultTemplate <%= t_deftmp %>
+$ActionFileDefaultTemplate <%= @_default_template %>
 $RepeatedMsgReduction <%= @repeated_msg_reduction %>
 
 global(
   preserveFQDN="<%= t_bool_xlat[@preserve_fqdn] %>"
   dropMsgsWithMaliciousDnsPTRRecords="<%= @drop_msgs_with_malicious_dns_ptr_records %>"
+  workDirectory="<%= @work_directory %>"
 )
-
 <% if @lsbmajdistrelease.to_i < 7 -%>
+
 module(load="imklog")
 <% end -%>
 
@@ -93,13 +85,13 @@ module(load="imuxsock"
 )
 
 module(load="imfile")
-
 <% if @tcp_server -%>
+
 module(load="imptcp")
 input(type="imptcp" port="<%= @tcp_listen_port %>")
 <% end -%>
-
 <% if @tls_tcp_server -%>
+
 module(load="imtcp"
   StreamDriver.Mode="1"
   StreamDriver.AuthMode="<%= @action_send_stream_driver_auth_mode %>"
@@ -108,38 +100,35 @@ module(load="imtcp"
 )
 input(type="imtcp" port="<%= @tls_listen_port %>")
 <% end -%>
-
 <% if @udp_server -%>
+
 module(load="imudp")
 input(type="imudp"
   port="<%= @udp_listen_port %>"
   address="<%= @udp_server_address %>"
 )
 <% end -%>
-
 <% if @enable_tls or @tls_tcp_server -%>
+
+# These are legacy because CertFile has not been implemented in the new RainerScript.
 $DefaultNetstreamDriverCertFile <%= @default_net_stream_driver_cert_file %>
-global(
-  defaultNetstreamDriver="gtls"
-  defaultNetstreamDriverCAFile="<%= @default_net_stream_driver_ca_file %>"
-  defaultNetstreamDriverKeyFile="<%= @default_net_stream_driver_key_file %>"
-)
+$DefaultNetstreamDriver gtls
+$DefaultNetstreamDriverCAFile <%= @default_net_stream_driver_ca_file %>
+$DefaultNetstreamDriverKeyFile <%= @default_net_stream_driver_key_file %>
 <% end -%>
 
-$WorkDirectory <%= @work_directory %>
-
-# NOTE:
-# This should all be moved to main_queue once that is supported in the RHEL version of RSyslog.
-$MainMsgQueueType <%= @main_msg_queue_type %>
-$MainMsgQueueFilename <%= @main_msg_queue_filename %>
-$MainMsgQueueMaxFileSize <%= @main_msg_queue_max_file_size %>M
-$MainMsgQueueSize <%= t_main_msg_queue_size %>
-$MainMsgQueueHighWatermark <%= t_main_msg_queue_high_watermark %>
-$MainMsgQueueLowWatermark <%= t_main_msg_queue_low_watermark %>
-$MainMsgQueueDiscardMark <%= t_main_msg_queue_discardmark %>
-$MainMsgQueueWorkerThreadMinimumMessages <%= t_main_msg_queue_worker_thread_minimum_messages %>
-$MainMsgQueueWorkerThreads <%= t_main_msg_queue_worker_threads %>
-$MainMsgQueueTimeoutEnqueue <%= @main_msg_queue_timeout_enqueue %>
-$MainMsgQueueDequeueSlowdown <%= @main_msg_queue_dequeue_slowdown %>
-$MainMsgQueueSaveOnShutdown <%= @main_msg_queue_save_on_shutdown %>
-$MainMsgQueueMaxDiskSpace <%= t_main_msg_queue_max_disk_space %>
+main_queue(
+  queue.type="<%= @main_msg_queue_type %>"
+  queue.filename="<%= @main_msg_queue_filename %>"
+  queue.maxfilesize="<%= @main_msg_queue_max_file_size %>M"
+  queue.size="<%= t_main_msg_queue_size %>"
+  queue.highwatermark="<%= t_main_msg_queue_high_watermark %>"
+  queue.lowwatermark="<%= t_main_msg_queue_low_watermark %>"
+  queue.discardmark="<%= t_main_msg_queue_discardmark %>"
+  queue.workerthreadminimummessages="<%= t_main_msg_queue_worker_thread_minimum_messages %>"
+  queue.workerthreads="<%= t_main_msg_queue_worker_threads %>"
+  queue.timeoutenqueue="<%= @main_msg_queue_timeout_enqueue %>"
+  queue.dequeueslowdown="<%= @main_msg_queue_dequeue_slowdown %>"
+  queue.saveonshutdown="<%= @main_msg_queue_save_on_shutdown %>"
+  queue.maxdiskspace="<%= t_main_msg_queue_max_disk_space %>"
+)

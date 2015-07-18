@@ -81,7 +81,6 @@ define rsyslog::rule::local (
   $queue_dequeue_slowdown               = '0',
   $queue_dequeue_time_begin             = '',
   $queue_dequeue_time_end               = ''
-
 ) {
   validate_string($rule)
   if empty($dyna_file) {

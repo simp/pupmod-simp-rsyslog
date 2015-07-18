@@ -5,11 +5,16 @@
 #
 # == Parameters
 #
-# [*sert_source*]
-#  Type: Absolute Path/String
-#  Default: ''
-#
-#  The source of the system PKI certificates to copy into /etc/rsyslog.d/pki
+# [*cert_source*]
+#   Type: Absolute Path
+#   Default: ''
+#     If _$use_simp_pki_ is false, then pull all certificates from
+#     this valid Puppet File resource source. They should be in the
+#     same format as expected from the SIMP PKI structure.
+#     Example Layout:
+#       private/<fqdn>.pem
+#       public/<fqdn>.pub
+#       cacerts/cacerts.pem <- All CA certificates go here!
 #
 # == Authors
 #

@@ -1,7 +1,6 @@
 # == Class: rsyslog::install
 #
-# Installs the RSyslog packages necessary for use.
-# of RSyslog.
+# Installs the RSyslog packages necessary for use of RSyslog.
 #
 # == Authors
 #

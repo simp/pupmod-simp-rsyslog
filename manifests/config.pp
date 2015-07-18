@@ -8,31 +8,34 @@
 # Almost all of the variables come directly from rsyslog. The ones
 # that do not, or have unusual behavior, are noted here.
 #
-# [*mainMsgQueueSize*]
+# [*umask*]
+#   The umask that should be applied to the running process.
+#
+# [*main_msg_queue_size*]
 #   Type: Integer
 #   Default: The minimum of 1% of physical memory or 1G, based on a 512B message size.
 #     The maximum number of messages that may be stored in the memory queue.
 #
-# [*mainMsgQueueHighWatermark*]
+# [*main_msg_queue_high_watermark*]
 #   Type: Integer
-#   Default: 98% of $mainMsgQueueSize
+#   Default: 90% of $main_msg_queue_size
 #     The point at which the queue will start writing messages to disk
 #     as a number of messages.
 #
-# [*mainMsgQueueLowWatermark*]
+# [*main_msg_queue_low_watermark*]
 #   Type: Integer
-#   Default: 70% of $mainMsgQueueSize
+#   Default: 70% of $main_msg_queue_size
 #     The point at which the queue will stop writing messages to disk
 #     as a number of messages.
 #
-#     This must be *lower* than _mainMsgQueueHighWaterMark_
+#     This must be *lower* than _main_msg_queue_high_watermark_
 #
-# [*mainMsgQueueDiscardmark*]
+# [*main_msg_queue_discardmark*]
 #   Type: Integer
-#   Default: 2X of $mainMsgQueueSize
+#   Default: 98% of $main_msg_queue_size
 #   The point at which the queue will discard messages.
 #
-# [*mainMsgQueueWorkerThreadMinimumMessages*]
+# [*main_msg_queue_worker_thread_minimum_messages*]
 #   Type: Integer
 #   Default: ''
 #     The minimum number of messages in the queue before a new thread
@@ -40,15 +43,15 @@
 #
 #     If left empty (the default), will calculate the value based on
 #     the following formula:
-#       $mainMsgQueueSize/(($processorcount - 1)*4)
+#       $main_msg_queue_size/(($processorcount - 1)*4)
 #
-# [*mainMsgQueueWorkerThreads*]
+# [*main_msg_queue_worker_threads*]
 #   Type: Integer
 #   Default: ''
 #     The maximum number of threads to spawn on the system. Defaults
 #     to $processorcount - 1.
 #
-# [*mainMsgQueueMaxDiskSpace*]
+# [*main_msg_queue_max_disk_space*]
 #   Type: Integer
 #   Default: ''
 #     The maximum amount of disk space to use for the disk queue.
@@ -59,9 +62,9 @@
 #       100G  -> 100 Gigabytes
 #       100T  -> 100 Terabytes
 #       100P  -> 100 Petabytes
-#     If not specified, will default to ($mainMsgQueueSize * 1024)
+#     If not specified, will default to ($main_msg_queue_size * 1024)
 #
-# [*mainMsgQueueMaxFileSize*]
+# [*main_msg_queue_max_file_size*]
 #   Type: Integer
 #   Default: '5'
 #     The maximum file size, in Megabytes, that should be created when
@@ -69,7 +72,7 @@
 #     excessively large.
 #
 #
-# [*defaultTemplate*]
+# [*default_template*]
 #   The default template to use to output to various services. This one has
 #   been designed to work with external parsing tools that require the
 #   priority text.
@@ -83,39 +86,8 @@
 # [*interval*]
 #     The mark interval.
 #
-# [*tcpserver*]
-#     Set to true if the system is a syslog server.
-#
-# [*tcpServerRun*]
-#     Type: Port
-#     Default: '514'
-#       The port upon which to listen for unencrypted TCP connections.
-#
-# [*use_tls*]
-#   Type: Boolean
-#   Default: true
-#     If true, use TLS for TCP connections by default.
-#
-# [*tls_tcpserver*]
-#   Type: Boolean
-#   Default: false
-#     If true, run an encrypted TCP listener.
-#
-# [*tls_tcpMaxSessions*]
+# [*tls_tcp_max_sessions*]
 #     The maximum number of sessions to support. 200 is default.
-#
-# [*tls_tcpServerRun*]
-#   Type: Port
-#   Default: '6514'
-#     If _$tls_tcpserver_ is true, designates the port upon which to
-#     listen for incoming encrypted sessions. The port should not be
-#     changed if you are using SELinux.
-#
-# [*use_simp_pki*]
-#   Type: Boolean
-#   Default: true
-#     If true, use the SIMP 'pki' module to provide system
-#     certificates.
 #
 # [*cert_source*]
 #   Type: Absolute Path
@@ -128,24 +100,17 @@
 #       public/<fqdn>.pub
 #       cacerts/cacerts.pem <- All CA certificates go here!
 #
-# [*umask*]
-#   The umask that should be applied to the running process.
-#
 # [*ulimit_max_open_files*]
 #   The ulimit that should be set for the syslog server.
 #   1024 is fine for most purposes, but a collection server should bump this
 #   *way* up.
 #
-# [*compat_mode*]
-#   Sysconfig option to note what compatibility mode rsyslog is running in.
-#   See the -c option in rsyslogd(8) for more information.
-#
-# [*hostlist*]
+# [*host_list*]
 #   Sysconfig Option
 #   Array of hosts to be logged with their simple hostname.
 #   See the -l option in rsyslogd(8) for more information.
 #
-# [*domainlist*]
+# [*domain_list*]
 #     Sysconfig Option
 #     Array of domains that should be stripped off before logging.
 #     See the -s option in rsyslogd(8) for more information.
@@ -161,13 +126,6 @@
 #   Disable DNS for remote messages.
 #   See the -x option in rsyslogd(8) for more information.
 #
-# [*allow_failover*]
-#   Type: Boolean
-#   Default: false
-#   Enables failover to other log_servers listed in the log_servers variable in
-#   hiera. Before setting this to true, ensure you have more than one
-#   log_server listed in the hiera variable.  
-#
 # == Authors
 #
 # * Kendall Moore <mailto:kmoore@keywcorp.com>
@@ -180,20 +138,21 @@ class rsyslog::config (
   $control_character_escape_prefix                    = '#',
   $drop_msgs_with_malicious_dns_ptr_records           = 'off',
   $escape_control_characters_on_receive               = 'on',
+  $default_template                                   = 'original',
 
   # Parameters for imuxsock with sensible defaults.
   $syssock_ignore_timestamp                           = true,
   $syssock_ignore_own_messages                        = true,
   $syssock_use                                        = true,
-  $syssock_name                                       = '', 
-  $syssock_flow_control                               = false, 
-  $syssock_use_pid_from_system                        = false, 
-  $syssock_rate_limit_interval                        = '0', 
-  $syssock_rate_limit_burst                           = '1000', 
-  $syssock_rate_limit_severity                        = '5', 
-  $syssock_use_sys_timestamp                          = true, 
-  $syssock_annotate                                   = false, 
-  $syssock_parse_trusted                              = false, 
+  $syssock_name                                       = '',
+  $syssock_flow_control                               = false,
+  $syssock_use_pid_from_system                        = false,
+  $syssock_rate_limit_interval                        = '0',
+  $syssock_rate_limit_burst                           = '1000',
+  $syssock_rate_limit_severity                        = '5',
+  $syssock_use_sys_timestamp                          = true,
+  $syssock_annotate                                   = false,
+  $syssock_parse_trusted                              = false,
   $syssock_unlink                                     = true,
 
   # Main message queue global defaults.
@@ -225,7 +184,6 @@ class rsyslog::config (
   $action_send_stream_driver_permitted_peers          = hiera('log_servers',[]),
   $action_send_stream_driver_auth_mode                = 'x509/name',
   $ulimit_max_open_files                              = 'unlimited',
-  $compat_mode                                        = '5',
   $host_list                                          = '',
   $domain_list                                        = '',
   $suppress_noauth_warn                               = false,
@@ -251,6 +209,7 @@ class rsyslog::config (
   validate_integer($main_msg_queue_max_file_size)
   validate_array_member($drop_msgs_with_malicious_dns_ptr_records,['on','off'])
   validate_array_member($escape_control_characters_on_receive,['on','off'])
+  validate_string($default_template)
   validate_array_member($repeated_msg_reduction,['on','off'])
   validate_absolute_path($work_directory)
   validate_integer($interval)
@@ -263,7 +222,6 @@ class rsyslog::config (
   validate_string($action_send_stream_driver_auth_mode)
   validate_umask($umask)
   validate_re($ulimit_max_open_files,'^(unlimited|[0-9]*)$')
-  validate_integer($compat_mode)
   validate_bool($suppress_noauth_warn)
   validate_bool($disable_remote_dns)
   validate_bool($include_rsyslog_d)
@@ -275,6 +233,13 @@ class rsyslog::config (
     warning { 'Rsyslog':
       message => 'This server is defined as a server with $::rsyslog::is_server but no server type has been set. Available options are: rsyslog::tcp_server, rsyslog::tls_tcp_server, or rsyslog::udp_server. Please set which of these is applicable to your needs in hiera.'
     }
+  }
+
+  $_default_template = $default_template ? {
+    'traditional' => 'RSYSLOG_TraditionalFormat',
+    'original'    => 'RSYSLOG_FileFormat',
+    'forward'     => 'RSYSLOG_ForwardFormat',
+    default       => $default_template
   }
 
   # This is where the custom rules will go. They will be purged if not
@@ -289,7 +254,15 @@ class rsyslog::config (
     mode    => '0700'
   }
 
-  file { ['/etc/rsyslog.simp.d/00_simp_pre_logging','/etc/rsyslog.simp.d/05_simp_templates','/etc/rsyslog.simp.d/06_simp_console','/etc/rsyslog.simp.d/07_simp_drop_rules','/etc/rsyslog.simp.d/10_simp_remote', '/etc/rsyslog.simp.d/20_simp_other', '/etc/rsyslog.simp.d/99_simp_local']:
+  file { [
+    '/etc/rsyslog.simp.d/00_simp_pre_logging',
+    '/etc/rsyslog.simp.d/05_simp_templates',
+    '/etc/rsyslog.simp.d/06_simp_console',
+    '/etc/rsyslog.simp.d/07_simp_drop_rules',
+    '/etc/rsyslog.simp.d/10_simp_remote',
+    '/etc/rsyslog.simp.d/20_simp_other',
+    '/etc/rsyslog.simp.d/99_simp_local'
+  ]:
     ensure  => 'directory',
     owner   => 'root',
     group   => 'root',
@@ -362,12 +335,8 @@ class rsyslog::config (
     require => File['/etc/rsyslog.simp.d/00_simp_pre_logging']
   }
 
-  file { '/etc/rsyslog.simp.d/05_simp_templates/default.conf':
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0600',
-    content => template('rsyslog/templates.conf.erb'),
-    require => File['/etc/rsyslog.simp.d/05_simp_templates']
+  rsyslog::template::string { 'defaultTemplate':
+    string => $_default_template
   }
 
   # Set the maximum number of open files in the init script.

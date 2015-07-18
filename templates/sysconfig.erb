@@ -1,6 +1,4 @@
 <%
-opts = "-c#{@compat_mode}"
-
 if not @host_list.empty?
   opts = opts + " -l #{Array(@host_list).join(':')}"
 end
