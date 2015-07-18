@@ -230,8 +230,8 @@ class rsyslog::config (
   include 'rsyslog'
 
   if $::rsyslog::is_server and !($::rsyslog::tcp_server or $::rsyslog::tls_tcp_server or $::rsyslog::udp_server) {
-    warning { 'Rsyslog':
-      message => 'This server is defined as a server with $::rsyslog::is_server but no server type has been set. Available options are: rsyslog::tcp_server, rsyslog::tls_tcp_server, or rsyslog::udp_server. Please set which of these is applicable to your needs in hiera.'
+    notify { 'Rsyslog':
+      message => 'WARNING: This server is defined as a server with $::rsyslog::is_server but no server type has been set. Available options are: rsyslog::tcp_server, rsyslog::tls_tcp_server, or rsyslog::udp_server. Please set which of these is applicable to your needs in hiera.'
     }
   }
 
