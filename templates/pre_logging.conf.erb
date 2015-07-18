@@ -88,7 +88,12 @@ module(load="imfile")
 <% if @tcp_server -%>
 
 module(load="imptcp")
-input(type="imptcp" port="<%= @tcp_listen_port %>")
+<% if @tcp_listen_port.empty? -%>
+<%  t_tcp_listen_port = '514' -%>
+<% else -%>
+<% t_tcp_listen_port = @tcp_listen_port -%>
+<% end -%>
+input(type="imptcp" port="<%= t_tcp_listen_port %>")
 <% end -%>
 <% if @tls_tcp_server -%>
 
@@ -98,13 +103,23 @@ module(load="imtcp"
   PermittedPeer=<%= @tls_input_tcp_server_stream_driver_permitted_peers %>
   MaxSessions="<%= @tls_tcp_max_sessions %>"
 )
-input(type="imtcp" port="<%= @tls_listen_port %>")
+<% if @tls_listen_port.empty? -%>
+<%  t_tls_listen_port = '6514' -%>
+<% else -%>
+<% t_tls_listen_port = @tls_listen_port -%>
+<% end -%>
+input(type="imtcp" port="<%= t_tls_listen_port %>")
 <% end -%>
 <% if @udp_server -%>
 
 module(load="imudp")
+<% if @udp_listen_port.empty? -%>
+<%  t_udp_listen_port = '514' -%>
+<% else -%>
+<% t_udp_listen_port = @udp_listen_port -%>
+<% end -%>
 input(type="imudp"
-  port="<%= @udp_listen_port %>"
+  port="<%= t_udp_listen_port %>"
   address="<%= @udp_server_address %>"
 )
 <% end -%>

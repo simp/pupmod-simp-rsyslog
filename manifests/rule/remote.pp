@@ -92,7 +92,7 @@ define rsyslog::rule::remote (
   $queue_sync_queue_files               = false,
   # TODO: TLS failover does *not* work using a disk-assisted (LinkedList) queue here.
   # Use a direct queue if you need failover to function.
-  $queue_type                           = 'LinkedList',
+  $queue_type                           = 'Disk',
   $queue_worker_threads                 = '1',
   $queue_timeout_shutdown               = '0',
   $queue_timeout_action_completion      = '1000',
