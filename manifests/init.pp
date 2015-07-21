@@ -105,7 +105,7 @@ class rsyslog (
   validate_bool($allow_failover)
   if $allow_failover {
     if empty($failover_log_servers) {
-      fail("Rsyslog specified to allow failover when no failover servers have been defined. You must have at least two log servers listed in the log_servers variable in hiera for failover to work properly.")
+      fail('Rsyslog specified to allow failover when no failover servers have been defined. You must have at least two log servers listed in the log_servers variable in hiera for failover to work properly.')
     }
     validate_net_list($failover_log_servers)
   }

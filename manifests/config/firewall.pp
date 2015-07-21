@@ -18,6 +18,8 @@
 #* Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
 #
 class rsyslog::config::firewall {
+  include '::rsyslog'
+
   if $::rsyslog::tls_tcp_server {
     iptables::add_tcp_stateful_listen { 'syslog_tls_tcp':
       client_nets => $::rsyslog::client_nets,
@@ -32,7 +34,7 @@ class rsyslog::config::firewall {
     }
   }
 
-  if $udp_server {
+  if $::rsyslog::udp_server {
     iptables::add_udp_listen { 'syslog_udp':
       client_nets => $::rsyslog::client_nets,
       dports      => $::rsyslog::udp_listen_port

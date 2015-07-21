@@ -123,7 +123,7 @@ define rsyslog::rule::local (
   if !empty($queue_spool_directory) { validate_absolute_path($queue_spool_directory) }
   if !empty($queue_size) { validate_integer($queue_size) }
   validate_integer($queue_dequeue_batch_size)
-  if !empty($queue_max_disk_sapce) { validate_integer($queue_max_disk_space) }
+  if !empty($queue_max_disk_space) { validate_integer($queue_max_disk_space) }
   if !empty($queue_high_watermark) { validate_integer($queue_high_watermark) }
   validate_integer($queue_low_watermark)
   if !empty($queue_full_delay_mark) { validate_integer($queue_full_delay_mark) }

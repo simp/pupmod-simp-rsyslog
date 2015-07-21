@@ -266,10 +266,10 @@ class rsyslog::config (
   }
 
   file { '/etc/rsyslog.d':
-    ensure  => 'directory',
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0700'
+    ensure => 'directory',
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0700'
   }
 
   file { '/etc/rsyslog.d/README.conf':
@@ -277,15 +277,14 @@ class rsyslog::config (
     owner   => 'root',
     group   => 'root',
     mode    => '0700',
-    content =>
-      "# Place .conf files that rsyslog should process into this directory.\n"
+    content => "# Place .conf files that rsyslog should process into this directory.\n"
   }
 
   file { '/var/spool/rsyslog':
-    ensure  => 'directory',
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0700'
+    ensure => 'directory',
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0700'
   }
 
   if $enable_default_rules {
@@ -299,11 +298,11 @@ class rsyslog::config (
   }
 
   file { '/etc/rsyslog.simp.d/05_simp_templates/custom_templates.conf':
-    ensure   => 'present',
-    owner    => 'root',
-    group    => 'root',
-    mode     => '0600',
-    require  => File['/etc/rsyslog.simp.d/05_simp_templates']
+    ensure  => 'present',
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0600',
+    require => File['/etc/rsyslog.simp.d/05_simp_templates']
   }
 
   file { '/etc/rsyslog.conf':
@@ -315,10 +314,10 @@ class rsyslog::config (
   }
 
   file { '/etc/sysconfig/rsyslog':
-    owner    => 'root',
-    group    => 'root',
-    mode     => '0644',
-    content  => template('rsyslog/sysconfig.erb')
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+    content => template('rsyslog/sysconfig.erb')
   }
 
   file { '/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf':
@@ -335,8 +334,8 @@ class rsyslog::config (
 
   # Set the maximum number of open files in the init script.
   init_ulimit { 'mod_open_files_rsyslog':
-    target      => 'rsyslog',
-    item        => 'max_open_files',
-    value       => $ulimit_max_open_files
+    target => 'rsyslog',
+    item   => 'max_open_files',
+    value  => $ulimit_max_open_files
   }
 }

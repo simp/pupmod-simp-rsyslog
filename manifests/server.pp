@@ -65,7 +65,7 @@ class rsyslog::server (
   $enable_tcpwrappers    = defined('$::enable_tcpwrappers') ? { true => $::enable_tcpwrappers, default => hiera('enable_tcpwrappers',true) }
 ) {
   validate_bool($enable_firewall)
-  validate_bool($selinux)
+  validate_bool($enable_selinux)
   validate_bool($enable_tcpwrappers)
 
   include '::rsyslog'
