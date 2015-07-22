@@ -80,28 +80,28 @@
 # * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
 #
 class rsyslog (
-  $service_name          = $::rsyslog::params::service_name,
-  $package_name          = $::rsyslog::params::package_name,
-  $tls_package_name      = $::rsyslog::params::tls_package_name,
-  $client_nets           = $::rsyslog::params::client_nets,
-  $enable_tls            = $::rsyslog::params::enable_tls,
-  $allow_failover        = $::rsyslog::params::allow_failover,
-  $failover_log_servers  = $::rsyslog::params::failover_log_servers,
-  $tcp_server            = $::rsyslog::params::tcp_server,
-  $tcp_listen_port       = $::rsyslog::params::tcp_listen_port,
-  $tls_tcp_server        = $::rsyslog::params::tls_tcp_server,
-  $tls_listen_port       = $::rsyslog::params::tls_listen_port,
-  $udp_server            = $::rsyslog::params::udp_server,
-  $udp_listen_address    = $::rsyslog::parmas::udp_listen_address,
-  $udp_listen_port       = $::rsyslog::params::udp_listen_port,
-  $enable_logging        = defined('$::enable_logging') ? { true => $::enable_logging, default => hiera('enable_logging',true) },
-  $enable_pki            = defined('$::enable_pki') ? { true => $::enable_pki, default => hiera('enable_pki',true) },
+  $service_name         = $::rsyslog::params::service_name,
+  $package_name         = $::rsyslog::params::package_name,
+  $tls_package_name     = $::rsyslog::params::tls_package_name,
+  $client_nets          = $::rsyslog::params::client_nets,
+  $enable_tls_logging   = $::rsyslog::params::enable_tls_logging,
+  $allow_failover       = $::rsyslog::params::allow_failover,
+  $failover_log_servers = $::rsyslog::params::failover_log_servers,
+  $tcp_server           = $::rsyslog::params::tcp_server,
+  $tcp_listen_port      = $::rsyslog::params::tcp_listen_port,
+  $tls_tcp_server       = $::rsyslog::params::tls_tcp_server,
+  $tls_listen_port      = $::rsyslog::params::tls_listen_port,
+  $udp_server           = $::rsyslog::params::udp_server,
+  $udp_listen_address   = $::rsyslog::parmas::udp_listen_address,
+  $udp_listen_port      = $::rsyslog::params::udp_listen_port,
+  $enable_logging       = defined('$::enable_logging') ? { true => $::enable_logging, default => hiera('enable_logging',true) },
+  $enable_pki           = defined('$::enable_pki') ? { true => $::enable_pki, default => hiera('enable_pki',true) },
 ) inherits ::rsyslog::params {
   validate_string($service_name)
   validate_string($package_name)
   validate_string($tls_package_name)
   validate_net_list($client_nets)
-  validate_bool($enable_tls)
+  validate_bool($enable_tls_logging)
   validate_bool($allow_failover)
   if $allow_failover {
     if empty($failover_log_servers) {

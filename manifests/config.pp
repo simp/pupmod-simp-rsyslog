@@ -126,6 +126,14 @@
 #   Disable DNS for remote messages.
 #   See the -x option in rsyslogd(8) for more information.
 #
+# [*include_rsyslog_d*]
+# Type: Boolean
+# Default: false
+#   A flag, which if set to true, will include the /etc/rsyslog.d directory
+#   inside of /etc/rsyslog.conf and will be unmanaged by SIMP. Any user-specific
+#   configuration that cannot be built using this module or needs to otherwise
+#   be created manually should go there.
+#
 # == Authors
 #
 # * Kendall Moore <mailto:kmoore@keywcorp.com>
@@ -227,7 +235,7 @@ class rsyslog::config (
   validate_bool($include_rsyslog_d)
   validate_bool($enable_default_rules)
 
-  include 'rsyslog'
+  include '::rsyslog'
 
   $_default_template = $default_template ? {
     'traditional' => 'RSYSLOG_TraditionalFormat',
@@ -295,14 +303,6 @@ class rsyslog::config (
       mode    => '0640',
       content => template('rsyslog/rsyslog.default.erb')
     }
-  }
-
-  file { '/etc/rsyslog.simp.d/05_simp_templates/custom_templates.conf':
-    ensure  => 'present',
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0600',
-    require => File['/etc/rsyslog.simp.d/05_simp_templates']
   }
 
   file { '/etc/rsyslog.conf':

@@ -19,7 +19,7 @@ class rsyslog::params {
   else {
     $failover_log_servers = []
   }
-  $enable_tls         = false
+  $enable_tls_logging = false
   $tcp_server         = false
   $tcp_listen_port    = '514'
   $tls_tcp_server     = false
