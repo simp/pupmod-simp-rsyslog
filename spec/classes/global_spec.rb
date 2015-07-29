@@ -48,6 +48,12 @@ describe 'rsyslog::global' do
       it { should create_concat_fragment('rsyslog+global').with_content(/MainMsgQueueMaxDiskSpace 20M/) }
 
       it { should create_file('/etc/sysconfig/rsyslog') }
+
+      context 'actionSendStreamDriverPermittedPeers should be optional' do
+        let(:params) {{ :actionSendStreamDriverPermittedPeers => [] }}
+
+        it { should compile.with_all_deps }
+      end
     end
   end
 

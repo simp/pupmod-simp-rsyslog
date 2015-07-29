@@ -48,7 +48,7 @@
 
   # This pulls out all of the wildcard entries so that we don't try to validate
   # them later on.
-  t_peers = @actionSendStreamDriverPermittedPeers.dup
+  t_peers = @actionSendStreamDriverPermittedPeers.map{|x| scope.function_strip_ports([x])}
   t_wildcard_peers = []
   t_peers.delete_if{|x| if x =~ /\*/ then t_wildcard_peers << x and true end}
 -%>
@@ -79,7 +79,7 @@ $DefaultNetstreamDriverCertFile <%= @defaultNetStreamDriverCertFile %>
 $DefaultNetstreamDriverKeyFile <%= @defaultNetStreamDriverKeyFile %>
 $ActionSendStreamDriverMode 1
 $ActionSendStreamDriverAuthMode <%= @actionSendStreamDriverAuthMode %>
-<%   (t_wildcard_peers + scope.function_strip_ports([t_peers])).each do |peer| -%>
+<%   (t_wildcard_peers + t_peers).each do |peer| -%>
 $ActionSendStreamDriverPermittedPeer <%= peer %>
 <%   end -%>
 <% end -%>

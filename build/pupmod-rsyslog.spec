@@ -1,7 +1,7 @@
 Summary: Rsyslog Puppet Module
 Name: pupmod-rsyslog
 Version: 4.1.0
-Release: 13
+Release: 14
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -60,6 +60,9 @@ fi
 # Post uninstall stuff
 
 %changelog
+* Tue Feb 28 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.0-14
+- Ensure that the lack of specified rsyslog servers does not fail the compile.
+
 * Thu Feb 19 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.0-13
 - Migrated to the new 'simp' environment.
 
