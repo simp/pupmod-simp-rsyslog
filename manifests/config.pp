@@ -126,14 +126,6 @@
 #   Disable DNS for remote messages.
 #   See the -x option in rsyslogd(8) for more information.
 #
-# [*include_rsyslog_d*]
-# Type: Boolean
-# Default: false
-#   A flag, which if set to true, will include the /etc/rsyslog.d directory
-#   inside of /etc/rsyslog.conf and will be unmanaged by SIMP. Any user-specific
-#   configuration that cannot be built using this module or needs to otherwise
-#   be created manually should go there.
-#
 # == Authors
 #
 # * Kendall Moore <mailto:kmoore@keywcorp.com>
@@ -167,7 +159,7 @@ class rsyslog::config (
   $main_msg_queue_type                                = 'LinkedList',
   $main_msg_queue_filename                            = 'main_msg_queue',
   $main_msg_queue_max_file_size                       = '5',
-  $main_msg_queue_size                                = '',
+  $main_msg_queue_size                                = '10000',
   $main_msg_queue_high_watermark                      = '',
   $main_msg_queue_low_watermark                       = '',
   $main_msg_queue_discardmark                         = '',
@@ -189,8 +181,11 @@ class rsyslog::config (
   $default_net_stream_driver_cert_file                = "/etc/rsyslog.d/pki/public/${::fqdn}.pub",
   $default_net_stream_driver_key_file                 = "/etc/rsyslog.d/pki/private/${::fqdn}.pem",
 
-  $action_send_stream_driver_permitted_peers          = hiera('log_servers',[]),
+  ## TODO: Remove these once we upgrade to v7-stable or later.
+  $action_send_stream_driver_mode                     = '1',
   $action_send_stream_driver_auth_mode                = 'x509/name',
+  $action_send_stream_driver_permitted_peers          = hiera('log_servers',[]),
+
   $ulimit_max_open_files                              = 'unlimited',
   $host_list                                          = '',
   $domain_list                                        = '',
@@ -235,7 +230,7 @@ class rsyslog::config (
   validate_bool($include_rsyslog_d)
   validate_bool($enable_default_rules)
 
-  include '::rsyslog'
+  include 'rsyslog'
 
   $_default_template = $default_template ? {
     'traditional' => 'RSYSLOG_TraditionalFormat',
@@ -285,7 +280,7 @@ class rsyslog::config (
     owner   => 'root',
     group   => 'root',
     mode    => '0700',
-    content => "# Place .conf files that rsyslog should process into this directory.\n"
+    content => '# Place .conf files that rsyslog should process into this directory.\n'
   }
 
   file { '/var/spool/rsyslog':
@@ -303,6 +298,14 @@ class rsyslog::config (
       mode    => '0640',
       content => template('rsyslog/rsyslog.default.erb')
     }
+  }
+
+  file { '/etc/rsyslog.simp.d/05_simp_templates/custom_templates.conf':
+    ensure  => 'present',
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0600',
+    require => File['/etc/rsyslog.simp.d/05_simp_templates']
   }
 
   file { '/etc/rsyslog.conf':

@@ -12,87 +12,94 @@
     end
   end
 -%>
-<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %>
-action(
-  type="omfwd"
-  protocol="<%= @dest_type %>"
-  target="<%= t_host %>"
-  port="<%= t_port %>"
+ruleset(
+  name="<%= @name %>_ruleset"
+## TODO: Implement these once DA queues work properly inside of rulesets.
+#  queue.filename="<%= @_queue_filename %>"
+<% if !@queue_size.empty? -%>
+#  queue.size="<%= @queue_size %>"
+<% end -%>
+#  queue.dequeuebatchsize="<%= @queue_dequeue_batch_size %>"
+<% if !@queue_max_disk_space.empty? -%>
+#  queue.maxdiskspace="<%= @queue_max_disk_space %>"
+<% end -%>
+<% if !@queue_high_watermark.empty? -%>
+# queue.highwatermark="<%= @queue_high_watermark %>"
+<% end -%>
+#  queue.lowwatermark="<%= @queue_low_watermark %>"
+<% if !@queue_full_delay_mark.empty? -%>
+#  queue.fulldelaymark="<%= @queue_full_delay_mark %>"
+<% end -%>
+<% if !@queue_light_delay_mark.empty? -%>
+#  queue.lightdelaymark="<%= @queue_light_delay_mark %>"
+<% end -%>
+#  queue.discardmark="<%= @queue_discard_mark %>"
+#  queue.discardseverity="<%= @queue_discard_severity %>"
+<% if !@queue_checkpoint_interval.empty? -%>
+#  queue.checkpointinterval="<%= @queue_checkpoint_interval %>"
+<% end -%>
+#  queue.syncqueuefiles="<%= t_bool_xlat[@queue_sync_queue_files] %>"
+#  queue.type="<%= @queue_type %>"
+#  queue.workerthreads="<%= @queue_worker_threads %>"
+#  queue.timeoutshutdown="<%= @queue_timeout_shutdown %>"
+#  queue.timeoutactioncompletion="<%= @queue_timeout_action_completion %>"
+#  queue.timeoutenqueue="<%= @queue_timeout_enqueue %>"
+#  queue.timeoutworkerthreadshutdown="<%= @queue_timeout_worker_thread_shutdown %>"
+#  queue.workerthreadminimummessages="<%= @queue_worker_thread_minimum_messages %>"
+#  queue.maxfilesize="<%= @queue_max_file_size %>"
+#  queue.saveonshutdown="<%= t_bool_xlat[@queue_save_on_shutdown] %>"
+#  queue.dequeueslowdown="<%= @queue_dequeue_slowdown %>"
+<% if !@queue_dequeue_time_begin.empty? -%>
+#  queue.dequeuetimebegin="<%= @queue_dequeue_time_begin %>"
+<% end -%>
+<% if !@queue_dequeue_time_end.empty? -%>
+#  queue.dequeuetimeend="<%= @queue_dequeue_time_end %>"
+<% end -%>
+) {
+  action(
+    type="omfwd"
+    protocol="<%= @dest_type %>"
+    target="<%= t_host %>"
+    port="<%= t_port %>"
 <% if !@tcp_framing.empty? -%>
-  TCP_Framing="<%= @tcp_framing %>"
+    TCP_Framing="<%= @tcp_framing %>"
 <% end -%>
 <% if !@zip_level.empty? -%>
-  ZipLevel="<%= @zip_level %>"
+    ZipLevel="<%= @zip_level %>"
 <% end -%>
 <% if !@max_error_messages.empty? -%>
-  maxErrorMessages="<%= @max_error_messages %>"
+## TODO: Implement this once we upgrade to v7-stable or later.
+#    maxErrorMessages="<%= @max_error_messages %>"
 <% end -%>
 <% if !@compression_mode.empty? -%>
-  compression.mode="<%= @compression_mode %>"
+## TODO: Implement this once we upgrade to v7-stable or later.
+#    compression.mode="<%= @compression_mode %>"
 <% end -%>
-  compression.stream.flushOnTXEnd="<%= t_bool_xlat[@compression_stream_flush_on_tx_end] %>"
+## TODO: Implement this once we upgrade to v7-stable or later.
+#    compression.stream.flushOnTXEnd="<%= t_bool_xlat[@compression_stream_flush_on_tx_end] %>"
 <% if !@rebind_interval.empty? -%>
-  RebindInterval="<%= @rebind_interval %>"
+    RebindInterval="<%= @rebind_interval %>"
 <% end -%>
 <% if @_use_tls -%>
 <%   if !@stream_driver.empty? -%>
-  StreamDriver="<%= @stream_driver %>"
+    StreamDriver="<%= @stream_driver %>"
 <%   end -%>
 <%   if !@stream_driver_mode.empty? -%>
-  StreamDriverMode="<%= @stream_driver_mode %>"
+    StreamDriverMode="<%= @stream_driver_mode %>"
 <%   end -%>
 <%   if !@stream_driver_auth_mode.empty? -%>
-  StreamDriverAuthMode="<%= @stream_driver_auth_mode %>"
+    StreamDriverAuthMode="<%= @stream_driver_auth_mode %>"
 <%   end -%>
 <%   if !@stream_driver_permitted_peers.empty? -%>
-  StreamDriverPermittedPeers="<%= @stream_driver_permitted_peers %>"
+    StreamDriverPermittedPeers="<%= @stream_driver_permitted_peers %>"
 <%   end -%>
 <% end -%>
-  ResendLastMSGOnReconnect="<%= t_bool_xlat[@resend_last_msg_on_reconnect] %>"
-  queue.filename="<%= @_queue_filename %>"
-<% if !@queue_size.empty? -%>
-  queue.size="<%= @queue_size %>"
-<% end -%>
-  queue.dequeuebatchsize="<%= @queue_dequeue_batch_size %>"
-<% if !@queue_max_disk_space.empty? -%>
-  queue.maxdiskspace="<%= @queue_max_disk_space %>"
-<% end -%>
-<% if !@queue_high_watermark.empty? -%>
-  queue.highwatermark="<%= @queue_high_watermark %>"
-<% end -%>
-  queue.lowwatermark="<%= @queue_low_watermark %>"
-<% if !@queue_full_delay_mark.empty? -%>
-  queue.fulldelaymark="<%= @queue_full_delay_mark %>"
-<% end -%>
-<% if !@queue_light_delay_mark.empty? -%>
-  queue.lightdelaymark="<%= @queue_light_delay_mark %>"
-<% end -%>
-  queue.discardmark="<%= @queue_discard_mark %>"
-  queue.discardseverity="<%= @queue_discard_severity %>"
-<% if !@queue_checkpoint_interval.empty? -%>
-  queue.checkpointinterval="<%= @queue_checkpoint_interval %>"
-<% end -%>
-  queue.syncqueuefiles="<%= t_bool_xlat[@queue_sync_queue_files] %>"
-  queue.type="<%= @queue_type %>"
-  queue.workerthreads="<%= @queue_worker_threads %>"
-  queue.timeoutshutdown="<%= @queue_timeout_shutdown %>"
-  queue.timeoutactioncompletion="<%= @queue_timeout_action_completion %>"
-  queue.timeoutenqueue="<%= @queue_timeout_enqueue %>"
-  queue.timeoutworkerthreadshutdown="<%= @queue_timeout_worker_thread_shutdown %>"
-  queue.workerthreadminimummessages="<%= @queue_worker_thread_minimum_messages %>"
-  queue.maxfilesize="<%= @queue_max_file_size %>"
-  queue.saveonshutdown="<%= t_bool_xlat[@queue_save_on_shutdown] %>"
-  queue.dequeueslowdown="<%= @queue_dequeue_slowdown %>"
-<% if !@queue_dequeue_time_begin.empty? -%>
-  queue.dequeuetimebegin="<%= @queue_dequeue_time_begin %>"
-<% end -%>
-<% if !@queue_dequeue_time_end.empty? -%>
-  queue.dequeuetimeend="<%= @queue_dequeue_time_end %>"
-<% end -%>
-)
+    ResendLastMSGOnReconnect="<%= t_bool_xlat[@resend_last_msg_on_reconnect] %>"
+  )
 <%
   if @_allow_failover
   if @_failover_servers.length > 0
+    _final_host = @_failover_servers.last
     @_failover_servers.each do |s_target|
       s_host,s_port = s_target.split(":")
       if s_port.nil? || s_port.empty?
@@ -103,84 +110,96 @@ action(
         end
       end
 -%>
-& action(
-  type="omfwd"
-  protocol="<%= @dest_type %>"
-  target="<%= s_host %>"
-  port="<%= s_port %>"
-  action.execOnlyWhenPreviousIsSuspended="on"
+
+  action(
+    type="omfwd"
+    protocol="<%= @dest_type %>"
+    target="<%= s_host %>"
+    port="<%= s_port %>"
+<% if s_target.eql? _final_host -%>
+## NOTE: This must exist for the last failover host so that we can queue logs to disk when needed.
+    queue.filename="<%= @_queue_filename %>_action"
+<%   if !@queue_size.empty? -%>
+    queue.size="<%= @queue_size %>"
+<%   end -%>
+    queue.dequeuebatchsize="<%= @queue_dequeue_batch_size %>"
+<%   if !@queue_max_disk_space.empty? -%>
+    queue.maxdiskspace="<%= @queue_max_disk_space %>"
+<%   end -%>
+<%   if !@queue_high_watermark.empty? -%>
+    queue.highwatermark="<%= @queue_high_watermark %>"
+<%   end -%>
+    queue.lowwatermark="<%= @queue_low_watermark %>"
+<%   if !@queue_full_delay_mark.empty? -%>
+    queue.fulldelaymark="<%= @queue_full_delay_mark %>"
+<%   end -%>
+<%   if !@queue_light_delay_mark.empty? -%>
+    queue.lightdelaymark="<%= @queue_light_delay_mark %>"
+<%   end -%>
+    queue.discardmark="<%= @queue_discard_mark %>"
+    queue.discardseverity="<%= @queue_discard_severity %>"
+<%   if !@queue_checkpoint_interval.empty? -%>
+    queue.checkpointinterval="<%= @queue_checkpoint_interval %>"
+<%   end -%>
+    queue.syncqueuefiles="<%= t_bool_xlat[@queue_sync_queue_files] %>"
+    queue.type="LinkedList"
+    queue.workerthreads="<%= @queue_worker_threads %>"
+    queue.timeoutshutdown="<%= @queue_timeout_shutdown %>"
+    queue.timeoutactioncompletion="<%= @queue_timeout_action_completion %>"
+    queue.timeoutenqueue="<%= @queue_timeout_enqueue %>"
+    queue.timeoutworkerthreadshutdown="<%= @queue_timeout_worker_thread_shutdown %>"
+    queue.workerthreadminimummessages="<%= @queue_worker_thread_minimum_messages %>"
+    queue.maxfilesize="<%= @queue_max_file_size %>"
+    queue.saveonshutdown="<%= t_bool_xlat[@queue_save_on_shutdown] %>"
+    queue.dequeueslowdown="<%= @queue_dequeue_slowdown %>"
+<%   if !@queue_dequeue_time_begin.empty? -%>
+    queue.dequeuetimebegin="<%= @queue_dequeue_time_begin %>"
+<%   end -%>
+<%   if !@queue_dequeue_time_end.empty? -%>
+    queue.dequeuetimeend="<%= @queue_dequeue_time_end %>"
+<%   end -%>
+<% end -%>
 <% if !@tcp_framing.empty? -%>
-  TCP_Framing="<%= @tcp_framing %>"
+    TCP_Framing="<%= @tcp_framing %>"
 <% end -%>
 <% if !@zip_level.empty? -%>
-  ZipLevel="<%= @zip_level %>"
+    ZipLevel="<%= @zip_level %>"
 <% end -%>
 <% if !@max_error_messages.empty? -%>
-  maxErrorMessages="<%= @max_error_messages %>"
+## TODO: Implement this once we upgrade to v7-stable or later.
+#    maxErrorMessages="<%= @max_error_messages %>"
 <% end -%>
 <% if !@compression_mode.empty? -%>
-  compression.mode="<%= @compression_mode %>"
+## TODO: Implement this once we upgrade to v7-stable or later.
+#    compression.mode="<%= @compression_mode %>"
 <% end -%>
-  compression.stream.flushOnTXEnd="<%= t_bool_xlat[@compression_stream_flush_on_tx_end] %>"
+## TODO: Implement this once we upgrade to v7-stable or later.
+#    compression.stream.flushOnTXEnd="<%= t_bool_xlat[@compression_stream_flush_on_tx_end] %>"
 <% if !@rebind_interval.empty? -%>
-  RebindInterval="<%= @rebind_interval %>"
+    RebindInterval="<%= @rebind_interval %>"
 <% end -%>
 <% if @_use_tls -%>
 <%   if !@stream_driver.empty? -%>
-  StreamDriver="<%= @stream_driver %>"
+    StreamDriver="<%= @stream_driver %>"
 <%   end -%>
 <%   if !@stream_driver_mode.empty? -%>
-  StreamDriverMode="<%= @stream_driver_mode %>"
+    StreamDriverMode="<%= @stream_driver_mode %>"
 <%   end -%>
 <%   if !@stream_driver_auth_mode.empty? -%>
-  StreamDriverAuthMode="<%= @stream_driver_auth_mode %>"
+    StreamDriverAuthMode="<%= @stream_driver_auth_mode %>"
 <%   end -%>
 <%   if !@stream_driver_permitted_peers.empty? -%>
-  StreamDriverPermittedPeers="<%= @stream_driver_permitted_peers %>"
+    StreamDriverPermittedPeers="<%= @stream_driver_permitted_peers %>"
 <%   end -%>
 <% end -%>
-  ResendLastMSGOnReconnect="<%= t_bool_xlat[@resend_last_msg_on_reconnect] %>"
-  queue.filename="<%= @_queue_filename %>"
-<% if !@queue_size.empty? -%>
-  queue.size="<%= @queue_size %>"
-<% end -%>
-  queue.dequeuebatchsize="<%= @queue_dequeue_batch_size %>"
-<% if !@queue_max_disk_space.empty? -%>
-  queue.maxdiskspace="<%= @queue_max_disk_space %>"
-<% end -%>
-<% if !@queue_high_watermark.empty? -%>
-  queue.highwatermark="<%= @queue_high_watermark %>"
-<% end -%>
-  queue.lowwatermark="<%= @queue_low_watermark %>"
-<% if !@queue_full_delay_mark.empty? -%>
-  queue.fulldelaymark="<%= @queue_full_delay_mark %>"
-<% end -%>
-<% if !@queue_light_delay_mark.empty? -%>
-  queue.lightdelaymark="<%= @queue_light_delay_mark %>"
-<% end -%>
-  queue.discardmark="<%= @queue_discard_mark %>"
-  queue.discardseverity="<%= @queue_discard_severity %>"
-<% if !@queue_checkpoint_interval.empty? -%>
-  queue.checkpointinterval="<%= @queue_checkpoint_interval %>"
-<% end -%>
-  queue.syncqueuefiles="<%= t_bool_xlat[@queue_sync_queue_files] %>"
-  queue.type="<%= @queue_type %>"
-  queue.workerthreads="<%= @queue_worker_threads %>"
-  queue.timeoutshutdown="<%= @queue_timeout_shutdown %>"
-  queue.timeoutactioncompletion="<%= @queue_timeout_action_completion %>"
-  queue.timeoutenqueue="<%= @queue_timeout_enqueue %>"
-  queue.timeoutworkerthreadshutdown="<%= @queue_timeout_worker_thread_shutdown %>"
-  queue.workerthreadminimummessages="<%= @queue_worker_thread_minimum_messages %>"
-  queue.maxfilesize="<%= @queue_max_file_size %>"
-  queue.saveonshutdown="<%= t_bool_xlat[@queue_save_on_shutdown] %>"
-  queue.dequeueslowdown="<%= @queue_dequeue_slowdown %>"
-<% if !@queue_dequeue_time_begin.empty? -%>
-  queue.dequeuetimebegin="<%= @queue_dequeue_time_begin %>"
-<% end -%>
-<% if !@queue_dequeue_time_end.empty? -%>
-  queue.dequeuetimeend="<%= @queue_dequeue_time_end %>"
-<% end -%>
-)
+    ResendLastMSGOnReconnect="<%= t_bool_xlat[@resend_last_msg_on_reconnect] %>"
+    action.resumeRetryCount="<%= @action_resume_retry_count %>"
+    action.execOnlyWhenPreviousIsSuspended="on"
+  )
 <% end
   end
 end -%>
+}
+
+<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %>
+call <%= @name %>_ruleset

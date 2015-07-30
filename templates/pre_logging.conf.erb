@@ -123,7 +123,7 @@ input(type="imudp"
   address="<%= @udp_server_address %>"
 )
 <% end -%>
-<% if @enable_tls or @tls_tcp_server -%>
+<% if @enable_tls_logging or @tls_tcp_server -%>
 
 # These are legacy because CertFile has not been implemented in the new RainerScript.
 $DefaultNetstreamDriverCertFile <%= @default_net_stream_driver_cert_file %>
@@ -132,18 +132,43 @@ $DefaultNetstreamDriverCAFile <%= @default_net_stream_driver_ca_file %>
 $DefaultNetstreamDriverKeyFile <%= @default_net_stream_driver_key_file %>
 <% end -%>
 
-main_queue(
-  queue.type="<%= @main_msg_queue_type %>"
-  queue.filename="<%= @main_msg_queue_filename %>"
-  queue.maxfilesize="<%= @main_msg_queue_max_file_size %>M"
-  queue.size="<%= t_main_msg_queue_size %>"
-  queue.highwatermark="<%= t_main_msg_queue_high_watermark %>"
-  queue.lowwatermark="<%= t_main_msg_queue_low_watermark %>"
-  queue.discardmark="<%= t_main_msg_queue_discardmark %>"
-  queue.workerthreadminimummessages="<%= t_main_msg_queue_worker_thread_minimum_messages %>"
-  queue.workerthreads="<%= t_main_msg_queue_worker_threads %>"
-  queue.timeoutenqueue="<%= @main_msg_queue_timeout_enqueue %>"
-  queue.dequeueslowdown="<%= @main_msg_queue_dequeue_slowdown %>"
-  queue.saveonshutdown="<%= @main_msg_queue_save_on_shutdown %>"
-  queue.maxdiskspace="<%= t_main_msg_queue_max_disk_space %>"
-)
+## Implement these once we upgrade to v7-stable or later.
+#main_queue(
+#  queue.type="<%= @main_msg_queue_type %>"
+#  queue.filename="<%= @main_msg_queue_filename %>"
+#  queue.maxfilesize="<%= @main_msg_queue_max_file_size %>M"
+#  queue.size="<%= t_main_msg_queue_size %>"
+#  queue.highwatermark="<%= t_main_msg_queue_high_watermark %>"
+#  queue.lowwatermark="<%= t_main_msg_queue_low_watermark %>"
+#  queue.discardmark="<%= t_main_msg_queue_discardmark %>"
+#  queue.workerthreadminimummessages="<%= t_main_msg_queue_worker_thread_minimum_messages %>"
+#  queue.workerthreads="<%= t_main_msg_queue_worker_threads %>"
+#  queue.timeoutenqueue="<%= @main_msg_queue_timeout_enqueue %>"
+#  queue.dequeueslowdown="<%= @main_msg_queue_dequeue_slowdown %>"
+#  queue.saveonshutdown="<%= @main_msg_queue_save_on_shutdown %>"
+#  queue.maxdiskspace="<%= t_main_msg_queue_max_disk_space %>"
+#)
+
+#TODO: Remove these once the above becomes applicable.
+$MainMsgQueueType <%= @main_msg_queue_type %>
+$MainMsgQueueFilename <%= @main_msg_queue_filename %>
+$MainMsgQueueMaxFileSize <%= @main_msg_queue_max_file_size %>M
+$MainMsgQueueSize <%= t_main_msg_queue_size %>
+$MainMsgQueueHighWatermark <%= t_main_msg_queue_high_watermark %>
+$MainMsgQueueLowWatermark <%= t_main_msg_queue_low_watermark %>
+$MainMsgQueueDiscardMark <%= t_main_msg_queue_low_watermark %>
+$MainMsgQueueWorkerThreadMinimumMessages <%= t_main_msg_queue_worker_thread_minimum_messages %>
+$MainMsgQueueWorkerThreads <%= @main_msg_queue_timeout_enqueue %>
+$MainMsgQueueTimeoutEnqueue <%= @main_msg_queue_timeout_enqueue %>
+$MainMsgQueueDequeueSlowdown <%= @main_msg_queue_dequeue_slowdown %>
+$MainMsgQueueSaveOnShutdown <%= @main_msg_queue_save_on_shutdown %>
+$MainMsgQueueMaxDiskSpace <%= t_main_msg_queue_max_disk_space %>
+
+#TODO: Remove these in favor of StreamDriver* directives directly in the actions themselves.
+$ActionSendStreamDriverMode <%= @action_send_stream_driver_mode %>
+$ActionSendStreamDriverAuthMode <%= @action_send_stream_driver_auth_mode %>
+<% if not @action_send_stream_driver_permitted_peers.empty? -%>
+<%   @action_send_stream_driver_permitted_peers.each do |peer| -%>
+$ActionSendStreamDriverPermittedPeer <%= peer %>
+<%   end -%>
+<% end -%>

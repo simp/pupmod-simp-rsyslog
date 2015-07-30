@@ -70,7 +70,7 @@ define rsyslog::rule::remote (
   $compression_stream_flush_on_tx_end   = true,
   $rebind_interval                      = '',
   $action_resume_interval               = '30',
-  $action_resumt_retry_count            = '-1',
+  $action_resume_retry_count            = '-1',
   $stream_driver                        = '',
   $stream_driver_mode                   = '1',
   $stream_driver_auth_mode              = 'x509/name',
@@ -92,7 +92,7 @@ define rsyslog::rule::remote (
   $queue_sync_queue_files               = false,
   # TODO: TLS failover does *not* work using a disk-assisted (LinkedList) queue here.
   # Use a direct queue if you need failover to function.
-  $queue_type                           = 'Disk',
+  $queue_type                           = 'LinkedList',
   $queue_worker_threads                 = '1',
   $queue_timeout_shutdown               = '0',
   $queue_timeout_action_completion      = '1000',
@@ -100,7 +100,7 @@ define rsyslog::rule::remote (
   $queue_timeout_worker_thread_shutdown = '60000',
   $queue_worker_thread_minimum_messages = '100',
   $queue_max_file_size                  = '1m',
-  $queue_save_on_shutdown               = false,
+  $queue_save_on_shutdown               = true,
   $queue_dequeue_slowdown               = '0',
   $queue_dequeue_time_begin             = '',
   $queue_dequeue_time_end               = ''
@@ -157,7 +157,7 @@ define rsyslog::rule::remote (
     true    => $::rsyslog::queue_spool_directory,
     default => $queue_spool_directory
   }
-  $_use_tls = $::rsyslog::enable_tls
+  $_use_tls = $::rsyslog::enable_tls_logging
   $_allow_failover = $::rsyslog::allow_failover
   $_failover_servers = $::rsyslog::failover_log_servers
 
