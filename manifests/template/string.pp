@@ -11,7 +11,7 @@
 #     $content => '/var/log/hosts/%HOSTNAME%/example.log'
 #   }
 #
-# Will produce the following in /etc/rsyslog.simp.d/05_simp_templates/example.conf:
+# Will produce the following in 05_simp_templates/example.conf:
 #   template(name="example" type="string" string="/var/log/hosts/%HOSTNAME%/example.log")
 #
 # == Parameters
@@ -34,12 +34,9 @@ define rsyslog::template::string (
 ) {
   validate_string($string)
 
-  file { "/etc/rsyslog.simp.d/05_simp_templates/${name}.conf":
-    ensure  => present,
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0640',
-    content => "template(name=\"${name}\" type=\"string\" string=\"${string}\")",
-    notify  => Service['rsyslog']
+  $_safe_name = regsubst($name,'/','__')
+
+  rsyslog::rule { "05_simp_templates/${_safe_name}.conf":
+    content => "template(name=\"${_safe_name}\" type=\"string\" string=\"${string}\")"
   }
 }
