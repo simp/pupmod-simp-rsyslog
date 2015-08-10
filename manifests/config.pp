@@ -230,7 +230,7 @@ class rsyslog::config (
   validate_bool($include_rsyslog_d)
   validate_bool($enable_default_rules)
 
-  include 'rsyslog'
+  include '::rsyslog'
 
   $_default_template = $default_template ? {
     'traditional' => 'RSYSLOG_TraditionalFormat',
@@ -241,46 +241,29 @@ class rsyslog::config (
 
   # This is where the custom rules will go. They will be purged if not
   # managed!
-  file { '/etc/rsyslog.simp.d':
+  file { $::rsyslog::rule_dir:
     ensure  => 'directory',
     owner   => 'root',
     group   => 'root',
     recurse => true,
     purge   => true,
     force   => true,
-    mode    => '0700'
-  }
-
-  file { [
-    '/etc/rsyslog.simp.d/00_simp_pre_logging',
-    '/etc/rsyslog.simp.d/05_simp_templates',
-    '/etc/rsyslog.simp.d/06_simp_console',
-    '/etc/rsyslog.simp.d/07_simp_drop_rules',
-    '/etc/rsyslog.simp.d/10_simp_remote',
-    '/etc/rsyslog.simp.d/20_simp_other',
-    '/etc/rsyslog.simp.d/99_simp_local'
-  ]:
-    ensure  => 'directory',
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0700',
-    recurse => true,
-    purge   => true
+    mode    => '0750'
   }
 
   file { '/etc/rsyslog.d':
     ensure => 'directory',
     owner  => 'root',
     group  => 'root',
-    mode   => '0700'
+    mode   => '0755'
   }
 
-  file { '/etc/rsyslog.d/README.conf':
-    ensure  => 'present',
+  file { '/etc/rsyslog.d/README_SIMP.conf':
+    ensure  => 'file',
     owner   => 'root',
     group   => 'root',
-    mode    => '0700',
-    content => '# Place .conf files that rsyslog should process into this directory.\n'
+    mode    => '0644',
+    content => '# Place .conf files that rsyslog should process independently of SIMP into this directory.\n'
   }
 
   file { '/var/spool/rsyslog':
@@ -291,21 +274,9 @@ class rsyslog::config (
   }
 
   if $enable_default_rules {
-    file { '/etc/rsyslog.simp.d/99_simp_local/ZZ_default':
-      ensure  => 'present',
-      owner   => 'root',
-      group   => 'root',
-      mode    => '0640',
+    rsyslog::rule { '99_simp_local/ZZ_default.conf':
       content => template('rsyslog/rsyslog.default.erb')
     }
-  }
-
-  file { '/etc/rsyslog.simp.d/05_simp_templates/custom_templates.conf':
-    ensure  => 'present',
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0600',
-    require => File['/etc/rsyslog.simp.d/05_simp_templates']
   }
 
   file { '/etc/rsyslog.conf':
@@ -319,16 +290,26 @@ class rsyslog::config (
   file { '/etc/sysconfig/rsyslog':
     owner   => 'root',
     group   => 'root',
-    mode    => '0644',
+    mode    => '0640',
     content => template('rsyslog/sysconfig.erb')
   }
 
-  file { '/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf':
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0600',
-    content => template('rsyslog/pre_logging.conf.erb'),
-    require => File['/etc/rsyslog.simp.d/00_simp_pre_logging']
+  rsyslog::rule { '00_simp_pre_logging/global.conf':
+    content => template('rsyslog/pre_logging.conf.erb')
+  }
+
+  rsyslog::rule { '09_failover_hack/failover_hack.conf':
+    content => '
+# For failover to be defined and parse properly, we must place it somewhere
+# after the first rule is defined. Therefore, we are creating this noop rule.
+
+if $syslogfacility == \'local0\' and $msg startswith \'placeholder_rule\' then continue'
+  }
+
+  if $include_rsyslog_d {
+    rsyslog::rule { '15_include_default_rsyslog/include_default_rsyslog.conf':
+      content => '$IncludeConfig /etc/rsyslog.d/'
+    }
   }
 
   rsyslog::template::string { 'defaultTemplate':

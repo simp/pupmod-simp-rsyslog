@@ -19,7 +19,6 @@
 #
 # [*name*]
 #   The filename that you will be dropping into place.
-#   Note: Do not include a '/' in the name.
 #
 # [*rule*]
 #   The rule with omfile action that will be placed in the file in the
@@ -36,19 +35,17 @@
 #
 define rsyslog::rule::console (
   $rule,
-  $users,
+  $users
 ) {
   validate_string($rule)
-  validate_string($users)
+  validate_array($users)
 
-  file { "/etc/rsyslog.simp.d/06_simp_console/${name}.conf":
-    ensure  => present,
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0640',
-    content => inline_template('<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %>
-action(type="omusrmsg" Users="<%= @users %>")'
-    ),
-    notify  => Service['rsyslog']
+  $_safe_name = regsubst($name,'/','__')
+
+  rsyslog::rule { "06_simp_console/${_safe_name}.conf":
+    content => inline_template('<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %> action( type="omusrmsg"
+  <%= @users.sort.map{|x| user = %(Users="#{x}")}.join("\n  ") %>
+)'
+    )
   }
 }
