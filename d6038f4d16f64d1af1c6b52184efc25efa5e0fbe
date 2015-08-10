@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ad9bd40_003ddb2a",
+        "filename": "spec/classes/init_spec.rb",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1005194
+      },
+      "writtenOn": "2015-08-10T19:02:29Z",
+      "side": 1,
+      "message": "whitespace",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 8
+      },
+      "revId": "d6038f4d16f64d1af1c6b52184efc25efa5e0fbe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
