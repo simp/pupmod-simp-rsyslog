@@ -19,7 +19,6 @@
 #
 # [*name*]
 #   The filename that you will be dropping into place.
-#   Note: Do not include a '/' in the name.
 #
 # [*rule*]
 #   The rule with omfile action that will be placed in the file in the
@@ -35,16 +34,13 @@
 # * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
 #
 define rsyslog::rule::other (
-  $rule,
+  $rule
 ) {
   validate_string($rule)
 
-  file { "/etc/rsyslog.simp.d/20_simp_other/${name}.conf":
-    ensure  => present,
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0640',
-    content => inline_template('<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %>'),
-    notify  => Service['rsyslog']
+  $_safe_name = regsubst($name,'/','__')
+
+  rsyslog::rule { "20_simp_other/${_safe_name}.conf":
+    content => inline_template('<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %>')
   }
 }

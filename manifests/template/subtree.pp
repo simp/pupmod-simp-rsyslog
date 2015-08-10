@@ -12,7 +12,7 @@
 #     $subtree   => '$!usr!tp12'
 #   }
 #
-# Will produce the following in /etc/rsyslog.simp.d/05_simp_templates/example_subtree.conf:
+# Will produce the following in 05_simp_templates/example_subtree.conf:
 #   set $!usr!tp12!msg = $msg;
 #   set $!usr!tp12!dataflow = field($msg, 58, 2);
 #   template(name="example" type="subtree" subtree="$!usr!tp12")
@@ -42,15 +42,12 @@ define rsyslog::template::subtree (
   validate_string($subtree)
   validate_array($variables)
 
-  file { "/etc/rsyslog.simp.d/05_simp_templates/${name}.conf":
-    ensure  => present,
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0640',
+  $_safe_name = regsubst($name,'/','__')
+
+  rsyslog::rule { "05_simp_templates/${_safe_name}.conf":
     content => inline_template(
 '<%= @variables.join("\n") %>
 template(name="<%= @name %>" type="subtree" subtree="<%= @subtree %>"'
-    ),
-    notify  => Service['rsyslog']
+    )
   }
 }

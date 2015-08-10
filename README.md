@@ -5,9 +5,9 @@
 1. [Overview](#overview)
 2. [Module Description - A Puppet module for managing RSyslog version 7 or later](#module-description)
 3. [Setup - The basics of getting started with pupmod-simp-rsyslog](#setup)
-    * [What pupmod-simp-rsyslog affects](#what-dummy-affects)
+    * [What pupmod-simp-rsyslog affects](#what-pupmod-simp-rsyslog-affects)
     * [Setup requirements](#setup-requirements)
-    * [Beginning with pupmod-simp-rsyslog](#beginning-with-dummy)
+    * [Beginning with pupmod-simp-rsyslog](#beginning-with-pupmod-simp-rsyslog)
 4. [Usage - Configuration options and additional functionality](#usage)
 5. [Reference - An under-the-hood peek at what the module is doing and how](#reference)
 5. [Limitations - OS compatibility, etc.](#limitations)
@@ -27,18 +27,13 @@ It is possible to use [pupmod-simp-rsyslog](https://github.com/simp/pupmod-simp-
 
 ## Setup
 
-### What dummy affects
+### What pupmod-simp-rsyslog affects
 
 Files managed by [pupmod-simp-rsyslog](https://github.com/simp/pupmod-simp-rsyslog):
 * /etc/rsyslog.conf
 * /etc/rsyslog.simp.d
-* /etc/rsyslog.simp.d/00_simp_pre_logging
-* /etc/rsyslog.simp.d/05_simp_templates
-* /etc/rsyslog.simp.d/06_simp_console
-* /etc/rsyslog.simp.d/07_simp_drop_rules
-* /etc/rsyslog.simp.d/10_simp_remote
-* /etc/rsyslog.simp.d/20_simp_other
-* /etc/rsyslog.simp.d/99_simp_local
+
+In addition to these, the rsyslog::rule::<all> definitions will create numbered directories in the $rsyslog_rule_dir, by default /etc/rsyslog.simp.d. These directories are included in alphanumeric order and using the rsyslog::rule definition, the user can specify any directory name they want to impact order.
 
 Services and operations managed or affected by [pupmod-simp-rsyslog](https://github.com/simp/pupmod-simp-rsyslog):
 * rsyslogd
