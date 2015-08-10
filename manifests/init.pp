@@ -53,6 +53,11 @@
 #   this order-dependent list will serve as all of the possible failover log servers for
 #   clients to send to.
 #
+# [*rule_dir*]
+# Type: Absolute Path
+# Default: /etc/rsyslog.simp.d
+#   The path at which all managed rules will begin.
+#
 # [*enable_logging*]
 # Type: Boolean
 # Default: true
@@ -84,6 +89,7 @@ class rsyslog (
   $udp_server            = $::rsyslog::params::udp_server,
   $udp_listen_address    = $::rsyslog::parmas::udp_listen_address,
   $udp_listen_port       = $::rsyslog::params::udp_listen_port,
+  $rule_dir              = '/etc/rsyslog.simp.d',
   $enable_logging        = defined('$::enable_logging') ? { true => $::enable_logging, default => hiera('enable_logging',true) },
   $enable_pki            = defined('$::enable_pki') ? { true => $::enable_pki, default => hiera('enable_pki',true) },
 ) inherits ::rsyslog::params {

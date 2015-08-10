@@ -13,7 +13,7 @@
   end
 -%>
 ruleset(
-  name="<%= @name %>_ruleset"
+  name="<%= @_safe_name %>_ruleset"
 ## TODO: Implement these once DA queues work properly inside of rulesets.
 #  queue.filename="<%= @_queue_filename %>"
 <% if !@queue_size.empty? -%>
