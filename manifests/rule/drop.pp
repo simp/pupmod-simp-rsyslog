@@ -13,7 +13,6 @@
 #
 # [*name*]
 #   The filename that you will be dropping into place.
-#   Note: Do not include a '/' in the name.
 #
 # == Authors
 #
@@ -22,16 +21,13 @@
 # * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
 #
 define rsyslog::rule::drop (
-  $rule,
+  $rule
 ) {
   validate_string($rule)
 
-  file { "/etc/rsyslog.simp.d/07_simp_drop_rules/${name}.conf":
-    ensure  => present,
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0640',
-    content => inline_template('<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") + " then stop" %>'),
-    notify  => Service['rsyslog']
+  $_safe_name = regsubst($name,'/','__')
+
+  rsyslog::rule { "07_simp_drop_rules/${_safe_name}.conf":
+    content => inline_template('<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") + " then stop" %>')
   }
 }

@@ -11,8 +11,6 @@ describe 'rsyslog' do
     it { is_expected.to contain_class('rsyslog::service').that_subscribes_to('rsyslog::config') }
 
     it { is_expected.to contain_service('rsyslog') }
-    it { is_expected.to contain_package('rsyslog.x86_64').with_ensure('latest') }
-    it { is_expected.to contain_package('rsyslog.i386').with_ensure('absent') }
   end
 
   context 'supported operating systems' do
@@ -22,13 +20,24 @@ describe 'rsyslog' do
           facts
         end
 
+        rsyslog_package_name = 'rsyslog'
+
+        if ['RedHat','CentOS'].include?(facts[:operatingsystem])
+          if facts[:operatingsystemmajrelease] == '6'
+            rsyslog_package_name = 'rsyslog7'
+          end
+        end
+
+        it { is_expected.to contain_package("#{rsyslog_package_name}.x86_64").with_ensure('latest') }
+        it { is_expected.to contain_package("#{rsyslog_package_name}.i386").with_ensure('absent') }
+
         context 'rsyslog class without any parameters' do
           let(:params) {{ }}
           it_behaves_like 'a structured module'
           it { is_expected.to contain_class('rsyslog').with_client_nets(['127.0.0.1/32']) }
           it { is_expected.to contain_class('rsyslog').with_service_name('rsyslog') }
-          it { is_expected.to contain_class('rsyslog').with_package_name('rsyslog') }
-          it { is_expected.to contain_class('rsyslog').with_tls_package_name('rsyslog-gnutls') }
+          it { is_expected.to contain_class('rsyslog').with_package_name(rsyslog_package_name) }
+          it { is_expected.to contain_class('rsyslog').with_tls_package_name("#{rsyslog_package_name}-gnutls") }
         end
 
         context 'rsyslog class with logging enabled' do

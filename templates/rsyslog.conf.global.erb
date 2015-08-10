@@ -1,15 +1,1 @@
-$IncludeConfig /etc/rsyslog.simp.d/00_simp_pre_logging/
-$IncludeConfig /etc/rsyslog.simp.d/05_simp_templates/
-$IncludeConfig /etc/rsyslog.simp.d/06_simp_console/
-$IncludeConfig /etc/rsyslog.simp.d/07_simp_drop_rules/
-
-# For failover to be defined and parse properly, we must place it somewhere
-# after the first rule is defined. Therefore, we are creating this noop rule.
-
-if $syslogfacility == 'local0' and $msg startswith 'placeholder_rule' then continue
-$IncludeConfig /etc/rsyslog.simp.d/10_simp_remote/
-<% if @include_rsyslog_d -%>
-$IncludeConfig /etc/rsyslog.d/
-<% end -%>
-$IncludeConfig /etc/rsyslog.simp.d/20_simp_other/
-$IncludeConfig /etc/rsyslog.simp.d/99_simp_local/
+$IncludeConfig /etc/rsyslog.simp.d/*.conf
