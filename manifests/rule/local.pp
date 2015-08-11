@@ -12,7 +12,6 @@
 #
 # [*name*]
 #   The filename that you will be dropping into place.
-#   Note: Do not include a '/' in the name.
 #
 # [*rule*]
 #   The rule with omfile action that will be placed in the file in the
@@ -145,12 +144,9 @@ define rsyslog::rule::local (
   if !empty($queue_dequeue_time_begin) { validate_integer($queue_dequeue_time_begin) }
   if !empty($queue_dequeue_time_end) { validate_integer($queue_dequeue_time_end) }
 
-  file { "/etc/rsyslog.simp.d/99_simp_local/${name}.conf":
-    ensure  => present,
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0640',
-    content => template('rsyslog/local_rule.erb'),
-    notify  => Service['rsyslog']
+  $_safe_name = regsubst($name,'/','__')
+
+  rsyslog::rule { "99_simp_local/${_safe_name}.conf":
+    content => template('rsyslog/local_rule.erb')
   }
 }

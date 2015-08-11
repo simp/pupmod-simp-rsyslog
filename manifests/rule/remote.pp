@@ -19,7 +19,6 @@
 #
 # [*name*]
 #   The filename that you will be dropping into place.
-#   Note: Do not include a '/' in the name.
 #
 # [*content*]
 #   The literal content of the file that you are placing in the
@@ -61,7 +60,7 @@
 #
 define rsyslog::rule::remote (
   $rule,
-  $dest                                 = hiera('log_servers'),
+  $dest                                 = hiera('log_servers',[]),
   $dest_type                            = 'tcp',
   $tcp_framing                          = 'traditional',
   $zip_level                            = '0',
@@ -106,6 +105,7 @@ define rsyslog::rule::remote (
   $queue_dequeue_time_end               = ''
 ) {
   validate_array($dest)
+  if empty($dest) { fail('Error: you must pass a destination array for $dest') }
   validate_net_list($dest)
   validate_array_member($dest_type,['tcp','udp','relp'])
   validate_array_member($tcp_framing, ['traditional', 'octet-counted'])
@@ -161,12 +161,9 @@ define rsyslog::rule::remote (
   $_allow_failover = $::rsyslog::allow_failover
   $_failover_servers = $::rsyslog::failover_log_servers
 
-  file { "/etc/rsyslog.simp.d/10_simp_remote/${name}.conf":
-    ensure  => file,
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0640',
-    content => template('rsyslog/remote_rule.erb'),
-    notify  => Service['rsyslog']
+  $_safe_name = regsubst($name,'/','__')
+
+  rsyslog::rule { "10_simp_remote/${_safe_name}.conf":
+    content => template('rsyslog/remote_rule.erb')
   }
 }

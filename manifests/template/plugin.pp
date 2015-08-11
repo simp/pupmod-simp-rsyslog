@@ -11,7 +11,7 @@
 #     $plugin => 'my_plugin'
 #   }
 #
-# Will produce the following in /etc/rsyslog.simp.d/05_simp_templates/example_plugin.conf:
+# Will produce the following in 05_simp_templates/example_plugin.conf:
 #   template(name="example_plugin" type="plugin" plugin="my_plugin")
 #
 # == Parameters
@@ -19,7 +19,6 @@
 # [*name*]
 #   The literal name of the file that will be used to build the multi-part
 #   file.
-#   Note: Do not use a '/' in the $name.
 #
 # [*plugin*]
 #   The rsyslog plugin content that you wish to add to the system.
@@ -34,12 +33,9 @@ define rsyslog::template::plugin (
 ) {
   validate_string($plugin)
 
-  file { "/etc/rsyslog.simp.d/05_simp_templates/${name}.conf":
-    ensure  => present,
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0640',
-    content => "template(name=\"${name}\" plugin=\"string\" plugin=\"${plugin}\")",
-    notify  => Service['rsyslog']
+  $_safe_name = regsubst($name,'/','__')
+
+  rsyslog::rule { "05_simp_templates/${_safe_name}.conf":
+    content => "template(name=\"${_safe_name}\" plugin=\"string\" plugin=\"${plugin}\")"
   }
 }

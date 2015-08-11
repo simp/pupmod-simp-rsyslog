@@ -21,7 +21,7 @@
 #    $content => $content_hash
 #  }
 #
-# Will produce the following in /etc/rsyslog.simp.d/05_simp_templates/example_list.conf:
+# Will produce the following in 05_simp_templates/example_list.conf:
 #   template(name="example_list" type="list") {
 #     constant(value="Syslog MSG is: '")
 #     property(name="msg")
@@ -32,7 +32,6 @@
 # [*name*]
 #   The literal name of the file that will be used to build the multi-part
 #   file.
-#   Note: Do not use a '/' in the $name.
 #
 # [*content*]
 #   The rsyslog list content that you wish to add to the system.
@@ -46,18 +45,15 @@ define rsyslog::template::list (
 ) {
   validate_hash($content)
 
-  file { "/etc/rsyslog.simp.d/05_simp_templates/${name}.conf":
-    ensure  => present,
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0640',
+  $_safe_name = regsubst($name,'/','__')
+
+  rsyslog::rule { "05_simp_templates/${_safe_name}.conf":
     content => inline_template(
 'template(name="<%= @name %>" type="list") {
 <% @content.each do |k,v| -%>
   <%= k %>(<%= v %>)
 <% end -%>
 }'
-    ),
-    notify  => Service['rsyslog']
+    )
   }
 }
