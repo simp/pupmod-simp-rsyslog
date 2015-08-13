@@ -55,7 +55,7 @@ It is *strongly* recommended that any log server be setup as highly available as
 
 The very basic steps needed for a user to get the module up and running.
 
-Including the [rsyslog class](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/init.pp) from pupmod-simp-rsyslog will be enough to [install](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/install.pp), [configure](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/config.pp), and start the [rsyslog daemon](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/service.pp) on any host. Including the [rsyslog::server](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/server.pp) class will setup the given node as an RSyslog server. If a particular node will be an RSyslog server, there are variables to determine if the RSyslog listener should use plain TCP, TLS, or UDP. 
+Including the [rsyslog class](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/init.pp) from pupmod-simp-rsyslog will be enough to [install](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/install.pp), [configure](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/config.pp), and start the [rsyslog daemon](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/service.pp) on any host. Including the [rsyslog::server](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/server.pp) class will setup the given node as an RSyslog server. If a particular node will be an RSyslog server, there are variables to determine if the RSyslog listener should use plain TCP, TLS, or UDP.
 
 *NOTE:* This version of (pupmod-simp-rsyslog)[https://github.com/simp/pupmod-simp-rsyslog] is a complete re-write of the previous version, and as such there are no guarantees made about backwards compatibility.
 
@@ -72,7 +72,7 @@ log_servers:
   - second.log.server
   - third.log.server
   - fourth.log.server
-rsyslog::enable_tls: true
+rsyslog::enable_tls_logging: true
 rsyslog::allow_failover: true
 rsyslog::enable_logging: true
 rsyslog::enable_pki: true
@@ -91,9 +91,9 @@ class my_rsyslog_client {
 
 For the RSyslog server, an example setup could look like the following:
 
-my_client_node.yaml
+my_server_node.yaml
 ```
-rsyslog::enable_tls: true
+rsyslog::enable_tls_logging: true
 rsyslog::enable_logging: true
 rsyslog::enable_pki: true
 rsyslog::server::enable_firewall: true
@@ -114,6 +114,8 @@ class my_rsyslog_server {
 ```
 
 Using the above, all possible logs sent from the client will be stored on the server in a single log file. Obviously this is not always an effective strategy, but it is at least enough to get started. Further customizations can be built to help manage more logs appropriately. To learn more about how to use the templates and rules, feel free to browse through the code.
+
+While this setup does cover all of the basics, using the SIMP suggested RSyslog profile will setup templates and a large set of default rules to help organize and send logs where possible. Included would also be a comprehensive set of security relevant logs to help filter important information.
 
 ## Reference
 

@@ -85,9 +85,11 @@ module(load="imuxsock"
 )
 
 module(load="imfile")
-<% if @tcp_server -%>
+<% if @tcp_server or @tls_tcp_server -%>
 
 module(load="imptcp")
+<% end -%>
+<% if @tcp_server -%>
 <% if @tcp_listen_port.empty? -%>
 <%  t_tcp_listen_port = '514' -%>
 <% else -%>
