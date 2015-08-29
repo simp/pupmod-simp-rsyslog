@@ -36,10 +36,6 @@
 # [*content*]
 #   The rsyslog list content that you wish to add to the system.
 #
-# == Authors
-#
-# * Kendall Moore <mailto:kmoore@keywcorp.com>
-#
 define rsyslog::template::list (
   $content,
 ) {

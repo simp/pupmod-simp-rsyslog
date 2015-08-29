@@ -21,12 +21,6 @@
 #  The target log file that omfile will be writing to.
 #  Note: This *must* be set if $dyna_file is left empty.
 #
-# == Authors
-#
-# * Kendall Moore <mailto:kmoore@keywcorp.com>
-# * Mike Riddle <mailto:mriddle@onyxpoint.com>
-# * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
-#
 define rsyslog::rule::local (
   $rule,
   $target_log_file                      = '',

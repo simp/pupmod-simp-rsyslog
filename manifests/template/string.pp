@@ -25,10 +25,6 @@
 #   The rsyslog template string that you wish to add to the system.
 #   This is fed, without formatting, directly into the target file.
 #
-# == Authors
-#
-# * Kendall Moore <mailto:kmoore@keywcorp.com>
-#
 define rsyslog::template::string (
   $string,
 ) {

@@ -1,4 +1,8 @@
 require 'beaker-rspec'
+require 'tmpdir'
+require 'yaml'
+require 'simp/beaker_helpers'
+include Simp::BeakerHelpers
 
 unless ENV['BEAKER_provision'] == 'no'
   hosts.each do |host|
@@ -11,48 +15,38 @@ unless ENV['BEAKER_provision'] == 'no'
   end
 end
 
-# returns an Array of puppet modules declared in .fixtures.yml
-def pupmods_in_fixtures_yaml
-  require 'yaml'
-  fixtures_yml = File.expand_path( '../.fixtures.yml', File.dirname(__FILE__))
-  data         = YAML.load_file( fixtures_yml )
-  repos        = data.fetch('fixtures').fetch('repositories').keys
-  symlinks     = data.fetch('fixtures').fetch('symlinks', {}).keys
-  (repos + symlinks)
-end
-
 
 RSpec.configure do |c|
-  # Project root
-  proj_root = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+  # ensure that environment OS is ready on each host
+  fix_errata_on hosts
+
+  # FIXME: The EL6 tests need to install rsyslog7.  However, puppetlabs'
+  # centos6 vagrant box comes with rsyslog + a big dep chain, which stops
+  # rsyslog7 from getting installed.
+  #
+  # This workaround shanks rsyslog out of the way, however the module itself
+  # should handle this upgrade somehow.
+  hosts.each do |sut|
+    if fact_on(sut, 'osfamily') == 'RedHat' && fact_on(sut, 'operatingsystemmajrelease') == '6'
+      on(sut, 'rpm -q rsyslog && rpm -e --nodeps rsyslog', :accept_all_exit_codes => true )
+      puts '*'*400 + " ^^ FIXME in the module!"
+    end
+  end
 
   # Readable test descriptions
   c.formatter = :documentation
 
   # Configure all nodes in nodeset
   c.before :suite do
-    # net-tools required for netstat utility being used by be_listening
-    if fact('osfamily') == 'RedHat' && fact('operatingsystemmajrelease') == '7'
-      pp = <<-EOS
-        package { 'net-tools': ensure => installed }
-      EOS
-
-      apply_manifest_on(agents, pp, :catch_failures => false)
-    end
-
-    # Install module and dependencies
-    puppet_module_install(:source => proj_root, :module_name => 'dummy')
-    hosts.each do |host|
-      # allow spec_prep to provide modules (to support isolated networks)
-      if ENV['BEAKER_use_fixtures_dir_for_modules'] == 'yes'
-        pupmods_in_fixtures_yaml.each do |pupmod|
-          mod_root = File.expand_path( "fixtures/modules/#{pupmod}", File.dirname(__FILE__))
-          puppet_module_install(:source => mod_root, :module_name => pupmod)
-        end
-      else
-        # TODO: update when the relevant SIMP modules are on the forge
-        on host, puppet('module', 'install', 'puppetlabs-stdlib'), { :acceptable_exit_codes => [0,1] }
+    begin
+      # Install modules and dependencies from spec/fixtures/modules
+      copy_fixture_modules_to( hosts )
+      Dir.mktmpdir do |cert_dir|
+        run_fake_pki_ca_on( default, hosts, cert_dir )
+        hosts.each{ |host| copy_pki_to( host, cert_dir, '/etc/pki/simp-testing' )}
       end
+    rescue StandardError, ScriptError => e
+      require 'pry'; binding.pry if ENV['PRY']
     end
   end
 end

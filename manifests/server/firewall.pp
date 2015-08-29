@@ -9,17 +9,10 @@
 # In both of these instances, these ports will be open for all systems inside of the
 # $client_nets array, which is defined globally as a list of subnets.
 #
-# == Parameters
-#
-# == Authors
-#
-# * Kendall Moore <mailto:kmoore@keywcorp.com>
-# * Mike Riddle <mailto:mriddle@onyxpoint.com>
-# * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
-#
 class rsyslog::server::firewall {
   include '::rsyslog'
   include '::rsyslog::server'
+  assert_private()
 
   if $::rsyslog::tls_tcp_server {
     iptables::add_tcp_stateful_listen { 'syslog_tls_tcp':

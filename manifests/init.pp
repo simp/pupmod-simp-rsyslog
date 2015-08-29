@@ -33,7 +33,7 @@
 #
 # [*enable_tls_logging*]
 # Type: Boolean
-# Default: $::rsyslog::params::enable_tls_loggin
+# Default: $::rsyslog::params::manage_tls_loggin
 #   A flag to toggle whether RSyslog should enable the TLS libraries where applicable.
 #   If enabled, clients will encrypt all log data being sent to the given log servers.
 #   Also, all log servers specified to use TLS (see rsyslog::server::tls_tcp_server) will
@@ -42,43 +42,51 @@
 # [*allow_failover*]
 # Type: Boolean
 # Default: $::rsyslog::params::allow_failover
-#   A flag to toggle whether RSyslog clients will implement failover for remote rules.
-#   If enabled, clients will, in the order listed in failover_log_servers, failover to
+#   A flag to toggle whether RSyslog clients will implement failover for remote
+#   rules.  If enabled, clients will, in the order listed in
+#   failover_log_servers, failover to
 #   each server as necessary.
 #
 # [*failover_log_servers*]
 # Type: Array of hosts
 # Default: $::rsyslog::params::failover_log_servers
-#   A list of the failover RSyslog servers. If allow_failover servers is enabled, then
-#   this order-dependent list will serve as all of the possible failover log servers for
-#   clients to send to.
+#   A list of the failover RSyslog servers. If allow_failover servers is
+#   enabled, then this order-dependent list will serve as all of the possible
+#   failover log servers for clients to send to.
 #
 # [*rule_dir*]
 # Type: Absolute Path
 # Default: /etc/rsyslog.simp.d
 #   The path at which all managed rules will begin.
 #
-# [*enable_logging*]
+# [*manage_logging*]
 # Type: Boolean
 # Default: true
 #   A flag, which if enabled, manages logging (namely log rotation) for RSyslog.
 #
-# [*enable_pki*]
+# [*manage_pki_certs*]
 # Type: Boolean
 # Default: true
-#   A flag, which if enabled, manages the PKI/PKE configuration for RSyslog.
+#   A flag, which if enabled, allows SIMP to distribute PKI certs/keys for Rsyslog.
+#
+# [*cert_source*]
+# Type: String
+# Default: ''
+#   The path to client certificates dir, if using local (SIMP-independent) PKI
 #
 # == Authors
 #
 # * Kendall Moore <mailto:kmoore@keywcorp.com>
 # * Mike Riddle <mailto:mriddle@onyxpoint.com>
 # * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
+# * Chris Tessmer <mailto:chris.tessmer@onyxpoint.com>
 #
 class rsyslog (
   $service_name          = $::rsyslog::params::service_name,
   $package_name          = $::rsyslog::params::package_name,
   $tls_package_name      = $::rsyslog::params::tls_package_name,
   $client_nets           = $::rsyslog::params::client_nets,
+  $log_server_list       = $::rsyslog::params::log_server_list,
   $enable_tls_logging    = $::rsyslog::params::enable_tls_logging,
   $allow_failover        = $::rsyslog::params::allow_failover,
   $failover_log_servers  = $::rsyslog::params::failover_log_servers,
@@ -87,11 +95,12 @@ class rsyslog (
   $tls_tcp_server        = $::rsyslog::params::tls_tcp_server,
   $tls_listen_port       = $::rsyslog::params::tls_listen_port,
   $udp_server            = $::rsyslog::params::udp_server,
-  $udp_listen_address    = $::rsyslog::parmas::udp_listen_address,
+  $udp_listen_address    = $::rsyslog::params::udp_listen_address,
   $udp_listen_port       = $::rsyslog::params::udp_listen_port,
   $rule_dir              = '/etc/rsyslog.simp.d',
-  $enable_logging        = defined('$::enable_logging') ? { true => $::enable_logging, default => hiera('enable_logging',true) },
-  $enable_pki            = defined('$::enable_pki') ? { true => $::enable_pki, default => hiera('enable_pki',true) },
+  $manage_logging        = defined('$::manage_logging') ? { true => $::manage_logging, default => hiera('manage_logging',true) },
+  $manage_pki_certs      = defined('$::manage_pki_certs') ? { true => $::manage_pki_certs, default => hiera('manage_pki_certs',true) },
+  $cert_source           = '/etc/rsyslog.d/pki',
 ) inherits ::rsyslog::params {
   validate_string($service_name)
   validate_string($package_name)
@@ -108,8 +117,9 @@ class rsyslog (
   validate_bool($tcp_server)
   validate_bool($tls_tcp_server)
   validate_bool($udp_server)
-  validate_bool($enable_logging)
-  validate_bool($enable_pki)
+  validate_bool($manage_logging)
+  validate_bool($manage_pki_certs)
+  validate_string($cert_source)
 
   include '::rsyslog::install'
   include '::rsyslog::config'
@@ -120,15 +130,15 @@ class rsyslog (
   Class['rsyslog::service'] ->
   Class['rsyslog']
 
-  if $enable_logging {
+  if $manage_logging {
     include '::rsyslog::config::logging'
     Class['rsyslog::config::logging'] ->
     Class['rsyslog::service']
   }
 
-  if $enable_pki {
-    include '::rsyslog::config::pki'
-    Class['rsyslog::config::pki'] ->
+  if $manage_pki_certs {
+    include '::rsyslog::config::pki_certs'
+    Class['rsyslog::config::pki_certs'] ~>
     Class['rsyslog::service']
   }
 }

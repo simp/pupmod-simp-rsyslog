@@ -36,6 +36,8 @@
   if @main_msg_queue_max_disk_space.empty?
     t_main_msg_queue_max_disk_space = "#{(t_main_msg_queue_size / 1024).round}M"
   end
+
+  t_tcp_server = scope.lookupvar( '::rsyslog::tcp_server' )
 -%>
 <%
   # Create a boolean translation hash for true/false -> on/off
@@ -85,47 +87,51 @@ module(load="imuxsock"
 )
 
 module(load="imfile")
-<% if @tcp_server or @tls_tcp_server -%>
+<% if t_tcp_server || @tls_tcp_server
+     if t_tcp_server
+       t_tcp_listen_port = scope.lookupvar( '::rsyslog::tcp_listen_port' )
+       t_tcp_listen_port = '514' if t_tcp_listen_port.empty?
+-%>
+module(load="imtcp")
+input(type="imtcp" port="<%= t_tcp_listen_port %>")
+<%   end
 
-module(load="imptcp")
-<% end -%>
-<% if @tcp_server -%>
-<% if @tcp_listen_port.empty? -%>
-<%  t_tcp_listen_port = '514' -%>
-<% else -%>
-<% t_tcp_listen_port = @tcp_listen_port -%>
-<% end -%>
-input(type="imptcp" port="<%= t_tcp_listen_port %>")
-<% end -%>
-<% if @tls_tcp_server -%>
+     # FIXME: should this be 'elif @tls_tcp_server?' it doesn't seem like there
+     #        can be multiple load="imtcp" statements
+     if @tls_tcp_server
+-%>
 
 module(load="imtcp"
-  StreamDriver.Mode="1"
-  StreamDriver.AuthMode="<%= @action_send_stream_driver_auth_mode %>"
-  PermittedPeer=<%= @tls_input_tcp_server_stream_driver_permitted_peers %>
+  StreamDriver.Mode="<%= @action_send_stream_driver_mode %>"
+  StreamDriver.AuthMode="<%= @l_action_send_stream_driver_auth_mode %>"
+  PermittedPeer=[<%= @tls_input_tcp_server_stream_driver_permitted_peers.map{|x| %Q{"#{x}"}}.join(',') %>]
   MaxSessions="<%= @tls_tcp_max_sessions %>"
 )
-<% if @tls_listen_port.empty? -%>
-<%  t_tls_listen_port = '6514' -%>
-<% else -%>
-<% t_tls_listen_port = @tls_listen_port -%>
-<% end -%>
+<%     if @tls_listen_port.empty?
+         t_tls_listen_port = '6514'
+       else
+         t_tls_listen_port = @tls_listen_port
+       end
+-%>
 input(type="imtcp" port="<%= t_tls_listen_port %>")
-<% end -%>
-<% if @udp_server -%>
+<%   end
+   end
+   if @udp_server
+-%>
 
 module(load="imudp")
-<% if @udp_listen_port.empty? -%>
-<%  t_udp_listen_port = '514' -%>
-<% else -%>
-<% t_udp_listen_port = @udp_listen_port -%>
-<% end -%>
+<%   if @udp_listen_port.empty?
+       t_udp_listen_port = '514'
+     else
+       t_udp_listen_port = @udp_listen_port
+     end
+-%>
 input(type="imudp"
   port="<%= t_udp_listen_port %>"
   address="<%= @udp_server_address %>"
 )
-<% end -%>
-<% if @enable_tls_logging or @tls_tcp_server -%>
+<% end
+   if @enable_tls_logging or @tls_tcp_server -%>
 
 # These are legacy because CertFile has not been implemented in the new RainerScript.
 $DefaultNetstreamDriverCertFile <%= @default_net_stream_driver_cert_file %>
@@ -168,9 +174,9 @@ $MainMsgQueueMaxDiskSpace <%= t_main_msg_queue_max_disk_space %>
 
 #TODO: Remove these in favor of StreamDriver* directives directly in the actions themselves.
 $ActionSendStreamDriverMode <%= @action_send_stream_driver_mode %>
-$ActionSendStreamDriverAuthMode <%= @action_send_stream_driver_auth_mode %>
-<% if not @action_send_stream_driver_permitted_peers.empty? -%>
-<%   @action_send_stream_driver_permitted_peers.each do |peer| -%>
+$ActionSendStreamDriverAuthMode <%= @l_action_send_stream_driver_auth_mode %>
+<% if not @action_send_stream_driver_permitted_peers.empty?
+     @action_send_stream_driver_permitted_peers.each do |peer| -%>
 $ActionSendStreamDriverPermittedPeer <%= peer %>
-<%   end -%>
-<% end -%>
+<%   end
+   end -%>
