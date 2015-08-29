@@ -126,12 +126,6 @@
 #   Disable DNS for remote messages.
 #   See the -x option in rsyslogd(8) for more information.
 #
-# == Authors
-#
-# * Kendall Moore <mailto:kmoore@keywcorp.com>
-# * Mike Riddle <mailto:mriddle@onyxpoint.com>
-# * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
-#
 class rsyslog::config (
   $umask                                              = '0027',
   $preserve_fqdn                                      = true,
@@ -175,16 +169,17 @@ class rsyslog::config (
   $work_directory                                     = '/var/spool/rsyslog',
   $interval                                           = '0',
   $tls_tcp_max_sessions                               = '200',
+  # FIXME: handle this as an Array in the template, templates/pre_logging.conf.erb
   $tls_input_tcp_server_stream_driver_permitted_peers = ["*.${::domain}"],
 
-  $default_net_stream_driver_ca_file                  = '/etc/rsyslog.d/pki/cacerts/cacerts.pem',
-  $default_net_stream_driver_cert_file                = "/etc/rsyslog.d/pki/public/${::fqdn}.pub",
-  $default_net_stream_driver_key_file                 = "/etc/rsyslog.d/pki/private/${::fqdn}.pem",
+  $default_net_stream_driver_ca_file                  = "${::rsyslog::cert_source}/cacerts/cacerts.pem",
+  $default_net_stream_driver_cert_file                = "${::rsyslog::cert_source}/public/${::fqdn}.pub",
+  $default_net_stream_driver_key_file                 = "${::rsyslog::cert_source}/private/${::fqdn}.pem",
 
   ## TODO: Remove these once we upgrade to v7-stable or later.
-  $action_send_stream_driver_mode                     = '1',
-  $action_send_stream_driver_auth_mode                = 'x509/name',
-  $action_send_stream_driver_permitted_peers          = hiera('log_servers',[]),
+  $action_send_stream_driver_mode                     = $::rsyslog::enable_pki ? { true => '1', default => '0' },
+  $action_send_stream_driver_auth_mode                = '',
+  $action_send_stream_driver_permitted_peers          = $::rsyslog::log_server_list,
 
   $ulimit_max_open_files                              = 'unlimited',
   $host_list                                          = '',
@@ -192,7 +187,7 @@ class rsyslog::config (
   $suppress_noauth_warn                               = false,
   $disable_remote_dns                                 = false,
   $enable_default_rules                               = true,
-  $include_rsyslog_d                                  = false
+  $include_rsyslog_d                                  = false,
 ) {
 
   validate_bool($preserve_fqdn)
@@ -231,6 +226,17 @@ class rsyslog::config (
   validate_bool($enable_default_rules)
 
   include '::rsyslog'
+
+  # set the driver auth_mode based on the mode
+  if empty( $action_send_stream_driver_auth_mode ) {
+    $l_action_send_stream_driver_auth_mode = $action_send_stream_driver_mode ? {
+       '0'     => 'anon',
+       '1'     => 'x509/name',
+       default => 'x509/name',
+    }
+  } else {
+    $l_action_send_stream_driver_auth_mode = $action_send_stream_driver_auth_mode
+  }
 
   $_default_template = $default_template ? {
     'traditional' => 'RSYSLOG_TraditionalFormat',

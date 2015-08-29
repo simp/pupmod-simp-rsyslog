@@ -2,10 +2,6 @@
 #
 # Sets up log rotation for RSyslog.
 #
-# == Authors
-#
-# * Kendall Moore <mailto:kmoore@keywcorp.com>
-#
 class rsyslog::config::logging {
   include 'logrotate'
 

@@ -15,10 +15,6 @@
 # [*content*]
 #   The exact content of the rule to place in the target file.
 #
-# == Authors
-#
-# * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
-#
 define rsyslog::rule (
   $content
 ) {

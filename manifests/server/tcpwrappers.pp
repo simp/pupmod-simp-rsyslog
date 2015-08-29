@@ -2,11 +2,6 @@
 #
 # Sets up TCPWrappers for RSyslog both plain TCP and over TLS as necessary.
 #
-# == Authors
-#
-# * Kendall Moore <mailto:kmoore@keywcorp.com>
-# * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
-#
 class rsyslog::server::tcpwrappers {
   include '::rsyslog'
   include '::tcpwrappers'

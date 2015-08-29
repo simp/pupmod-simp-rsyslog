@@ -16,19 +16,11 @@
 #       public/<fqdn>.pub
 #       cacerts/cacerts.pem <- All CA certificates go here!
 #
-# == Authors
-#
-# * Kendall Moore <mailto:kmoore@keywcorp.com>
-# * Mike Riddle <mailto:mriddle@onyxpoint.com>
-#
-class rsyslog::config::pki (
-  $cert_source = ''
-) {
-  if !empty($cert_source) { validate_absolute_path($cert_source) }
+class rsyslog::config::pki {
+  if !empty($::rsyslog::cert_source) { validate_absolute_path($::rsyslog::cert_source) }
 
-  if empty($cert_source) {
+  if $::rsyslog::use_simp_pki {
     include 'pki'
-
     ::pki::copy { '/etc/rsyslog.d': }
   }
   else {
@@ -37,7 +29,9 @@ class rsyslog::config::pki (
       owner  => 'root',
       group  => 'root',
       mode   => '0640',
-      source => $cert_source
+      source => "file://${::rsyslog::cert_source}",
+      purge  => true,
+      recurse => true,
     }
   }
 }

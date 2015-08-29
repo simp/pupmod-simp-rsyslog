@@ -55,10 +55,6 @@
 # Default: true
 #   A flag, which if enabled, manages the TCPWrappers configuration for RSyslog.
 #
-# == Authors
-#
-# * Kendall Moore <mailto:kmoore@keywcorp.com>
-#
 class rsyslog::server (
   $enable_firewall       = defined('$::use_iptables') ? { true => $::use_iptables, default => hiera('use_iptables',true) },
   $enable_selinux = defined('$::enable_selinux') ? { true => $::enable_selinux, default => hiera('enable_selinux',true) },

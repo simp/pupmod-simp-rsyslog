@@ -15,34 +15,35 @@ describe 'rsyslog::server' do
           facts
         end
 
-        context 'rsyslog server class without any parameters' do
+        context 'rsyslog::server class without any parameters' do
           let(:params) {{ }}
           it_behaves_like 'a structured module'
         end
 
-        context 'rsyslog class with firewall enabled' do
-          let(:parms) {{
+        context 'rsyslog::server class with firewall enabled' do
+          let(:params) {{
             :enable_firewall => true
           }}
           ###it_behaves_like 'a structured module'
           it { is_expected.to contain_class('rsyslog::server::firewall') }
         end
 
-        context 'rsyslog class with SELinux enabled' do
-          let(:parms) {{
+        context 'rsyslog::server class with SELinux enabled' do
+          let(:params) {{
             :enable_selinux => true
           }}
           ###it_behaves_like 'a structured module'
           it { is_expected.to contain_class('rsyslog::server::selinux') }
         end
 
-        context 'rsyslog class with TCPWrappers enabled' do
-          let(:parms) {{
+        context 'rsyslog::server class with TCPWrappers enabled' do
+          let(:params) {{
             :enable_tcpwrappers => true
           }}
           ###it_behaves_like 'a structured module'
           it { is_expected.to contain_class('rsyslog::server::tcpwrappers') }
         end
+
       end
     end
   end

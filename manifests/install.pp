@@ -2,13 +2,17 @@
 #
 # Installs the RSyslog packages necessary for use of RSyslog.
 #
-# == Authors
-#
-# * Mike Riddle <mriddle@onyxpoint.com>
-# * Kendall Moore <kmoore@keywcorp.com>
-#
 class rsyslog::install {
+
   package { "${::rsyslog::package_name}.${::hardwaremodel}": ensure => 'latest' }
+
+  # remove existing/conflicting packages
+  if $::rsyslog::package_name == 'rsyslog7' {
+    package { "rsyslog.${::hardwaremodel}": ensure => 'absent' }
+    ->
+    Package["${::rsyslog::package_name}.${::hardwaremodel}"]
+  }
+
 
   # Some hackery to remove the i386 version of rsyslog if you're on a x86_64
   # system.

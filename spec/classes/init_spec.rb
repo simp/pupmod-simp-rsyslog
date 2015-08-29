@@ -40,8 +40,9 @@ describe 'rsyslog' do
           it { is_expected.to contain_class('rsyslog').with_tls_package_name("#{rsyslog_package_name}-gnutls") }
         end
 
+
         context 'rsyslog class with logging enabled' do
-          let(:parms) {{
+          let(:params) {{
             :enable_logging => true
           }}
           ###it_behaves_like 'a structured module'
@@ -49,12 +50,49 @@ describe 'rsyslog' do
         end
 
         context 'rsyslog class with PKI enabled' do
-          let(:parms) {{
+          let(:params) {{
             :enable_pki => true
-          }}
+         }}
           ###it_behaves_like 'a structured module'
           it { is_expected.to contain_class('rsyslog::config::pki') }
         end
+
+
+        context 'rsyslog class without TLS' do
+          # rsyslog needs to disable pki/tls
+          let(:params) {{
+            :enable_logging     => true,
+            :enable_tls_logging => false,
+            :enable_pki         => false,
+           }}
+          ###it_behaves_like 'a structured module'
+          it { is_expected.to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf').with_content(/^\$ActionSendStreamDriverAuthMode anon/) }
+        end
+
+
+        context 'rsyslog class with TLS' do
+          # rsyslog needs to disable pki/tls
+          let(:params) {{
+            :enable_logging     => true,
+            :enable_tls_logging => true,
+            :enable_pki         => true,
+           }}
+          ###it_behaves_like 'a structured module'
+          it { is_expected.to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf').with_content(%r{^\$ActionSendStreamDriverAuthMode x509/name}) }
+        end
+
+        context 'rsyslog server without TLS' do
+          # rsyslog needs to disable pki/tls
+          let(:params) {{
+            :tcp_server         => true,
+            :enable_logging     => true,
+            :enable_tls_logging => false,
+            :enable_pki         => false,
+           }}
+          ###it_behaves_like 'a structured module'
+          it { is_expected.to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf').with_content(/514/) }
+        end
+
       end
     end
   end

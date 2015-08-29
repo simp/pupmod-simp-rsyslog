@@ -25,12 +25,6 @@
 #   The rule with omfile action that will be placed in the file in the
 #   /etc/rsyslog.simp.d directory.
 #
-# == Authors
-#
-# * Kendall Moore <mailto:kmoore@keywcorp.com>
-# * Mike Riddle <mailto:mriddle@onyxpoint.com>
-# * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
-#
 define rsyslog::rule::data_source(
   $rule
 ) {

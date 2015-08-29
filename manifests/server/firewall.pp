@@ -11,12 +11,6 @@
 #
 # == Parameters
 #
-# == Authors
-#
-# * Kendall Moore <mailto:kmoore@keywcorp.com>
-# * Mike Riddle <mailto:mriddle@onyxpoint.com>
-# * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
-#
 class rsyslog::server::firewall {
   include '::rsyslog'
   include '::rsyslog::server'

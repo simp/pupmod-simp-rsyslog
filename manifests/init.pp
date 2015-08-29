@@ -68,17 +68,24 @@
 # Default: true
 #   A flag, which if enabled, manages the PKI/PKE configuration for RSyslog.
 #
+# [*cert_source*]
+# Type: String
+# Default: ''
+#   The path to client certificates dir, if using local (SIMP-independent) PKI
+#
 # == Authors
 #
 # * Kendall Moore <mailto:kmoore@keywcorp.com>
 # * Mike Riddle <mailto:mriddle@onyxpoint.com>
 # * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
+# * Chris Tessmer <mailto:chris.tessmer@onyxpoint.com>
 #
 class rsyslog (
   $service_name          = $::rsyslog::params::service_name,
   $package_name          = $::rsyslog::params::package_name,
   $tls_package_name      = $::rsyslog::params::tls_package_name,
   $client_nets           = $::rsyslog::params::client_nets,
+  $log_server_list       = $::rsyslog::params::log_server_list,
   $enable_tls_logging    = $::rsyslog::params::enable_tls_logging,
   $allow_failover        = $::rsyslog::params::allow_failover,
   $failover_log_servers  = $::rsyslog::params::failover_log_servers,
@@ -87,11 +94,13 @@ class rsyslog (
   $tls_tcp_server        = $::rsyslog::params::tls_tcp_server,
   $tls_listen_port       = $::rsyslog::params::tls_listen_port,
   $udp_server            = $::rsyslog::params::udp_server,
-  $udp_listen_address    = $::rsyslog::parmas::udp_listen_address,
+  $udp_listen_address    = $::rsyslog::params::udp_listen_address,
   $udp_listen_port       = $::rsyslog::params::udp_listen_port,
   $rule_dir              = '/etc/rsyslog.simp.d',
   $enable_logging        = defined('$::enable_logging') ? { true => $::enable_logging, default => hiera('enable_logging',true) },
   $enable_pki            = defined('$::enable_pki') ? { true => $::enable_pki, default => hiera('enable_pki',true) },
+  $use_simp_pki          = true,
+  $cert_source           = '/etc/rsyslog.d/pki',
 ) inherits ::rsyslog::params {
   validate_string($service_name)
   validate_string($package_name)
@@ -110,6 +119,8 @@ class rsyslog (
   validate_bool($udp_server)
   validate_bool($enable_logging)
   validate_bool($enable_pki)
+  validate_bool($use_simp_pki)
+  validate_string($cert_source)
 
   include '::rsyslog::install'
   include '::rsyslog::config'

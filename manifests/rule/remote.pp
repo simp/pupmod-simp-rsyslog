@@ -52,15 +52,9 @@
 #    not use legacy syslog syntax. For complete documentation on RSyslog
 #    omfwd options, visit http://www.rsyslog.com/doc/v7-stable/configuration/modules/omfwd.html
 #
-# == Authors
-#
-# * Kendall Moore <mailto:kmoore@keywcorp.com>
-# * Mike Riddle <mailto:mriddle@onyxpoint.com>
-# * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
-#
 define rsyslog::rule::remote (
   $rule,
-  $dest                                 = hiera('log_servers',[]),
+  $dest                                 = $::rsyslog::log_server_list,
   $dest_type                            = 'tcp',
   $tcp_framing                          = 'traditional',
   $zip_level                            = '0',
