@@ -1,17 +1,7 @@
-<% t_bool_xlat = {
+<% _bool_xlat = {
   true  => 'on',
   false => 'off'
 } -%>
-<% t_host,t_port = @l_dest.first.split(":") -%>
-<%
-  if t_port.nil? || t_port.empty?
-    if @_use_tls
-      t_port = '6514'
-    else
-      t_port = '514'
-    end
-  end
--%>
 ruleset(
   name="<%= @_safe_name %>_ruleset"
 ## TODO: Implement these once DA queues work properly inside of rulesets.
@@ -38,7 +28,7 @@ ruleset(
 <% if !@queue_checkpoint_interval.empty? -%>
 #  queue.checkpointinterval="<%= @queue_checkpoint_interval %>"
 <% end -%>
-#  queue.syncqueuefiles="<%= t_bool_xlat[@queue_sync_queue_files] %>"
+#  queue.syncqueuefiles="<%= _bool_xlat[@queue_sync_queue_files] %>"
 #  queue.type="<%= @queue_type %>"
 #  queue.workerthreads="<%= @queue_worker_threads %>"
 #  queue.timeoutshutdown="<%= @queue_timeout_shutdown %>"
@@ -47,7 +37,7 @@ ruleset(
 #  queue.timeoutworkerthreadshutdown="<%= @queue_timeout_worker_thread_shutdown %>"
 #  queue.workerthreadminimummessages="<%= @queue_worker_thread_minimum_messages %>"
 #  queue.maxfilesize="<%= @queue_max_file_size %>"
-#  queue.saveonshutdown="<%= t_bool_xlat[@queue_save_on_shutdown] %>"
+#  queue.saveonshutdown="<%= _bool_xlat[@queue_save_on_shutdown] %>"
 #  queue.dequeueslowdown="<%= @queue_dequeue_slowdown %>"
 <% if !@queue_dequeue_time_begin.empty? -%>
 #  queue.dequeuetimebegin="<%= @queue_dequeue_time_begin %>"
@@ -56,11 +46,22 @@ ruleset(
 #  queue.dequeuetimeend="<%= @queue_dequeue_time_end %>"
 <% end -%>
 ) {
+<% @_dest.each do |dest| -%>
+<%   _host,_port = dest.split(":") -%>
+<%
+    if _port.nil? || _port.empty?
+      if @_use_tls
+        _port = '6514'
+      else
+        _port = '514'
+      end
+    end
+-%>
   action(
     type="omfwd"
     protocol="<%= @dest_type %>"
-    target="<%= t_host %>"
-    port="<%= t_port %>"
+    target="<%= _host %>"
+    port="<%= _port %>"
 <% if !@tcp_framing.empty? -%>
     TCP_Framing="<%= @tcp_framing %>"
 <% end -%>
@@ -76,7 +77,7 @@ ruleset(
 #    compression.mode="<%= @compression_mode %>"
 <% end -%>
 ## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.stream.flushOnTXEnd="<%= t_bool_xlat[@compression_stream_flush_on_tx_end] %>"
+#    compression.stream.flushOnTXEnd="<%= _bool_xlat[@compression_stream_flush_on_tx_end] %>"
 <% if !@rebind_interval.empty? -%>
     RebindInterval="<%= @rebind_interval %>"
 <% end -%>
@@ -94,10 +95,10 @@ ruleset(
     StreamDriverPermittedPeers="<%= @stream_driver_permitted_peers %>"
 <%   end -%>
 <% end -%>
-    ResendLastMSGOnReconnect="<%= t_bool_xlat[@resend_last_msg_on_reconnect] %>"
+    ResendLastMSGOnReconnect="<%= _bool_xlat[@resend_last_msg_on_reconnect] %>"
   )
+<% end -%>
 <%
-  if @_allow_failover
   if @_failover_servers.length > 0
     _final_host = @_failover_servers.last
     @_failover_servers.each do |s_target|
@@ -141,7 +142,7 @@ ruleset(
 <%   if !@queue_checkpoint_interval.empty? -%>
     queue.checkpointinterval="<%= @queue_checkpoint_interval %>"
 <%   end -%>
-    queue.syncqueuefiles="<%= t_bool_xlat[@queue_sync_queue_files] %>"
+    queue.syncqueuefiles="<%= _bool_xlat[@queue_sync_queue_files] %>"
     queue.type="LinkedList"
     queue.workerthreads="<%= @queue_worker_threads %>"
     queue.timeoutshutdown="<%= @queue_timeout_shutdown %>"
@@ -150,7 +151,7 @@ ruleset(
     queue.timeoutworkerthreadshutdown="<%= @queue_timeout_worker_thread_shutdown %>"
     queue.workerthreadminimummessages="<%= @queue_worker_thread_minimum_messages %>"
     queue.maxfilesize="<%= @queue_max_file_size %>"
-    queue.saveonshutdown="<%= t_bool_xlat[@queue_save_on_shutdown] %>"
+    queue.saveonshutdown="<%= _bool_xlat[@queue_save_on_shutdown] %>"
     queue.dequeueslowdown="<%= @queue_dequeue_slowdown %>"
 <%   if !@queue_dequeue_time_begin.empty? -%>
     queue.dequeuetimebegin="<%= @queue_dequeue_time_begin %>"
@@ -174,7 +175,7 @@ ruleset(
 #    compression.mode="<%= @compression_mode %>"
 <% end -%>
 ## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.stream.flushOnTXEnd="<%= t_bool_xlat[@compression_stream_flush_on_tx_end] %>"
+#    compression.stream.flushOnTXEnd="<%= _bool_xlat[@compression_stream_flush_on_tx_end] %>"
 <% if !@rebind_interval.empty? -%>
     RebindInterval="<%= @rebind_interval %>"
 <% end -%>
@@ -192,13 +193,14 @@ ruleset(
     StreamDriverPermittedPeers="<%= @stream_driver_permitted_peers %>"
 <%   end -%>
 <% end -%>
-    ResendLastMSGOnReconnect="<%= t_bool_xlat[@resend_last_msg_on_reconnect] %>"
+    ResendLastMSGOnReconnect="<%= _bool_xlat[@resend_last_msg_on_reconnect] %>"
     action.resumeRetryCount="<%= @action_resume_retry_count %>"
     action.execOnlyWhenPreviousIsSuspended="on"
   )
-<% end
+<%
+    end
   end
-end -%>
+-%>
 }
 
 <%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %>

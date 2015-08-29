@@ -21,7 +21,7 @@ class rsyslog::install {
     package { "${::rsyslog::package_name}.i386": ensure => 'absent' }
   }
 
-  if $::rsyslog::enable_tls_logging {
+  if ( $::rsyslog::enable_tls_logging or $::rsyslog::tls_tcp_server ) {
     package { "${::rsyslog::tls_package_name}": ensure => 'latest', }
   }
 }

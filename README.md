@@ -58,7 +58,7 @@ Packages installed by [pupmod-simp-rsyslog](https://github.com/simp/pupmod-simp-
 
 ### Setup Requirements
 
-It is *strongly* recommended that any log server be setup as highly available as possible. Failover in RSyslog is tricky and choosing the wrong kind of queueing with failover could mean losing logs.
+It is *strongly* recommended that the logging infrastructure be set up in a resilient manner. Failover in RSyslog is tricky and choosing the wrong kind of queueing with failover could mean losing logs. This module attempts to protect you from that but will allow you to change the queueing mechanism to meet your local requirements.
 
 ### Beginning with pupmod-simp-rsyslog
 
@@ -76,13 +76,16 @@ An example of an RSyslog client configuration may look like the following, inclu
 
 my_client_node.yaml
 ```
+# Send to *all* of these servers!
 log_servers:
   - first.log.server
   - second.log.server
   - third.log.server
   - fourth.log.server
+failover_log_servers:
+  - first-failover.log.server
+  - second-failover.log.server
 rsyslog::enable_tls_logging: true
-rsyslog::allow_failover: true
 rsyslog::enable_logging: true
 rsyslog::enable_pki: true
 ```
@@ -134,7 +137,7 @@ Classes for pupmod-simp-rsyslog:
 * [rsyslog::install](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/install.pp)
 * [rsyslog::config](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/config.pp)
 * [rsyslog::config::logging](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/config/logging.pp)
-* [rsyslog::config::pki_certs](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/config/pki.pp)
+* [rsyslog::config::pki](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/config/pki.pp)
 * [rsyslog::service](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/service.pp)
 * [rsyslog::server](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/server.pp)
 * [rsyslog::server::firewall](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/server/firewall.pp)
@@ -156,7 +159,7 @@ Defines for pupmod-simp-rsyslog:
 
 This module is only designed to work in RHEL or CentOS 6 and 7. Any other operating systems have not been tested and results cannot be guaranteed.
 
-Failover is tricky. By default, pupmod-simp-rsyslog tries to do the right thing and make sure that logs are always stored no matter what the state of the remote log server(s) is. Be careful if you opt out of the default queueing strategy for failover as it may cause undesirable results such as lost logs.
+By default, pupmod-simp-rsyslog tries to do the right thing during a failover scenario and make sure that logs are always stored no matter what the state of the remote log server(s) is. Be careful if you opt out of the default queueing strategy for failover as it may cause undesirable results such as lost logs.
 
 ## Development
 
