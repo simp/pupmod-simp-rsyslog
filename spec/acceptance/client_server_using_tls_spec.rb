@@ -11,10 +11,11 @@ describe 'rsyslog client -> 1 server using TLS' do
     <<-EOS
       class { 'rsyslog':
         log_server_list    => ['server-1'],
-        manage_logging     => true,
-        manage_pki_certs   => false,
-        enable_tls_logging => true,
+        enable_logging     => true,
         allow_failover     => false,
+        enable_tls_logging => true,
+        enable_pki         => true,
+        use_simp_pki       => false,
         cert_source        => '/etc/pki/simp-testing',
       }
 
@@ -35,18 +36,19 @@ describe 'rsyslog client -> 1 server using TLS' do
       class { 'rsyslog':
         log_server_list    => ['server-1'],
         tls_tcp_server     => true,
-        manage_logging     => true,
-        manage_pki_certs   => false,
+        enable_logging     => true,
         allow_failover     => false,
         enable_tls_logging => true,
+        enable_pki         => true,
         client_nets        => 'any',
+        use_simp_pki       => false,
         cert_source        => '/etc/pki/simp-testing',
       }
 
       class { 'rsyslog::server':
-        manage_firewall    => true,
-        manage_selinux     => false,
-        manage_tcpwrappers => false,
+        enable_firewall    => true,
+        enable_selinux     => false,
+        enable_tcpwrappers => false,
       }
 
       # define a dynamic file with an rsyslog template

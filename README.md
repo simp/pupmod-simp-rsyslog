@@ -134,7 +134,7 @@ Classes for pupmod-simp-rsyslog:
 * [rsyslog::install](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/install.pp)
 * [rsyslog::config](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/config.pp)
 * [rsyslog::config::logging](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/config/logging.pp)
-* [rsyslog::config::pki_certs](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/config/pki.pp)
+* [rsyslog::config::pki](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/config/pki.pp)
 * [rsyslog::service](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/service.pp)
 * [rsyslog::server](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/server.pp)
 * [rsyslog::server::firewall](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/server/firewall.pp)

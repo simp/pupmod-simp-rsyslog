@@ -43,34 +43,28 @@ describe 'rsyslog' do
 
         context 'rsyslog class with logging enabled' do
           let(:params) {{
-            :manage_logging => true
+            :enable_logging => true
           }}
           ###it_behaves_like 'a structured module'
           it { is_expected.to contain_class('rsyslog::config::logging') }
           it { is_expected.to contain_logrotate__add('syslog')}
         end
 
-        context 'rsyslog class where SIMP distributes PKI certs' do
+        context 'rsyslog class with PKI enabled' do
           let(:params) {{
-            :manage_pki_certs => true,
+            :enable_pki => true
          }}
           ###it_behaves_like 'a structured module'
-          it { is_expected.to contain_class('rsyslog::config::pki_certs') }
+          it { is_expected.to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf').with_content(/^\$ActionSendStreamDriverAuthMode anon/) }
         end
 
-        context 'rsyslog class where SIMP does not distribute PKI certs ' do
-          let(:params) {{
-            :manage_pki_certs => false,
-         }}
-          ###it_behaves_like 'a structured module'
-          it { is_expected.not_to contain_class('rsyslog::config::pki_certs') }
-        end
 
         context 'rsyslog class without TLS' do
           # rsyslog needs to disable pki/tls
           let(:params) {{
-            :manage_logging     => true,
+            :enable_logging     => true,
             :enable_tls_logging => false,
+            :enable_pki         => false,
            }}
           ###it_behaves_like 'a structured module'
           it { is_expected.to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf').with_content(/^\$ActionSendStreamDriverAuthMode anon/) }
@@ -80,21 +74,21 @@ describe 'rsyslog' do
         context 'rsyslog class with TLS' do
           # rsyslog needs to disable pki/tls
           let(:params) {{
-            :manage_logging     => true,
+            :enable_logging     => true,
             :enable_tls_logging => true,
+            :enable_pki         => true,
            }}
           ###it_behaves_like 'a structured module'
           it { is_expected.to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf').with_content(%r{^\$ActionSendStreamDriverAuthMode x509/name}) }
-          it { is_expected.to contain_package("#{rsyslog_package_name}-gnutls").with_ensure('latest') }
         end
 
         context 'rsyslog server without TLS' do
           # rsyslog needs to disable pki/tls
           let(:params) {{
             :tcp_server         => true,
-            :manage_logging     => true,
+            :enable_logging     => true,
             :enable_tls_logging => false,
-            :manage_pki_certs         => false,
+            :enable_pki         => false,
            }}
           ###it_behaves_like 'a structured module'
           it { is_expected.to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf').with_content(/514/) }

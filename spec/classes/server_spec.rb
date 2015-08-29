@@ -22,7 +22,7 @@ describe 'rsyslog::server' do
 
         context 'rsyslog::server class with firewall enabled' do
           let(:params) {{
-            :manage_firewall => true
+            :enable_firewall => true
           }}
           ###it_behaves_like 'a structured module'
           it { is_expected.to contain_class('rsyslog::server::firewall') }
@@ -30,7 +30,7 @@ describe 'rsyslog::server' do
 
         context 'rsyslog::server class with SELinux enabled' do
           let(:params) {{
-            :manage_selinux => true
+            :enable_selinux => true
           }}
           ###it_behaves_like 'a structured module'
           it { is_expected.to contain_class('rsyslog::server::selinux') }
@@ -38,7 +38,7 @@ describe 'rsyslog::server' do
 
         context 'rsyslog::server class with TCPWrappers enabled' do
           let(:params) {{
-            :manage_tcpwrappers => true
+            :enable_tcpwrappers => true
           }}
           ###it_behaves_like 'a structured module'
           it { is_expected.to contain_class('rsyslog::server::tcpwrappers') }

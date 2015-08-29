@@ -13,7 +13,7 @@ class rsyslog::params {
   }
 
   $tls_package_name = "${package_name}-gnutls"
-  $client_nets      = defined('$::client_nets') ? { true => $::client_nets, default => hiera('client_    nets', ['127.0.0.1/32']) }
+  $client_nets      =  defined('$::client_nets') ? { true => $::client_nets, default => hiera('client_nets', ['127.0.0.1/32']) }
   $log_server_list  = defined('$::log_servers') ? { true => $::log_servers, default => hiera('log_servers', []) }
 
   if !empty($log_server_list) and (size($log_server_list) > 1) {

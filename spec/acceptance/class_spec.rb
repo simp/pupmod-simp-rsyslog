@@ -10,7 +10,7 @@ describe 'rsyslog class' do
 
   let(:manifest) {
     <<-EOS
-      class { 'rsyslog': manage_pki_certs  => false }
+      class { 'rsyslog': enable_pki  => false }
     EOS
   }
 

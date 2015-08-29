@@ -11,10 +11,10 @@ describe 'rsyslog client -> 1 server without TLS' do
     <<-EOS
       class { 'rsyslog':
         log_server_list    => ['server-1'],
-        manage_logging     => true,
+        enable_logging     => true,
         allow_failover     => false,
         enable_tls_logging => false,
-        manage_pki_certs   => false,
+        enable_pki         => false,
       }
 
       rsyslog::rule::remote { 'send_the_logs':
@@ -33,17 +33,17 @@ describe 'rsyslog client -> 1 server without TLS' do
 
       class { 'rsyslog':
         tcp_server         => true,
-        manage_logging     => true,
+        enable_logging     => true,
         allow_failover     => false,
         enable_tls_logging => false,
-        manage_pki_certs   => false,
+        enable_pki         => false,
         client_nets        => 'any',
       }
 
       class { 'rsyslog::server':
-        manage_firewall    => true,
-        manage_selinux     => false,
-        manage_tcpwrappers => false,
+        enable_firewall    => true,
+        enable_selinux     => false,
+        enable_tcpwrappers => false,
       }
 
       # define a dynamic file with an rsyslog template

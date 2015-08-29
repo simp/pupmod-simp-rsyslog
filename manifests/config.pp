@@ -176,7 +176,7 @@ class rsyslog::config (
   $default_net_stream_driver_key_file                 = "${::rsyslog::cert_source}/private/${::fqdn}.pem",
 
   ## TODO: Remove these once we upgrade to v7-stable or later.
-  $action_send_stream_driver_mode                     = $::rsyslog::enable_tls_logging ? { true => '1', default => '0' },
+  $action_send_stream_driver_mode                     = $::rsyslog::enable_pki ? { true => '1', default => '0' },
   $action_send_stream_driver_auth_mode                = '',
   $action_send_stream_driver_permitted_peers          = $::rsyslog::log_server_list,
 
@@ -185,7 +185,7 @@ class rsyslog::config (
   $domain_list                                        = '',
   $suppress_noauth_warn                               = false,
   $disable_remote_dns                                 = false,
-  $manage_default_rules                               = true,
+  $enable_default_rules                               = true,
   $include_rsyslog_d                                  = false,
 ) {
 

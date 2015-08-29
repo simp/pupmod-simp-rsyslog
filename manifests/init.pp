@@ -74,6 +74,11 @@
 # Default: ''
 #   The path to client certificates dir, if using local (SIMP-independent) PKI
 #
+# [*cert_source*]
+# Type: String
+# Default: ''
+#   The path to client certificates dir, if using local (SIMP-independent) PKI
+#
 # == Authors
 #
 # * Kendall Moore <mailto:kmoore@keywcorp.com>
@@ -98,8 +103,9 @@ class rsyslog (
   $udp_listen_address    = $::rsyslog::params::udp_listen_address,
   $udp_listen_port       = $::rsyslog::params::udp_listen_port,
   $rule_dir              = '/etc/rsyslog.simp.d',
-  $manage_logging        = defined('$::manage_logging') ? { true => $::manage_logging, default => hiera('manage_logging',true) },
-  $manage_pki_certs      = defined('$::manage_pki_certs') ? { true => $::manage_pki_certs, default => hiera('manage_pki_certs',true) },
+  $enable_logging        = defined('$::enable_logging') ? { true => $::enable_logging, default => hiera('enable_logging',true) },
+  $enable_pki            = defined('$::enable_pki') ? { true => $::enable_pki, default => hiera('enable_pki',true) },
+  $use_simp_pki          = true,
   $cert_source           = '/etc/rsyslog.d/pki',
 ) inherits ::rsyslog::params {
   validate_string($service_name)
@@ -117,8 +123,9 @@ class rsyslog (
   validate_bool($tcp_server)
   validate_bool($tls_tcp_server)
   validate_bool($udp_server)
-  validate_bool($manage_logging)
-  validate_bool($manage_pki_certs)
+  validate_bool($enable_logging)
+  validate_bool($enable_pki)
+  validate_bool($use_simp_pki)
   validate_string($cert_source)
 
   include '::rsyslog::install'
