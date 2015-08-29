@@ -52,15 +52,9 @@
 #    not use legacy syslog syntax. For complete documentation on RSyslog
 #    omfwd options, visit http://www.rsyslog.com/doc/v7-stable/configuration/modules/omfwd.html
 #
-# == Authors
-#
-# * Kendall Moore <mailto:kmoore@keywcorp.com>
-# * Mike Riddle <mailto:mriddle@onyxpoint.com>
-# * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
-#
 define rsyslog::rule::remote (
   $rule,
-  $dest                                 = hiera('log_servers',[]),
+  $dest                                 = [],
   $dest_type                            = 'tcp',
   $tcp_framing                          = 'traditional',
   $zip_level                            = '0',
@@ -104,9 +98,11 @@ define rsyslog::rule::remote (
   $queue_dequeue_time_begin             = '',
   $queue_dequeue_time_end               = ''
 ) {
+
   validate_array($dest)
-  if empty($dest) { fail('Error: you must pass a destination array for $dest') }
-  validate_net_list($dest)
+  $l_dest =  empty($dest) ? { false => $dest, default => $rsyslog::log_server_list }
+  if empty($l_dest) { fail('Error: you must pass a destination array for $dest') }
+  validate_net_list($l_dest)
   validate_array_member($dest_type,['tcp','udp','relp'])
   validate_array_member($tcp_framing, ['traditional', 'octet-counted'])
   validate_array_member($zip_level, ['0','1','2','3','4','5','6','7','8','9'])
@@ -148,6 +144,8 @@ define rsyslog::rule::remote (
   if !empty($queue_dequeue_time_end) { validate_integer($queue_dequeue_time_end) }
 
   include '::rsyslog'
+
+
 
   $_queue_filename = empty($queue_filename) ? {
     true    => "${name}_disk_queue",

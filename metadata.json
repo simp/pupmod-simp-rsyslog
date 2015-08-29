@@ -6,7 +6,7 @@
   "license": "Apache-2.0",
   "source":  "https://github.com/simp/pupmod-simp-rsyslog",
   "project_page": "https://github.com/simp/pupmod-simp-rsyslog",
-  "issues_url":   "https://github.com/simp/pupmod-simp-rsyslog/issues",
+  "issues_url":   "https://simp-project.atlassian.net",
   "tags": [ "simp", "logging", "rsyslog" ],
   "dependencies": [
     {

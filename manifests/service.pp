@@ -2,12 +2,9 @@
 #
 # Ensure the RSyslog daemon stays running.
 #
-# == Authors
-#
-# * Mike Riddle <mriddle@onyxpoint.com>
-# * Kendall Moore <kmoore@keywcorp.com>
-#
 class rsyslog::service {
+  assert_private()
+
   service { 'rsyslog':
     ensure     => 'running',
     enable     => true,

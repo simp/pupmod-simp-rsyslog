@@ -40,49 +40,45 @@
 #   If this instance is a UDP RSyslog server, this will be the port to listen for incoming
 #   connections on. This can be set if udp_server is false, but will be ignored.
 #
-# [*enable_firewall*]
+# [*manage_firewall*]
 # Type: Boolean
 # Default: true
 #   A flag, which if enabled, manages firewall rules to accomodate RSyslog.
 #
-# [*enable_selinux*]
+# [*manage_selinux*]
 # Type: Boolean
 # Default: true
 #   A flag, which if enabled, manages SELinux rules for RSyslog.
 #
-# [*enable_tcpwrappers*]
+# [*manage_tcpwrappers*]
 # Type: Boolean
 # Default: true
 #   A flag, which if enabled, manages the TCPWrappers configuration for RSyslog.
 #
-# == Authors
-#
-# * Kendall Moore <mailto:kmoore@keywcorp.com>
-#
 class rsyslog::server (
-  $enable_firewall       = defined('$::use_iptables') ? { true => $::use_iptables, default => hiera('use_iptables',true) },
-  $enable_selinux = defined('$::enable_selinux') ? { true => $::enable_selinux, default => hiera('enable_selinux',true) },
-  $enable_tcpwrappers    = defined('$::enable_tcpwrappers') ? { true => $::enable_tcpwrappers, default => hiera('enable_tcpwrappers',true) }
+  $manage_firewall       = defined('$::use_iptables') ? { true => $::use_iptables, default => hiera('use_iptables',true) },
+  $manage_selinux = defined('$::manage_selinux') ? { true => $::manage_selinux, default => hiera('manage_selinux',true) },
+  $manage_tcpwrappers    = defined('$::manage_tcpwrappers') ? { true => $::manage_tcpwrappers, default => hiera('manage_tcpwrappers',true) }
 ) {
-  validate_bool($enable_firewall)
-  validate_bool($enable_selinux)
-  validate_bool($enable_tcpwrappers)
+  validate_bool($manage_firewall)
+  validate_bool($manage_selinux)
+  validate_bool($manage_tcpwrappers)
 
   include '::rsyslog'
 
-  if $enable_firewall {
+  if $manage_firewall {
     include '::rsyslog::server::firewall'
     Class['rsyslog::server::firewall'] ->
     Class['rsyslog::service']
   }
 
-  if $enable_selinux {
+  if $manage_selinux {
     include '::rsyslog::server::selinux'
     Class['rsyslog::server::selinux'] ->
     Class['rsyslog::service']
   }
 
-  if $enable_tcpwrappers {
+  if $manage_tcpwrappers {
     include '::rsyslog::server::tcpwrappers'
     Class['rsyslog::server::tcpwrappers'] ->
     Class['rsyslog::service']

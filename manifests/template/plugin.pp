@@ -24,10 +24,6 @@
 #   The rsyslog plugin content that you wish to add to the system.
 #   This is fed, without formatting, directly into the target file.
 #
-# == Authors
-#
-# * Kendall Moore <mailto:kmoore@keywcorp.com>
-#
 define rsyslog::template::plugin (
   $plugin,
 ) {

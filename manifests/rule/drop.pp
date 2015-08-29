@@ -14,12 +14,6 @@
 # [*name*]
 #   The filename that you will be dropping into place.
 #
-# == Authors
-#
-# * Kendall Moore <mailto:kmoore@keywcorp.com>
-# * Mike Riddle <mailto:mriddle@onyxpoint.com>
-# * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
-#
 define rsyslog::rule::drop (
   $rule
 ) {

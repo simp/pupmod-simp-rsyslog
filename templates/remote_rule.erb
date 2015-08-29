@@ -2,7 +2,7 @@
   true  => 'on',
   false => 'off'
 } -%>
-<% t_host,t_port = @dest.first.split(":") -%>
+<% t_host,t_port = @l_dest.first.split(":") -%>
 <%
   if t_port.nil? || t_port.empty?
     if @_use_tls

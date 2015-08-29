@@ -27,12 +27,6 @@
 # [*users*]
 #    An array of users to send the console message to.
 #
-# == Authors
-#
-# * Kendall Moore <mailto:kmoore@keywcorp.com>
-# * Mike Riddle <mailto:mriddle@onyxpoint.com>
-# * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
-#
 define rsyslog::rule::console (
   $rule,
   $users

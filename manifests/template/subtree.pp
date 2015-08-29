@@ -31,10 +31,6 @@
 # [*variables*]
 #   An array of variables to be set prior to the template being created.
 #
-# == Authors
-#
-# * Kendall Moore <mailto:kmoore@keywcorp.com>
-#
 define rsyslog::template::subtree (
   $subtree,
   $variables = []

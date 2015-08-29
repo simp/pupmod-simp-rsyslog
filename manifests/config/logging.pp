@@ -2,12 +2,9 @@
 #
 # Sets up log rotation for RSyslog.
 #
-# == Authors
-#
-# * Kendall Moore <mailto:kmoore@keywcorp.com>
-#
 class rsyslog::config::logging {
   include 'logrotate'
+  assert_private()
 
   # Set up the initial logrotate rule
   logrotate::add { 'syslog':
