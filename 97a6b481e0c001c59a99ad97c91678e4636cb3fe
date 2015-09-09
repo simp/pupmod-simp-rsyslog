@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ae5cdf2_7604847e",
+        "filename": "manifests/config.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2015-09-09T14:21:32Z",
+      "side": 1,
+      "message": "This doesn\u0027t work unless you inherit ::rsyslog.\n\nAlternatively, you can mark this class as private and ensure that it is included in order.\n\nHowever, as it stands, this can easily cause issues.",
+      "revId": "97a6b481e0c001c59a99ad97c91678e4636cb3fe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ae5cdf2_36f2fc9a",
+        "filename": "manifests/config/pki.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2015-09-09T14:21:32Z",
+      "side": 1,
+      "message": "Needs to have an include, inherit, or be marked private to access this variable consistently.",
+      "revId": "97a6b481e0c001c59a99ad97c91678e4636cb3fe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ae5cdf2_36491cd1",
+        "filename": "manifests/init.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2015-09-09T14:21:32Z",
+      "side": 1,
+      "message": "Weren\u0027t we changing this to \u0027manage_pki\u0027 so that it could be \u0027simp\u0027, \u0027tpm\u0027, whatever....",
+      "revId": "97a6b481e0c001c59a99ad97c91678e4636cb3fe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ae5cdf2_f625f40a",
+        "filename": "manifests/install.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2015-09-09T14:21:32Z",
+      "side": 1,
+      "message": "This variable doesn\u0027t exist without an inherits, include, or private.",
+      "revId": "97a6b481e0c001c59a99ad97c91678e4636cb3fe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ae5cdf2_7679e4fb",
+        "filename": "manifests/rule/remote.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2015-09-09T14:21:32Z",
+      "side": 1,
+      "message": "Well, this is fun.\n\nThe only way that this will work is if $::rsyslog has been included prior to calling this define.\n\nWe have no guarantee of this.\n\nThe variable should be reverted (maybe), or set to an empty array by default and $_dest should be used to obtain the correct set of log servers from $::rsyslog *after* including the ::rsyslog class.",
+      "revId": "97a6b481e0c001c59a99ad97c91678e4636cb3fe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}

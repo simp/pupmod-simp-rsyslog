@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ae5cdf2_7612c4b5",
+        "filename": "manifests/init.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2015-09-09T14:21:32Z",
+      "side": 0,
+      "message": "Strooleans!",
+      "revId": "d57b2700fdb8ab0fb7010b76d9fedcbb153a6718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ae5cdf2_967e70e3",
+        "filename": "manifests/server.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2015-09-09T14:21:32Z",
+      "side": 0,
+      "message": "Are we changing these to \u0027manage\u0027 now or later?\n\nAlso, Strooleans",
+      "revId": "d57b2700fdb8ab0fb7010b76d9fedcbb153a6718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ae5cdf2_b6836ccb",
+        "filename": "manifests/server/firewall.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2015-09-09T14:21:32Z",
+      "side": 0,
+      "message": "This class does not appear to need this include to function so it should not be included, correct?\n\nAlso, should this class be private?",
+      "revId": "d57b2700fdb8ab0fb7010b76d9fedcbb153a6718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ae5cdf2_f66c1439",
+        "filename": "manifests/server/selinux.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2015-09-09T14:21:32Z",
+      "side": 0,
+      "message": "Should this class be private?",
+      "revId": "d57b2700fdb8ab0fb7010b76d9fedcbb153a6718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ae5cdf2_36775c04",
+        "filename": "manifests/server/tcpwrappers.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2015-09-09T14:21:32Z",
+      "side": 0,
+      "message": "Should this be private?",
+      "revId": "d57b2700fdb8ab0fb7010b76d9fedcbb153a6718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
