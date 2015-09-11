@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ae5cdf2_e0f8c1e7",
+        "filename": "manifests/init.pp",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1005193
+      },
+      "writtenOn": "2015-09-11T17:11:37Z",
+      "side": 1,
+      "message": "Seplling is difikult",
+      "range": {
+        "startLine": 36,
+        "startChar": 31,
+        "endLine": 36,
+        "endChar": 48
+      },
+      "revId": "b007fd8346e3c2629f8f22097fe73330eb536bd8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ae5cdf2_00ddad70",
+        "filename": "spec/acceptance/client_server_no_tls_spec.rb",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1005193
+      },
+      "writtenOn": "2015-09-11T17:11:37Z",
+      "side": 1,
+      "message": "So many spaces!",
+      "revId": "b007fd8346e3c2629f8f22097fe73330eb536bd8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
