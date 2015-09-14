@@ -1,13 +1,13 @@
-# == Class: rsyslog::logging
+# == Class: rsyslog::logrotate
 #
 # Sets up log rotation for RSyslog.
 #
-class rsyslog::config::logging {
-  include 'logrotate'
+class rsyslog::config::logrotate {
+  include '::logrotate'
   assert_private()
 
   # Set up the initial logrotate rule
-  logrotate::add { 'syslog':
+  ::logrotate::add { 'syslog':
     log_files  => [
       '/var/log/messages',
       '/var/log/secure',

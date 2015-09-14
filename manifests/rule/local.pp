@@ -112,7 +112,6 @@ define rsyslog::rule::local (
   validate_bool($sync)
   validate_string($sig_provider)
   validate_string($cry_provider)
-  if !empty($queue_filename) { validate_absolute_path($queue_filename) }
   if !empty($queue_spool_directory) { validate_absolute_path($queue_spool_directory) }
   if !empty($queue_size) { validate_integer($queue_size) }
   validate_integer($queue_dequeue_batch_size)

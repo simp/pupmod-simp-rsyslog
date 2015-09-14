@@ -3,6 +3,7 @@ require 'tmpdir'
 require 'yaml'
 require 'simp/beaker_helpers'
 include Simp::BeakerHelpers
+require File.join(File.dirname(__FILE__),'helpers')
 
 unless ENV['BEAKER_provision'] == 'no'
   hosts.each do |host|
@@ -15,8 +16,9 @@ unless ENV['BEAKER_provision'] == 'no'
   end
 end
 
-
 RSpec.configure do |c|
+  c.include Helpers
+
   # ensure that environment OS is ready on each host
   fix_errata_on hosts
 
@@ -48,5 +50,9 @@ RSpec.configure do |c|
     rescue StandardError, ScriptError => e
       require 'pry'; binding.pry if ENV['PRY']
     end
+  end
+
+  c.after :all do
+    clear_temp_hieradata
   end
 end

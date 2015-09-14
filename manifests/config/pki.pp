@@ -17,21 +17,20 @@
 #       cacerts/cacerts.pem <- All CA certificates go here!
 #
 class rsyslog::config::pki {
+  assert_private()
+
   if !empty($::rsyslog::cert_source) { validate_absolute_path($::rsyslog::cert_source) }
 
   if $::rsyslog::use_simp_pki {
-    include 'pki'
+    include '::pki'
     ::pki::copy { '/etc/rsyslog.d': }
   }
   else {
     file { '/etc/rsyslog.d/pki':
-      ensure => 'directory',
-      owner  => 'root',
-      group  => 'root',
-      mode   => '0640',
-      source => "file://${::rsyslog::cert_source}",
-      purge  => true,
-      recurse => true,
+      ensure  => 'directory',
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0640'
     }
   }
 }

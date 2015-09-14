@@ -4,15 +4,14 @@ test_name 'client -> 1 server using TLS'
 
 describe 'rsyslog client -> 1 server using TLS' do
   let(:client){ only_host_with_role( hosts, 'client' ) }
-  let(:server){ only_host_with_role( hosts, 'server' ) }
+  let(:server){ hosts_with_role( hosts, 'server' ).first }
   let(:client_fqdn){ fact_on( client, 'fqdn' ) }
   let(:server_fqdn){ fact_on( server, 'fqdn' ) }
   let(:client_manifest) {
     <<-EOS
       class { 'rsyslog':
         log_server_list    => ['server-1'],
-        enable_logging     => true,
-        allow_failover     => false,
+        enable_logrotate   => true,
         enable_tls_logging => true,
         enable_pki         => true,
         use_simp_pki       => false,
@@ -24,6 +23,7 @@ describe 'rsyslog client -> 1 server using TLS' do
       }
     EOS
   }
+
   let(:server_manifest) {
     <<-EOS
       # Turns off firewalld in EL7.  Presumably this would already be done.
@@ -36,8 +36,7 @@ describe 'rsyslog client -> 1 server using TLS' do
       class { 'rsyslog':
         log_server_list    => ['server-1'],
         tls_tcp_server     => true,
-        enable_logging     => true,
-        allow_failover     => false,
+        enable_logrotate   => true,
         enable_tls_logging => true,
         enable_pki         => true,
         client_nets        => 'any',

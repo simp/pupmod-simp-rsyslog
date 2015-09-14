@@ -222,7 +222,7 @@ class rsyslog::config (
   validate_bool($suppress_noauth_warn)
   validate_bool($disable_remote_dns)
   validate_bool($include_rsyslog_d)
-  validate_bool($manage_default_rules)
+  validate_bool($enable_default_rules)
 
   include '::rsyslog'
 
@@ -278,7 +278,7 @@ class rsyslog::config (
     mode   => '0700'
   }
 
-  if $manage_default_rules {
+  if $enable_default_rules {
     rsyslog::rule { '99_simp_local/ZZ_default.conf':
       content => template('rsyslog/rsyslog.default.erb')
     }

@@ -88,34 +88,36 @@ module(load="imuxsock"
 
 module(load="imfile")
 <% if t_tcp_server || @tls_tcp_server
-     if t_tcp_server
-       t_tcp_listen_port = scope.lookupvar( '::rsyslog::tcp_listen_port' )
-       t_tcp_listen_port = '514' if t_tcp_listen_port.empty?
--%>
-module(load="imtcp")
-input(type="imtcp" port="<%= t_tcp_listen_port %>")
-<%   end
-
      # FIXME: should this be 'elif @tls_tcp_server?' it doesn't seem like there
      #        can be multiple load="imtcp" statements
      if @tls_tcp_server
 -%>
 
+module(load="imptcp")
 module(load="imtcp"
   StreamDriver.Mode="<%= @action_send_stream_driver_mode %>"
   StreamDriver.AuthMode="<%= @l_action_send_stream_driver_auth_mode %>"
   PermittedPeer=[<%= @tls_input_tcp_server_stream_driver_permitted_peers.map{|x| %Q{"#{x}"}}.join(',') %>]
   MaxSessions="<%= @tls_tcp_max_sessions %>"
 )
-<%     if @tls_listen_port.empty?
-         t_tls_listen_port = '6514'
-       else
-         t_tls_listen_port = @tls_listen_port
-       end
+<%  t_tls_listen_port = @tls_listen_port
+    t_tls_listen_port = '6514' if t_tls_listen_port.empty?
 -%>
 input(type="imtcp" port="<%= t_tls_listen_port %>")
 <%   end
+
+     if t_tcp_server
+       t_tcp_listen_port = scope.lookupvar( '::rsyslog::tcp_listen_port' )
+       t_tcp_listen_port = '514' if t_tcp_listen_port.empty?
+-%>
+module(load="imtcp")
+<%      unless t_tcp_listen_port.empty? -%>
+input(type="imtcp" port="<%= t_tcp_listen_port %>")
+<%      end -%>
+<%   end
+
    end
+
    if @udp_server
 -%>
 
