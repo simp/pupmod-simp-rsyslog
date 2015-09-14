@@ -43,6 +43,14 @@
 #     will need to craft your own full rule set and leave _$dest_
 #     empty.
 #
+# [*failover_log_servers*]
+#   Type: Array of destination targets
+#   Default []
+#     If present, the listed systems will be used as failover servers for the
+#     _$content_ above.
+#
+#     Uses _$dest_type_ above
+#
 # [*omfwd_options*]
 #  Type: hash
 #  Default:
@@ -54,8 +62,9 @@
 #
 define rsyslog::rule::remote (
   $rule,
-  $dest                                 = $::rsyslog::log_server_list,
+  $dest                                 = [],
   $dest_type                            = 'tcp',
+  $failover_log_servers                 = [],
   $tcp_framing                          = 'traditional',
   $zip_level                            = '0',
   $max_error_messages                   = '5',
@@ -98,9 +107,6 @@ define rsyslog::rule::remote (
   $queue_dequeue_time_begin             = '',
   $queue_dequeue_time_end               = ''
 ) {
-  validate_array($dest)
-  if empty($dest) { fail('Error: you must pass a destination array for $dest') }
-  validate_net_list($dest)
   validate_array_member($dest_type,['tcp','udp','relp'])
   validate_array_member($tcp_framing, ['traditional', 'octet-counted'])
   validate_array_member($zip_level, ['0','1','2','3','4','5','6','7','8','9'])
@@ -115,7 +121,6 @@ define rsyslog::rule::remote (
   validate_string($stream_driver_permitted_peers)
   validate_bool($resend_last_msg_on_reconnect)
   validate_bool($udp_send_to_all)
-  if !empty($queue_filename) { validate_absolute_path($queue_filename) }
   if !empty($queue_spool_directory) { validate_absolute_path($queue_spool_directory) }
   if !empty($queue_size) { validate_integer($queue_size) }
   validate_integer($queue_dequeue_batch_size)
@@ -143,6 +148,17 @@ define rsyslog::rule::remote (
 
   include '::rsyslog'
 
+  if empty($dest) {
+    $_dest = $::rsyslog::log_server_list
+  }
+  else {
+    $_dest = $dest
+  }
+
+  validate_array($_dest)
+  if empty($_dest) { fail('Error: you must pass a destination array for $dest') }
+  validate_net_list($_dest)
+
   $_queue_filename = empty($queue_filename) ? {
     true    => "${name}_disk_queue",
     default => $queue_filename
@@ -152,8 +168,18 @@ define rsyslog::rule::remote (
     default => $queue_spool_directory
   }
   $_use_tls = $::rsyslog::enable_tls_logging
-  $_allow_failover = $::rsyslog::allow_failover
-  $_failover_servers = $::rsyslog::failover_log_servers
+
+  if empty($failover_log_servers) {
+    $_failover_servers = $::rsyslog::failover_log_servers
+  }
+  else {
+    $_failover_servers = $failover_log_servers
+  }
+
+  if !empty($_failover_servers) {
+    validate_array($_failover_servers)
+    validate_net_list($_failover_servers)
+  }
 
   $_safe_name = regsubst($name,'/','__')
 

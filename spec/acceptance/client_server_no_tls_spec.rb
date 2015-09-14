@@ -12,7 +12,6 @@ describe 'rsyslog client -> 1 server without TLS' do
       class { 'rsyslog':
         log_server_list    => ['server-1'],
         enable_logging     => true,
-        allow_failover     => false,
         enable_tls_logging => false,
         enable_pki         => false,
       }
@@ -34,7 +33,6 @@ describe 'rsyslog client -> 1 server without TLS' do
       class { 'rsyslog':
         tcp_server         => true,
         enable_logging     => true,
-        allow_failover     => false,
         enable_tls_logging => false,
         enable_pki         => false,
         client_nets        => 'any',
