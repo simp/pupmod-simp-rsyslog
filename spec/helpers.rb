@@ -2,18 +2,18 @@ module Helpers
   attr_accessor :hieradata_dirs
 
   def clear_temp_hieradata
-    if @hieradata_dirs && !@hieradata_dirs.empty?
-      @hieradata_dirs.each do |data_dir|
+    if @@hieradata_dirs && !@@hieradata_dirs.empty?
+      @@hieradata_dirs.each do |data_dir|
         FileUtils.rm_r(data_dir)
       end
     end
   end
 
   def set_hieradata_on(target_system, hieradata, data_file='default', hiera_config=nil)
-    @hieradata_dirs ||= @hieradata_dirs = []
+    @@hieradata_dirs ||= @@hieradata_dirs = []
 
     data_dir = Dir.mktmpdir('hieradata')
-    @hieradata_dirs << data_dir
+    @@hieradata_dirs << data_dir
 
     hiera_config = Array(data_file) unless hiera_config
 
