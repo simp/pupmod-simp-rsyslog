@@ -32,8 +32,6 @@
 # $::rsyslog::params::udp_server
 #   A flag to toggle whether this instance will be a UDP RSyslog server.
 #
-# [*udp_server_address*]
-#
 # [*udp_listen_port*]
 # Type: Port/String
 # Default: $::rsyslog::params::udp_listen_port

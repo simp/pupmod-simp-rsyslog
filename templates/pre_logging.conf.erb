@@ -130,7 +130,6 @@ module(load="imudp")
 -%>
 input(type="imudp"
   port="<%= t_udp_listen_port %>"
-  address="<%= @udp_server_address %>"
 )
 <% end
    if @enable_tls_logging or @tls_tcp_server -%>

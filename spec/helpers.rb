@@ -2,6 +2,9 @@ module Helpers
   attr_accessor :hieradata_dirs
 
   def clear_temp_hieradata
+    require 'pry'
+    binding.pry
+
     if @hieradata_dirs && !@hieradata_dirs.empty?
       @hieradata_dirs.each do |data_dir|
         FileUtils.rm_r(data_dir)
@@ -29,5 +32,15 @@ module Helpers
     )
     copy_hiera_data_to(target_system, data_dir)
     write_hiera_config_on(target_system, hiera_config)
+  end
+
+  RSpec.configure do |c|
+    c.before(:all) do
+      @hieradata_dirs = @hieradata_dirs || []
+    end
+
+    c.after :all do
+      clear_temp_hieradata
+    end
   end
 end

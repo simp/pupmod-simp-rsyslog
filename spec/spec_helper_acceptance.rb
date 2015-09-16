@@ -51,8 +51,4 @@ RSpec.configure do |c|
       require 'pry'; binding.pry if ENV['PRY']
     end
   end
-
-  c.after :all do
-    clear_temp_hieradata
-  end
 end
