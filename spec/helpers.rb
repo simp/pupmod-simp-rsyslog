@@ -2,9 +2,6 @@ module Helpers
   attr_accessor :hieradata_dirs
 
   def clear_temp_hieradata
-    require 'pry'
-    binding.pry
-
     if @hieradata_dirs && !@hieradata_dirs.empty?
       @hieradata_dirs.each do |data_dir|
         FileUtils.rm_r(data_dir)
