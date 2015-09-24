@@ -8,5 +8,6 @@ HOSTS:
     hypervisor: vagrant
 
 CONFIG:
-  log_level: verbose
-  type: foss
+  log_level:   verbose
+  type:        foss
+  vagrant_mem: 512
