@@ -21,7 +21,7 @@ describe 'rsyslog class' do
       'rsyslog::enable_tls_logging' => true,
       'rsyslog::enable_pki'         => true,
       'rsyslog::use_simp_pki'       => false,
-      'rsyslog::cert_source'        => '/etc/pki/simp-testing'
+      'rsyslog::cert_source'        => '/etc/pki/simp-testing/pki'
     }
   }
   let(:client_manifest) {
@@ -42,7 +42,7 @@ describe 'rsyslog class' do
       'rsyslog::enable_tls_logging'   => true,
       'rsyslog::enable_pki'           => true,
       'rsyslog::use_simp_pki'         => false,
-      'rsyslog::cert_source'          => '/etc/pki/simp-testing'
+      'rsyslog::cert_source'          => '/etc/pki/simp-testing/pki'
     }
   }
 
@@ -54,7 +54,7 @@ describe 'rsyslog class' do
       'rsyslog::enable_tls_logging'                    => true,
       'rsyslog::enable_pki'                            => true,
       'rsyslog::use_simp_pki'                          => false,
-      'rsyslog::cert_source'                           => '/etc/pki/simp-testing',
+      'rsyslog::cert_source'                           => '/etc/pki/simp-testing/pki',
       'rsyslog::config::main_msg_queue_high_watermark' => '2',
       'rsyslog::config::main_msg_queue_low_watermark'  => '1'
     }
@@ -81,7 +81,7 @@ describe 'rsyslog class' do
       'rsyslog::tls_tcp_server'             => true,
       'rsyslog::enable_pki'                 => true,
       'rsyslog::use_simp_pki'               => false,
-      'rsyslog::cert_source'                => '/etc/pki/simp-testing',
+      'rsyslog::cert_source'                => '/etc/pki/simp-testing/pki',
       'rsyslog::client_nets'                => 'any',
       'rsyslog::server::enable_firewall'    => true,
       'rsyslog::server::enable_selinux'     => true,

@@ -15,7 +15,7 @@ describe 'rsyslog client -> 1 server using TLS' do
         enable_tls_logging => true,
         enable_pki         => true,
         use_simp_pki       => false,
-        cert_source        => '/etc/pki/simp-testing',
+        cert_source        => '/etc/pki/simp-testing/pki',
       }
 
       rsyslog::rule::remote { 'send_the_logs':
@@ -41,7 +41,7 @@ describe 'rsyslog client -> 1 server using TLS' do
         enable_pki         => true,
         client_nets        => 'any',
         use_simp_pki       => false,
-        cert_source        => '/etc/pki/simp-testing',
+        cert_source        => '/etc/pki/simp-testing/pki',
       }
 
       class { 'rsyslog::server':
