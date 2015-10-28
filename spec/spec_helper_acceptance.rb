@@ -22,19 +22,6 @@ RSpec.configure do |c|
   # ensure that environment OS is ready on each host
   fix_errata_on hosts
 
-  # FIXME: The EL6 tests need to install rsyslog7.  However, puppetlabs'
-  # centos6 vagrant box comes with rsyslog + a big dep chain, which stops
-  # rsyslog7 from getting installed.
-  #
-  # This workaround shanks rsyslog out of the way, however the module itself
-  # should handle this upgrade somehow.
-  hosts.each do |sut|
-    if fact_on(sut, 'osfamily') == 'RedHat' && fact_on(sut, 'operatingsystemmajrelease') == '6'
-      on(sut, 'rpm -q rsyslog && rpm -e --nodeps rsyslog', :accept_all_exit_codes => true )
-      puts '*'*400 + " ^^ FIXME in the module!"
-    end
-  end
-
   # Readable test descriptions
   c.formatter = :documentation
 
