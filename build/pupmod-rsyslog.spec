@@ -1,7 +1,7 @@
 Summary: Rsyslog Puppet Module
 Name: pupmod-rsyslog
 Version: 5.0.0
-Release: 0
+Release: 1
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -11,6 +11,7 @@ Requires: puppet >= 3.7
 Requires: pupmod-logrotate >= 4.1.0-0
 Requires: pupmod-tcpwrappers >= 2.1.0-0
 Requires: pupmod-common >= 4.2.0-13
+Requires: pupmod-simplib >= 1.0.0-0
 Buildarch: noarch
 Requires: simp-bootstrap >= 4.2.0
 Obsoletes: pupmod-rsyslog-test
@@ -58,6 +59,9 @@ fi
 # Post uninstall stuff
 
 %changelog
+* Mon Nov 09 2015 Chris Tessmer <chris.tessmer@onypoint.com> - 5.0.0-1
+- migration to simplib and simpcat (lib/ only)
+
 * Tue Jul 21 2015 Kendall Moore <kmoore@keywcorp.com> - 5.0.0-0
 - Support RSyslog versions >= 7
 - Remove legacy style RainerScript where possible
@@ -304,7 +308,7 @@ x86_64 system.
 0.1-15
 - Now call the new logrotate module to set up the log rotation job.
 
-* Tue Oct 08 2009 Maintenance
+* Thu Oct 08 2009 Maintenance
 0.1-14
 - Modified the default 'secure' configurations to use verify = 2 by default.
 

@@ -3,9 +3,10 @@ fixtures:
   repositories:
     auditd:               "git://github.com/simp/pupmod-simp-auditd"
     common:               "git://github.com/simp/pupmod-simp-common"
+    simplib: "git://github.com/simp/pupmod-simp-simplib"
     augeasproviders_core: "git://github.com/simp/augeasproviders_core"
     augeasproviders_grub: "git://github.com/simp/augeasproviders_grub"
-    concat:               "git://github.com/simp/pupmod-simp-concat"
+    simpcat:               "git://github.com/simp/pupmod-simp-concat"
     functions:            "git://github.com/simp/pupmod-simp-functions"
     iptables:             "git://github.com/simp/pupmod-simp-iptables"
     logrotate:            "git://github.com/simp/pupmod-simp-logrotate"
