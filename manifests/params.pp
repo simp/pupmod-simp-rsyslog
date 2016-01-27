@@ -4,9 +4,8 @@
 #
 class rsyslog::params {
   $service_name       = 'rsyslog'
-  if ($::operatingsystem in ['RedHat','CentOS']) and
-     ("${::operatingsystemmajrelease}" == '6') {
-       $package_name = 'rsyslog7'
+  if ($::operatingsystem in ['RedHat','CentOS']) and ($::operatingsystemmajrelease == '6') {
+    $package_name = 'rsyslog7'
   }
   else {
     $package_name = 'rsyslog'

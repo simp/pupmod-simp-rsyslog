@@ -27,10 +27,10 @@ class rsyslog::config::pki {
   }
   else {
     file { '/etc/rsyslog.d/pki':
-      ensure  => 'directory',
-      owner   => 'root',
-      group   => 'root',
-      mode    => '0640'
+      ensure => 'directory',
+      owner  => 'root',
+      group  => 'root',
+      mode   => '0640'
     }
   }
 }

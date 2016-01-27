@@ -12,9 +12,9 @@ class rsyslog::install {
   # remove existing/conflicting packages
   if $::rsyslog::package_name == 'rsyslog7' {
     package { "rsyslog.${::hardwaremodel}":
-     ensure            => 'absent',
-     uninstall_options => ['--nodeps'],
-     provider          => 'rpm',
+      ensure            => 'absent',
+      uninstall_options => ['--nodeps'],
+      provider          => 'rpm',
     }
     ->
     Package[$full_rsyslog_package]
@@ -32,6 +32,6 @@ class rsyslog::install {
   if ( $::rsyslog::enable_tls_logging or $::rsyslog::tls_tcp_server ) {
     Package[$full_rsyslog_package]
     ->
-    package { "${::rsyslog::tls_package_name}": ensure => 'latest', }
+    package { $::rsyslog::tls_package_name: ensure => 'latest', }
   }
 }

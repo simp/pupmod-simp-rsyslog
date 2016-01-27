@@ -229,9 +229,9 @@ class rsyslog::config (
   # set the driver auth_mode based on the mode
   if empty( $action_send_stream_driver_auth_mode ) {
     $l_action_send_stream_driver_auth_mode = $action_send_stream_driver_mode ? {
-       '0'     => 'anon',
-       '1'     => 'x509/name',
-       default => 'x509/name',
+      '0'     => 'anon',
+      '1'     => 'x509/name',
+      default => 'x509/name',
     }
   } else {
     $l_action_send_stream_driver_auth_mode = $action_send_stream_driver_auth_mode
