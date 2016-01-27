@@ -1,11 +1,14 @@
 .*.sw?
+.yardoc
 dist
 /pkg
 /spec/fixtures
+!/spec/hieradata/default.yaml
+!/spec/fixtures/site.pp
 /.rspec_system
 /.vagrant
 /.bundle
-/vendor
 /Gemfile.lock
+/vendor
 /junit
 /log
