@@ -14,5 +14,6 @@ fixtures:
     stdlib:               "git://github.com/simp/puppetlabs-stdlib"
     stunnel:              "git://github.com/simp/pupmod-simp-stunnel"
     tcpwrappers:          "git://github.com/simp/pupmod-simp-tcpwrappers"
+    compliance:           "https://github.com/trevor-vaughan/pupmod-compliance"
   symlinks:
     rsyslog: "#{source_dir}"

@@ -120,6 +120,8 @@ class rsyslog (
   validate_bool($use_simp_pki)
   validate_string($cert_source)
 
+  compliance_map()
+
   include '::rsyslog::install'
   include '::rsyslog::config'
   include '::rsyslog::service'

@@ -224,6 +224,8 @@ class rsyslog::config (
   validate_bool($include_rsyslog_d)
   validate_bool($enable_default_rules)
 
+  compliance_map()
+
   include '::rsyslog'
 
   # set the driver auth_mode based on the mode
