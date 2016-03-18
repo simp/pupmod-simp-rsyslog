@@ -11,6 +11,11 @@
 # [*umask*]
 #   The umask that should be applied to the running process.
 #
+# [*localhostname*]
+#   Type: String
+#   Default: $::fqdn
+#   The Hostname that should be used on your syslog messages
+#
 # [*main_msg_queue_size*]
 #   Type: Integer
 #   Default: The minimum of 1% of physical memory or 1G, based on a 512B message size.
@@ -127,6 +132,7 @@
 #
 class rsyslog::config (
   $umask                                              = '0027',
+  $localhostname                                      = $::fqdn,
   $preserve_fqdn                                      = true,
   $control_character_escape_prefix                    = '#',
   $drop_msgs_with_malicious_dns_ptr_records           = 'off',
@@ -189,6 +195,7 @@ class rsyslog::config (
   $include_rsyslog_d                                  = false,
 ) {
 
+  validate_string($localhostname)
   validate_bool($preserve_fqdn)
   validate_array_member($main_msg_queue_type,['LinkedList','FixedArray'])
   validate_string($main_msg_queue_filename)
