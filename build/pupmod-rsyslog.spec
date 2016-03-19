@@ -1,7 +1,7 @@
 Summary: Rsyslog Puppet Module
 Name: pupmod-rsyslog
-Version: 5.0.0
-Release: 2
+Version: 5.0.1
+Release: 0
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -17,7 +17,7 @@ Requires: simp-bootstrap >= 4.2.0
 Obsoletes: pupmod-rsyslog-test
 Requires: pupmod-onyxpoint-compliance_markup
 
-Prefix: /etc/puppet/environments/simp/modules
+Prefix: %{_sysconfdir}/puppet/environments/simp/modules
 
 %description
 This Puppet module provides the capability to configure RSyslog >= 3.0 on your
@@ -60,6 +60,9 @@ fi
 # Post uninstall stuff
 
 %changelog
+* Sat Mar 19 2016 Trevor Vaughan <tvaughan@onyxpoint.comm> - 5.0.1-0
+- Migrated use_simp_pki to a global catalyst.
+
 * Thu Feb 25 2016 Ralph Wright <ralph.wright@onyxpoint.com> - 5.0.0-2
 - Added compliance function support
 

@@ -102,7 +102,7 @@ class rsyslog (
   $rule_dir              = '/etc/rsyslog.simp.d',
   $enable_logrotate      = true,
   $enable_pki            = defined('$::enable_pki') ? { true => $::enable_pki, default => hiera('enable_pki',true) },
-  $use_simp_pki          = true,
+  $use_simp_pki = defined('$::use_simp_pki') ? { true => $::use_simp_pki, default => hiera('use_simp_pki', true) },
   $cert_source           = '/etc/rsyslog.d/pki',
 ) inherits ::rsyslog::params {
   validate_string($service_name)
