@@ -1,21 +1,21 @@
 Summary: Rsyslog Puppet Module
 Name: pupmod-rsyslog
-Version: 5.0.1
+Version: 5.1.0
 Release: 0
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
-Requires: pupmod-functions >= 2.1.0-0
-Requires: puppet >= 3.7
-Requires: pupmod-logrotate >= 4.1.0-0
-Requires: pupmod-tcpwrappers >= 2.1.0-0
-Requires: pupmod-common >= 4.2.0-13
-Requires: pupmod-simplib >= 1.0.0-0
-Buildarch: noarch
-Requires: simp-bootstrap >= 4.2.0
-Obsoletes: pupmod-rsyslog-test
+Requires: pupmod-iptables >= 4.1.0-15
+Requires: pupmod-logrotate >= 4.1.0-2
 Requires: pupmod-onyxpoint-compliance_markup
+Requires: pupmod-pki >= 4.1.0-9
+Requires: pupmod-simplib >= 1.0.0-0
+Requires: pupmod-tcpwrappers >= 2.1.0-0
+Requires: puppet >= 3.7
+Requires: simp-bootstrap >= 4.2.0
+Buildarch: noarch
+Obsoletes: pupmod-rsyslog-test >= 0.0.1
 
 Prefix: %{_sysconfdir}/puppet/environments/simp/modules
 
@@ -52,14 +52,16 @@ mkdir -p %{buildroot}/%{prefix}/rsyslog
 %post
 #!/bin/sh
 
-if [ -d %{prefix}/rsyslog/plugins ]; then
-  /bin/mv %{prefix}/rsyslog/plugins %{prefix}/rsyslog/plugins.bak
-fi
-
 %postun
 # Post uninstall stuff
 
 %changelog
+* Mon Mar 21 2016 Trevor Vaughan <tvaughan@onyxpoint.com> - 5.1.0-0
+- Migrated to Semantic Versioning 2.0
+- Added support for the global $LocalHostName variable and set it to $::fqdn by
+  default.
+- Updated RPM requirements
+
 * Sat Mar 19 2016 Trevor Vaughan <tvaughan@onyxpoint.comm> - 5.0.1-0
 - Migrated use_simp_pki to a global catalyst.
 
