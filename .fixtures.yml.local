@@ -4,6 +4,7 @@ fixtures:
     rsyslog: "#{source_dir}"
     auditd: "#{source_dir}/../auditd"
     common: "#{source_dir}/../common"
+    compliance_markup: "#{source_dir}/../compliance_markup"
     augeasproviders_core: "#{source_dir}/../augeasproviders_core"
     augeasproviders_grub: "#{source_dir}/../augeasproviders_grub"
     concat: "#{source_dir}/../concat"
