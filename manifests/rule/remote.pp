@@ -20,9 +20,12 @@
 # [*name*]
 #   The filename that you will be dropping into place.
 #
-# [*content*]
+# [*rule*]
 #   The literal content of the file that you are placing in the
 #   /etc/rsyslog.d directory.
+#
+# [*template*]
+#   The template that should be used to format the content.
 #
 # [*dest*]
 #   Type: Array of destination targets
@@ -62,6 +65,7 @@
 #
 define rsyslog::rule::remote (
   $rule,
+  $template                             = '',
   $dest                                 = [],
   $dest_type                            = 'tcp',
   $failover_log_servers                 = [],
@@ -108,6 +112,7 @@ define rsyslog::rule::remote (
   $queue_dequeue_time_end               = ''
 ) {
 
+  validate_string($template)
   validate_array_member($dest_type,['tcp','udp','relp'])
   validate_array_member($tcp_framing, ['traditional', 'octet-counted'])
   validate_array_member($zip_level, ['0','1','2','3','4','5','6','7','8','9'])

@@ -15,12 +15,13 @@ Requires: pupmod-tcpwrappers >= 2.1.0-0
 Requires: puppet >= 3.7
 Requires: simp-bootstrap >= 4.2.0
 Buildarch: noarch
+Requires: pupmod-onyxpoint-compliance_markup
 Obsoletes: pupmod-rsyslog-test >= 0.0.1
 
 Prefix: %{_sysconfdir}/puppet/environments/simp/modules
 
 %description
-This Puppet module provides the capability to configure RSyslog >= 3.0 on your
+This Puppet module provides the capability to configure RSyslog 7 on your
 systems.
 
 %prep
@@ -33,12 +34,13 @@ systems.
 
 mkdir -p %{buildroot}/%{prefix}/rsyslog
 
-dirs='files lib manifests templates'
-for dir in $dirs; do
-  test -d $dir && cp -r $dir %{buildroot}/%{prefix}/rsyslog
-done
+rm -rf .git
+rm -rf *.lock
+rm -rf spec/fixtures/modules
 
-mkdir -p %{buildroot}/usr/share/simp/tests/modules/rsyslog
+curdir=`pwd`
+dirname=`basename $curdir`
+cp -r ../$dirname/* %{buildroot}/%{prefix}/rsyslog
 
 %clean
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
@@ -58,6 +60,10 @@ mkdir -p %{buildroot}/%{prefix}/rsyslog
 %changelog
 * Mon Mar 21 2016 Trevor Vaughan <tvaughan@onyxpoint.com> - 5.1.0-0
 - Migrated to Semantic Versioning 2.0
+- Fixed a bug where the ability to use custom templates was omitted from the
+  remote logging rules.
+- Ensure that all components of the module are pulled onto the system via the
+  RPM.
 - Added support for the global $LocalHostName variable and set it to $::fqdn by
   default.
 - Updated RPM requirements
