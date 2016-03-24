@@ -63,6 +63,12 @@
 #    not use legacy syslog syntax. For complete documentation on RSyslog
 #    omfwd options, visit http://www.rsyslog.com/doc/v7-stable/configuration/modules/omfwd.html
 #
+# [*use_tls*]
+#  Type: Boolean
+#  Default: $::rsyslog::enable_tls_logging
+#
+#    If true, use TLS for this connection.
+#
 define rsyslog::rule::remote (
   $rule,
   $template                             = '',
@@ -109,7 +115,8 @@ define rsyslog::rule::remote (
   $queue_save_on_shutdown               = true,
   $queue_dequeue_slowdown               = '0',
   $queue_dequeue_time_begin             = '',
-  $queue_dequeue_time_end               = ''
+  $queue_dequeue_time_end               = '',
+  $use_tls                              = ''
 ) {
 
   validate_string($template)
@@ -173,7 +180,17 @@ define rsyslog::rule::remote (
     true    => $::rsyslog::queue_spool_directory,
     default => $queue_spool_directory
   }
-  $_use_tls = $::rsyslog::enable_tls_logging
+
+  if empty($use_tls) {
+    $_use_tls = $::rsyslog::enable_tls_logging
+  }
+  elsif $use_tls {
+    include '::rsyslog::config::pki'
+    $_use_tls = true
+  }
+  else {
+    $_use_tls = false
+  }
 
   if empty($failover_log_servers) {
     $_failover_servers = $::rsyslog::failover_log_servers

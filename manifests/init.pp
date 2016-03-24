@@ -138,6 +138,5 @@ class rsyslog (
 
   if $enable_pki {
     include '::rsyslog::config::pki'
-    Class['rsyslog::config::pki'] ~> Class['rsyslog::service']
   }
 }
