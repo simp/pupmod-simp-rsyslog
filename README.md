@@ -115,6 +115,10 @@ should use plain TCP, TLS, or UDP.
 is a complete re-write of the previous version, and as such there are no
 guarantees made about backwards compatibility.
 
+*WARNING:* The version of rsyslog that is included with EL6 and EL7 systems is
+*not* the final stable upstream release. In particular, TLS may only be enabled
+or disabled *globally*, not per ruleset or action!
+
 ## Usage
 
 pupmod-simp-rsyslog is meant to be extremely customizable, and as such there is
