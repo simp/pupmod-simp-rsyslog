@@ -1,6 +1,6 @@
 Summary: Rsyslog Puppet Module
 Name: pupmod-rsyslog
-Version: 5.1.0
+Version: 5.1.1
 Release: 0
 License: Apache License, Version 2.0
 Group: Applications/System
@@ -58,6 +58,9 @@ mkdir -p %{buildroot}/%{prefix}/rsyslog
 # Post uninstall stuff
 
 %changelog
+* Thu Mar 24 2016 Trevor Vaughan <tvaughan@onyxpoint.com> - 5.1.1-0
+- Added the ability to toggle TLS on remote Rsyslog forwarders.
+
 * Mon Mar 21 2016 Trevor Vaughan <tvaughan@onyxpoint.com> - 5.1.0-0
 - Migrated to Semantic Versioning 2.0
 - Fixed a bug where the ability to use custom templates was omitted from the

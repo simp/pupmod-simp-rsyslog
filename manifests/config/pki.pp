@@ -33,4 +33,6 @@ class rsyslog::config::pki {
       mode   => '0640'
     }
   }
+
+  Class['rsyslog::config::pki'] ~> Class['rsyslog::service']
 }
