@@ -25,13 +25,11 @@ end
 default_hiera_config =<<-EOM
 ---
 :backends:
-  - "rspec"
   - "yaml"
 :yaml:
   :datadir: "stub"
 :hierarchy:
   - "%{custom_hiera}"
-  - "%{spec_title}"
   - "%{module_name}"
   - "default"
 EOM
