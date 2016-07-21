@@ -164,7 +164,11 @@ describe 'rsyslog class' do
 
       # Force Failover
       servers.each do |server|
-        on server, 'pkill -9 rsyslog'
+        if fact('osfamily') == 'RedHat' && fact('operatingsystemmajrelease') == '7'
+          on server, 'systemctl stop rsyslog'
+        else
+	  on server, 'pkill -9 rsyslog'
+        end
       end
 
       # Give it a couple of seconds
@@ -207,7 +211,11 @@ describe 'rsyslog class' do
 
       # Make sure that *all* remote logging is stopped
       (failover_servers + servers).each do |server|
-        on server, 'pkill -9 rsyslog || true'
+         if fact('osfamily') == 'RedHat' && fact('operatingsystemmajrelease') == '7'
+           on server, 'systemctl stop rsyslog || true'
+         else
+           on server, 'pkill -9 rsyslog || true'
+	 end
       end
 
       sleep(2)
