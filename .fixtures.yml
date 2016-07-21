@@ -1,26 +1,23 @@
 ---
 fixtures:
   repositories:
-    auditd:               "git://github.com/simp/pupmod-simp-auditd"
-    common:               "git://github.com/simp/pupmod-simp-common"
-    compliance_markup:    "git://github.com/trevor-vaughan/pupmod-compliance"
-    simplib:              "git://github.com/simp/pupmod-simp-simplib"
+    auditd:               "https://github.com/simp/pupmod-simp-auditd"
     augeasproviders_core:
-      repo: "git://github.com/simp/augeasproviders_core"
+      repo: "https://github.com/simp/augeasproviders_core"
       branch: "simp-master"
     augeasproviders_grub:
-      repo: "git://github.com/simp/augeasproviders_grub"
+      repo: "https://github.com/simp/augeasproviders_grub"
       branch: "simp-master"
-    simpcat:               "git://github.com/simp/pupmod-simp-concat"
-    functions:            "git://github.com/simp/pupmod-simp-functions"
-    iptables:             "git://github.com/simp/pupmod-simp-iptables"
-    logrotate:            "git://github.com/simp/pupmod-simp-logrotate"
-    pki:                  "git://github.com/simp/pupmod-simp-pki"
+    compliance_markup:    "https://github.com/simp/pupmod-simp-compliance_markup"
+    iptables:             "https://github.com/simp/pupmod-simp-iptables"
+    logrotate:            "https://github.com/simp/pupmod-simp-logrotate"
+    pki:                  "https://github.com/simp/pupmod-simp-pki"
+    simpcat:              "https://github.com/simp/pupmod-simp-simpcat"
+    simplib:              "https://github.com/simp/pupmod-simp-simplib"
     stdlib:
-      repo: "git://github.com/simp/puppetlabs-stdlib"
+      repo: "https://github.com/simp/puppetlabs-stdlib"
       branch: "simp-master"
-    stunnel:              "git://github.com/simp/pupmod-simp-stunnel"
-    tcpwrappers:          "git://github.com/simp/pupmod-simp-tcpwrappers"
-    compliance:           "https://github.com/trevor-vaughan/pupmod-compliance"
+    stunnel:              "https://github.com/simp/pupmod-simp-stunnel"
+    tcpwrappers:          "https://github.com/simp/pupmod-simp-tcpwrappers"
   symlinks:
     rsyslog: "#{source_dir}"
