@@ -1,0 +1,7 @@
+Requires: pupmod-iptables >= 4.1.0-15
+Requires: pupmod-logrotate >= 4.1.0-2
+Requires: pupmod-pki >= 4.1.0-9
+Requires: pupmod-simp-compliance_markup
+Requires: pupmod-simplib >= 1.0.0-0
+Requires: pupmod-tcpwrappers >= 2.1.0-0
+Obsoletes: pupmod-rsyslog-test >= 0.0.1
