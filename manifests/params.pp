@@ -12,9 +12,14 @@ class rsyslog::params {
   }
 
   $tls_package_name = "${package_name}-gnutls"
-  $client_nets      =  defined('$::client_nets') ? { true => $::client_nets, default => hiera('client_nets', ['127.0.0.1/32']) }
-  $log_server_list  = defined('$::log_servers') ? { true => $::log_servers, default => hiera('log_servers', []) }
-  $failover_log_servers = defined('$::failover_log_servers') ? { true => $::failover_log_servers, default => hiera('failover_log_servers', []) }
+  $client_nets      =  defined('$::client_nets') ?
+    { true => $::client_nets, default => hiera('client_nets', ['127.0.0.1/32']) }
+
+  $log_server_list  = defined('$::log_servers') ?
+    { true => $::log_servers, default => hiera('log_servers', []) }
+
+  $failover_log_servers = defined('$::failover_log_servers') ?
+    { true => $::failover_log_servers, default => hiera('failover_log_servers', []) }
 
   $enable_tls_logging = false
   $tcp_server         = false

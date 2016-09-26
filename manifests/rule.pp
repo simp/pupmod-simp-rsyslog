@@ -31,10 +31,13 @@ define rsyslog::rule (
 
   if !defined(File[$_base_directory]) {
     file { $_base_directory:
-      ensure => 'directory',
-      owner  => 'root',
-      group  => 'root',
-      mode   => '0640'
+      ensure  => 'directory',
+      owner   => 'root',
+      group   => 'root',
+      recurse => true,
+      purge   => true,
+      force   => true,
+      mode    => '0640'
     }
   }
 

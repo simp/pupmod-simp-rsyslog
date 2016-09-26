@@ -183,11 +183,10 @@ describe 'rsyslog class' do
       on failover_server, "grep TEST-11-#{@msg_uuid}-MSG #{remote_log}"
       on failover_server, "grep TEST-19-#{@msg_uuid}-MSG #{remote_log}"
 
+      # Should not log to inactive servers
       servers.each do |server|
-        expect_failure("should not log to #{server} servers when not active") do
-          on server, "grep TEST-11-#{@msg_uuid}-MSG #{remote_log}"
-          on server, "grep TEST-19-#{@msg_uuid}-MSG #{remote_log}"
-        end
+        on server, "grep TEST-11-#{@msg_uuid}-MSG #{remote_log}", :acceptable_exit_codes => [1,2]
+        on server, "grep TEST-19-#{@msg_uuid}-MSG #{remote_log}", :acceptable_exit_codes => [1,2]
       end
     end
   end
@@ -225,11 +224,10 @@ describe 'rsyslog class' do
         on client, "logger -t FOO TEST-#{msg}-#{@msg_uuid}-MSG"
       end
 
+      # Should not log to inactive failover servers
       (failover_servers + servers).each do |server|
-        expect_failure("should not log to #{server} servers when not active") do
-          on server, "grep TEST-31-#{@msg_uuid}-MSG #{remote_log}"
-          on server, "grep TEST-39-#{@msg_uuid}-MSG #{remote_log}"
-        end
+        on server, "grep TEST-31-#{@msg_uuid}-MSG #{remote_log}", :acceptable_exit_codes => [1,2]
+        on server, "grep TEST-39-#{@msg_uuid}-MSG #{remote_log}", :acceptable_exit_codes => [1,2]
       end
 
       # Check to see if we now have a queue on disk
@@ -259,11 +257,8 @@ describe 'rsyslog class' do
       # Messages should exist on the failover server
       # Sometimes this can take quite a while...
       # Between 20 and 30 Seconds seems to be about the norm for a full flush
-      $stdout.puts("Waiting for the queue to flush...")
-      sleep(30)
-
-      on failover_server, "grep TEST-31-#{@msg_uuid}-MSG #{remote_log}"
-      on failover_server, "grep TEST-39-#{@msg_uuid}-MSG #{remote_log}"
+      wait_for_log_message(failover_server, remote_log, "TEST-31-#{@msg_uuid}-MSG")
+      wait_for_log_message(failover_server, remote_log, "TEST-39-#{@msg_uuid}-MSG")
     end
   end
 
@@ -282,17 +277,15 @@ describe 'rsyslog class' do
       end
 
       # Sometimes this can take a while to flush
-      sleep(10)
       servers.each do |server|
-        on server, "grep TEST-41-#{@msg_uuid}-MSG #{remote_log}"
-        on server, "grep TEST-50-#{@msg_uuid}-MSG #{remote_log}"
+        wait_for_log_message(server, remote_log, "TEST-41-#{@msg_uuid}-MSG")
+        wait_for_log_message(server, remote_log, "TEST-50-#{@msg_uuid}-MSG")
       end
 
+      # Should not log to inactive failover servers
       failover_servers.each do |server|
-        expect_failure("should not log to #{server} servers when not active") do
-          on server, "grep TEST-41-#{@msg_uuid}-MSG #{remote_log}"
-          on server, "grep TEST-49-#{@msg_uuid}-MSG #{remote_log}"
-        end
+        on server, "grep TEST-41-#{@msg_uuid}-MSG #{remote_log}", :acceptable_exit_codes => [1,2]
+        on server, "grep TEST-49-#{@msg_uuid}-MSG #{remote_log}", :acceptable_exit_codes => [1,2]
       end
     end
   end
