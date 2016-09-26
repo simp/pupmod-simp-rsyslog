@@ -71,11 +71,6 @@
 # Default: ''
 #   The path to client certificates dir, if using local (SIMP-independent) PKI
 #
-# [*cert_source*]
-# Type: String
-# Default: ''
-#   The path to client certificates dir, if using local (SIMP-independent) PKI
-#
 # == Authors
 #
 # * Kendall Moore <mailto:kmoore@keywcorp.com>
