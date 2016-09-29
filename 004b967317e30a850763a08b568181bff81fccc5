@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_a5a03af5",
+        "filename": "spec/spec_helper_acceptance.rb",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2016-09-29T03:58:58Z",
+      "side": 1,
+      "message": "This is great!\n\nI got thinking about the name while considering its future life in simp-beaker-helpers.  It seems more like a `wait_for_text_to_show_up_in_a_file()` or `grep_with_a_burning_fuse()`, because it isn\u0027t particularly log-specific (and wouldn\u0027t work with logs from services like journald or auditd).  But I don\u0027t know of a more precise name that clearly describes its purpose than `wait_for_log_message, so ¯\\_(ツ)_/¯.",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 25
+      },
+      "revId": "004b967317e30a850763a08b568181bff81fccc5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
