@@ -27,5 +27,5 @@ HOSTS:
     hypervisor: vagrant
 CONFIG:
   log_level:       verbose
-  type:            foss
+  type:            aio
   vagrant_memsize: 256
