@@ -87,6 +87,12 @@ module(load="imuxsock"
   SysSock.Unlink="<%= t_bool_xlat[@syssock_unlink] %>"
 )
 
+<% if @_read_journald -%>
+$ModLoad imjournal
+$OmitLocalLogging on
+$IMJournalStateFile imjournal.state
+<% end -%>
+
 module(load="imfile")
 <% if t_tcp_server || @tls_tcp_server
      # FIXME: should this be 'elif @tls_tcp_server?' it doesn't seem like there
