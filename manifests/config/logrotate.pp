@@ -1,4 +1,4 @@
-# == Class: rsyslog::logrotate
+# == Class: rsyslog::config::logrotate
 #
 # Sets up log rotation for RSyslog.
 #

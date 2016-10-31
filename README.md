@@ -111,7 +111,7 @@ be an RSyslog server, there are variables to determine if the RSyslog listener
 should use plain TCP, TLS, or UDP.
 
 *NOTE:* This version of
-(pupmod-simp-rsyslog)[https://github.com/simp/pupmod-simp-rsyslog]
+[pupmod-simp-rsyslog](https://github.com/simp/pupmod-simp-rsyslog)
 is a complete re-write of the previous version, and as such there are no
 guarantees made about backwards compatibility.
 
