@@ -130,6 +130,9 @@
 #   Disable DNS for remote messages.
 #   See the -x option in rsyslogd(8) for more information.
 #
+# [*read_journald*]
+#   Enable the forwarding of the systemd journal to syslog
+#
 class rsyslog::config (
   $umask                                              = '0027',
   $localhostname                                      = $::fqdn,
@@ -192,6 +195,7 @@ class rsyslog::config (
   $suppress_noauth_warn                               = false,
   $disable_remote_dns                                 = false,
   $enable_default_rules                               = true,
+  $read_journald                                      = $::rsyslog::read_journald,
   $include_rsyslog_d                                  = false,
 ) {
 
@@ -234,6 +238,13 @@ class rsyslog::config (
   compliance_map()
 
   include '::rsyslog'
+
+  if $read_journald and member($::init_systems, 'systemd') {
+    $_read_journald = true
+  }
+  else {
+    $_read_journald = false
+  }
 
   # set the driver auth_mode based on the mode
   if empty( $action_send_stream_driver_auth_mode ) {

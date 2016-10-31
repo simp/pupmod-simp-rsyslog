@@ -95,11 +95,13 @@ class rsyslog (
   $udp_listen_address    = $::rsyslog::params::udp_listen_address,
   $udp_listen_port       = $::rsyslog::params::udp_listen_port,
   $rule_dir              = '/etc/rsyslog.simp.d',
+  $read_journald         = $::rsyslog::params::read_journald,
   $enable_logrotate      = true,
   $enable_pki            = defined('$::enable_pki') ? { true => $::enable_pki, default => hiera('enable_pki',true) },
   $use_simp_pki = defined('$::use_simp_pki') ? { true => $::use_simp_pki, default => hiera('use_simp_pki', true) },
   $cert_source           = '/etc/rsyslog.d/pki',
 ) inherits ::rsyslog::params {
+
   validate_string($service_name)
   validate_string($package_name)
   validate_string($tls_package_name)
@@ -110,6 +112,7 @@ class rsyslog (
   validate_bool($tcp_server)
   validate_bool($tls_tcp_server)
   validate_bool($udp_server)
+  validate_bool($read_journald)
   validate_bool($enable_logrotate)
   validate_bool($enable_pki)
   validate_bool($use_simp_pki)
