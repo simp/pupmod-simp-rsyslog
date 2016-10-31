@@ -1,3 +1,6 @@
+* Thu Nov 03 2016 Nick Miller <nick.miller@onyxpoint.com> - 5.1.2-0
+- Added a feature to read journald, enabled by defauly on systems with systemd.
+
 * Mon Sep 26 2016 Liz Nemsick <lnemsick.simp@gmail.com> - 5.1.1-0
 - Fix a bug in which rules no longer managed by the module were
   not removed from the system.
