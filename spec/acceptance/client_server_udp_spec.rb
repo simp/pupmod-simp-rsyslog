@@ -66,8 +66,8 @@ describe 'rsyslog class' do
 
       # log all messages to the dynamic file we just defined ^^
       rsyslog::rule::local { 'all_the_logs':
-       rule => '*.*',
-       dyna_file => 'log_everything_by_host'
+        rule => '*.*',
+        dyna_file => 'log_everything_by_host'
       }
     EOS
   }
