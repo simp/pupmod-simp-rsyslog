@@ -32,7 +32,7 @@ describe 'rsyslog client -> 1 server without TLS' do
 
       class { 'rsyslog':
         tcp_server         => true,
-        enable_logrotate     => true,
+        enable_logrotate   => true,
         enable_tls_logging => false,
         enable_pki         => false,
         client_nets        => 'any',
