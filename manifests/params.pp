@@ -5,13 +5,16 @@
 class rsyslog::params {
   $service_name       = 'rsyslog'
   if ($::operatingsystem in ['RedHat','CentOS']) and ($::operatingsystemmajrelease == '6') {
-    $package_name = 'rsyslog7'
+    $package_name  = 'rsyslog7'
+    $read_journald = false
   }
   else {
-    $package_name = 'rsyslog'
+    $package_name  = 'rsyslog'
+    $read_journald = true
   }
 
   $tls_package_name = "${package_name}-gnutls"
+
   $client_nets      =  defined('$::client_nets') ?
     { true => $::client_nets, default => hiera('client_nets', ['127.0.0.1/32']) }
 

@@ -26,12 +26,12 @@ describe 'rsyslog class' do
 
       rsyslog::rule::data_source { 'openldap_audit':
         rule    => "
-  input(type=\\"imfile\\"
-    File=\\"/var/log/secure\\"
-    Tag=\\"slapd_audit\\"
-    Facility=\\"local6\\"
-    Severity=\\"notice\\"
-  )"
+input(type=\\"imfile\\"
+  File=\\"/var/log/secure\\"
+  Tag=\\"slapd_audit\\"
+  Facility=\\"local6\\"
+  Severity=\\"notice\\"
+)"
       }
 
       rsyslog::rule::drop { 'audispd':
@@ -58,7 +58,7 @@ describe 'rsyslog class' do
       rsyslog::rule::remote { 'all_forward':
         rule      => '*.*',
         dest      => ['1.1.1.1', '2.2.2.2'],
-        dest_type => 'tcp' 
+        dest_type => 'tcp'
       }
 
     EOS
@@ -110,6 +110,14 @@ describe 'rsyslog class' do
       on client, "test ! -f /etc/rsyslog.simp.d/99_simp_local/0_default_sudosh.conf"
       on client, "test ! -f /etc/rsyslog.simp.d/20_simp_other/aide_report.conf"
       on client, "test ! -f /etc/rsyslog.simp.d/10_simp_remote/all_forward.conf"
+    end
+
+    if fact('operatingsystemmajrelease') > '6'
+      it 'should see entries from the journal in /var/log/messages' do
+        on client, "echo someeasytosearchforstring | systemd-cat -p notice -t acceptance"
+
+        on client, "grep someeasytosearchforstring /var/log/messages"
+      end
     end
 
   end
