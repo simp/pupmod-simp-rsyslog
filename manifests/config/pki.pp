@@ -1,4 +1,4 @@
-# == Class: rsyslog::pki
+# == Class: rsyslog::config::pki
 #
 # Ensures that there are PKI certificates readable by the rsyslog user in
 # /etc/rsyslog.d/pki
