@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_8584845d",
+        "filename": "templates/pre_logging.conf.erb",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1007363
+      },
+      "writtenOn": "2016-11-04T15:39:50Z",
+      "side": 1,
+      "message": "Removing this line does seem to make things work.  And the rsyslog restart no longer complains.",
+      "range": {
+        "startLine": 92,
+        "startChar": 1,
+        "endLine": 92,
+        "endChar": 17
+      },
+      "revId": "ca4f9c94ce79820490730c621d48c01059a08527",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
