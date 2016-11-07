@@ -62,8 +62,6 @@ class rsyslog::server (
   validate_bool($enable_selinux)
   validate_bool($enable_tcpwrappers)
 
-  compliance_map()
-
   include '::rsyslog'
 
   if $enable_firewall {

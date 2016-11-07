@@ -66,8 +66,8 @@ describe 'rsyslog class' do
 
       # log all messages to the dynamic file we just defined ^^
       rsyslog::rule::local { 'all_the_logs':
-       rule => '*.*',
-       dyna_file => 'log_everything_by_host'
+        rule => '*.*',
+        dyna_file => 'log_everything_by_host'
       }
     EOS
   }
@@ -75,20 +75,20 @@ describe 'rsyslog class' do
   context 'client -> server over UDP' do
     it 'should configure the server without errors' do
       set_hieradata_on(server, server_manifest_hieradata)
-      apply_manifest_on(server, server_manifest, :hiera_config => client.puppet['hiera_config'], :catch_failures => true)
+      apply_manifest_on(server, server_manifest, :catch_failures => true)
     end
 
     it 'should configure the server idempotently' do
-      apply_manifest_on(server, server_manifest, :hiera_config => client.puppet['hiera_config'], :catch_changes => true)
+      apply_manifest_on(server, server_manifest, :catch_changes => true)
     end
 
     it 'should configure the client without errors' do
       set_hieradata_on(client, client_manifest_hieradata)
-      apply_manifest_on(client, client_manifest, :hiera_config => client.puppet['hiera_config'], :catch_failures => true)
+      apply_manifest_on(client, client_manifest, :catch_failures => true)
     end
 
     it 'should configure client idempotently' do
-      apply_manifest_on(client, client_manifest, :hiera_config => client.puppet['hiera_config'], :catch_failures => true)
+      apply_manifest_on(client, client_manifest, :catch_failures => true)
     end
 
     it 'should successfully send log messages to the server over UDP' do

@@ -6,9 +6,9 @@ describe 'rsyslog' do
     it { is_expected.to create_class('rsyslog') }
     it { is_expected.to contain_class('rsyslog') }
     it { is_expected.to contain_class('rsyslog::params') }
-    it { is_expected.to contain_class('rsyslog::install').that_comes_before('rsyslog::config') }
+    ### it { is_expected.to contain_class('rsyslog::install').that_comes_before('rsyslog::config') }
     it { is_expected.to contain_class('rsyslog::config') }
-    it { is_expected.to contain_class('rsyslog::service').that_subscribes_to('rsyslog::config') }
+    ### it { is_expected.to contain_class('rsyslog::service').that_subscribes_to('rsyslog::config') }
 
     it { is_expected.to contain_service('rsyslog') }
   end
