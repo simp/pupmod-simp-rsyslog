@@ -34,6 +34,24 @@
       "revId": "89dca36f124d1f44f41a7cbed4018964230c50ab",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_0ed99e22",
+        "filename": "templates/pre_logging.conf.erb",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 1005194
+      },
+      "writtenOn": "2016-11-09T18:15:54Z",
+      "side": 1,
+      "message": "I fixed this in master. This branch is correct.",
+      "parentUuid": "baa041b7_1249cd32",
+      "revId": "89dca36f124d1f44f41a7cbed4018964230c50ab",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
