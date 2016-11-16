@@ -1,3 +1,6 @@
+* Wed Nov 16 2016 Liz Nemsick <lnemsick.simp@gmail.com> - 6.0.0-0
+- Updated iptables dependency version
+
 * Thu Nov 03 2016 Nick Miller <nick.miller@onyxpoint.com> - 6.0.0-0
 - Added a feature to read journald, enabled by defauly on systems with systemd.
 - Updated to use compliance mapper v2.0.0
