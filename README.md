@@ -115,6 +115,10 @@ server.
 ```
 
 ## Usage
+*NOTE:* This version of
+[pupmod-simp-rsyslog](https://github.com/simp/pupmod-simp-rsyslog)
+is a complete re-write of the previous version, and as such there are no
+guarantees made about backwards compatibility.
 
 *WARNING:* The version of rsyslog that is included with EL6 and EL7 systems is
 *not* the final stable upstream release. In particular, TLS may only be enabled
