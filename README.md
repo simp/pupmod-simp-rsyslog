@@ -1,15 +1,22 @@
-#pupmod-simp-rsyslog [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html) [![Build Status](https://travis-ci.org/simp/pupmod-simp-rsyslog.svg)](https://travis-ci.org/simp/pupmod-simp-rsyslog) [![SIMP compatibility](https://img.shields.io/badge/SIMP%20compatibility-4.2.*%2F5.1.*-orange.svg)](https://img.shields.io/badge/SIMP%20compatibility-4.2.*%2F5.1.*-orange.svg)
+#pupmod-simp-rsyslog
+[![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+[![Build
+Status](https://travis-ci.org/simp/pupmod-simp-rsyslog.svg)](https://travis-ci.org/simp/pupmod-simp-rsyslog)
+[![SIMP
+compatibility](https://img.shields.io/badge/SIMP%20compatibility-4.2.*%2F5.1.*-orange.svg)](https://img.shields.io/badge/SIMP%20compatibility-4.2.*%2F5.1.*-orange.svg)
 
 #### Table of Contents
 
 1. [Overview](#overview)
-2. [Module Description - A Puppet module for managing RSyslog version 7 or later](#module-description)
+2. [Module Description - A Puppet module for managing RSyslog version 7 or
+later](#module-description)
 3. [Setup - The basics of getting started with pupmod-simp-rsyslog](#setup)
     * [What pupmod-simp-rsyslog affects](#what-pupmod-simp-rsyslog-affects)
     * [Setup requirements](#setup-requirements)
     * [Beginning with pupmod-simp-rsyslog](#beginning-with-pupmod-simp-rsyslog)
 4. [Usage - Configuration options and additional functionality](#usage)
-5. [Reference - An under-the-hood peek at what the module is doing and how](#reference)
+5. [Reference - An under-the-hood peek at what the module is doing and
+how](#reference)
 5. [Limitations - OS compatibility, etc.](#limitations)
 6. [Development - Guide for contributing to the module](#development)
 
@@ -21,18 +28,27 @@ and manages RSyslog versions 7 and newer as built into either
 6 and 7. It is designed to work with [Puppet](https://puppetlabs.com/) version
 3.4 or newer.
 
+*NOTE:* This version of
+(pupmod-simp-rsyslog)[https://github.com/simp/pupmod-simp-rsyslog]
+is a complete re-write of the previous version, and as such there are no
+guarantees made about backwards compatibility.
+
 ## This is a SIMP module
 
 This module is a component of the
-[System Integrity Management Platform](https://github.com/NationalSecurityAgency/SIMP),
+[System Integrity Management
+Platform](https://github.com/NationalSecurityAgency/SIMP),
 a compliance-management framework built on Puppet.
 
-If you find any issues, they can be submitted to our [JIRA](https://simp-project.atlassian.net/).
+If you find any issues, they can be submitted to our
+[JIRA](https://simp-project.atlassian.net/).
 
 Please read our
-[Contribution Guide](https://simp-project.atlassian.net/wiki/display/SD/Contributing+to+SIMP)
+[Contribution
+Guide](https://simp-project.atlassian.net/wiki/display/SD/Contributing+to+SIMP)
 and visit our
-[developer wiki](https://simp-project.atlassian.net/wiki/display/SD/SIMP+Development+Home).
+[developer
+wiki](https://simp-project.atlassian.net/wiki/display/SD/SIMP+Development+Home).
 
 
 ## Module Description
@@ -53,7 +69,8 @@ It is possible to use
 [pupmod-simp-rsyslog](https://github.com/simp/pupmod-simp-rsyslog) on its own
 and configure all rules and settings as you like, but it is recommended that
 the
-[SIMP Rsyslog Profile](https://github.com/simp/pupmod-simp-simp/tree/master/manifests/rsyslog)
+[SIMP Rsyslog
+Profile](https://github.com/simp/pupmod-simp-simp/tree/master/manifests/rsyslog)
 be used if possible. By default, this profile will setup security relevant
 logging rules and manage server/client configurations.
 
@@ -61,7 +78,8 @@ logging rules and manage server/client configurations.
 
 ### What pupmod-simp-rsyslog affects
 
-Files managed by [pupmod-simp-rsyslog](https://github.com/simp/pupmod-simp-rsyslog):
+Files managed by
+[pupmod-simp-rsyslog](https://github.com/simp/pupmod-simp-rsyslog):
 * /etc/rsyslog.conf
 * /etc/rsyslog.simp.d
 
@@ -87,6 +105,12 @@ Packages installed by
 
 ### Setup Requirements
 
+*NOTE:* This version of
+[pupmod-simp-rsyslog](https://github.com/simp/pupmod-simp-rsyslog)
+is a complete re-write of the previous version, and as such there are no
+guarantees made about backwards compatibility.
+
+
 It is *strongly* recommended that the logging infrastructure be set up in a
 resilient manner. Failover in RSyslog is tricky and choosing the wrong kind of
 queuing with failover could mean losing logs. This module attempts to protect
@@ -95,63 +119,68 @@ local requirements.
 
 ### Beginning with pupmod-simp-rsyslog
 
-The very basic steps needed for a user to get the module up and running.
+Including rsyslog will install, configure, and start the rsyslog daemon on a
+client:
 
-Including the
-[rsyslog class](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/init.pp)
-from pupmod-simp-rsyslog will be enough to
-[install](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/install.pp),
-[configure](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/config.pp),
-and start the
-[rsyslog daemon](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/service.pp)
-on any host. Including the
-[rsyslog::server](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/server.pp)
-class will setup the given node as an RSyslog server. If a particular node will
-be an RSyslog server, there are variables to determine if the RSyslog listener
-should use plain TCP, TLS, or UDP.
+```puppet
+  include ::rsyslog
+```
 
-*NOTE:* This version of
-[pupmod-simp-rsyslog](https://github.com/simp/pupmod-simp-rsyslog)
-is a complete re-write of the previous version, and as such there are no
-guarantees made about backwards compatibility.
+Including rsyslog::server will additionally configure the system as an Rsyslog
+server.
+
+```puppet
+  include ::rsyslog::server
+```
+
+## Usage
 
 *WARNING:* The version of rsyslog that is included with EL6 and EL7 systems is
 *not* the final stable upstream release. In particular, TLS may only be enabled
 or disabled *globally*, not per ruleset or action!
-
-## Usage
 
 pupmod-simp-rsyslog is meant to be extremely customizable, and as such there is
 no single best way to use it. For the SIMP specific recommendations on how to
 use RSyslog (and other modules as well), check out the
 [SIMP profile](https://github.com/simp/pupmod-simp-simp).
 
-### Standard Remote Logging
+### I want standard remote logging on a client
 
 An example of an RSyslog client configuration may look like the following,
 including possible file names and a simple remote rule to forward all logs on
 the system.
 
-my_client_node.yaml
+```puppet
+  class {'rsyslog':
+    log_server_list      => ['first.log.server','second.log.server'],
+    failover_log_servers => ['first.log.server','second.log.server'],
+  }
+```
+
+Alternatively, this can be set as the default via Hiera:
+
 ```
 # Send to *all* of these servers!
 log_servers:
   - first.log.server
   - second.log.server
-  - third.log.server
-  - fourth.log.server
 failover_log_servers:
   - first-failover.log.server
   - second-failover.log.server
-rsyslog::enable_tls_logging: true
-rsyslog::enable_logging: true
-rsyslog::enable_pki: true
 ```
 
-my_rsyslog_client.pp
+```puppet
+  include ::rsyslog
 ```
+
+### I want to send everything to rsyslog from a client 
+
+```puppet
 class my_rsyslog_client {
-  include '::rsyslog'
+  class {'rsyslog':
+    log_server_list      => ['first.log.server','second.log.server'],
+    failover_log_servers => ['first.log.server','second.log.server'],
+  }
 
   rsyslog::rule::remote { 'send_the_logs':
     rule => '*.*'
@@ -159,22 +188,28 @@ class my_rsyslog_client {
 }
 ```
 
-For the RSyslog server, an example setup could look like the following:
+### I want to disable TLS/PKI/Logrotate
 
-my_server_node.yaml
-```
-rsyslog::enable_tls_logging: true
-rsyslog::enable_logging: true
-rsyslog::enable_pki: true
-rsyslog::server::enable_firewall: true
-rsyslog::server::enable_selinux: true
-rsyslog::server::enable_tcpwrappers: true
+```puppet
+class my_rsyslog_client {
+  class {'rsyslog':
+    log_server_list      => ['first.log.server','second.log.server'],
+    failover_log_servers => ['first.log.server','second.log.server'],
+    enable_tls_logging   => false,
+    enable_logging       => false,
+    enable_pki           => false,
+  }
 ```
 
-my_rsyslog_server.pp
-```
+### I want to set up an RSyslog Server
+
+```puppet
 class my_rsyslog_server {
-  include '::rsyslog'
+  class {'rsyslog':
+    log_server_list      => ['first.log.server','second.log.server'],
+    failover_log_servers => ['first.log.server','second.log.server'],
+  }
+    
   include '::rsyslog::server'
 
   rsyslog::template::string { 'store_the_logs':
@@ -194,6 +229,16 @@ profile will setup templates and a large set of default rules to help organize
 and send logs where possible. Included would also be a comprehensive set of
 security relevant logs to help filter important information.
 
+### I want to set up an Rsyslog Server without logrotate/pki/firewall
+
+```puppet
+  class {'rsyslog::server':
+    use_iptables       => false,
+    enable_selinux     => false,
+    enable_tcpwrappers => false,
+  }
+```
+
 ### Central Log Forwarding
 
 Following on from the first example, you may have an upstream server to which
@@ -204,7 +249,7 @@ server to forward everything upstream. Note, the use of a custom template.
 Upstream systems may have their own requirements and this allows you to
 manipulate the log appropriately prior to forwarding the message along.
 
-```
+```puppet
 rsyslog::template::string { 'upstream':
   string => 'I Love Logs! %msg%\n'
 }
@@ -259,7 +304,8 @@ strategy for failover as it may cause undesirable results such as lost logs.
 ## Development
 
 Please see the
-[SIMP Contribution Guidelines](https://simp-project.atlassian.net/wiki/display/SD/Contributing+to+SIMP).
+[SIMP Contribution
+Guidelines](https://simp-project.atlassian.net/wiki/display/SD/Contributing+to+SIMP).
 
 General developer documentation can be found on
 [Confluence](https://simp-project.atlassian.net/wiki/display/SD/SIMP+Development+Home).
