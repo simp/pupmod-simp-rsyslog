@@ -3,8 +3,8 @@ Requires: pupmod-puppetlabs-stdlib < 5.0.0-0
 Requires: pupmod-puppetlabs-stdlib >= 4.9.0-0
 Requires: pupmod-simp-compliance_markup < 3.0.0-0
 Requires: pupmod-simp-compliance_markup >= 2.0.0-0
-Requires: pupmod-simp-iptables < 5.0.0-0
-Requires: pupmod-simp-iptables >= 4.1.4-0
+Requires: pupmod-simp-iptables < 6.0.0-0
+Requires: pupmod-simp-iptables >= 5.0.0-0
 Requires: pupmod-simp-logrotate < 5.0.0-0
 Requires: pupmod-simp-logrotate >= 4.1.0-0
 Requires: pupmod-simp-pki < 5.0.0-0
