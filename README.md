@@ -173,7 +173,7 @@ failover_log_servers:
   include ::rsyslog
 ```
 
-### I want to send everything to rsyslog from a client 
+### I want to send everything to rsyslog from a client
 
 ```puppet
 class my_rsyslog_client {
@@ -209,7 +209,7 @@ class my_rsyslog_server {
     log_server_list      => ['first.log.server','second.log.server'],
     failover_log_servers => ['first.log.server','second.log.server'],
   }
-    
+
   include '::rsyslog::server'
 
   rsyslog::template::string { 'store_the_logs':

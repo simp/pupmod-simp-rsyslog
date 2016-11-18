@@ -1,26 +1,25 @@
 ---
 fixtures:
   repositories:
-    auditd:            "https://github.com/simp/pupmod-simp-auditd"
+    auditd: https://github.com/simp/pupmod-simp-auditd
     augeasproviders_core:
-      repo: "https://github.com/simp/augeasproviders_core"
-      branch: "simp-master"
+      repo: https://github.com/simp/augeasproviders_core
+      branch: simp-master
     augeasproviders_grub:
-      repo: "https://github.com/simp/augeasproviders_grub"
-      branch: "simp-master"
-    compliance_markup: "https://github.com/simp/pupmod-simp-compliance_markup"
-    iptables:          "https://github.com/simp/pupmod-simp-iptables"
-    logrotate:         "https://github.com/simp/pupmod-simp-logrotate"
+      repo: https://github.com/simp/augeasproviders_grub
+      branch: simp-master
     haveged:
-      repo: "https://github.com/simp/puppet-haveged"
-      branch: "simp-master"
-    pki:               "https://github.com/simp/pupmod-simp-pki"
-    simpcat:           "https://github.com/simp/pupmod-simp-simpcat"
-    simplib:           "https://github.com/simp/pupmod-simp-simplib"
+      repo: https://github.com/simp/puppet-haveged
+      branch: simp-master
+    iptables: https://github.com/simp/pupmod-simp-iptables
+    logrotate: https://github.com/simp/pupmod-simp-logrotate
+    pki: https://github.com/simp/pupmod-simp-pki
+    simpcat: https://github.com/simp/pupmod-simp-simpcat
+    simplib: https://github.com/simp/pupmod-simp-simplib
     stdlib:
-      repo: "https://github.com/simp/puppetlabs-stdlib"
-      branch: "simp-master"
-    stunnel:           "https://github.com/simp/pupmod-simp-stunnel"
-    tcpwrappers:       "https://github.com/simp/pupmod-simp-tcpwrappers"
+      repo: https://github.com/simp/puppetlabs-stdlib
+      branch: simp-master
+    stunnel: https://github.com/simp/pupmod-simp-stunnel
+    tcpwrappers: https://github.com/simp/pupmod-simp-tcpwrappers
   symlinks:
     rsyslog: "#{source_dir}"
