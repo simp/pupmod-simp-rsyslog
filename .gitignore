@@ -1,5 +1,5 @@
 .*.sw?
-.yar*
+.yardoc
 dist
 /pkg
 /spec/fixtures
