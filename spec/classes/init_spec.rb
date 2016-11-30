@@ -9,9 +9,8 @@ describe 'rsyslog' do
     it { is_expected.to contain_class('rsyslog::config') }
 
     it do
-      pending('rspec-puppet currently has trouble spec testing Class to Class relationships')
-      is_expected.to contain_class('rsyslog::install').that_comes_before('rsyslog::config')
-      is_expected.to contain_class('rsyslog::service').that_subscribes_to('rsyslog::config')
+      is_expected.to contain_class('rsyslog::install').that_comes_before('Class[rsyslog::config]')
+      is_expected.to contain_class('rsyslog::service').that_subscribes_to('Class[rsyslog::config]')
     end
 
     it { is_expected.to contain_service('rsyslog') }
@@ -42,6 +41,19 @@ describe 'rsyslog' do
           it { is_expected.to contain_class('rsyslog').with_tls_package_name("#{rsyslog_package_name}-gnutls") }
           it { is_expected.to contain_package("#{rsyslog_package_name}.x86_64").with_ensure('latest') }
           it { is_expected.to contain_package("#{rsyslog_package_name}.i386").with_ensure('absent') }
+
+          if facts[:operatingsystemmajrelease] == '6'
+            it {
+              is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
+                .without_content(/ModLoad imjournal/)
+            }
+          else
+            it {
+              is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
+                .with_content(/ModLoad imjournal/)
+            }
+          end
+
         end
 
 
