@@ -15,10 +15,10 @@ describe 'rsyslog class' do
 
   let(:client_manifest_hieradata) {
     {
-      'rsyslog::log_server_list'    => ['server-1'],
-      'rsyslog::enable_logrotate'   => true,
+      'rsyslog::log_servers'        => ['server-1'],
+      'rsyslog::logrotate'          => true,
       'rsyslog::enable_tls_logging' => false,
-      'rsyslog::enable_pki'         => false
+      'rsyslog::pki'                => false
     }
   }
   let(:client_manifest) {
@@ -34,10 +34,11 @@ describe 'rsyslog class' do
 
   let(:server_manifest_hieradata) {
     {
+      'iptables::disable'                   => false,
       'rsyslog::udp_server'                 => true,
-      'rsyslog::enable_logrotate'           => true,
-      'rsyslog::enable_pki'                 => false,
-      'rsyslog::client_nets'                => 'any',
+      'rsyslog::logrotate'                  => true,
+      'rsyslog::pki'                        => false,
+      'rsyslog::trusted_nets'               => ['any'],
       'rsyslog::server::enable_firewall'    => true,
       'rsyslog::server::enable_selinux'     => true,
       # If you enable this, you need to make sure to add a tcpwrappers rule
@@ -50,8 +51,8 @@ describe 'rsyslog class' do
       # Turns off firewalld in EL7.  Presumably this would already be done.
       include '::iptables'
       iptables::add_tcp_stateful_listen { 'ssh':
-        dports => '22',
-        client_nets => 'any'
+        dports       => '22',
+        trusted_nets => ['any']
       }
 
       include 'rsyslog'
@@ -66,7 +67,7 @@ describe 'rsyslog class' do
 
       # log all messages to the dynamic file we just defined ^^
       rsyslog::rule::local { 'all_the_logs':
-        rule => '*.*',
+        rule      => '*.*',
         dyna_file => 'log_everything_by_host'
       }
     EOS
@@ -75,20 +76,20 @@ describe 'rsyslog class' do
   context 'client -> server over UDP' do
     it 'should configure the server without errors' do
       set_hieradata_on(server, server_manifest_hieradata)
-      apply_manifest_on(server, server_manifest, :hiera_config => client.puppet['hiera_config'], :catch_failures => true)
+      apply_manifest_on(server, server_manifest, :catch_failures => true)
     end
 
     it 'should configure the server idempotently' do
-      apply_manifest_on(server, server_manifest, :hiera_config => client.puppet['hiera_config'], :catch_changes => true)
+      apply_manifest_on(server, server_manifest, :catch_changes => true)
     end
 
     it 'should configure the client without errors' do
       set_hieradata_on(client, client_manifest_hieradata)
-      apply_manifest_on(client, client_manifest, :hiera_config => client.puppet['hiera_config'], :catch_failures => true)
+      apply_manifest_on(client, client_manifest, :catch_failures => true)
     end
 
     it 'should configure client idempotently' do
-      apply_manifest_on(client, client_manifest, :hiera_config => client.puppet['hiera_config'], :catch_failures => true)
+      apply_manifest_on(client, client_manifest, :catch_failures => true)
     end
 
     it 'should successfully send log messages to the server over UDP' do

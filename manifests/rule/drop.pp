@@ -1,24 +1,36 @@
-# == Define: rsyslog::rule::drop
+# Add a rule to drop content
 #
-# Add a drop rule to RSyslog.
+# In general, the order will be:
 #
-# This adds a configuration file to the /etc/rsyslog.simp.d directory. These rules will
-# come before all other SIMP rules in the /etc/rsyslog.simp.d space. In general, the order
-# of rules will be:
-#  - Drop Rules
-#  - Remote Rules
-#  - Local Rules
+#   * Data Source Rules
+#   * Console Rules
+#   * Drop Rules
+#   * Remote Rules
+#   * Other/Miscellanious Rules
+#   * Local Rules
 #
-# == Parameters
+# @example Drop Logs Matching ``^.*bad_stuff.*$``
+#   rsyslog::rule::drop { 'drop_bad_stuff':
+#     rule => 'if re_match($msg, '^.*bad_stuff.*$')'
+#   }
 #
-# [*name*]
+# @param name [Stdlib::Absolutepath]
+#   The filename that you will be dropping into place
+#
+# @param rule
+#   The Rsyslog ``EXPRESSION`` to filter on
+#
+# @see https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/s1-basic_configuration_of_rsyslog.html Red Hat Basic Rsyslog Configuration
+#
+# @see http://www.rsyslog.com/doc/expression.html Expressions in Rsyslog
+#
+# @see http://www.rsyslog.com/doc/rainerscript.html RainerScript Documentation
+#
 #   The filename that you will be dropping into place.
 #
 define rsyslog::rule::drop (
-  $rule
+  String $rule
 ) {
-  validate_string($rule)
-
   $_safe_name = regsubst($name,'/','__')
 
   rsyslog::rule { "07_simp_drop_rules/${_safe_name}.conf":

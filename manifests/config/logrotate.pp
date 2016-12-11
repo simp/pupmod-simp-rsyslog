@@ -1,24 +1,51 @@
-# == Class: rsyslog::config::logrotate
+# **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 #
-# Sets up log rotation for RSyslog.
+# Default log rotation for RSyslog
 #
-class rsyslog::config::logrotate {
-  include '::logrotate'
+# The list that is managed here matches the list of default files that are
+# managed on the system by this module.
+#
+# @param rotate_period
+#   How often to rotate the logs
+#
+# @param rotate_preserve
+#   How many rotated logs to keep
+#
+# @param rotate_size
+#   The maximum size of a log file
+#
+#   * ``$rotate_period`` will be ignored if this is specified
+#
+class rsyslog::config::logrotate (
+  Enum['daily','weekly','monthly','yearly'] $rotate_period   = 'daily',
+  Integer[0]                                $rotate_preserve = 7,
+  Optional[Integer[0]]                      $rotate_size     = undef
+){
   assert_private()
 
-  # Set up the initial logrotate rule
-  ::logrotate::add { 'syslog':
-    log_files  => [
-      '/var/log/messages',
-      '/var/log/secure',
-      '/var/log/maillog',
-      '/var/log/spooler',
+  include '::logrotate'
+
+  $_restartcmd = 'systemd' in $facts['init_systems'] ? {
+    true    => '/usr/sbin/systemctl restart rsyslog',
+    default => '/usr/sbin/service rsyslog restart'
+  }
+
+  logrotate::rule { 'syslog':
+    log_files     => [
       '/var/log/boot.log',
       '/var/log/cron',
       '/var/log/iptables.log',
-      '/var/log/puppet*.log'
+      '/var/log/maillog',
+      '/var/log/messages',
+      '/var/log/puppet*.log',
+      '/var/log/secure',
+      '/var/log/slapd*.log',
+      '/var/log/spooler'
     ],
-    lastaction => '/sbin/service rsyslog restart > /dev/null 2>&1 || true',
-    missingok  => true
+    size          => $rotate_size,
+    rotate_period => $rotate_period,
+    rotate        => $rotate_preserve,
+    lastaction    => "${_restartcmd} > /dev/null 2>&1 || true",
+    missingok     => true
   }
 }

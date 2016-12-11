@@ -1,243 +1,254 @@
-# == Class: rsyslog::config
+# **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 #
 # Setup RSyslog configuration. Creates /etc/rsyslog.conf and includes
 # all SIMP config subdirectories in /etc/rsyslog.simp.d.
 #
-# == Parameters
+# **NOTE** Any undocumented parameters map directly to their counterparts in
+# the Rsyslog configuration files.
 #
-# Almost all of the variables come directly from rsyslog. The ones
-# that do not, or have unusual behavior, are noted here.
+# @param umask
+#   The umask that should be applied to the running process
 #
-# [*umask*]
-#   The umask that should be applied to the running process.
-#
-# [*localhostname*]
-#   Type: String
-#   Default: $::fqdn
+# @param localhostname
 #   The Hostname that should be used on your syslog messages
 #
-# [*main_msg_queue_size*]
-#   Type: Integer
-#   Default: The minimum of 1% of physical memory or 1G, based on a 512B message size.
-#     The maximum number of messages that may be stored in the memory queue.
+# @param preserve_fqdn
+#   Ensure that the ``fqdn`` of the originating host is preserved in all log
+#   messages
 #
-# [*main_msg_queue_high_watermark*]
-#   Type: Integer
-#   Default: 90% of $main_msg_queue_size
-#     The point at which the queue will start writing messages to disk
-#     as a number of messages.
+# @param control_character_escape_prefix
+# @param drop_msgs_with_malicious_dns_ptr_records
+# @param escape_control_characters_on_receive
 #
-# [*main_msg_queue_low_watermark*]
-#   Type: Integer
-#   Default: 70% of $main_msg_queue_size
-#     The point at which the queue will stop writing messages to disk
-#     as a number of messages.
+# @param default_template
+#   The default template to use to output to various services
 #
-#     This must be *lower* than _main_msg_queue_high_watermark_
+#   * The provided template has been designed to work with external parsing
+#     tools that require the priority text
 #
-# [*main_msg_queue_discardmark*]
-#   Type: Integer
-#   Default: 98% of $main_msg_queue_size
-#   The point at which the queue will discard messages.
+#   * You can also choose from the following values in order to select from one
+#     of the built-in rsyslogd formats.
 #
-# [*main_msg_queue_worker_thread_minimum_messages*]
-#   Type: Integer
-#   Default: ''
-#     The minimum number of messages in the queue before a new thread
-#     can be spawned.
+#       * forward     -> RSYSLOG_Forward
+#       * original    -> RSYSLOG_FileFormat
+#       * traditional -> RSYSLOG_TraditionalFileFormat
 #
-#     If left empty (the default), will calculate the value based on
-#     the following formula:
-#       $main_msg_queue_size/(($processorcount - 1)*4)
+# @param syssock_ignore_timestamp
+# @param syssock_ignore_own_messages
+# @param syssock_use
+# @param syssock_name
+# @param syssock_flow_control
+# @param syssock_use_pid_from_system
+# @param syssock_rate_limit_interval
+# @param syssock_rate_limit_burst
+# @param syssock_rate_limit_severity
+# @param syssock_use_sys_timestamp
+# @param syssock_annotate
+# @param syssock_parse_trusted
+# @param syssock_unlink
 #
-# [*main_msg_queue_worker_threads*]
-#   Type: Integer
-#   Default: ''
-#     The maximum number of threads to spawn on the system. Defaults
-#     to $processorcount - 1.
+# @param main_msg_queue_type
+#   The type of queue that will be used
 #
-# [*main_msg_queue_max_disk_space*]
-#   Type: Integer
-#   Default: ''
-#     The maximum amount of disk space to use for the disk queue.
-#     Specified as a digit followed by a unit specifier. For example:
-#       100   -> 100 Bytes
-#       100K  -> 100 Kilobytes
-#       100M  -> 100 Megabytes
-#       100G  -> 100 Gigabytes
-#       100T  -> 100 Terabytes
-#       100P  -> 100 Petabytes
-#     If not specified, will default to ($main_msg_queue_size * 1024)
+#   * It is **highly** recommended that you leave this as ``LinkedList`` unless
+#     you really know what you are doing.
 #
-# [*main_msg_queue_max_file_size*]
-#   Type: Integer
-#   Default: '5'
-#     The maximum file size, in Megabytes, that should be created when
-#     buffering to disk. It is not recommended to make this
-#     excessively large.
+# @param main_msg_queue_filename
+# @param main_msg_queue_max_file_size
 #
+# @param main_msg_queue_size
+#   The size of the main (global) message queue
 #
-# [*default_template*]
-#   The default template to use to output to various services. This one has
-#   been designed to work with external parsing tools that require the
-#   priority text.
+#   * By default, the minimum of 1% of physical memory or 1G, based on a 512B
+#     message size. The maximum number of messages that may be stored in the
+#     memory queue.
 #
-#   You can also choose from the following values in order to select from one
-#   of the built-in rsyslogd formats.
-#     * forward     -> RSYSLOG_Forward
-#     * original    -> RSYSLOG_FileFormat
-#     * traditional -> RSYSLOG_TraditionalFileFormat
+# @param main_msg_queue_high_watermark
+#   The point at which the queue will start writing messages to disk as a
+#   number of messages
 #
-# [*interval*]
-#     The mark interval.
+#   * By default, 90% of ``$main_msg_queue_size``
 #
-# [*tls_tcp_max_sessions*]
-#     The maximum number of sessions to support. 200 is default.
+# @param main_msg_queue_low_watermark
+#   The point at which the queue will stop writing messages to disk as a number
+#   of messages
 #
-# [*cert_source*]
-#   Type: Absolute Path
-#   Default: ''
-#     The directory where PKI (TLS) certificates and keys are stored.
+#   * **NOTE:** This must be **lower** than ``$main_msg_queue_high_watermark``
+#   * By default, 70% of ``$main_msg_queue_size``
 #
-#     The directory should be in the following structure:
-#       private/<fqdn>.pem
-#       public/<fqdn>.pub
-#       cacerts/cacerts.pem <- All CA certificates go here!
+# @param main_msg_queue_discardmark
+#   The point at which the queue will discard messages
 #
-# [*ulimit_max_open_files*]
-#   The ulimit that should be set for the syslog server.
-#   1024 is fine for most purposes, but a collection server should bump this
-#   *way* up.
+#   * By default, 98% of ``$main_msg_queue_size``
 #
-# [*host_list*]
-#   Sysconfig Option
-#   Array of hosts to be logged with their simple hostname.
-#   See the -l option in rsyslogd(8) for more information.
+# @param main_msg_queue_worker_thread_minimum_messages
+#   The minimum number of messages in the queue before a new thread can be
+#   spawned
 #
-# [*domain_list*]
-#     Sysconfig Option
-#     Array of domains that should be stripped off before logging.
-#     See the -s option in rsyslogd(8) for more information.
+#   * If left empty (the default), will calculate the value based on the
+#     following formula: ``$main_msg_queue_size/(($processorcount - 1)*4)``
 #
-# [*suppress_noauth_warn*]
-#   Sysconfig Option
-#   Set to someting other than false to suppress warnings due to hosts not in
-#   the ACL.
-#   See the -w option in rsyslogd(8) for more information.
+# @param main_msg_queue_worker_threads
+#   The maximum number of threads to spawn on the system
 #
-# [*disable_remote_dns*]
-#   Sysconfig Option
-#   Disable DNS for remote messages.
-#   See the -x option in rsyslogd(8) for more information.
+#   * By default, ``$processorcount - 1``
 #
-# [*read_journald*]
-#   Enable the forwarding of the systemd journal to syslog
+# @param main_msg_queue_worker_timeout_thread_shutdown
+# @param main_msg_queue_timeout_enqueue
+# @param main_msg_queue_dequeue_slowdown
+# @param main_msg_queue_save_on_shutdown
+#
+# @param main_msg_queue_max_disk_space
+#   The maximum amount of disk space to use for the disk queue.
+#
+#   * Specified as a digit followed by a unit specifier. For example:
+#
+#       * 100   -> 100 Bytes
+#       * 100K  -> 100 Kilobytes
+#       * 100M  -> 100 Megabytes
+#       * 100G  -> 100 Gigabytes
+#       * 100T  -> 100 Terabytes
+#       * 100P  -> 100 Petabytes
+#
+#   * If not specified, will default to ``$main_msg_queue_size * 1024``
+#
+# @param main_msg_queue_max_file_size
+#   The maximum file size, in Megabytes, that should be created when buffering
+#   to disk.
+#
+#   * **NOTE:** It is not recommended to make this excessively large
+#
+# @param repeated_msg_reduction
+# @param work_directory
+#
+# @param interval
+#   The ``mark`` interval
+#
+# @param tls_tcp_max_sessions
+#   The maximum number of sessions to support
+#
+# @param tls_input_tcp_server_stream_driver_permitted_peers
+#   A *wildcard-capable* Array of domains that should be allowed to talk to the
+#   server over ``TLS``
+#
+# @param default_net_stream_driver
+# @param default_net_stream_driver_ca_file
+# @param default_net_stream_driver_cert_file
+# @param default_net_stream_driver_key_file
+# @param action_send_stream_driver_mode
+# @param action_send_stream_driver_auth_mode
+# @param action_send_stream_driver_permitted_peers
+#
+# @param ulimit_max_open_files
+#   The maximum open files limit that should be set for the syslog server
+#
+#   * ``1024`` is fine for most purposes, but a collection server should bump this
+#     **way** up.
+#
+# @param host_list
+#   Hosts that should be logged with their simple hostname
+#
+#   * See the ``-l`` option in ``rsyslogd(8)`` for more information
+#
+# @param domain_list
+#   Array of domains that should be stripped off before logging
+#
+#   * See the ``-s`` option in ``rsyslogd(8)`` for more information
+#
+# @param suppress_noauth_warn
+#   Suppress warnings due to hosts not in the ACL
+#
+#   * See the ``-w`` option in ``rsyslogd(8)`` for more information
+#
+# @param disable_remote_dns
+#   Disable DNS lookups for remote messages
+#
+#   * See the ``-x`` option in ``rsyslogd(8)`` for more information
+#
+# @param read_journald
+#   Enable the forwarding of the ``systemd`` journal to syslog
+#
+# @param include_rsyslog_d
+#   Include all configuration files in the system-standard ``/etc/rsyslog.d``
+#
+#   * This will place the configuration files **after** the global
+#     configuration but **before** the SIMP applied configurations.
 #
 class rsyslog::config (
-  $umask                                              = '0027',
-  $localhostname                                      = $::fqdn,
-  $preserve_fqdn                                      = true,
-  $control_character_escape_prefix                    = '#',
-  $drop_msgs_with_malicious_dns_ptr_records           = 'off',
-  $escape_control_characters_on_receive               = 'on',
-  $default_template                                   = 'original',
+  String                                             $umask                                              = '0027',
+  String                                             $localhostname                                      = $facts['fqdn'],
+  Boolean                                            $preserve_fqdn                                      = true,
+  String[1,1]                                        $control_character_escape_prefix                    = '#',
+  Enum['off','on']                                   $drop_msgs_with_malicious_dns_ptr_records           = 'off',
+  Enum['off','on']                                   $escape_control_characters_on_receive               = 'on',
+  String                                             $default_template                                   = 'original',
 
   # Parameters for imuxsock with sensible defaults.
-  $syssock_ignore_timestamp                           = true,
-  $syssock_ignore_own_messages                        = true,
-  $syssock_use                                        = true,
-  $syssock_name                                       = '',
-  $syssock_flow_control                               = false,
-  $syssock_use_pid_from_system                        = false,
-  $syssock_rate_limit_interval                        = '0',
-  $syssock_rate_limit_burst                           = '1000',
-  $syssock_rate_limit_severity                        = '5',
-  $syssock_use_sys_timestamp                          = true,
-  $syssock_annotate                                   = false,
-  $syssock_parse_trusted                              = false,
-  $syssock_unlink                                     = true,
+  Boolean                                            $syssock_ignore_timestamp                           = true,
+  Boolean                                            $syssock_ignore_own_messages                        = true,
+  Boolean                                            $syssock_use                                        = true,
+  Optional[String]                                   $syssock_name                                       = undef,
+  Boolean                                            $syssock_flow_control                               = false,
+  Boolean                                            $syssock_use_pid_from_system                        = false,
+  Integer[0]                                         $syssock_rate_limit_interval                        = 0,
+  Integer[0]                                         $syssock_rate_limit_burst                           = 1000,
+  Integer[0]                                         $syssock_rate_limit_severity                        = 5,
+  Boolean                                            $syssock_use_sys_timestamp                          = true,
+  Boolean                                            $syssock_annotate                                   = false,
+  Boolean                                            $syssock_parse_trusted                              = false,
+  Boolean                                            $syssock_unlink                                     = true,
 
   # Main message queue global defaults.
-  $main_msg_queue_type                                = 'LinkedList',
-  $main_msg_queue_filename                            = 'main_msg_queue',
-  $main_msg_queue_max_file_size                       = '5',
-  $main_msg_queue_size                                = '10000',
-  $main_msg_queue_high_watermark                      = '',
-  $main_msg_queue_low_watermark                       = '',
-  $main_msg_queue_discardmark                         = '',
-  $main_msg_queue_worker_thread_minimum_messages      = '',
-  $main_msg_queue_worker_threads                      = '',
-  $main_msg_queue_worker_timeout_thread_shutdown      = '5000',
-  $main_msg_queue_timeout_enqueue                     = '100',
-  $main_msg_queue_dequeue_slowdown                    = '0',
-  $main_msg_queue_save_on_shutdown                    = 'on',
-  $main_msg_queue_max_disk_space                      = '',
+  Enum['LinkedList','FixedArray']                    $main_msg_queue_type                                = 'LinkedList',
+  String                                             $main_msg_queue_filename                            = 'main_msg_queue',
+  Integer[0]                                         $main_msg_queue_max_file_size                       = 5,
+  Optional[Integer[0]]                               $main_msg_queue_size                                = undef,
+  Optional[Integer[0]]                               $main_msg_queue_high_watermark                      = undef,
+  Optional[Integer[0]]                               $main_msg_queue_low_watermark                       = undef,
+  Optional[Integer[0]]                               $main_msg_queue_discardmark                         = undef,
+  Optional[Integer[0]]                               $main_msg_queue_worker_thread_minimum_messages      = undef,
+  Optional[Integer[0]]                               $main_msg_queue_worker_threads                      = undef,
+  Integer[0]                                         $main_msg_queue_worker_timeout_thread_shutdown      = 5000,
+  Integer[0]                                         $main_msg_queue_timeout_enqueue                     = 100,
+  Integer[0]                                         $main_msg_queue_dequeue_slowdown                    = 0,
+  Enum['on','off']                                   $main_msg_queue_save_on_shutdown                    = 'on',
+  Optional[Integer[0]]                               $main_msg_queue_max_disk_space                      = undef,
 
-  $repeated_msg_reduction                             = 'on',
-  $work_directory                                     = '/var/spool/rsyslog',
-  $interval                                           = '0',
-  $tls_tcp_max_sessions                               = '200',
-  # FIXME: handle this as an Array in the template, templates/pre_logging.conf.erb
-  $tls_input_tcp_server_stream_driver_permitted_peers = ["*.${::domain}"],
+  Enum['on','off']                                   $repeated_msg_reduction                             = 'on',
+  Stdlib::Absolutepath                               $work_directory                                     = '/var/spool/rsyslog',
+  Integer[0]                                         $interval                                           = 0,
+  Integer[0]                                         $tls_tcp_max_sessions                               = 200,
+  Array[String]                                      $tls_input_tcp_server_stream_driver_permitted_peers = ["*.${::domain}"],
 
-  $default_net_stream_driver_ca_file                  = "${::rsyslog::cert_source}/cacerts/cacerts.pem",
-  $default_net_stream_driver_cert_file                = "${::rsyslog::cert_source}/public/${::fqdn}.pub",
-  $default_net_stream_driver_key_file                 = "${::rsyslog::cert_source}/private/${::fqdn}.pem",
+  Enum['gtls','ptcp']                                $default_net_stream_driver                          = 'gtls',
+  Stdlib::Absolutepath                               $default_net_stream_driver_ca_file                  = "${::rsyslog::pki_base_dir}/pki/cacerts/cacerts.pem",
+  Stdlib::Absolutepath                               $default_net_stream_driver_cert_file                = "${::rsyslog::pki_base_dir}/pki/public/${::fqdn}.pub",
+  Stdlib::Absolutepath                               $default_net_stream_driver_key_file                 = "${::rsyslog::pki_base_dir}/pki/private/${::fqdn}.pem",
 
-  ## TODO: Remove these once we upgrade to v7-stable or later.
-  $action_send_stream_driver_mode                     = $::rsyslog::enable_pki ? { true => '1', default => '0' },
-  $action_send_stream_driver_auth_mode                = '',
-  $action_send_stream_driver_permitted_peers          = $::rsyslog::log_server_list,
+  Enum['1','0']                                      $action_send_stream_driver_mode                     = ($::rsyslog::pki or $::rsyslog::tls_tcp_server or $::rsyslog::enable_tls_logging) ? { true => '1', default => '0' },
+  Optional[String]                                   $action_send_stream_driver_auth_mode                = undef,
+  Array[String]                                      $action_send_stream_driver_permitted_peers          = $::rsyslog::log_servers,
 
-  $ulimit_max_open_files                              = 'unlimited',
-  $host_list                                          = '',
-  $domain_list                                        = '',
-  $suppress_noauth_warn                               = false,
-  $disable_remote_dns                                 = false,
-  $enable_default_rules                               = true,
-  $read_journald                                      = $::rsyslog::read_journald,
-  $include_rsyslog_d                                  = false,
+  Variant[Enum['unlimited'],Integer[0]]              $ulimit_max_open_files                              = 'unlimited',
+  Array[String]                                      $host_list                                          = [],
+  Array[String]                                      $domain_list                                        = [],
+  Boolean                                            $suppress_noauth_warn                               = false,
+  Boolean                                            $disable_remote_dns                                 = false,
+  Boolean                                            $enable_default_rules                               = true,
+  Boolean                                            $read_journald                                      = $::rsyslog::read_journald,
+  Boolean                                            $include_rsyslog_d                                  = false
 ) {
+  assert_private()
 
-  validate_string($localhostname)
-  validate_bool($preserve_fqdn)
-  validate_array_member($main_msg_queue_type,['LinkedList','FixedArray'])
-  validate_string($main_msg_queue_filename)
-  if !empty($main_msg_queue_size) { validate_integer($main_msg_queue_size) }
-  if !empty($main_msg_queue_high_watermark) { validate_integer($main_msg_queue_high_watermark) }
-  if !empty($main_msg_queue_low_watermark) { validate_integer($main_msg_queue_low_watermark) }
-  if !empty($main_msg_queue_discardmark) { validate_integer($main_msg_queue_discardmark) }
-  if !empty($main_msg_queue_worker_thread_minimum_messages) { validate_integer($main_msg_queue_worker_thread_minimum_messages) }
-  if !empty($main_msg_queue_worker_threads) { validate_integer($main_msg_queue_worker_threads) }
-  validate_integer($main_msg_queue_worker_timeout_thread_shutdown)
-  validate_integer($main_msg_queue_timeout_enqueue)
-  validate_integer($main_msg_queue_dequeue_slowdown)
-  validate_array_member($main_msg_queue_save_on_shutdown,['on','off'])
-  if !empty($main_msg_queue_max_disk_space) { validate_re($main_msg_queue_max_disk_space,'^\d+[KMGTP]?$') }
-  validate_integer($main_msg_queue_max_file_size)
-  validate_array_member($drop_msgs_with_malicious_dns_ptr_records,['on','off'])
-  validate_array_member($escape_control_characters_on_receive,['on','off'])
-  validate_string($default_template)
-  validate_array_member($repeated_msg_reduction,['on','off'])
-  validate_absolute_path($work_directory)
-  validate_integer($interval)
-  validate_integer($tls_tcp_max_sessions)
-  validate_array($tls_input_tcp_server_stream_driver_permitted_peers)
-  validate_absolute_path($default_net_stream_driver_ca_file)
-  validate_absolute_path($default_net_stream_driver_cert_file)
-  validate_absolute_path($default_net_stream_driver_key_file)
-  validate_array($action_send_stream_driver_permitted_peers)
-  validate_string($action_send_stream_driver_auth_mode)
-  validate_umask($umask)
-  validate_re($ulimit_max_open_files,'^(unlimited|[0-9]*)$')
-  validate_bool($suppress_noauth_warn)
-  validate_bool($disable_remote_dns)
-  validate_bool($include_rsyslog_d)
-  validate_bool($enable_default_rules)
+  $_tcp_server = pick($::rsyslog::tcp_server, false)
+  $_tls_tcp_server = pick($::rsyslog::tls_tcp_server, false)
+  $_tcp_listen_port = pick($::rsyslog::tcp_listen_port, '514')
+  $_tls_tcp_listen_port = pick($::rsyslog::tls_tcp_listen_port, '6514')
+  $_udp_server = pick($::rsyslog::udp_server, false)
+  $_udp_listen_port = pick($::rsyslog::udp_listen_port, '514')
+  $_enable_tls_logging = pick($::rsyslog::enable_tls_logging, false)
 
-  include '::rsyslog'
-
-  if $read_journald and member($::init_systems, 'systemd') {
+  if $read_journald and member($facts['init_systems'], 'systemd') {
     $_read_journald = true
   }
   else {
@@ -245,14 +256,14 @@ class rsyslog::config (
   }
 
   # set the driver auth_mode based on the mode
-  if empty( $action_send_stream_driver_auth_mode ) {
-    $l_action_send_stream_driver_auth_mode = $action_send_stream_driver_mode ? {
+  if $action_send_stream_driver_auth_mode {
+    $_action_send_stream_driver_auth_mode = $action_send_stream_driver_auth_mode
+  }
+  else {
+    $_action_send_stream_driver_auth_mode = $action_send_stream_driver_mode ? {
       '0'     => 'anon',
-      '1'     => 'x509/name',
-      default => 'x509/name',
+      default => 'x509/name'
     }
-  } else {
-    $l_action_send_stream_driver_auth_mode = $action_send_stream_driver_auth_mode
   }
 
   $_default_template = $default_template ? {
@@ -262,8 +273,7 @@ class rsyslog::config (
     default       => $default_template
   }
 
-  # This is where the custom rules will go. They will be purged if not
-  # managed!
+  # This is where the custom rules will go. They will be purged if not managed!
   file { $::rsyslog::rule_dir:
     ensure  => 'directory',
     owner   => 'root',
@@ -286,7 +296,7 @@ class rsyslog::config (
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
-    content => '# Place .conf files that rsyslog should process independently of SIMP into this directory.\n'
+    content => '# Place ".conf" files that rsyslog should process independently of SIMP into this directory.\n'
   }
 
   file { '/var/spool/rsyslog':
@@ -298,7 +308,7 @@ class rsyslog::config (
 
   if $enable_default_rules {
     rsyslog::rule { '99_simp_local/ZZ_default.conf':
-      content => template('rsyslog/rsyslog.default.erb')
+      content => file("${module_name}/config/rsyslog.default")
     }
   }
 
@@ -307,26 +317,29 @@ class rsyslog::config (
     owner   => 'root',
     group   => 'root',
     mode    => '0600',
-    content => template('rsyslog/rsyslog.conf.global.erb')
+    content => "\$IncludeConfig ${::rsyslog::rule_dir}/*.conf"
   }
 
   file { '/etc/sysconfig/rsyslog':
     owner   => 'root',
     group   => 'root',
     mode    => '0640',
-    content => template('rsyslog/sysconfig.erb')
+    content => template("${module_name}/sysconfig.erb")
   }
 
   rsyslog::rule { '00_simp_pre_logging/global.conf':
-    content => template('rsyslog/pre_logging.conf.erb')
+    content => template("${module_name}/config/pre_logging.conf.erb")
   }
 
   rsyslog::rule { '09_failover_hack/failover_hack.conf':
-    content => '
-# For failover to be defined and parse properly, we must place it somewhere
-# after the first rule is defined. Therefore, we are creating this noop rule.
+    # lint:ignore:variable_scope
+    content => @(EOM)
+      # For failover to be defined and parse properly, we must place it somewhere
+      # after the first rule is defined. Therefore, we are creating this noop rule.
 
-if $syslogfacility == \'local0\' and $msg startswith \'placeholder_rule\' then continue'
+      if $syslogfacility == 'local0' and $msg startswith 'placeholder_rule' then continue
+      |EOM
+    # lint:endignore
   }
 
   if $include_rsyslog_d {

@@ -1,29 +1,31 @@
-<% t_bool_xlat = {
-  true  => 'on',
-  false => 'off'
-} -%>
+<%
+  _bool_xlat = {
+    true  => 'on',
+    false => 'off'
+  }
+-%>
 <%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %> {
   action(
     type="omfile"
-<% if !@target_log_file.empty? -%>
+<% if @target_log_file -%>
     file="<%= @target_log_file %>"
 <% end -%>
-<% if !@dyna_file.empty? -%>
+<% if @dyna_file -%>
     dynaFile="<%= @dyna_file %>"
 <% end -%>
-<% if !@template.empty? -%>
+<% if @template -%>
     template="<%= @template %>"
 <% end -%>
-<% if !@dyna_file_cache_size.empty? -%>
+<% if @dyna_file_cache_size -%>
     dynaFileCacheSize="<%= @dyna_file_cache_size %>"
 <% end -%>
-<% if !@zip_level.empty? -%>
+<% if @zip_level -%>
     zipLevel="<%= @zip_level %>"
 <% end -%>
 <% if @very_robust_zip -%>
     veryRobustZip="on"
 <% end -%>
-<% if !@flush_interval.empty? -%>
+<% if @flush_interval -%>
     flushInterval="<%= @flush_interval %>"
 <% end -%>
 <% if @async_writing -%>
@@ -32,40 +34,40 @@
 <% if @flush_on_tx_end -%>
     flushOnTXEnd="on"
 <% end -%>
-<% if !@io_buffer_size.empty? -%>
+<% if @io_buffer_size -%>
     ioBufferSize="<%= @io_buffer_size %>"
 <% end -%>
-<% if !@io_buffer_size.empty? -%>
+<% if @io_buffer_size -%>
     ioBufferSize="<%= @io_buffer_size %>"
 <% end -%>
-<% if !@dir_owner.empty? -%>
+<% if @dir_owner -%>
     dirOwner="<%= @dir_owner %>"
 <% end -%>
-<% if !@dir_owner_num.empty? -%>
+<% if @dir_owner_num -%>
     dirOwnerNum="<%= @dir_owner_num %>"
 <% end -%>
-<% if !@dir_group.empty? -%>
+<% if @dir_group -%>
     dirGroup="<%= @dir_group %>"
 <% end -%>
-<% if !@dir_group_num.empty? -%>
+<% if @dir_group_num -%>
     dirGroupNum="<%= @dir_group_num %>"
 <% end -%>
-<% if !@file_owner.empty? -%>
+<% if @file_owner -%>
     fileOwner="<%= @file_owner %>"
 <% end -%>
-<% if !@file_owner_num.empty? -%>
+<% if @file_owner_num -%>
     fileOwnerNum="<%= @file_owner_num %>"
 <% end -%>
-<% if !@file_group.empty? -%>
+<% if @file_group -%>
     fileGroup="<%= @file_group %>"
 <% end -%>
-<% if !@file_group_num.empty? -%>
+<% if @file_group_num -%>
     fileGroupNum="<%= @file_group_num %>"
 <% end -%>
-<% if !@file_create_mode.empty? -%>
+<% if @file_create_mode -%>
     fileCreateMode="<%= @file_create_mode %>"
 <% end -%>
-<% if !@dir_create_mode.empty? -%>
+<% if @dir_create_mode -%>
     dirCreateMode="<%= @dir_create_mode %>"
 <% end -%>
 <% if @fail_on_chown_failure -%>
@@ -77,41 +79,41 @@
 <% if @sync -%>
     sync="on"
 <% end -%>
-<% if !@sig_provider.empty? -%>
+<% if @sig_provider -%>
     sig.provider="<%= @sig_provider %>"
 <% end -%>
-<% if !@cry_provider.empty? -%>
+<% if @cry_provider -%>
     cry.provider="<%= @cry_provider %>"
 <% end -%>
-<% if !@queue_filename.empty? -%>
+<% if @queue_filename -%>
     queue.filename="<%= @queue_filename %>"
 <% end -%>
-<% if !@queue_spool_directory.empty? -%>
+<% if @queue_spool_directory -%>
     queue.spoolDirectory="<%= @queue_spool_directory %>"
 <% end -%>
-<% if !@queue_size.empty? -%>
+<% if @queue_size -%>
     queue.size="<%= @queue_size %>"
 <% end -%>
     queue.dequeuebatchsize="<%= @queue_dequeue_batch_size %>"
-<% if !@queue_max_disk_space.empty? -%>
+<% if @queue_max_disk_space -%>
     queue.maxdiskspace="<%= @queue_max_disk_space %>"
 <% end -%>
-<% if !@queue_high_watermark.empty? -%>
+<% if @queue_high_watermark -%>
     queue.highwatermark="<%= @queue_high_watermark %>"
 <% end -%>
     queue.lowwatermark="<%= @queue_low_watermark %>"
-<% if !@queue_full_delay_mark.empty? -%>
+<% if @queue_full_delay_mark -%>
     queue.fulldelaymark="<%= @queue_full_delay_mark %>"
 <% end -%>
-<% if !@queue_light_delay_mark.empty? -%>
+<% if @queue_light_delay_mark -%>
     queue.lightdelaymark="<%= @queue_light_delay_mark %>"
 <% end -%>
     queue.discardmark="<%= @queue_discard_mark %>"
     queue.discardseverity="<%= @queue_discard_severity %>"
-<% if !@queue_checkpoint_interval.empty? -%>
+<% if @queue_checkpoint_interval -%>
     queue.checkpointinterval="<%= @queue_checkpoint_interval %>"
 <% end -%>
-    queue.syncqueuefiles="<%= t_bool_xlat[@queue_sync_queue_files] %>"
+    queue.syncqueuefiles="<%= _bool_xlat[@queue_sync_queue_files] %>"
     queue.type="<%= @queue_type %>"
     queue.workerthreads="<%= @queue_worker_threads %>"
     queue.timeoutshutdown="<%= @queue_timeout_shutdown %>"
@@ -120,12 +122,12 @@
     queue.timeoutworkerthreadshutdown="<%= @queue_timeout_worker_thread_shutdown %>"
     queue.workerthreadminimummessages="<%= @queue_worker_thread_minimum_messages %>"
     queue.maxfilesize="<%= @queue_max_file_size %>"
-    queue.saveonshutdown="<%= t_bool_xlat[@queue_save_on_shutdown] %>"
+    queue.saveonshutdown="<%= _bool_xlat[@queue_save_on_shutdown] %>"
     queue.dequeueslowdown="<%= @queue_dequeue_slowdown %>"
-<% if !@queue_dequeue_time_begin.empty? -%>
+<% if @queue_dequeue_time_begin -%>
     queue.dequeuetimebegin="<%= @queue_dequeue_time_begin %>"
 <% end -%>
-<% if !@queue_dequeue_time_end.empty? -%>
+<% if @queue_dequeue_time_end -%>
     queue.dequeuetimeend="<%= @queue_dequeue_time_end %>"
 <% end -%>
   )

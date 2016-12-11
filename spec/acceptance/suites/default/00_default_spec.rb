@@ -11,13 +11,13 @@ describe 'rsyslog class' do
   let(:client){ only_host_with_role( hosts, 'client' ) }
   let(:manifest) {
     <<-EOS
-      class { 'rsyslog': enable_pki  => false }
+      class { 'rsyslog': pki  => false }
     EOS
   }
 
   let(:manifest_plus_rules) {
     <<-EOS
-      class { 'rsyslog': enable_pki  => false }
+      class { 'rsyslog': pki  => false }
 
       rsyslog::rule::console { '0_default_emerg':
         rule  => '*.emerg',
@@ -65,7 +65,6 @@ input(type=\\"imfile\\"
   }
 
   context 'default parameters (no pki)' do
-
     # Using puppet_apply as a helper
     it 'should work with no errors' do
       apply_manifest_on(client, manifest, :catch_failures => true)
@@ -73,7 +72,6 @@ input(type=\\"imfile\\"
       # reboot to apply auditd changes
       # shell( 'shutdown -r now', { :expect_connection_failure => true } )
     end
-
 
     it 'should be idempotent' do
       apply_manifest_on(client, manifest, {:catch_changes => true})

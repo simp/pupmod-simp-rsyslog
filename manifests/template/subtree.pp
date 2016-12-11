@@ -1,49 +1,46 @@
-# == Define: rsyslog::template::subtree
-#
-# This define allows you to add template subtrees to the rsyslog configuration
-# file.  These rules should be uniquely named.
+# Add template subtrees to the rsyslog configuration
 #
 # You'll need to write the entire subtree line due to the complexity of the
 # rsyslog configuration parameters.
 #
-# Example: (Adapted from the RSyslog official documentation)
+# @example Subtree (From the Official RSyslog Docs)
 #   rsyslog::template::subtree { 'example_subtree':
 #     $variables => ['$!usr!tp12!msg = $msg;', '$!usr!tp12!dataflow = field($msg, 58, 2);'],
 #     $subtree   => '$!usr!tp12'
 #   }
 #
-# Will produce the following in 05_simp_templates/example_subtree.conf:
+#   ### Produces:
+#
 #   set $!usr!tp12!msg = $msg;
 #   set $!usr!tp12!dataflow = field($msg, 58, 2);
 #   template(name="example" type="subtree" subtree="$!usr!tp12")
 #
-# == Parameters
+# @param name
+#   The literal name of the ``file`` (not a path) that will be used
 #
-# [*name*]
-#   The literal name of the file that will be used to build the multi-part
-#   file.
-#   Note: Do not use a '/' in the $name.
+# @param subtree
+#   The rsyslog subtree content that you wish to add to the system
 #
-# [*subtree*]
-#   The rsyslog subtree content that you wish to add to the system.
-#   This is fed, without formatting, directly into the subtree parameter.
+#   * This is fed, without formatting, directly into the subtree parameter
 #
-# [*variables*]
-#   An array of variables to be set prior to the template being created.
+# @param variables
+#   Variables to be set **prior** to the template being created
 #
 define rsyslog::template::subtree (
-  $subtree,
-  $variables = []
+  String        $subtree,
+  Array[String] $variables = []
 ) {
-  validate_string($subtree)
-  validate_array($variables)
-
   $_safe_name = regsubst($name,'/','__')
 
+  $_variables = join($variables,"\n")
+
   rsyslog::rule { "05_simp_templates/${_safe_name}.conf":
-    content => inline_template(
-'<%= @variables.join("\n") %>
-template(name="<%= @name %>" type="subtree" subtree="<%= @subtree %>"'
-    )
+    # lint:ignore:double_quoted_strings lint:ignore:only_variable_string
+    content => @("EOM")
+      $_variables
+
+      template(name="${name}" type="subtree" subtree="${subtree}")
+      |EOM
+    # lint:endignore
   }
 }

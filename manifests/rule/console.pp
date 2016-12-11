@@ -1,39 +1,39 @@
-# == Define: rsyslog::rule::console
+# Add a rule for writing logs to the console
 #
-# Add a console rule to RSyslog.
+# These rules first in priority. In general, the order will be:
 #
-# This adds a configuration file to the /etc/rsyslog.simp.d directory. These rules
-# are added first of all of the SIMP rules. In general, the order will be:
-#  - Console Rules
-#  - Drop Rules
-#  - Remote Rules
-#  - Local Rules
+#   * Data Source Rules
+#   * Console Rules
+#   * Drop Rules
+#   * Remote Rules
+#   * Other/Miscellaneous Rules
+#   * Local Rules
 #
-# Example:
+# @example Log Emergency Messages to the Console
 #   rsyslog::rule::console { 'emergency_rule':
 #     rule  => '*.emerg',
 #     users => ['*']
 #   }
 #
-# == Parameters
+# @param name [Stdlib::Absolutepath]
+#   The filename that you will be dropping into place
 #
-# [*name*]
-#   The filename that you will be dropping into place.
+# @param rule
+#   The Rsyslog ``EXPRESSION`` to filter on
 #
-# [*rule*]
-#   The rule with omfile action that will be placed in the file in the
-#   /etc/rsyslog.simp.d directory.
+# @param users
+#    Users to which to send the console messages
 #
-# [*users*]
-#    An array of users to send the console message to.
+# @see https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/s1-basic_configuration_of_rsyslog.html Red Hat Basic Rsyslog Configuration
+#
+# @see http://www.rsyslog.com/doc/expression.html Expressions in Rsyslog
+#
+# @see http://www.rsyslog.com/doc/rainerscript.html RainerScript Documentation
 #
 define rsyslog::rule::console (
-  $rule,
-  $users
+  String        $rule,
+  Array[String] $users
 ) {
-  validate_string($rule)
-  validate_array($users)
-
   $_safe_name = regsubst($name,'/','__')
 
   rsyslog::rule { "06_simp_console/${_safe_name}.conf":

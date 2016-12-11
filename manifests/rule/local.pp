@@ -1,145 +1,155 @@
-# == Define: rsyslog::rule::local
+# Add a rule targeting writing local system logs
 #
-# Add a local rule to RSyslog.
+# **NOTE:** Any option that is not explicitly documented here matches the
+# ``ruleset`` options in the Rsyslog documentation.
 #
-# This adds a configuration file to the /etc/rsyslog.simp.d directory. These rules
-# are added last of all of the SIMP rules. In general, the order will be:
-#  - Drop Rules
-#  - Remote Rules
-#  - Local Rules
+# In general, the order will be:
 #
-# == Parameters
+#   * Data Source Rules
+#   * Console Rules
+#   * Drop Rules
+#   * Remote Rules
+#   * Other/Miscellaneous Rules
+#   * Local Rules
 #
-# [*name*]
-#   The filename that you will be dropping into place.
+# @example Capture OpenLDAP Logs Then Stop Processing
+#   rsyslog::rule::local { 'collect_openldap':
+#     rule            => "if prifilt('local4.*') then",
+#     target_log_file => '/var/log/slapd.log',
+#     stop_processing => true
+#   }
 #
-# [*rule*]
-#   The rule with omfile action that will be placed in the file in the
-#   /etc/rsyslog.simp.d directory.
+# @param name [Stdlib::Absolutepath]
+#   The filename that you will be dropping into place
 #
-# [*target_log_file*]
-#  The target log file that omfile will be writing to.
-#  Note: This *must* be set if $dyna_file is left empty.
+# @param rule
+#   The Rsyslog ``EXPRESSION`` to filter on
+#
+# @param target_log_file
+#   The target log file that omfile will be writing to
+#
+#   * This **must** be set if ``$dyna_file`` is left empty
+#
+# @param stop_processing
+#   Do not forward logs to any further ``ruleset``s after processing this ``ruleset``.
+#
+# @param dyna_file
+# @param template
+# @param dyna_file_cache_size
+# @param zip_level
+# @param very_robust_zip
+# @param flush_interval
+# @param async_writing
+# @param flush_on_tx_end
+# @param io_buffer_size
+# @param dir_owner
+# @param dir_owner_num
+# @param dir_group
+# @param dir_group_num
+# @param file_owner
+# @param file_owner_num
+# @param file_group
+# @param file_group_num
+# @param file_create_mode
+# @param dir_create_mode
+# @param fail_on_chown_failure
+# @param create_dirs
+# @param sync
+# @param sig_provider
+# @param cry_provider
+# @param queue_filename
+# @param queue_spool_directory
+# @param queue_size
+# @param queue_dequeue_batch_size
+# @param queue_max_disk_space
+# @param queue_high_watermark
+# @param queue_low_watermark
+# @param queue_full_delay_mark
+# @param queue_light_delay_mark
+# @param queue_discard_mark
+# @param queue_discard_severity
+# @param queue_checkpoint_interval
+# @param queue_sync_queue_files
+# @param queue_type
+# @param queue_worker_threads
+# @param queue_timeout_shutdown
+# @param queue_timeout_action_completion
+# @param queue_timeout_enqueue
+# @param queue_timeout_worker_thread_shutdown
+# @param queue_worker_thread_minimum_messages
+# @param queue_max_file_size
+# @param queue_save_on_shutdown
+# @param queue_dequeue_slowdown
+# @param queue_dequeue_time_begin
+#
+# @see https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/s1-basic_configuration_of_rsyslog.html Red Hat Basic Rsyslog Configuration
+#
+# @see http://www.rsyslog.com/doc/expression.html Expressions in Rsyslog
+#
+# @see http://www.rsyslog.com/doc/rainerscript.html RainerScript Documentation
 #
 define rsyslog::rule::local (
-  $rule,
-  $target_log_file                      = '',
-  $stop_processing                      = false,
-  $dyna_file                            = '',
-  $template                             = '',
-  $dyna_file_cache_size                 = '10',
-  $zip_level                            = '0',
-  $very_robust_zip                      = true,
-  $flush_interval                       =  '0',
-  $async_writing                        = false,
-  $flush_on_tx_end                      = true,
-  $io_buffer_size                       = '',
-  $dir_owner                            = '',
-  $dir_owner_num                        = '',
-  $dir_group                            = '',
-  $dir_group_num                        = '',
-  $file_owner                           = '',
-  $file_owner_num                       = '',
-  $file_group                           = '',
-  $file_group_num                       = '',
-  $file_create_mode                     = '0644',
-  $dir_create_mode                      = '0700',
-  $fail_on_chown_failure                = true,
-  $create_dirs                          = true,
-  $sync                                 = false,
-  $sig_provider                         = '',
-  $cry_provider                         = '',
-  $queue_filename                       = '',
-  $queue_spool_directory                = '',
-  $queue_size                           = '',
-  $queue_dequeue_batch_size             = '16',
-  $queue_max_disk_space                 = '',
-  $queue_high_watermark                 = '',
-  $queue_low_watermark                  = '2000',
-  $queue_full_delay_mark                = '',
-  $queue_light_delay_mark               = '',
-  $queue_discard_mark                   = '9750',
-  $queue_discard_severity               = '8',
-  $queue_checkpoint_interval            = '',
-  $queue_sync_queue_files               = false,
-  $queue_type                           = 'Direct',
-  $queue_worker_threads                 = '1',
-  $queue_timeout_shutdown               = '0',
-  $queue_timeout_action_completion      = '1000',
-  $queue_timeout_enqueue                = '2000',
-  $queue_timeout_worker_thread_shutdown = '60000',
-  $queue_worker_thread_minimum_messages = '100',
-  $queue_max_file_size                  = '1m',
-  $queue_save_on_shutdown               = false,
-  $queue_dequeue_slowdown               = '0',
-  $queue_dequeue_time_begin             = '',
-  $queue_dequeue_time_end               = ''
+  String                                          $rule,
+  Optional[Stdlib::Absolutepath]                  $target_log_file                      = undef,
+  Boolean                                         $stop_processing                      = false,
+  Optional[String]                                $dyna_file                            = undef,
+  Optional[String]                                $template                             = undef,
+  Integer[0]                                      $dyna_file_cache_size                 = 10,
+  Integer[0,9]                                    $zip_level                            = 0,
+  Boolean                                         $very_robust_zip                      = true,
+  Integer[0]                                      $flush_interval                       = 0,
+  Boolean                                         $async_writing                        = false,
+  Boolean                                         $flush_on_tx_end                      = true,
+  Optional[Integer[0]]                            $io_buffer_size                       = undef,
+  Optional[String]                                $dir_owner                            = undef,
+  Optional[Integer[0]]                            $dir_owner_num                        = undef,
+  Optional[String]                                $dir_group                            = undef,
+  Optional[Integer[0]]                            $dir_group_num                        = undef,
+  Optional[String]                                $file_owner                           = undef,
+  Optional[Integer[0]]                            $file_owner_num                       = undef,
+  Optional[String]                                $file_group                           = undef,
+  Optional[Integer[0]]                            $file_group_num                       = undef,
+  String                                          $file_create_mode                     = '0644',
+  String                                          $dir_create_mode                      = '0700',
+  Boolean                                         $fail_on_chown_failure                = true,
+  Boolean                                         $create_dirs                          = true,
+  Boolean                                         $sync                                 = false,
+  Optional[String]                                $sig_provider                         = undef,
+  Optional[String]                                $cry_provider                         = undef,
+  Optional[Stdlib::Absolutepath]                  $queue_filename                       = undef,
+  Optional[Stdlib::Absolutepath]                  $queue_spool_directory                = undef,
+  Optional[Integer[0]]                            $queue_size                           = undef,
+  Integer[0]                                      $queue_dequeue_batch_size             = 16,
+  Optional[Integer[0]]                            $queue_max_disk_space                 = undef,
+  Optional[Integer[0]]                            $queue_high_watermark                 = undef,
+  Integer[0]                                      $queue_low_watermark                  = 2000,
+  Optional[Integer[0]]                            $queue_full_delay_mark                = undef,
+  Optional[Integer[0]]                            $queue_light_delay_mark               = undef,
+  Integer[0]                                      $queue_discard_mark                   = 9750,
+  Integer[0]                                      $queue_discard_severity               = 8,
+  Optional[Integer[0]]                            $queue_checkpoint_interval            = undef,
+  Boolean                                         $queue_sync_queue_files               = false,
+  Enum['FixedArray','LinkedList','Direct','Disk'] $queue_type                           = 'Direct',
+  Integer[0]                                      $queue_worker_threads                 = 1,
+  Integer[0]                                      $queue_timeout_shutdown               = 0,
+  Integer[0]                                      $queue_timeout_action_completion      = 1000,
+  Integer[0]                                      $queue_timeout_enqueue                = 2000,
+  Integer[0]                                      $queue_timeout_worker_thread_shutdown = 60000,
+  Integer[0]                                      $queue_worker_thread_minimum_messages = 100,
+  String                                          $queue_max_file_size                  = '1m',
+  Boolean                                         $queue_save_on_shutdown               = false,
+  Integer[0]                                      $queue_dequeue_slowdown               = 0,
+  Optional[Integer[0]]                            $queue_dequeue_time_begin             = undef,
+  Optional[Integer[0]]                            $queue_dequeue_time_end               = undef
 ) {
-  validate_string($rule)
-  if empty($dyna_file) {
-    validate_absolute_path($target_log_file)
+
+  if !($dyna_file or $target_log_file) {
+    fail('You must specify one of $dyna_file or $target_log_file')
   }
-  validate_bool($stop_processing)
-  validate_string($dyna_file)
-  validate_string($template)
-  validate_integer($dyna_file_cache_size)
-  validate_integer($zip_level)
-  validate_bool($very_robust_zip)
-  validate_integer($flush_interval)
-  validate_bool($async_writing)
-  validate_bool($flush_on_tx_end)
-  validate_string($io_buffer_size)
-  validate_string($dir_owner)
-  if !empty($dir_owner_num) {
-    validate_integer($dir_owner_num)
-  }
-  validate_string($dir_group)
-  if !empty($dir_group_num) {
-    validate_integer($dir_group_num)
-  }
-  validate_string($file_owner)
-  if !empty($file_owner_num) {
-    validate_integer($file_owner_num)
-  }
-  validate_string($file_group)
-  if !empty($file_group_num) {
-    validate_integer($file_group_num)
-  }
-  validate_umask($file_create_mode)
-  validate_umask($dir_create_mode)
-  validate_bool($fail_on_chown_failure)
-  validate_bool($create_dirs)
-  validate_bool($sync)
-  validate_string($sig_provider)
-  validate_string($cry_provider)
-  if !empty($queue_spool_directory) { validate_absolute_path($queue_spool_directory) }
-  if !empty($queue_size) { validate_integer($queue_size) }
-  validate_integer($queue_dequeue_batch_size)
-  if !empty($queue_max_disk_space) { validate_integer($queue_max_disk_space) }
-  if !empty($queue_high_watermark) { validate_integer($queue_high_watermark) }
-  validate_integer($queue_low_watermark)
-  if !empty($queue_full_delay_mark) { validate_integer($queue_full_delay_mark) }
-  if !empty($queue_light_delay_mark) { validate_integer($queue_light_delay_mark) }
-  validate_integer($queue_discard_mark)
-  validate_integer($queue_discard_severity)
-  if !empty($queue_checkpoint_interval) { validate_integer($queue_checkpoint_interval) }
-  validate_bool($queue_sync_queue_files)
-  validate_array_member($queue_type, ['FixedArray','LinkedList','Direct','Disk'])
-  validate_integer($queue_worker_threads)
-  validate_integer($queue_timeout_shutdown)
-  validate_integer($queue_timeout_action_completion)
-  validate_integer($queue_timeout_enqueue)
-  validate_integer($queue_timeout_worker_thread_shutdown)
-  validate_integer($queue_worker_thread_minimum_messages)
-  validate_string($queue_max_file_size)
-  validate_bool($queue_save_on_shutdown)
-  validate_integer($queue_dequeue_slowdown)
-  if !empty($queue_dequeue_time_begin) { validate_integer($queue_dequeue_time_begin) }
-  if !empty($queue_dequeue_time_end) { validate_integer($queue_dequeue_time_end) }
 
   $_safe_name = regsubst($name,'/','__')
 
   rsyslog::rule { "99_simp_local/${_safe_name}.conf":
-    content => template('rsyslog/local_rule.erb')
+    content => template("${module_name}/rule/local.erb")
   }
 }

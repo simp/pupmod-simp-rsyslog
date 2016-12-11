@@ -1,178 +1,198 @@
-# == Define: rsyslog::rule::remote
+# Adds a rule to send messages to a remote system
 #
-# Add a remote rule to RSyslog.
+# In general, the order will be:
 #
-# This adds a configuration file to the /etc/rsyslog.simp.d directory. Take care,
-# as these are processed prior to any local rules. In general, the order of rules
-# loaded in the /etc/rsyslog.simp.d space will be:
-#  - Drop Rules
-#  - Remote Rules
-#  - Local Rules
+#   * Data Source Rules
+#   * Console Rules
+#   * Drop Rules
+#   * Remote Rules
+#   * Other/Miscellaneous Rules
+#   * Local Rules
 #
-# This will *not* add a target that is the system that it is being evaluated
-# on. This is to prevent syslog loops that will quickly destroy your systems.
+# If you wish to use TLS for forward RSyslog messages, you **MUST** configre it
+# via ``rsyslog::config``. Current EL versions of RSyslog 7 do not properly
+# support individual TLS settings via rulesets.
 #
-# Unfortunately, this is not perfect.  We cannot detect if you use a DNS
-# alias to the host instead of the true hostname.
+# ------------------------------------------------------------------------
 #
-# == Parameters
+# > **WARNING**
+# >
+# > If possible, this module will take pains to prevent adding a target that is
+# > equivalent to the current system to prevent syslog loops.
+# >
+# > Unfortunately, there is **no** foolproof method for getting this correct
+# > 100% of the time so please take care when setting your destination targets.
+# >
+# > **WARNING**
 #
-# [*name*]
-#   The filename that you will be dropping into place.
+# ------------------------------------------------------------------------
 #
-# [*rule*]
-#   The literal content of the file that you are placing in the
-#   /etc/rsyslog.d directory.
+# @example Send All ``local0`` Messages to ``1.2.3.4`` via TCP
+#   rsyslog::rule::other { 'send_local0_away':
+#     rule =>  "if prifilt('local0.*') then @@1.2.3.4"
+#   }
 #
-# [*template*]
-#   The template that should be used to format the content.
+# @param name [Stdlib::Absolutepath]
+#   The filename that you will be dropping into place
 #
-# [*dest*]
-#   Type: Array of destination targets
-#   Default []
-#     If filled, the _$content_ above will be sent to all entries in this
-#     array.
+# @param rule
+#   The Rsyslog ``EXPRESSION`` to filter on
 #
-#     If using this, do NOT add a destination to your content above!
+#   * This should only be the matching part of the expression, the remaining
+#     parameters take care of ensuring that the material is properly routed.
 #
-#   Example:
-#     ['syslog1.my.network','syslog2.my.network']
+# @param template
+#   The template that should be used to format the content
 #
-# [*dest_type*]
-#   Type: 'tcp','udp', or 'relp'
-#   Default: 'tcp'
-#     The destination type for all entries in _$dest_ above. At this
-#     time, if you wish to have different types per destination, you
-#     will need to craft your own full rule set and leave _$dest_
-#     empty.
+# @param dest
+#   If filled, the ``$content`` will be sent to **all hosts** in this Array.
 #
-# [*failover_log_servers*]
-#   Type: Array of destination targets
-#   Default []
-#     If present, the listed systems will be used as failover servers for the
-#     _$content_ above.
+#   * **WARNING:** If using this, do **NOT** add a destination to your ``rule``
 #
-#     Uses _$dest_type_ above
+# @param dest_type
+#   The destination type for all entries in ``$dest``
 #
-# [*omfwd_options*]
-#  Type: hash
-#  Default:
+#   * At this time, if you wish to have different types per destination, you
+#     will need to craft your own ruleset and leave ``$dest`` empty.
 #
-#    The options that can go into the action object for the specific rule.
-#    This is currently implemented for RSyslog v7 and later, and thus does
-#    not use legacy syslog syntax. For complete documentation on RSyslog
-#    omfwd options, visit http://www.rsyslog.com/doc/v7-stable/configuration/modules/omfwd.html
+# @param failover_log_servers
+#   The listed systems will be used as failover servers for all logs matching
+#   this ``rule``
+#
+#   * Uses ``$dest_type`` above
+#
+# @param tcp_framing
+# @param zip_level
+# @param max_error_messages
+# @param compression_mode
+# @param compression_stream_flush_on_tx_end
+# @param rebind_interval
+# @param action_resume_interval
+# @param action_resume_retry_count
+#
+# @param stream_driver
+#   This is overridden by the ``rsyslog::config::default_net_stream_driver``
+#
+#   * EL versions of Rsyslog 7 do not support this properly in rulesets but it
+#     may be specified
+#
+# @param stream_driver_mode
+#   This is overridden by the ``rsyslog::config::action_send_stream_driver_mode``
+#
+#   * EL versions of Rsyslog 7 do not support this properly in rulesets but it
+#     may be specified
+#
+# @param stream_driver_auth_mode
+#   This is overridden by the ``rsyslog::config::action_send_stream_driver_auth_mode``
+#
+#   * EL versions of Rsyslog 7 partially support this in rulesets and it may
+#     have some effect
+#
+# @param stream_driver_permitted_peers
+#   This is overridden by the ``rsyslog::config::action_send_stream_driver_permitted_peers``
+#
+#   * EL versions of Rsyslog 7 partially support this in rulesets and it may
+#     have some effect
+#
+# @param resend_last_msg_on_reconnect
+# @param udp_send_to_all
+# @param queue_filename
+# @param queue_spool_directory
+# @param queue_size
+# @param queue_dequeue_batch_size
+# @param queue_max_disk_space
+# @param queue_high_watermark
+# @param queue_low_watermark
+# @param queue_full_delay_mark
+# @param queue_light_delay_mark
+# @param queue_discard_mark
+# @param queue_discard_severity
+# @param queue_checkpoint_interval
+# @param queue_sync_queue_files
+# @param queue_type
+# @param queue_worker_threads
+# @param queue_timeout_shutdown
+# @param queue_timeout_action_completion
+# @param queue_timeout_enqueue
+# @param queue_timeout_worker_thread_shutdown
+# @param queue_worker_thread_minimum_messages
+# @param queue_max_file_size
+# @param queue_save_on_shutdown
+# @param queue_dequeue_slowdown
+# @param queue_dequeue_time_begin
+# @param queue_dequeue_time_end
+#
+# @see https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/s1-basic_configuration_of_rsyslog.html Red Hat Basic Rsyslog Configuration
+#
+# @see http://www.rsyslog.com/doc/expression.html Expressions in Rsyslog
+#
+# @see http://www.rsyslog.com/doc/rainerscript.html RainerScript Documentation
 #
 define rsyslog::rule::remote (
-  $rule,
-  $template                             = '',
-  $dest                                 = [],
-  $dest_type                            = 'tcp',
-  $failover_log_servers                 = [],
-  $tcp_framing                          = 'traditional',
-  $zip_level                            = '0',
-  $max_error_messages                   = '5',
-  $compression_mode                     = 'none',
-  $compression_stream_flush_on_tx_end   = true,
-  $rebind_interval                      = '',
-  $action_resume_interval               = '30',
-  $action_resume_retry_count            = '-1',
-  $stream_driver                        = '',
-  $stream_driver_mode                   = '1',
-  $stream_driver_auth_mode              = 'x509/name',
-  $stream_driver_permitted_peers        = "*.${::domain}",
-  $resend_last_msg_on_reconnect         = true,
-  $udp_send_to_all                      = false,
-  $queue_filename                       = '',
-  $queue_spool_directory                = '',
-  $queue_size                           = '',
-  $queue_dequeue_batch_size             = '16',
-  $queue_max_disk_space                 = '',
-  $queue_high_watermark                 = '',
-  $queue_low_watermark                  = '2000',
-  $queue_full_delay_mark                = '',
-  $queue_light_delay_mark               = '',
-  $queue_discard_mark                   = '9750',
-  $queue_discard_severity               = '8',
-  $queue_checkpoint_interval            = '',
-  $queue_sync_queue_files               = false,
-  # TODO: TLS failover does *not* work using a disk-assisted (LinkedList) queue here.
-  # Use a direct queue if you need failover to function.
-  $queue_type                           = 'LinkedList',
-  $queue_worker_threads                 = '1',
-  $queue_timeout_shutdown               = '0',
-  $queue_timeout_action_completion      = '1000',
-  $queue_timeout_enqueue                = '2000',
-  $queue_timeout_worker_thread_shutdown = '60000',
-  $queue_worker_thread_minimum_messages = '100',
-  $queue_max_file_size                  = '1m',
-  $queue_save_on_shutdown               = true,
-  $queue_dequeue_slowdown               = '0',
-  $queue_dequeue_time_begin             = '',
-  $queue_dequeue_time_end               = ''
+  String                                           $rule,
+  Boolean                                          $stop_processing                      = false,
+  Optional[String]                                 $template                             = undef,
+  Simplib::Netlist                                 $dest                                 = [],
+  Enum['tcp','udp','relp']                         $dest_type                            = 'tcp',
+  Simplib::Netlist                                 $failover_log_servers                 = [],
+  Enum['traditional','octet-counted']              $tcp_framing                          = 'traditional',
+  Integer[0,9]                                     $zip_level                            = 0,
+  Integer[0]                                       $max_error_messages                   = 5,
+  Enum['none','single','stream:always']            $compression_mode                     = 'none',
+  Boolean                                          $compression_stream_flush_on_tx_end   = true,
+  Optional[Integer[0]]                             $rebind_interval                      = undef,
+  Integer[0]                                       $action_resume_interval               = 30,
+  Integer[-1]                                      $action_resume_retry_count            = -1,
+  Optional[String]                                 $stream_driver                        = undef,
+  Integer[0]                                       $stream_driver_mode                   = 1,
+  String                                           $stream_driver_auth_mode              = 'x509/name',
+  String                                           $stream_driver_permitted_peers        = "*.${::domain}",
+  Boolean                                          $resend_last_msg_on_reconnect         = true,
+  Boolean                                          $udp_send_to_all                      = false,
+  Optional[String]                                 $queue_filename                       = undef,
+  Optional[Stdlib::Absolutepath]                   $queue_spool_directory                = undef,
+  Optional[Integer[0]]                             $queue_size                           = undef,
+  Integer[0]                                       $queue_dequeue_batch_size             = 16,
+  Optional[Integer[0]]                             $queue_max_disk_space                 = undef,
+  Optional[Integer[0]]                             $queue_high_watermark                 = undef,
+  Integer[0]                                       $queue_low_watermark                  = 2000,
+  Optional[Integer[0]]                             $queue_full_delay_mark                = undef,
+  Optional[Integer[0]]                             $queue_light_delay_mark               = undef,
+  Integer[0]                                       $queue_discard_mark                   = 9750,
+  Integer[0]                                       $queue_discard_severity               = 8,
+  Optional[Integer[0]]                             $queue_checkpoint_interval            = undef,
+  Boolean                                          $queue_sync_queue_files               = false,
+  Enum['LinkedList','FixedArray','Direct','Disk']  $queue_type                           = 'LinkedList',
+  Integer[0]                                       $queue_worker_threads                 = 1,
+  Integer[0]                                       $queue_timeout_shutdown               = 0,
+  Integer[0]                                       $queue_timeout_action_completion      = 1000,
+  Integer[0]                                       $queue_timeout_enqueue                = 2000,
+  Integer[0]                                       $queue_timeout_worker_thread_shutdown = 60000,
+  Integer[0]                                       $queue_worker_thread_minimum_messages = 100,
+  String                                           $queue_max_file_size                  = '1m',
+  Boolean                                          $queue_save_on_shutdown               = true,
+  Integer[0]                                       $queue_dequeue_slowdown               = 0,
+  Optional[Integer[0]]                             $queue_dequeue_time_begin             = undef,
+  Optional[Integer[0]]                             $queue_dequeue_time_end               = undef
 ) {
-
-  validate_string($template)
-  validate_array_member($dest_type,['tcp','udp','relp'])
-  validate_array_member($tcp_framing, ['traditional', 'octet-counted'])
-  validate_array_member($zip_level, ['0','1','2','3','4','5','6','7','8','9'])
-  validate_integer($max_error_messages)
-  validate_array_member($compression_mode, ['none', 'single', 'stream:always'])
-  validate_bool($compression_stream_flush_on_tx_end)
-  if !empty($rebind_interval) { validate_integer($rebind_interval) }
-  validate_string($stream_driver)
-  validate_integer($stream_driver_mode)
-  validate_string($stream_driver_mode)
-  validate_string($stream_driver_auth_mode)
-  validate_string($stream_driver_permitted_peers)
-  validate_bool($resend_last_msg_on_reconnect)
-  validate_bool($udp_send_to_all)
-  if !empty($queue_spool_directory) { validate_absolute_path($queue_spool_directory) }
-  if !empty($queue_size) { validate_integer($queue_size) }
-  validate_integer($queue_dequeue_batch_size)
-  if !empty($queue_max_disk_space) { validate_integer($queue_max_disk_space) }
-  if !empty($queue_high_watermark) { validate_integer($queue_high_watermark) }
-  validate_integer($queue_low_watermark)
-  if !empty($queue_full_delay_mark) { validate_integer($queue_full_delay_mark) }
-  if !empty($queue_light_delay_mark) { validate_integer($queue_light_delay_mark) }
-  validate_integer($queue_discard_mark)
-  validate_integer($queue_discard_severity)
-  if !empty($queue_checkpoint_interval) { validate_integer($queue_checkpoint_interval) }
-  validate_bool($queue_sync_queue_files)
-  validate_array_member($queue_type, ['FixedArray','LinkedList','Direct','Disk'])
-  validate_integer($queue_worker_threads)
-  validate_integer($queue_timeout_shutdown)
-  validate_integer($queue_timeout_action_completion)
-  validate_integer($queue_timeout_enqueue)
-  validate_integer($queue_timeout_worker_thread_shutdown)
-  validate_integer($queue_worker_thread_minimum_messages)
-  validate_string($queue_max_file_size)
-  validate_bool($queue_save_on_shutdown)
-  validate_integer($queue_dequeue_slowdown)
-  if !empty($queue_dequeue_time_begin) { validate_integer($queue_dequeue_time_begin) }
-  if !empty($queue_dequeue_time_end) { validate_integer($queue_dequeue_time_end) }
-
   include '::rsyslog'
 
   if empty($dest) {
-    $_dest = $::rsyslog::log_server_list
+    $_dest = $::rsyslog::log_servers
   }
   else {
     $_dest = $dest
   }
 
-  validate_array($_dest)
-  if empty($_dest) { fail('Error: you must pass a destination array for $dest') }
-  validate_net_list($_dest)
+  if empty($_dest) { fail('You must pass a destination array for $dest') }
 
-  $_queue_filename = empty($queue_filename) ? {
-    true    => "${name}_disk_queue",
-    default => $queue_filename
+  if $queue_spool_directory {
+    $_queue_spool_directory = $queue_spool_directory
   }
-  $_queue_spool_directory = empty($queue_spool_directory) ? {
-    true    => $::rsyslog::queue_spool_directory,
-    default => $queue_spool_directory
+  else {
+    $_queue_spool_directory = $::rsyslog::queue_spool_directory
   }
+
   $_use_tls = $::rsyslog::enable_tls_logging
 
   if empty($failover_log_servers) {
@@ -182,14 +202,9 @@ define rsyslog::rule::remote (
     $_failover_servers = $failover_log_servers
   }
 
-  if !empty($_failover_servers) {
-    validate_array($_failover_servers)
-    validate_net_list($_failover_servers)
-  }
-
   $_safe_name = regsubst($name,'/','__')
 
   rsyslog::rule { "10_simp_remote/${_safe_name}.conf":
-    content => template('rsyslog/remote_rule.erb')
+    content => template("${module_name}/rule/remote.erb")
   }
 }

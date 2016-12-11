@@ -1,9 +1,9 @@
 <%
-if not @host_list.empty?
+unless @host_list.empty?
   opts = opts + " -l #{Array(@host_list).join(':')}"
 end
 
-if not @domain_list.empty?
+unless @domain_list.empty?
   opts = opts + " -s #{Array(@domain_list).join(':')}"
 end
 

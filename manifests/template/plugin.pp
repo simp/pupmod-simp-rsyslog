@@ -1,37 +1,35 @@
-# == Define: rsyslog::template::plugin
+# Add template plugins to the rsyslog configuration file.
 #
-# This define allows you to add template plugins to the rsyslog configuration
-# file.  These rules should be uniquely named.
+# **NOTE:** Plugins are **as-is**. This means that you will only supply the
+# plugin name and assume that the plugin has already been loaded by RSyslog.
 #
-# Note: Plugins are as-is, meaning you'll only supply the plugin name and assume
-# that the plugin has already been loaded by RSyslog.
-#
-# Example:
+# @example Adding the ``my_plugin`` Plugin to the System
 #   rsyslog::template::string { 'example_plugin':
 #     $plugin => 'my_plugin'
 #   }
 #
-# Will produce the following in 05_simp_templates/example_plugin.conf:
+#   ### Produces:
+#
 #   template(name="example_plugin" type="plugin" plugin="my_plugin")
 #
-# == Parameters
+# @param name
+#   The literal name of the ``file`` (not the full path) that will be used
 #
-# [*name*]
-#   The literal name of the file that will be used to build the multi-part
-#   file.
+# @param plugin
+#   The rsyslog plugin content that you wish to add to the system
 #
-# [*plugin*]
-#   The rsyslog plugin content that you wish to add to the system.
-#   This is fed, without formatting, directly into the target file.
+#   * This is provided, without formatting, directly into the target file
 #
 define rsyslog::template::plugin (
-  $plugin,
+  String $plugin,
 ) {
-  validate_string($plugin)
-
   $_safe_name = regsubst($name,'/','__')
 
   rsyslog::rule { "05_simp_templates/${_safe_name}.conf":
-    content => "template(name=\"${_safe_name}\" plugin=\"string\" plugin=\"${plugin}\")"
+    # lint:ignore:double_quoted_strings lint:ignore:only_variable_string
+    content => @("EOM")
+      template(name="${_safe_name}" plugin="string" plugin="${plugin}")
+      |EOM
+    # lint:endignore
   }
 }

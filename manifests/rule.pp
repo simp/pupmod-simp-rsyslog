@@ -1,28 +1,53 @@
-# == Define: rsyslog::rule
+# Adds a rule
 #
-# A generic define for creating rsyslog rules.
+# This is used by the various ``rsyslog::rule::*`` Defined Types to apply rules
+# to the system.
 #
-# This adds a configuration file to the /etc/rsyslog.simp.d directory.
+# Feel free to use this Defined Type to add your own rules but remember that
+# **order matters**!
 #
-# == Parameters
+# In general, the order will be:
 #
-# [*name*]
-#   The target for the rule file.
-#   Must have the form base_directory/filename.conf
-#   This must *not* be an absolute path. The base_directory will be relative to
-#   $::rsyslog::rule_dir
+#   * 05 - Data Source Rules
+#   * 06 - Console Rules
+#   * 07 - Drop Rules
+#   * 10 - Remote Rules
+#   * 20 - Other/Miscellaneous Rules
+#   * 99 - Local Rules
 #
-# [*content*]
-#   The exact content of the rule to place in the target file.
+# @example Collect All ``kern.err`` Messages
+#   rsyslog::rule { '99_collect_kernel_errors.conf':
+#     rule =>  "if prifilt('kern.err') then /var/log/kernel_errors.log"
+#   }
+#
+# @example Discard All ``info`` Messages
+#   rsyslog::rule::other { '98_discard_info.conf':
+#     rule =>  "if prifilt('*.info') then stop"
+#   }
+#
+# @param name [Pattern['^[^/]\S+/\S+\.conf$']]
+#   The filename that you will be dropping into place
+#
+#   * **WARNING:** This must **NOT** be an absolute path!
+#
+# @param content
+#   The **exact content** of the rule to place in the target file
+#
+# @see https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/s1-basic_configuration_of_rsyslog.html Red Hat Basic Rsyslog Configuration
+#
+# @see http://www.rsyslog.com/doc/expression.html Expressions in Rsyslog
+#
+# @see http://www.rsyslog.com/doc/rainerscript.html RainerScript Documentation
 #
 define rsyslog::rule (
-  $content
+  String $content
 ) {
-  validate_re($name,'^[^/]\S+/\S+\.conf$')
+  if $name !~ Pattern['^[^/]\S+/\S+\.conf$'] {
+    fail('The $name must be a valid un-pathed configuration file')
+  }
   if !empty(grep([$name],'/.*/')) {
     fail('Error: You cannot have two slashes in the $name')
   }
-  validate_string($content)
 
   include '::rsyslog'
 
@@ -47,7 +72,8 @@ define rsyslog::rule (
       owner   => 'root',
       group   => 'root',
       mode    => '0640',
-      content => "\$IncludeConfig ${_base_directory}/*.conf"
+      content => "\$IncludeConfig ${_base_directory}/*.conf\n",
+      notify  => Class['rsyslog::service']
     }
   }
 

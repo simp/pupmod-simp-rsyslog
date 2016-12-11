@@ -1,139 +1,158 @@
-# == Class: rsyslog
+# Set up rsyslog 7
 #
-# Sets up RSyslog.
+# The configuration is particularly slanted toward the issues present in the
+# version of rsyslog included with Enterprise Linux systems. It should still
+# work on other systems but they may have different/other bugs that have not
+# been addressed.
 #
-# It is assumed that local6 will be used for all logs collected from files.
+# @param service_name
+#   The name of the RSyslog service; typically ``rsyslog``
 #
-# You will need to add a rule specifically for this if you want to send them to
-# a remote host.
+# @param package_name
+#   The name of the Rsyslog package to install; typically ``rsyslog``
 #
-# == Parameters
+# @param tls_package_name
+#   The name of the Rsyslog package to install TLS utilities; typically ``rsyslog-gnutls``
 #
-# [*service_name*]
-# Type: String
-# Default: $::rsyslog::params::service_name
-#   The name of the RSyslog service. Typically 'rsyslog'
+# @param trusted_nets
+#   A whitelist of subnets (in CIDR notation) permitted access
 #
-# [*package_name*]
-# Type: String
-# Default: $::rsyslog::params::package_name
-#   The name of the package to install RSyslog. Typically 'rsyslog'
+#   * This will be used in conjunction with IPTables (if enabled)
+#     to allow connections from within the given subnets.
 #
-# [*tls_package_name*]
-# Type: String
-# Default: $::rsyslog::params::tls_package_name
-#   The name of the package to install RSyslog TLS utilities. Typically 'rsyslog-gnutls'
+# @param enable_tls_logging
+#   Enable the TLS libraries where applicable
 #
-# [*client_nets*]
-# Type: Array of strings
-# Default $::rsyslog::params::client_nets
-#   A whitelist of subnets (in CIDR notation) permitted access. Most notably, this will
-#   be used in conjunction with IPTables (if enabled) to allow connections from within
-#   the given subnets.
+#   * If enabled, clients will encrypt all log data being sent to the given log
+#     servers.  Also, all log servers specified to use TLS (see
+#     ``rsyslog::server::tls_tcp_server``) will load the ``imtcp`` libraries
+#     and set the necessary global ``NetStreamDriver`` information.
 #
-# [*enable_tls_logging*]
-# Type: Boolean
-# Default: $::rsyslog::params::enable_tls_logging
-#   A flag to toggle whether RSyslog should enable the TLS libraries where applicable.
-#   If enabled, clients will encrypt all log data being sent to the given log servers.
-#   Also, all log servers specified to use TLS (see rsyslog::server::tls_tcp_server) will
-#   load the imtcp libraries and set the necessary global NetStreamDriver information.
+# @param log_servers
+#   A list of primary RSyslog servers
 #
-## [*failover_log_servers*]
-# Type: Array of hosts
-# Default: $::rsyslog::params::failover_log_servers
-#   A list of the failover RSyslog servers. This order-dependent list will
-#   serve as all of the possible failover log servers for clients to send to.
+#   * All nodes in this list will get a copy of **all** logs if remote logging
+#     is enabled.
 #
-# [*queue_spool_directory*]
-# Type: Absolute Path
-# Default: /var/spool/rsyslog
+# @param failover_log_servers
+#   A list of the failover RSyslog servers
 #
-# The full path to the directory where RSyslog should store disk message queues.
+#   * This **order-dependent** list will serve as all of the possible failover
+#     log servers for clients to send to if the servers in ``log_servers`` are
+#     unavailable.
 #
-# [*rule_dir*]
-# Type: Absolute Path
-# Default: /etc/rsyslog.simp.d
-#   The path at which all managed rules will begin.
+# @param queue_spool_directory
+#   The path to the directory where RSyslog should store disk message queues
 #
-# [*enable_logrotate*]
-# Type: Boolean
-# Default: true
-#   A flag, which if enabled, manages log rotation for RSyslog.
+# @param rule_dir
+#   The path at which all managed rules will begin
 #
-# [*enable_pki*]
-# Type: Boolean
-# Default: true
-#   A flag, which if enabled, allows SIMP to distribute PKI certs/keys for Rsyslog.
+# @param tcp_server
+#   Make this host listen for ``TCP`` connections
 #
-# [*cert_source*]
-# Type: String
-# Default: ''
-#   The path to client certificates dir, if using local (SIMP-independent) PKI
+#   * Ideally, all connections would be ``TLS`` enabled. Only enable this if
+#     necessary.
 #
-# == Authors
+# @param tcp_listen_port
+#   The port upon which to listen for regular ``TCP`` connections
 #
-# * Kendall Moore <mailto:kmoore@keywcorp.com>
-# * Mike Riddle <mailto:mriddle@onyxpoint.com>
-# * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
-# * Chris Tessmer <mailto:chris.tessmer@onyxpoint.com>
+# @param tls_tcp_server
+#   Make this host listen for ``TLS`` enabled ``TCP`` connections
+#
+# @param tls_tcp_listen_port
+#   The port upon which to listen for ``TLS`` enabled ``TCP`` connections
+#
+# @param udp_server
+#   Make this host listend for ``UDP`` connections
+#
+#   * This really should not be enabled unless you have devices that cannot
+#     speak ``TLS`` @param enable_logrotate
+# @param udp_listen_address
+#   The address upon which to listen for ``UDP`` connections
+#
+#   * The default of ``127.0.0.1`` is set primariliy for supporting Java
+#     applications that cannot work with a modern method of logging.
+#
+# @param udp_listen_port
+#   The port upon which to listen for ``UDP`` connections
+#
+# @param read_journald
+#   Enable the processing of ``journald`` messages natively in Rsyslog
+#
+# @param enable_logrotate
+#   Ensure that ``logrotate`` is enabled on this system
+#
+#   * You will need to configure specific logrotate settings via the
+#   ``logrotate`` module.
+#
+# @param pki
+#   Enable SIMP management of PKI keys
+#
+#   * Options
+#       * 'simp' => Use the SIMP key distribution mechanism
+#       * true   => Use the ``pki::copy`` method
+#       * false  => Do not manage the PKI keys, you're on your own
+#
+# @param pki_base_dir
+#   The location, on disk, for the module's PKI certificates
+#
+#   * By default, we expect the certificates to be in a ``pki`` subdirectory of
+#     ``pki_base_dir`` so this should not be included in your path.
+#
+#   * The default expected directory structure is:
+#       * ``pki_base_dir``/pki/cacerts
+#           * All CA Certificates in PEM format with Hash-based aliases
+#       * ``pki_base_dir``/pki/cacerts/cacerts.pem
+#           * All CA Certificates in a single PEM file
+#       * ``pki_base_dir``/pki/public/${``facts['fqdn']``}.pub
+#           * The daemon's public X.509 Certificate in PEM format
+#       * ``pki_base_dir``/pki/private/${``facts['fqdn']``}.pem
+#           * The daemon's private RSA key in PEM format
+#
+# @author Chris Tessmer <chris.tessmer@onyxpoint.com>
+# @author Kendall Moore <kendall.moore@onyxpoint.com>
+# @author Mike Riddle <mike.riddle@onyxpoint.com>
+# @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 class rsyslog (
-  $service_name          = $::rsyslog::params::service_name,
-  $package_name          = $::rsyslog::params::package_name,
-  $tls_package_name      = $::rsyslog::params::tls_package_name,
-  $client_nets           = $::rsyslog::params::client_nets,
-  $log_server_list       = $::rsyslog::params::log_server_list,
-  $enable_tls_logging    = $::rsyslog::params::enable_tls_logging,
-  $failover_log_servers  = $::rsyslog::params::failover_log_servers,
-  $queue_spool_directory = '/var/spool/rsyslog',
-  $tcp_server            = $::rsyslog::params::tcp_server,
-  $tcp_listen_port       = $::rsyslog::params::tcp_listen_port,
-  $tls_tcp_server        = $::rsyslog::params::tls_tcp_server,
-  $tls_listen_port       = $::rsyslog::params::tls_listen_port,
-  $udp_server            = $::rsyslog::params::udp_server,
-  $udp_listen_address    = $::rsyslog::params::udp_listen_address,
-  $udp_listen_port       = $::rsyslog::params::udp_listen_port,
-  $rule_dir              = '/etc/rsyslog.simp.d',
-  $read_journald         = $::rsyslog::params::read_journald,
-  $enable_logrotate      = true,
-  $enable_pki            = defined('$::enable_pki') ? { true => $::enable_pki, default => hiera('enable_pki',true) },
-  $use_simp_pki = defined('$::use_simp_pki') ? { true => $::use_simp_pki, default => hiera('use_simp_pki', true) },
-  $cert_source           = '/etc/rsyslog.d/pki',
+  String                        $service_name          = $::rsyslog::params::service_name,
+  String                        $package_name          = $::rsyslog::params::package_name,
+  String                        $tls_package_name      = $::rsyslog::params::tls_package_name,
+  Simplib::Netlist              $trusted_nets          = simplib::lookup('simp_options::trusted_nets', {'default_value' => ['127.0.0.1/32'] }),
+  Boolean                       $enable_tls_logging    = false,
+  Simplib::Netlist              $log_servers           = simplib::lookup('simp_options::syslog::log_servers', { 'default_value' => [] }),
+  Simplib::Netlist              $failover_log_servers  = simplib::lookup('simp_options::syslog::failover_log_servers', { 'default_value' => [] }),
+  Stdlib::Absolutepath          $queue_spool_directory = '/var/spool/rsyslog',
+  Stdlib::Absolutepath          $rule_dir              = '/etc/rsyslog.simp.d',
+  Boolean                       $tcp_server            = false,
+  Simplib::Port                 $tcp_listen_port       = 514,
+  Boolean                       $tls_tcp_server        = false,
+  Simplib::Port                 $tls_tcp_listen_port   = 6514,
+  Boolean                       $udp_server            = false,
+  String                        $udp_listen_address    = '127.0.0.1',
+  Simplib::Port                 $udp_listen_port       = 514,
+  Boolean                       $read_journald         = $::rsyslog::params::read_journald,
+  Boolean                       $logrotate             = simplib::lookup('simp_options::logrotate', {'default_value' => false}),
+  Variant[Boolean,Enum['simp']] $pki                   = simplib::lookup('simp_options::pki', {'default_value' => false}),
+  Stdlib::Absolutepath          $pki_base_dir          = '/etc/rsyslog.d'
 ) inherits ::rsyslog::params {
 
-  validate_string($service_name)
-  validate_string($package_name)
-  validate_string($tls_package_name)
-  validate_net_list($client_nets)
-  validate_bool($enable_tls_logging)
-  if !empty($failover_log_servers) { validate_net_list($failover_log_servers) }
-  validate_absolute_path($queue_spool_directory)
-  validate_bool($tcp_server)
-  validate_bool($tls_tcp_server)
-  validate_bool($udp_server)
-  validate_bool($read_journald)
-  validate_bool($enable_logrotate)
-  validate_bool($enable_pki)
-  validate_bool($use_simp_pki)
-  validate_string($cert_source)
-
-  include '::rsyslog::install'
-  include '::rsyslog::config'
-  include '::rsyslog::service'
+  contain '::rsyslog::install'
+  contain '::rsyslog::config'
+  contain '::rsyslog::service'
 
   Class['rsyslog::install'] ->
   Class['rsyslog::config'] ~>
-  Class['rsyslog::service'] ->
-  Class['rsyslog']
+  Class['rsyslog::service']
 
-  if $enable_logrotate {
-    include '::rsyslog::config::logrotate'
+  if $logrotate {
+    contain '::rsyslog::config::logrotate'
     Class['rsyslog::service'] -> Class['rsyslog::config::logrotate']
   }
 
-  if $enable_pki {
-    include '::rsyslog::config::pki'
+  if $pki {
+    contain '::rsyslog::config::pki'
+    Class['rsyslog::config::pki'] -> Class['rsyslog::config']
     Class['rsyslog::config::pki'] ~> Class['rsyslog::service']
   }
 }

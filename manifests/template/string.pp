@@ -1,38 +1,37 @@
-# == Define: rsyslog::template::string
-#
-# This define allows you to add template strings to the rsyslog configuration
-# file.  These rules should be uniquely named.
+# Add template strings to the rsyslog configuration
 #
 # You'll need to write the entire template line due to the complexity of the
-# rsyslog configuration parameters.  Leading spaces will be removed.
+# rsyslog configuration parameters.
 #
-# Example:
+# Leading spaces will be removed.
+#
+# @example Template String
 #   rsyslog::template::string { 'example':
 #     $content => '/var/log/hosts/%HOSTNAME%/example.log'
 #   }
 #
-# Will produce the following in 05_simp_templates/example.conf:
+#   ### Produces:
+#
 #   template(name="example" type="string" string="/var/log/hosts/%HOSTNAME%/example.log")
 #
-# == Parameters
+# @param name
+#   The literal name of the ``file`` (not file path) that will be used
 #
-# [*name*]
-#   The literal name of the file that will be used to build the multi-part
-#   file.
-#   Note: Do not use a '/' in the $name.
+# @param string
+#   The rsyslog template string that you wish to add to the system
 #
-# [*string*]
-#   The rsyslog template string that you wish to add to the system.
-#   This is fed, without formatting, directly into the target file.
+#   * This is fed, without formatting, directly into the target file
 #
 define rsyslog::template::string (
-  $string,
+  String $string
 ) {
-  validate_string($string)
-
   $_safe_name = regsubst($name,'/','__')
 
   rsyslog::rule { "05_simp_templates/${_safe_name}.conf":
-    content => "template(name=\"${_safe_name}\" type=\"string\" string=\"${string}\")"
+    # lint:ignore:double_quoted_strings lint:ignore:only_variable_string
+    content => @("EOM")
+      template(name="${_safe_name}" type="string" string="${string}")
+      |EOM
+    #lint:endignore
   }
 }
