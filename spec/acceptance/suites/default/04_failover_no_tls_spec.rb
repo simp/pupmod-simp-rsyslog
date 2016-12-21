@@ -27,7 +27,7 @@ describe 'rsyslog class' do
       include 'rsyslog'
 
       rsyslog::rule::remote { 'send_the_logs':
-        rule => '*.*'
+        rule => 'prifilt(\\'*.*\\')'
       }
     EOS
   }
@@ -60,7 +60,7 @@ describe 'rsyslog class' do
       include 'rsyslog'
 
       rsyslog::rule::remote { 'send_the_logs':
-        rule                 => '*.*',
+        rule                 => 'prifilt(\\'*.*\\')',
         queue_filename       => 'test_queue',
         queue_high_watermark => 2,
         queue_low_watermark  => 1
@@ -103,7 +103,7 @@ describe 'rsyslog class' do
 
       # log all messages to the dynamic file we just defined ^^
       rsyslog::rule::local { 'all_the_logs':
-       rule      => '*.*',
+       rule      => 'prifilt(\\'*.*\\')',
        dyna_file => 'log_everything_by_host'
       }
     EOS

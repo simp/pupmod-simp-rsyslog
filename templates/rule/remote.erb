@@ -220,5 +220,4 @@ ruleset(
 <% end -%>
 }
 
-<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %>
-call <%= @name %>_ruleset
+if (<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %>) then call <%= @_safe_name %>_ruleset

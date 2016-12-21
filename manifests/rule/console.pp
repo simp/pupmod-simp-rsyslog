@@ -11,7 +11,7 @@
 #
 # @example Log Emergency Messages to the Console
 #   rsyslog::rule::console { 'emergency_rule':
-#     rule  => '*.emerg',
+#     rule  => 'prifilt(\'*.emerg\'),
 #     users => ['*']
 #   }
 #
@@ -37,7 +37,7 @@ define rsyslog::rule::console (
   $_safe_name = regsubst($name,'/','__')
 
   rsyslog::rule { "06_simp_console/${_safe_name}.conf":
-    content => inline_template('<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %> action( type="omusrmsg"
+    content => inline_template('if (<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %>) then action( type="omusrmsg"
   <%= @users.sort.map{|x| user = %(Users="#{x}")}.join("\n  ") %>
 )'
     )

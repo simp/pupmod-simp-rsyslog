@@ -20,7 +20,7 @@ describe 'rsyslog class' do
       class { 'rsyslog': pki  => false }
 
       rsyslog::rule::console { '0_default_emerg':
-        rule  => '*.emerg',
+        rule  => 'prifilt(\\'*.emerg\\')',
         users => ['*']
       }
 
@@ -35,11 +35,11 @@ input(type=\\"imfile\\"
       }
 
       rsyslog::rule::drop { 'audispd':
-        rule   => 'if $programname == \\'audispd\\''
+        rule   => '$programname == \\'audispd\\''
       }
 
       rsyslog::rule::local { '0_default_sudosh':
-        rule            => 'if ($programname == \\'sudosh\\') then',
+        rule            => '$programname == \\'sudosh\\'',
         dyna_file       => 'sudosh_template',
         stop_processing => true
       }
@@ -56,7 +56,7 @@ input(type=\\"imfile\\"
       }
 
       rsyslog::rule::remote { 'all_forward':
-        rule      => '*.*',
+        rule      => 'prifilt(\\'*.*\\')',
         dest      => ['1.1.1.1', '2.2.2.2'],
         dest_type => 'tcp'
       }

@@ -4,14 +4,28 @@
     false => 'off'
   }
 -%>
-<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %> {
+<%
+  if @dyna_file
+    if @dyna_file !~ /^\//
+      dynafile = @dyna_file
+    else
+      # Assume that we need to create a template!
+      dynafile = @name
+-%>
+template(name="<%= @name %>" type="string" string="<%= @dyna_file %>")
+<%
+    end
+  end
+-%>
+
+if (<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %>) then {
   action(
     type="omfile"
 <% if @target_log_file -%>
     file="<%= @target_log_file %>"
 <% end -%>
 <% if @dyna_file -%>
-    dynaFile="<%= @dyna_file %>"
+    dynaFile="<%= dynafile %>"
 <% end -%>
 <% if @template -%>
     template="<%= @template %>"

@@ -22,7 +22,7 @@ describe 'rsyslog::rule::console' do
         it { is_expected.to compile.with_all_deps }
         it {
           is_expected.to contain_rsyslog__rule('06_simp_console/test_name.conf').with_content(
-            /test_rule action\(\s*type="omusrmsg"\n\s*Users="one"\n\s*Users="two"\n\s*\)/
+            /if \(test_rule\) then action\(\s*type="omusrmsg"\n\s*Users="one"\n\s*Users="two"\n\s*\)/
           )
         }
       end

@@ -14,7 +14,7 @@
 #
 # @example Capture OpenLDAP Logs Then Stop Processing
 #   rsyslog::rule::local { 'collect_openldap':
-#     rule            => "if prifilt('local4.*') then",
+#     rule            => "prifilt('local4.*')",
 #     target_log_file => '/var/log/slapd.log',
 #     stop_processing => true
 #   }
@@ -25,15 +25,29 @@
 # @param rule
 #   The Rsyslog ``EXPRESSION`` to filter on
 #
+#   * **NOTE:** Do **NOT** include the leading ``if/then``
+#       * Correct:   ``rule => "prifilt('*.*')"
+#       * Incorrect: ``rule => "if prifilt('*.*') then"``
+#
 # @param target_log_file
 #   The target log file that omfile will be writing to
 #
 #   * This **must** be set if ``$dyna_file`` is left empty
 #
 # @param stop_processing
-#   Do not forward logs to any further ``ruleset``s after processing this ``ruleset``.
+#   Do not forward logs to any further ``ruleset``s after processing this ``ruleset``
 #
 # @param dyna_file
+#   Set a ``dynamic`` filename using the property replacer rules
+#
+#   * **NOTE:** If you make this the filename path itself, a template will
+#     automatically be created for you. Otherwise, you must make sure to have a
+#     rsyslog template in place and pass the **name of the template** to this
+#     option
+#
+#   * Rsyslog templates can be created using the ``rsyslog::template::*``
+#     defined types
+#
 # @param template
 # @param dyna_file_cache_size
 # @param zip_level

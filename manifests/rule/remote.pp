@@ -29,7 +29,8 @@
 #
 # @example Send All ``local0`` Messages to ``1.2.3.4`` via TCP
 #   rsyslog::rule::other { 'send_local0_away':
-#     rule =>  "if prifilt('local0.*') then @@1.2.3.4"
+#     rule        => "prifilt('local0.*')",
+#     log_servers => ['1.2.3.4']
 #   }
 #
 # @param name [Stdlib::Absolutepath]
@@ -40,6 +41,10 @@
 #
 #   * This should only be the matching part of the expression, the remaining
 #     parameters take care of ensuring that the material is properly routed.
+#
+#   * **NOTE:** Do **NOT** include the leading ``if/then``
+#       * Correct:   ``rule => "prifilt('*.*')"
+#       * Incorrect: ``rule => "if prifilt('*.*') then"``
 #
 # @param template
 #   The template that should be used to format the content
@@ -193,7 +198,7 @@ define rsyslog::rule::remote (
     $_queue_spool_directory = $::rsyslog::queue_spool_directory
   }
 
-  $_use_tls = $::rsyslog::enable_tls_logging
+  $_use_tls = ( $::rsyslog::enable_tls_logging and $dest_type != 'udp' )
 
   if empty($failover_log_servers) {
     $_failover_servers = $::rsyslog::failover_log_servers

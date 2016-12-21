@@ -26,7 +26,7 @@ rsyslog::server::enable_firewall : true
       }
 
       rsyslog::rule::remote { 'send_the_logs':
-        rule => '*.*'
+        rule => 'prifilt(\\'*.*\\')'
       }
     EOS
   }
@@ -63,7 +63,7 @@ rsyslog::server::enable_firewall : true
 
       # log all messages to the dynamic file we just defined ^^
       rsyslog::rule::local { 'all_the_logs':
-       rule      => '*.*',
+       rule      => 'prifilt(\\'*.*\\')',
        dyna_file => 'log_everything_by_host',
       }
     EOS

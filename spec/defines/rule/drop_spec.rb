@@ -19,7 +19,7 @@ describe 'rsyslog::rule::drop' do
         end
 
         it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_rsyslog__rule('07_simp_drop_rules/test_name.conf').with_content(/test_rule\s+then\s+stop/) }
+        it { is_expected.to contain_rsyslog__rule('07_simp_drop_rules/test_name.conf').with_content(/if\s+\(#{params[:rule]}\)\s+then\s+stop/) }
       end
     end
   end

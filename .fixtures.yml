@@ -15,7 +15,7 @@ fixtures:
       repo: https://github.com/simp/puppet-haveged
       branch: simp-master
     iptables: https://github.com/simp/pupmod-simp-iptables
-    logrotate: https://github.com/simp/pupmod-simp-logrotate
+    #logrotate: https://github.com/simp/pupmod-simp-logrotate
     pki: https://github.com/simp/pupmod-simp-pki
     simpcat: https://github.com/simp/pupmod-simp-simpcat
     simplib: https://github.com/simp/pupmod-simp-simplib
@@ -23,6 +23,8 @@ fixtures:
       repo: https://github.com/simp/puppetlabs-stdlib
       branch: master
     stunnel: https://github.com/simp/pupmod-simp-stunnel
-    tcpwrappers: https://github.com/simp/pupmod-simp-tcpwrappers
+    #tcpwrappers: https://github.com/simp/pupmod-simp-tcpwrappers
   symlinks:
     rsyslog: "#{source_dir}"
+    tcpwrappers: "#{source_dir}/../tcpwrappers"
+    logrotate: "#{source_dir}/../logrotate"

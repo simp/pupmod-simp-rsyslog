@@ -11,7 +11,7 @@
 #
 # @example Drop Logs Matching ``^.*bad_stuff.*$``
 #   rsyslog::rule::drop { 'drop_bad_stuff':
-#     rule => 'if re_match($msg, '^.*bad_stuff.*$')'
+#     rule => 're_match($msg, '^.*bad_stuff.*$')'
 #   }
 #
 # @param name [Stdlib::Absolutepath]
@@ -34,6 +34,6 @@ define rsyslog::rule::drop (
   $_safe_name = regsubst($name,'/','__')
 
   rsyslog::rule { "07_simp_drop_rules/${_safe_name}.conf":
-    content => inline_template('<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") + " then stop" %>')
+    content => inline_template('if (<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") + ") then stop" %>')
   }
 }
