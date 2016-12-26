@@ -25,7 +25,7 @@ if $programname == 'slapd_audit' then {
 }
 
 *.info;mail.none;authpriv.none;cron.none;local6.none;local5.none action(type="omfile" file="/var/log/messages")
-authpriv.*;local6.*                           action(type="omfile" file="/var/log/secure")
+authpriv.*;local6.*;local5.*                  action(type="omfile" file="/var/log/secure")
 mail.*                                        action(type="omfile" file="/var/log/maillog")
 cron.*                                        action(type="omfile" file="/var/log/cron")
 *.emerg                                       action(type="omusrmsg" users="*")
