@@ -63,9 +63,9 @@ describe 'rsyslog' do
           it { is_expected.to contain_logrotate__rule('syslog')}
         end
 
-        context 'rsyslog class with PKI enabled' do
+        context 'rsyslog class with pki = simp' do
           let(:params) {{
-            :pki => true
+            :pki => 'simp'
           }}
 
           it { is_expected.to contain_class('pki') }
