@@ -1,37 +1,45 @@
-# == Class: rsyslog::install
+# **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 #
-# Installs the RSyslog packages necessary for use of RSyslog.
+# Installs the packages necessary for use of RSyslog
 #
-class rsyslog::install {
+# @param ensure
+#   How to install the packages
+#
+#   * Accepts the same values as the ``Package`` resource's ``ensure``
+#     parameter
+#
+class rsyslog::install (
+  String $ensure = 'latest'
+) {
   assert_private()
 
-  $full_rsyslog_package = "${::rsyslog::package_name}.${::hardwaremodel}"
+  $_full_rsyslog_package = "${::rsyslog::package_name}.${facts['hardwaremodel']}"
 
-  package { $full_rsyslog_package: ensure => 'latest' }
+  package { $_full_rsyslog_package: ensure => $ensure }
 
   # remove existing/conflicting packages
   if $::rsyslog::package_name == 'rsyslog7' {
-    package { "rsyslog.${::hardwaremodel}":
+    package { "rsyslog.${facts['hardwaremodel']}":
       ensure            => 'absent',
       uninstall_options => ['--nodeps'],
       provider          => 'rpm',
+      before            => Package[$_full_rsyslog_package]
     }
-    ->
-    Package[$full_rsyslog_package]
   }
-
 
   # Some hackery to remove the i386 version of rsyslog if you're on a x86_64
   # system.
-  if $::hardwaremodel == 'x86_64' {
-    package { "${::rsyslog::package_name}.i386": ensure => 'absent' }
-    ->
-    Package[$full_rsyslog_package]
+  if $facts['hardwaremodel'] == 'x86_64' {
+    package { "${::rsyslog::package_name}.i386":
+      ensure => 'absent',
+      before => Package[$_full_rsyslog_package]
+    }
   }
 
   if ( $::rsyslog::enable_tls_logging or $::rsyslog::tls_tcp_server ) {
-    Package[$full_rsyslog_package]
-    ->
-    package { $::rsyslog::tls_package_name: ensure => 'latest', }
+    package { $::rsyslog::tls_package_name:
+      ensure  => $ensure,
+      require => Package[$_full_rsyslog_package]
+    }
   }
 }

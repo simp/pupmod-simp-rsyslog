@@ -1,31 +1,39 @@
-<% _bool_xlat = {
-  true  => 'on',
-  false => 'off'
-} -%>
+<%
+  _bool_xlat = {
+    true  => 'on',
+    false => 'off'
+  }
+
+  if @queue_filename
+    _queue_filename = @queue_filename
+  else
+    _queue_filename = @name + '_disk_queue'
+  end
+-%>
 ruleset(
   name="<%= @_safe_name %>_ruleset"
 ## TODO: Implement these once DA queues work properly inside of rulesets.
-#  queue.filename="<%= @_queue_filename %>"
-<% if !@queue_size.empty? -%>
+#  queue.filename="<%= _queue_filename %>"
+<% if @queue_size -%>
 #  queue.size="<%= @queue_size %>"
 <% end -%>
 #  queue.dequeuebatchsize="<%= @queue_dequeue_batch_size %>"
-<% if !@queue_max_disk_space.empty? -%>
+<% if @queue_max_disk_space -%>
 #  queue.maxdiskspace="<%= @queue_max_disk_space %>"
 <% end -%>
-<% if !@queue_high_watermark.empty? -%>
+<% if @queue_high_watermark -%>
 # queue.highwatermark="<%= @queue_high_watermark %>"
 <% end -%>
 #  queue.lowwatermark="<%= @queue_low_watermark %>"
-<% if !@queue_full_delay_mark.empty? -%>
+<% if @queue_full_delay_mark -%>
 #  queue.fulldelaymark="<%= @queue_full_delay_mark %>"
 <% end -%>
-<% if !@queue_light_delay_mark.empty? -%>
+<% if @queue_light_delay_mark -%>
 #  queue.lightdelaymark="<%= @queue_light_delay_mark %>"
 <% end -%>
 #  queue.discardmark="<%= @queue_discard_mark %>"
 #  queue.discardseverity="<%= @queue_discard_severity %>"
-<% if !@queue_checkpoint_interval.empty? -%>
+<% if @queue_checkpoint_interval -%>
 #  queue.checkpointinterval="<%= @queue_checkpoint_interval %>"
 <% end -%>
 #  queue.syncqueuefiles="<%= _bool_xlat[@queue_sync_queue_files] %>"
@@ -39,10 +47,10 @@ ruleset(
 #  queue.maxfilesize="<%= @queue_max_file_size %>"
 #  queue.saveonshutdown="<%= _bool_xlat[@queue_save_on_shutdown] %>"
 #  queue.dequeueslowdown="<%= @queue_dequeue_slowdown %>"
-<% if !@queue_dequeue_time_begin.empty? -%>
+<% if @queue_dequeue_time_begin -%>
 #  queue.dequeuetimebegin="<%= @queue_dequeue_time_begin %>"
 <% end -%>
-<% if !@queue_dequeue_time_end.empty? -%>
+<% if @queue_dequeue_time_end -%>
 #  queue.dequeuetimeend="<%= @queue_dequeue_time_end %>"
 <% end -%>
 ) {
@@ -59,42 +67,42 @@ ruleset(
 -%>
   action(
     type="omfwd"
-<% if !@template.empty? -%>
+<% if @template -%>
     template="<%= @template %>"
 <% end -%>
     protocol="<%= @dest_type %>"
     target="<%= _host %>"
     port="<%= _port %>"
-<% if !@tcp_framing.empty? -%>
+<% if @tcp_framing -%>
     TCP_Framing="<%= @tcp_framing %>"
 <% end -%>
-<% if !@zip_level.empty? -%>
+<% if @zip_level -%>
     ZipLevel="<%= @zip_level %>"
 <% end -%>
-<% if !@max_error_messages.empty? -%>
+<% if @max_error_messages -%>
 ## TODO: Implement this once we upgrade to v7-stable or later.
 #    maxErrorMessages="<%= @max_error_messages %>"
 <% end -%>
-<% if !@compression_mode.empty? -%>
+<% if @compression_mode -%>
 ## TODO: Implement this once we upgrade to v7-stable or later.
 #    compression.mode="<%= @compression_mode %>"
 <% end -%>
 ## TODO: Implement this once we upgrade to v7-stable or later.
 #    compression.stream.flushOnTXEnd="<%= _bool_xlat[@compression_stream_flush_on_tx_end] %>"
-<% if !@rebind_interval.empty? -%>
+<% if @rebind_interval -%>
     RebindInterval="<%= @rebind_interval %>"
 <% end -%>
 <% if @_use_tls -%>
-<%   if !@stream_driver.empty? -%>
+<%   if @stream_driver -%>
     StreamDriver="<%= @stream_driver %>"
 <%   end -%>
-<%   if !@stream_driver_mode.empty? -%>
+<%   if @stream_driver_mode -%>
     StreamDriverMode="<%= @stream_driver_mode %>"
 <%   end -%>
-<%   if !@stream_driver_auth_mode.empty? -%>
+<%   if @stream_driver_auth_mode -%>
     StreamDriverAuthMode="<%= @stream_driver_auth_mode %>"
 <%   end -%>
-<%   if !@stream_driver_permitted_peers.empty? -%>
+<%   if @stream_driver_permitted_peers -%>
     StreamDriverPermittedPeers="<%= @stream_driver_permitted_peers %>"
 <%   end -%>
 <% end -%>
@@ -117,7 +125,7 @@ ruleset(
 
   action(
     type="omfwd"
-<% if !@template.empty? -%>
+<% if @template -%>
     template="<%= @template %>"
 <% end -%>
     protocol="<%= @dest_type %>"
@@ -125,27 +133,27 @@ ruleset(
     port="<%= s_port %>"
 <% if s_target.eql? _final_host -%>
 ## NOTE: This must exist for the last failover host so that we can queue logs to disk when needed.
-    queue.filename="<%= @_queue_filename %>_action"
-<%   if !@queue_size.empty? -%>
+    queue.filename="<%= _queue_filename %>_action"
+<%   if @queue_size -%>
     queue.size="<%= @queue_size %>"
 <%   end -%>
     queue.dequeuebatchsize="<%= @queue_dequeue_batch_size %>"
-<%   if !@queue_max_disk_space.empty? -%>
+<%   if @queue_max_disk_space -%>
     queue.maxdiskspace="<%= @queue_max_disk_space %>"
 <%   end -%>
-<%   if !@queue_high_watermark.empty? -%>
+<%   if @queue_high_watermark -%>
     queue.highwatermark="<%= @queue_high_watermark %>"
 <%   end -%>
     queue.lowwatermark="<%= @queue_low_watermark %>"
-<%   if !@queue_full_delay_mark.empty? -%>
+<%   if @queue_full_delay_mark -%>
     queue.fulldelaymark="<%= @queue_full_delay_mark %>"
 <%   end -%>
-<%   if !@queue_light_delay_mark.empty? -%>
+<%   if @queue_light_delay_mark -%>
     queue.lightdelaymark="<%= @queue_light_delay_mark %>"
 <%   end -%>
     queue.discardmark="<%= @queue_discard_mark %>"
     queue.discardseverity="<%= @queue_discard_severity %>"
-<%   if !@queue_checkpoint_interval.empty? -%>
+<%   if @queue_checkpoint_interval -%>
     queue.checkpointinterval="<%= @queue_checkpoint_interval %>"
 <%   end -%>
     queue.syncqueuefiles="<%= _bool_xlat[@queue_sync_queue_files] %>"
@@ -159,43 +167,43 @@ ruleset(
     queue.maxfilesize="<%= @queue_max_file_size %>"
     queue.saveonshutdown="<%= _bool_xlat[@queue_save_on_shutdown] %>"
     queue.dequeueslowdown="<%= @queue_dequeue_slowdown %>"
-<%   if !@queue_dequeue_time_begin.empty? -%>
+<%   if @queue_dequeue_time_begin -%>
     queue.dequeuetimebegin="<%= @queue_dequeue_time_begin %>"
 <%   end -%>
-<%   if !@queue_dequeue_time_end.empty? -%>
+<%   if @queue_dequeue_time_end -%>
     queue.dequeuetimeend="<%= @queue_dequeue_time_end %>"
 <%   end -%>
 <% end -%>
-<% if !@tcp_framing.empty? -%>
+<% if @tcp_framing -%>
     TCP_Framing="<%= @tcp_framing %>"
 <% end -%>
-<% if !@zip_level.empty? -%>
+<% if @zip_level -%>
     ZipLevel="<%= @zip_level %>"
 <% end -%>
-<% if !@max_error_messages.empty? -%>
+<% if @max_error_messages -%>
 ## TODO: Implement this once we upgrade to v7-stable or later.
 #    maxErrorMessages="<%= @max_error_messages %>"
 <% end -%>
-<% if !@compression_mode.empty? -%>
+<% if @compression_mode -%>
 ## TODO: Implement this once we upgrade to v7-stable or later.
 #    compression.mode="<%= @compression_mode %>"
 <% end -%>
 ## TODO: Implement this once we upgrade to v7-stable or later.
 #    compression.stream.flushOnTXEnd="<%= _bool_xlat[@compression_stream_flush_on_tx_end] %>"
-<% if !@rebind_interval.empty? -%>
+<% if @rebind_interval -%>
     RebindInterval="<%= @rebind_interval %>"
 <% end -%>
 <% if @_use_tls -%>
-<%   if !@stream_driver.empty? -%>
+<%   if @stream_driver -%>
     StreamDriver="<%= @stream_driver %>"
 <%   end -%>
-<%   if !@stream_driver_mode.empty? -%>
+<%   if @stream_driver_mode -%>
     StreamDriverMode="<%= @stream_driver_mode %>"
 <%   end -%>
-<%   if !@stream_driver_auth_mode.empty? -%>
+<%   if @stream_driver_auth_mode -%>
     StreamDriverAuthMode="<%= @stream_driver_auth_mode %>"
 <%   end -%>
-<%   if !@stream_driver_permitted_peers.empty? -%>
+<%   if @stream_driver_permitted_peers -%>
     StreamDriverPermittedPeers="<%= @stream_driver_permitted_peers %>"
 <%   end -%>
 <% end -%>
@@ -207,7 +215,9 @@ ruleset(
     end
   end
 -%>
+<% if @stop_processing -%>
+  stop
+<% end -%>
 }
 
-<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %>
-call <%= @name %>_ruleset
+if (<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %>) then call <%= @_safe_name %>_ruleset

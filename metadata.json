@@ -1,6 +1,6 @@
 {
   "name": "simp-rsyslog",
-  "version": "6.0.0",
+  "version": "7.0.0",
   "author": "SIMP Team",
   "summary": "A puppet module to support RSyslog versions 7 and higher using new style RainerScript.",
   "license": "Apache-2.0",
@@ -24,11 +24,11 @@
     },
     {
       "name": "simp/logrotate",
-      "version_requirement": ">= 5.0.0 < 6.0.0"
+      "version_requirement": ">= 6.0.0 < 7.0.0"
     },
     {
       "name": "simp/simplib",
-      "version_requirement": ">= 2.0.0 < 3.0.0"
+      "version_requirement": ">= 2.1.0 < 3.0.0"
     },
     {
       "name": "simp/pki",
@@ -36,7 +36,7 @@
     },
     {
       "name": "simp/tcpwrappers",
-      "version_requirement": ">= 5.0.0 < 6.0.0"
+      "version_requirement": ">= 6.0.0 < 7.0.0"
     }
   ],
   "operatingsystem_support": [
@@ -54,5 +54,16 @@
         "7"
       ]
     }
-  ]
+  ],
+  "requirements": [
+    {
+      "name": "puppet",
+      "version_requirement": "4.x"
+    },
+    {
+      "name": "pe",
+      "version_requirement": ">= 2016.2.0"
+    }
+  ],
+  "data_provider": "hiera"
 }

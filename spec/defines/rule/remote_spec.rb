@@ -23,6 +23,9 @@ describe 'rsyslog::rule::remote' do
         it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(
           /ruleset\(\n\s*name="#{title}_ruleset"/
         ) }
+        it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(
+          /if \(#{params[:rule]}\) then call #{title}_ruleset/
+        ) }
       end
     end
   end

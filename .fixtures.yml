@@ -8,6 +8,9 @@ fixtures:
     augeasproviders_grub:
       repo: https://github.com/simp/augeasproviders_grub
       branch: simp-master
+    concat:
+      repo: https://github.com/simp/puppetlabs-concat
+      branch: simp-master
     haveged:
       repo: https://github.com/simp/puppet-haveged
       branch: simp-master
@@ -18,7 +21,7 @@ fixtures:
     simplib: https://github.com/simp/pupmod-simp-simplib
     stdlib:
       repo: https://github.com/simp/puppetlabs-stdlib
-      branch: simp-master
+      branch: master
     stunnel: https://github.com/simp/pupmod-simp-stunnel
     tcpwrappers: https://github.com/simp/pupmod-simp-tcpwrappers
   symlinks:

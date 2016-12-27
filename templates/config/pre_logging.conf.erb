@@ -1,43 +1,44 @@
 <%
-  if @main_msg_queue_size.empty?
+  unless @main_msg_queue_size
     # The number of 512 byte messages that can fit into 1% of the total system memory. Or 2 gig max.
-    t_main_msg_queue_size = [(([@memorysize_mb.to_i, 128].max * 1048576 * 0.01)/512).to_i,2097152].min
+    _main_msg_queue_size = [(([@facts['memorysize_mb'].to_i, 128].max * 1048576 * 0.01)/512).to_i,2097152].min
   else
-    t_main_msg_queue_size = @main_msg_queue_size.to_i
+    _main_msg_queue_size = @main_msg_queue_size
   end
 
-  t_main_msg_queue_high_watermark = @main_msg_queue_high_watermark
-  if @main_msg_queue_high_watermark.empty?
-    t_main_msg_queue_high_watermark = (t_main_msg_queue_size * 0.90).round
+  _main_msg_queue_high_watermark = @main_msg_queue_high_watermark
+  unless @main_msg_queue_high_watermark
+    _main_msg_queue_high_watermark = (_main_msg_queue_size * 0.90).round
   end
 
-  t_main_msg_queue_low_watermark = @main_msg_queue_low_watermark
-  if @main_msg_queue_low_watermark.empty?
-    t_main_msg_queue_low_watermark = (t_main_msg_queue_size * 0.70).round
+  _main_msg_queue_low_watermark = @main_msg_queue_low_watermark
+  unless @main_msg_queue_low_watermark
+    _main_msg_queue_low_watermark = (_main_msg_queue_size * 0.70).round
   end
 
-  t_main_msg_queue_discardmark = @main_msg_queue_discardmark.to_i
-  if @main_msg_queue_discardmark.empty? or (t_main_msg_queue_discardmark < t_main_msg_queue_high_watermark)
-    t_main_msg_queue_discardmark = (t_main_msg_queue_size * 0.98).round
+  if @main_msg_queue_discardmark
+    _main_msg_queue_discardmark = @main_msg_queue_discardmark
+  else
+    if !@main_msg_queue_discardmark || (_main_msg_queue_discardmark < _main_msg_queue_high_watermark)
+    _main_msg_queue_discardmark = (_main_msg_queue_size * 0.98).round
+    end
   end
 
-  t_main_msg_queue_worker_thread_minimum_messages = @main_msg_queue_worker_thread_minimum_messages
-  if @main_msg_queue_worker_thread_minimum_messages.empty?
-    t_main_msg_queue_worker_thread_minimum_messages =
-      t_main_msg_queue_size / (([@processorcount.to_i, 2].max - 1)*4)
+  _main_msg_queue_worker_thread_minimum_messages = @main_msg_queue_worker_thread_minimum_messages
+  unless @main_msg_queue_worker_thread_minimum_messages
+    _main_msg_queue_worker_thread_minimum_messages =
+      _main_msg_queue_size / (([@facts['processorcount'].to_i, 2].max - 1)*4)
   end
 
-  t_main_msg_queue_worker_threads = @main_msg_queue_worker_threads
-  if @main_msg_queue_worker_threads.empty?
-    t_main_msg_queue_worker_threads = [@processorcount.to_i - 1, 1].max
+  _main_msg_queue_worker_threads = @main_msg_queue_worker_threads
+  unless @main_msg_queue_worker_threads
+    _main_msg_queue_worker_threads = [@facts['processorcount'].to_i - 1, 1].max
   end
 
-  t_main_msg_queue_max_disk_space = @main_msg_queue_max_disk_space
-  if @main_msg_queue_max_disk_space.empty?
-    t_main_msg_queue_max_disk_space = "#{(t_main_msg_queue_size / 1024).round}M"
+  _main_msg_queue_max_disk_space = @main_msg_queue_max_disk_space
+  unless @main_msg_queue_max_disk_space
+    _main_msg_queue_max_disk_space = "#{(_main_msg_queue_size / 1024).round}M"
   end
-
-  t_tcp_server = scope.lookupvar( '::rsyslog::tcp_server' )
 -%>
 <%
   # Create a boolean translation hash for true/false -> on/off
@@ -67,18 +68,18 @@ module(load="imuxsock"
   SysSock.IgnoreTimestamp="<%= t_bool_xlat[@syssock_ignore_timestamp] %>"
   SysSock.IgnoreOwnMessages="<%= t_bool_xlat[@syssock_ignore_own_messages] %>"
   SysSock.Use="<%= t_bool_xlat[@syssock_use] %>"
-<% if !@syssock_name.empty? -%>
+<% if @syssock_name -%>
   SysSock.Name="<%= @syssock_name %>"
 <% end -%>
   SysSock.FlowControl="<%= t_bool_xlat[@syssock_flow_control] %>"
   SysSock.UsePIDFromSystem="<%= t_bool_xlat[@syssock_use_pid_from_system] %>"
-<% if !@syssock_rate_limit_interval.empty? -%>
+<% if @syssock_rate_limit_interval -%>
   SysSock.RateLimit.Interval="<%= @syssock_rate_limit_interval %>"
 <% end -%>
-<% if !@syssock_rate_limit_burst.empty? -%>
+<% if @syssock_rate_limit_burst -%>
   SysSock.RateLimit.Burst="<%= @syssock_rate_limit_burst %>"
 <% end -%>
-<% if !@syssock_rate_limit_severity.empty? -%>
+<% if @syssock_rate_limit_severity -%>
   SysSock.RateLimit.Severity="<%= @syssock_rate_limit_severity %>"
 <% end -%>
   SysSock.UseSysTimeStamp="<%= t_bool_xlat[@syssock_use_sys_timestamp] %>"
@@ -93,56 +94,36 @@ $IMJournalStateFile imjournal.state
 <% end -%>
 
 module(load="imfile")
-<% if t_tcp_server || @tls_tcp_server
-     # FIXME: should this be 'elif @tls_tcp_server?' it doesn't seem like there
-     #        can be multiple load="imtcp" statements
-     if @tls_tcp_server
--%>
+<% if @_tls_tcp_server -%>
 
 module(load="imptcp")
 module(load="imtcp"
   StreamDriver.Mode="<%= @action_send_stream_driver_mode %>"
-  StreamDriver.AuthMode="<%= @l_action_send_stream_driver_auth_mode %>"
+  StreamDriver.AuthMode="<%= @_action_send_stream_driver_auth_mode %>"
   PermittedPeer=[<%= @tls_input_tcp_server_stream_driver_permitted_peers.map{|x| %Q{"#{x}"}}.join(',') %>]
   MaxSessions="<%= @tls_tcp_max_sessions %>"
 )
-<%  t_tls_listen_port = @tls_listen_port
-    t_tls_listen_port = '6514' if t_tls_listen_port.empty?
--%>
-input(type="imtcp" port="<%= t_tls_listen_port %>")
-<%   end
-
-     if t_tcp_server
-       t_tcp_listen_port = scope.lookupvar( '::rsyslog::tcp_listen_port' )
-       t_tcp_listen_port = '514' if t_tcp_listen_port.empty?
--%>
+input(type="imtcp" port="<%= @_tls_tcp_listen_port %>")
+<% elsif @_tcp_server -%>
 module(load="imtcp")
-<%      unless t_tcp_listen_port.empty? -%>
-input(type="imtcp" port="<%= t_tcp_listen_port %>")
-<%      end -%>
+<%   if @_tcp_listen_port -%>
+input(type="imtcp" port="<%= @_tcp_listen_port %>")
 <%   end
-
    end
 
-   if @udp_server
+   if @_udp_server
 -%>
 
 module(load="imudp")
-<%   if @udp_listen_port.empty?
-       t_udp_listen_port = '514'
-     else
-       t_udp_listen_port = @udp_listen_port
-     end
--%>
 input(type="imudp"
-  port="<%= t_udp_listen_port %>"
+  port="<%= @_udp_listen_port %>"
 )
 <% end
-   if @enable_tls_logging or @tls_tcp_server -%>
+   if @_enable_tls_logging || @_tls_tcp_server -%>
 
 # These are legacy because CertFile has not been implemented in the new RainerScript.
 $DefaultNetstreamDriverCertFile <%= @default_net_stream_driver_cert_file %>
-$DefaultNetstreamDriver gtls
+$DefaultNetstreamDriver <%= @default_net_stream_driver %>
 $DefaultNetstreamDriverCAFile <%= @default_net_stream_driver_ca_file %>
 $DefaultNetstreamDriverKeyFile <%= @default_net_stream_driver_key_file %>
 <% end -%>
@@ -152,38 +133,39 @@ $DefaultNetstreamDriverKeyFile <%= @default_net_stream_driver_key_file %>
 #  queue.type="<%= @main_msg_queue_type %>"
 #  queue.filename="<%= @main_msg_queue_filename %>"
 #  queue.maxfilesize="<%= @main_msg_queue_max_file_size %>M"
-#  queue.size="<%= t_main_msg_queue_size %>"
-#  queue.highwatermark="<%= t_main_msg_queue_high_watermark %>"
-#  queue.lowwatermark="<%= t_main_msg_queue_low_watermark %>"
-#  queue.discardmark="<%= t_main_msg_queue_discardmark %>"
-#  queue.workerthreadminimummessages="<%= t_main_msg_queue_worker_thread_minimum_messages %>"
-#  queue.workerthreads="<%= t_main_msg_queue_worker_threads %>"
+#  queue.size="<%= _main_msg_queue_size %>"
+#  queue.highwatermark="<%= _main_msg_queue_high_watermark %>"
+#  queue.lowwatermark="<%= _main_msg_queue_low_watermark %>"
+#  queue.discardmark="<%= _main_msg_queue_discardmark %>"
+#  queue.workerthreadminimummessages="<%= _main_msg_queue_worker_thread_minimum_messages %>"
+#  queue.workerthreads="<%= _main_msg_queue_worker_threads %>"
 #  queue.timeoutenqueue="<%= @main_msg_queue_timeout_enqueue %>"
 #  queue.dequeueslowdown="<%= @main_msg_queue_dequeue_slowdown %>"
 #  queue.saveonshutdown="<%= @main_msg_queue_save_on_shutdown %>"
-#  queue.maxdiskspace="<%= t_main_msg_queue_max_disk_space %>"
+#  queue.maxdiskspace="<%= _main_msg_queue_max_disk_space %>"
 #)
 
 #TODO: Remove these once the above becomes applicable.
 $MainMsgQueueType <%= @main_msg_queue_type %>
 $MainMsgQueueFilename <%= @main_msg_queue_filename %>
 $MainMsgQueueMaxFileSize <%= @main_msg_queue_max_file_size %>M
-$MainMsgQueueSize <%= t_main_msg_queue_size %>
-$MainMsgQueueHighWatermark <%= t_main_msg_queue_high_watermark %>
-$MainMsgQueueLowWatermark <%= t_main_msg_queue_low_watermark %>
-$MainMsgQueueDiscardMark <%= t_main_msg_queue_low_watermark %>
-$MainMsgQueueWorkerThreadMinimumMessages <%= t_main_msg_queue_worker_thread_minimum_messages %>
+$MainMsgQueueSize <%= _main_msg_queue_size %>
+$MainMsgQueueHighWatermark <%= _main_msg_queue_high_watermark %>
+$MainMsgQueueLowWatermark <%= _main_msg_queue_low_watermark %>
+$MainMsgQueueDiscardMark <%= _main_msg_queue_low_watermark %>
+$MainMsgQueueWorkerThreadMinimumMessages <%= _main_msg_queue_worker_thread_minimum_messages %>
 $MainMsgQueueWorkerThreads <%= @main_msg_queue_timeout_enqueue %>
 $MainMsgQueueTimeoutEnqueue <%= @main_msg_queue_timeout_enqueue %>
 $MainMsgQueueDequeueSlowdown <%= @main_msg_queue_dequeue_slowdown %>
 $MainMsgQueueSaveOnShutdown <%= @main_msg_queue_save_on_shutdown %>
-$MainMsgQueueMaxDiskSpace <%= t_main_msg_queue_max_disk_space %>
+$MainMsgQueueMaxDiskSpace <%= _main_msg_queue_max_disk_space %>
 
 #TODO: Remove these in favor of StreamDriver* directives directly in the actions themselves.
 $ActionSendStreamDriverMode <%= @action_send_stream_driver_mode %>
-$ActionSendStreamDriverAuthMode <%= @l_action_send_stream_driver_auth_mode %>
-<% if not @action_send_stream_driver_permitted_peers.empty?
+$ActionSendStreamDriverAuthMode <%= @_action_send_stream_driver_auth_mode %>
+<% if @action_send_stream_driver_permitted_peers
      @action_send_stream_driver_permitted_peers.each do |peer| -%>
 $ActionSendStreamDriverPermittedPeer <%= peer %>
 <%   end
-   end -%>
+   end
+-%>

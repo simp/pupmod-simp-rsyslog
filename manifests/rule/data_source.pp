@@ -1,35 +1,44 @@
-# == Define: rsyslog::rule::data_source
+# Add a rule for collecting logs from files on the system
 #
-# This is meant to be used for collecting information from various data sources
-# across your system (or other external systems). These rules are, by default,
-# processed before all other rules so that the data stream has all of the
-# necessary information.
+# In general, the order will be:
 #
-# Example:
+#   * Data Source Rules
+#   * Console Rules
+#   * Drop Rules
+#   * Remote Rules
+#   * Other/Miscellaneous Rules
+#   * Local Rules
+#
+# @example Collect Logs From ``/opt/log/my_app``
 #   rsyslog::rule::data_source { 'new_input':
-#     rule =>  'input(type="imfile"
-#       File="/opt/log/my_app"
-#       StateFile="my_app"
-#       Tag="my_app"
-#       Facility="local6"
-#       Severity="notice"
-#     )
+#     rule => @(EOM)
+#       input(type="imfile"
+#         File="/opt/log/my_app"
+#         StateFile="my_app"
+#         Tag="my_app"
+#         Facility="local6"
+#         Severity="notice"
+#       )
+#       |EOM
 #   }
 #
-# == Parameters
+# @param name [Stdlib::Absolutepath]
+#   The filename that you will be dropping into place
 #
-# [*name*]
+# @param rule
+#   The Rsyslog ``EXPRESSION`` to filter on
+#
+# @see https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/s1-basic_configuration_of_rsyslog.html Red Hat Basic Rsyslog Configuration
+#
+# @see http://www.rsyslog.com/doc/expression.html Expressions in Rsyslog
+#
+# @see http://www.rsyslog.com/doc/rainerscript.html RainerScript Documentation
+#
 #   The filename that you will be dropping into place.
 #
-# [*rule*]
-#   The rule with omfile action that will be placed in the file in the
-#   /etc/rsyslog.simp.d directory.
-#
 define rsyslog::rule::data_source(
-  $rule
+  String $rule
 ) {
-  validate_string($rule)
-
   $_safe_name = regsubst($name,'/','__')
 
   rsyslog::rule { "05_simp_data_sources/${_safe_name}.conf":

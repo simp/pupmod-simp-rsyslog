@@ -21,7 +21,7 @@ describe 'rsyslog::rule::local' do
 
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to contain_rsyslog__rule('99_simp_local/test_name.conf').with_content(
-          /#{params[:rule]}\s+{\n\s*action\(\n\s*type="omfile"\n\s*dynaFile="#{params[:dyna_file]}"/
+          /if \(#{params[:rule]}\) then\s+{\n\s*action\(\n\s*type="omfile"\n\s*dynaFile="#{params[:dyna_file]}"/
         ) }
       end
     end

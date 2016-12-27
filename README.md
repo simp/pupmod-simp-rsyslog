@@ -110,7 +110,6 @@ Packages installed by
 is a complete re-write of the previous version, and as such there are no
 guarantees made about backwards compatibility.
 
-
 It is *strongly* recommended that the logging infrastructure be set up in a
 resilient manner. Failover in RSyslog is tricky and choosing the wrong kind of
 queuing with failover could mean losing logs. This module attempts to protect
@@ -175,6 +174,17 @@ failover_log_servers:
 
 ### I want to send everything to rsyslog from a client
 
+**NOTE**: Everything must be in the form that would be in the middle of an
+``if/then`` Rainerscript Expression.
+
+For example, if you wanted to filter on the standard priority ``kern.err``, you
+would put ``prifilt('kern.err')`` in your ``rule`` paramter.
+
+This does **not** hold for a call to ``rsyslog::rule`` since that is the
+generic processor for all rules.
+
+See the documentation in the module [Docs Folder](doc/index.html) for details.
+
 ```puppet
 class my_rsyslog_client {
   class {'rsyslog':
@@ -183,7 +193,7 @@ class my_rsyslog_client {
   }
 
   rsyslog::rule::remote { 'send_the_logs':
-    rule => '*.*'
+    rule => 'prifilt(\'*.*\')'
   }
 }
 ```
@@ -256,7 +266,7 @@ rsyslog::template::string { 'upstream':
 
 rsyslog::rule::remote { 'upstream':
   # Send Everything
-  rule     => '*.*',
+  rule     => 'prifilt(\'*.*\')',
   # Use the 'upstream' template defined above
   template => 'upstream',
   # The Upstream Destination Server

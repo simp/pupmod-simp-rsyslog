@@ -1,19 +1,22 @@
-# == Class: rsyslog::tcpwrappers
+# **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 #
-# Sets up TCPWrappers for RSyslog both plain TCP and over TLS as necessary.
+# Sets up TCPWrappers for RSyslog both plain TCP and TCP over TLS as necessary
+#
+# **NOTE:** This actually **opens** the TCPWrappers rules for RSyslog since
+# testing has shown that it was prone to some odd connectivity errors. Both
+# IPTables and an internal allow list protect RSyslog connections.
 #
 class rsyslog::server::tcpwrappers {
-  include '::rsyslog'
-  include '::tcpwrappers'
   assert_private()
 
-  # This is blocked two other places, adding this to tcpwrappers is a bit
-  # overkill and prone to strange errors.
+  include '::tcpwrappers'
+
   if $::rsyslog::tcp_server {
     tcpwrappers::allow { 'syslog':
       pattern => 'ALL'
     }
   }
+
   if $::rsyslog::tls_tcp_server {
     tcpwrappers::allow { 'syslog_tls':
       pattern => 'ALL'

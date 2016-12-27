@@ -1,3 +1,7 @@
+# This test can take a LONG time to run so we need to bump up the global
+# timeout
+ENV['SIMPTEST_WAIT_FOR_LOG_MAX'] = '600'
+
 require 'spec_helper_acceptance'
 
 test_name 'client -> 2 server with TLS'
@@ -16,12 +20,11 @@ describe 'rsyslog class' do
 
   let(:client_manifest_hieradata) {
     {
-      'rsyslog::log_server_list'    => ['server-1','server-2'],
-      'rsyslog::enable_logrotate'   => true,
+      'rsyslog::log_servers'        => ['server-1','server-2'],
+      'rsyslog::logrotate'          => true,
       'rsyslog::enable_tls_logging' => true,
-      'rsyslog::enable_pki'         => true,
-      'rsyslog::use_simp_pki'       => false,
-      'rsyslog::cert_source'        => '/etc/pki/simp-testing/pki'
+      'rsyslog::pki'                => false,
+      'rsyslog::pki_base_dir'        => '/etc/pki/simp-testing'
     }
   }
   let(:client_manifest) {
@@ -29,34 +32,32 @@ describe 'rsyslog class' do
       include 'rsyslog'
 
       rsyslog::rule::remote { 'send_the_logs':
-        rule => '*.*'
+        rule => 'prifilt(\\'*.*\\')'
       }
     EOS
   }
 
   let(:client_failover_hieradata) {
     {
-      'rsyslog::log_server_list'      => ['server-1','server-2'],
+      'rsyslog::log_servers'          => ['server-1','server-2'],
       'rsyslog::failover_log_servers' => ['server-3'],
-      'rsyslog::enable_logrotate'     => true,
+      'rsyslog::logrotate'            => true,
       'rsyslog::enable_tls_logging'   => true,
-      'rsyslog::enable_pki'           => true,
-      'rsyslog::use_simp_pki'         => false,
-      'rsyslog::cert_source'          => '/etc/pki/simp-testing/pki'
+      'rsyslog::pki'                  => false,
+      'rsyslog::pki_base_dir'          => '/etc/pki/simp-testing'
     }
   }
 
   let(:client_failover_small_queue_hieradata) {
     {
-      'rsyslog::log_server_list'                       => ['server-1','server-2'],
+      'rsyslog::log_servers'                           => ['server-1','server-2'],
       'rsyslog::failover_log_servers'                  => ['server-3'],
-      'rsyslog::enable_logrotate'                      => true,
+      'rsyslog::logrotate'                             => true,
       'rsyslog::enable_tls_logging'                    => true,
-      'rsyslog::enable_pki'                            => true,
-      'rsyslog::use_simp_pki'                          => false,
-      'rsyslog::cert_source'                           => '/etc/pki/simp-testing/pki',
-      'rsyslog::config::main_msg_queue_high_watermark' => '2',
-      'rsyslog::config::main_msg_queue_low_watermark'  => '1'
+      'rsyslog::pki'                                   => false,
+      'rsyslog::pki_base_dir'                          => '/etc/pki/simp-testing',
+      'rsyslog::config::main_msg_queue_high_watermark' => 2,
+      'rsyslog::config::main_msg_queue_low_watermark'  => 1
     }
   }
 
@@ -66,23 +67,23 @@ describe 'rsyslog class' do
       include 'rsyslog'
 
       rsyslog::rule::remote { 'send_the_logs':
-        rule                 => '*.*',
+        rule                 => 'prifilt(\\'*.*\\')',
         queue_filename       => 'test_queue',
-        queue_high_watermark => '2',
-        queue_low_watermark  => '1'
+        queue_high_watermark => 2,
+        queue_low_watermark  => 1
       }
     EOS
   }
 
   let(:server_manifest_hieradata) {
     {
+      'iptables::disable'                   => false,
       'rsyslog::tcp_server'                 => true,
-      'rsyslog::enable_logrotate'           => true,
+      'rsyslog::logrotate'                  => true,
       'rsyslog::tls_tcp_server'             => true,
-      'rsyslog::enable_pki'                 => true,
-      'rsyslog::use_simp_pki'               => false,
-      'rsyslog::cert_source'                => '/etc/pki/simp-testing/pki',
-      'rsyslog::client_nets'                => 'any',
+      'rsyslog::pki'                        => false,
+      'rsyslog::pki_base_dir'                => '/etc/pki/simp-testing',
+      'rsyslog::trusted_nets'               => ['any'],
       'rsyslog::server::enable_firewall'    => true,
       'rsyslog::server::enable_selinux'     => true,
       # If you enable this, you need to make sure to add a tcpwrappers rule
@@ -95,8 +96,8 @@ describe 'rsyslog class' do
       # Turns off firewalld in EL7.  Presumably this would already be done.
       include '::iptables'
       iptables::add_tcp_stateful_listen { 'ssh':
-        dports => '22',
-        client_nets => 'any'
+        dports       => '22',
+        trusted_nets => ['any']
       }
 
       include 'rsyslog'
@@ -111,8 +112,8 @@ describe 'rsyslog class' do
 
       # log all messages to the dynamic file we just defined ^^
       rsyslog::rule::local { 'all_the_logs':
-       rule => '*.*',
-       dyna_file => 'log_everything_by_host'
+        rule      => 'prifilt(\\'*.*\\')',
+        dyna_file => 'log_everything_by_host'
       }
     EOS
   }
@@ -173,11 +174,7 @@ describe 'rsyslog class' do
 
       # Force Failover
       servers.each do |server|
-         if fact('osfamily') == 'RedHat' && fact('operatingsystemmajrelease') == '7'
-           on server, 'systemctl stop rsyslog'
-         else
-           on server, 'pkill -9 rsyslog'
-         end
+        on server, 'puppet resource service rsyslog ensure=stopped'
       end
 
       # Give it a couple of seconds
@@ -219,11 +216,7 @@ describe 'rsyslog class' do
 
       # Make sure that *all* remote logging is stopped
       (failover_servers + servers).each do |server|
-         if fact('osfamily') == 'RedHat' && fact('operatingsystemmajrelease') == '7'
-           on server, 'systemctl stop rsyslog || true'
-         else
-           on server, 'pkill -9 rsyslog || true'
-         end
+        on server, 'puppet resource service rsyslog ensure=stopped'
       end
 
       sleep(2)

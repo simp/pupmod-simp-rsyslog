@@ -11,16 +11,16 @@ describe 'rsyslog class' do
   let(:client){ only_host_with_role( hosts, 'client' ) }
   let(:manifest) {
     <<-EOS
-      class { 'rsyslog': enable_pki  => false }
+      class { 'rsyslog': pki  => false }
     EOS
   }
 
   let(:manifest_plus_rules) {
     <<-EOS
-      class { 'rsyslog': enable_pki  => false }
+      class { 'rsyslog': pki  => false }
 
       rsyslog::rule::console { '0_default_emerg':
-        rule  => '*.emerg',
+        rule  => 'prifilt(\\'*.emerg\\')',
         users => ['*']
       }
 
@@ -35,11 +35,11 @@ input(type=\\"imfile\\"
       }
 
       rsyslog::rule::drop { 'audispd':
-        rule   => 'if $programname == \\'audispd\\''
+        rule   => '$programname == \\'audispd\\''
       }
 
       rsyslog::rule::local { '0_default_sudosh':
-        rule            => 'if ($programname == \\'sudosh\\') then',
+        rule            => '$programname == \\'sudosh\\'',
         dyna_file       => 'sudosh_template',
         stop_processing => true
       }
@@ -56,7 +56,7 @@ input(type=\\"imfile\\"
       }
 
       rsyslog::rule::remote { 'all_forward':
-        rule      => '*.*',
+        rule      => 'prifilt(\\'*.*\\')',
         dest      => ['1.1.1.1', '2.2.2.2'],
         dest_type => 'tcp'
       }
@@ -65,7 +65,6 @@ input(type=\\"imfile\\"
   }
 
   context 'default parameters (no pki)' do
-
     # Using puppet_apply as a helper
     it 'should work with no errors' do
       apply_manifest_on(client, manifest, :catch_failures => true)
@@ -73,7 +72,6 @@ input(type=\\"imfile\\"
       # reboot to apply auditd changes
       # shell( 'shutdown -r now', { :expect_connection_failure => true } )
     end
-
 
     it 'should be idempotent' do
       apply_manifest_on(client, manifest, {:catch_changes => true})
