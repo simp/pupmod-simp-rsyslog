@@ -54,7 +54,6 @@
 #     you really know what you are doing.
 #
 # @param main_msg_queue_filename
-# @param main_msg_queue_max_file_size
 #
 # @param main_msg_queue_size
 #   The size of the main (global) message queue
@@ -164,6 +163,9 @@
 #   Disable DNS lookups for remote messages
 #
 #   * See the ``-x`` option in ``rsyslogd(8)`` for more information
+#
+# @param enable_default_rules
+#   Enables default rules for logging common services (e.g., iptables, puppet, slapd_auditd)
 #
 # @param read_journald
 #   Enable the forwarding of the ``systemd`` journal to syslog

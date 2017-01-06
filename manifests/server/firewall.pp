@@ -9,21 +9,21 @@ class rsyslog::server::firewall {
   assert_private()
 
   if $::rsyslog::tls_tcp_server {
-    iptables::add_tcp_stateful_listen { 'syslog_tls_tcp':
+    iptables::listen::tcp_stateful { 'syslog_tls_tcp':
       trusted_nets => $::rsyslog::trusted_nets,
       dports       => $::rsyslog::tls_tcp_listen_port
     }
   }
 
   if $::rsyslog::tcp_server {
-    iptables::add_tcp_stateful_listen { 'syslog_tcp':
+    iptables::listen::tcp_stateful { 'syslog_tcp':
       trusted_nets => $::rsyslog::trusted_nets,
       dports       => $::rsyslog::tcp_listen_port
     }
   }
 
   if $::rsyslog::udp_server {
-    iptables::add_udp_listen { 'syslog_udp':
+    iptables::listen::udp { 'syslog_udp':
       trusted_nets => $::rsyslog::trusted_nets,
       dports       => $::rsyslog::udp_listen_port
     }

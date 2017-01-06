@@ -79,7 +79,7 @@
 # @param read_journald
 #   Enable the processing of ``journald`` messages natively in Rsyslog
 #
-# @param enable_logrotate
+# @param logrotate
 #   Ensure that ``logrotate`` is enabled on this system
 #
 #   * You will need to configure specific logrotate settings via the
