@@ -1,13 +1,16 @@
-#  PE/SIMP versions
-#  app    pup  ruby
-# 2015.2  4.3  2.1.7
-# 2015.3  4.3  2.1.8
-# 2016.1  4.4  2.1.9
-# 2016.2  4.5  2.1.9
-# S6.0.0  4.7  2.1.9
+# The testing matrix considers ruby/puppet versions supported by SIMP and PE:
+# ------------------------------------------------------------------------------
+#  release    pup   ruby      eol
+# PE 2015.2   4.2   2.1.7  2017-03-17
+# PE 2015.3   4.3   2.1.8  2017-03-17
+# PE 2016.1   4.4   2.1.9  2017-03-17 (yes: all three EOL on the same day!)
+# PE 2016.2   4.5   2.1.9  2017-04-30
+# PE 2016.4   4.7   2.1.9  TBD (LTS)
+# PE 2016.5   4.8   2.1.9  TBD
+# SIMP6.0.0   4.8   2.1.9  TBD
 ---
 language: ruby
-sudo: true
+sudo: false
 cache: bundler
 before_script:
   - bundle
@@ -24,17 +27,17 @@ env:
     - STRICT_VARIABLES=yes
     - TRUSTED_NODE_DATA=yes
   matrix:
+    - PUPPET_VERSION="~> 4.8.1"
     - PUPPET_VERSION="~> 4.7.0"
     - PUPPET_VERSION="~> 4.5.0"
-    - PUPPET_VERSION="~> 3.8.0"
     - PUPPET_VERSION="~> 4.4.0"
     - PUPPET_VERSION="~> 4.3.0"
-    - PUPPET_VERSION="~> 3.8.0" FUTURE_PARSER=yes
+    - PUPPET_VERSION="~> 4.2.0"
 matrix:
   fast_finish: true
   allow_failures:
+    - env: PUPPET_VERSION="~> 4.7.0"
     - env: PUPPET_VERSION="~> 4.5.0"
-    - env: PUPPET_VERSION="~> 3.8.0"
     - env: PUPPET_VERSION="~> 4.4.0"
     - env: PUPPET_VERSION="~> 4.3.0"
-    - env: PUPPET_VERSION="~> 3.8.0" FUTURE_PARSER=yes
+    - env: PUPPET_VERSION="~> 4.2.0"

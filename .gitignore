@@ -9,7 +9,6 @@ dist
 /.rspec_system
 /.vagrant
 /.bundle
-/Gemfile.lock
 /vendor
 /junit
 /log

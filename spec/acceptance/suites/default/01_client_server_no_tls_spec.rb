@@ -35,8 +35,8 @@ rsyslog::server::enable_firewall : true
       # Turns off firewalld in EL7.  Presumably this would already be done.
       include 'iptables'
 
-      iptables::add_tcp_stateful_listen { 'ssh':
-        dports       => '22',
+      iptables::listen::tcp_stateful { 'ssh':
+        dports       => 22,
         trusted_nets => ['any'],
       }
 
