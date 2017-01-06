@@ -223,9 +223,9 @@ class rsyslog::config (
   Array[String]                                      $tls_input_tcp_server_stream_driver_permitted_peers = ["*.${::domain}"],
 
   Enum['gtls','ptcp']                                $default_net_stream_driver                          = 'gtls',
-  Stdlib::Absolutepath                               $default_net_stream_driver_ca_file                  = "${::rsyslog::pki_base_dir}/pki/cacerts/cacerts.pem",
-  Stdlib::Absolutepath                               $default_net_stream_driver_cert_file                = "${::rsyslog::pki_base_dir}/pki/public/${::fqdn}.pub",
-  Stdlib::Absolutepath                               $default_net_stream_driver_key_file                 = "${::rsyslog::pki_base_dir}/pki/private/${::fqdn}.pem",
+  Stdlib::Absolutepath                               $default_net_stream_driver_ca_file                  = "${::rsyslog::app_pki_dir}/cacerts/cacerts.pem",
+  Stdlib::Absolutepath                               $default_net_stream_driver_cert_file                = "${::rsyslog::app_pki_dir}/public/${::fqdn}.pub",
+  Stdlib::Absolutepath                               $default_net_stream_driver_key_file                 = "${::rsyslog::app_pki_dir}/private/${::fqdn}.pem",
 
   Enum['1','0']                                      $action_send_stream_driver_mode                     = ($::rsyslog::pki or $::rsyslog::tls_tcp_server or $::rsyslog::enable_tls_logging) ? { true => '1', default => '0' },
   Optional[String]                                   $action_send_stream_driver_auth_mode                = undef,
@@ -249,6 +249,13 @@ class rsyslog::config (
   $_udp_server = pick($::rsyslog::udp_server, false)
   $_udp_listen_port = pick($::rsyslog::udp_listen_port, '514')
   $_enable_tls_logging = pick($::rsyslog::enable_tls_logging, false)
+
+  if $::rsyslog::pki {
+    pki::copy { 'rsyslog':
+      source => $::rsyslog::app_pki_external_source,
+      pki    => $::rsyslog::pki
+    }
+  }
 
   if $read_journald and member($facts['init_systems'], 'systemd') {
     $_read_journald = true

@@ -24,7 +24,7 @@ describe 'rsyslog class' do
       'rsyslog::logrotate'          => true,
       'rsyslog::enable_tls_logging' => true,
       'rsyslog::pki'                => false,
-      'rsyslog::pki_base_dir'        => '/etc/pki/simp-testing'
+      'rsyslog::app_pki_dir'        => '/etc/pki/simp-testing/pki'
     }
   }
   let(:client_manifest) {
@@ -44,7 +44,7 @@ describe 'rsyslog class' do
       'rsyslog::logrotate'            => true,
       'rsyslog::enable_tls_logging'   => true,
       'rsyslog::pki'                  => false,
-      'rsyslog::pki_base_dir'          => '/etc/pki/simp-testing'
+      'rsyslog::app_pki_dir'          => '/etc/pki/simp-testing/pki'
     }
   }
 
@@ -55,7 +55,7 @@ describe 'rsyslog class' do
       'rsyslog::logrotate'                             => true,
       'rsyslog::enable_tls_logging'                    => true,
       'rsyslog::pki'                                   => false,
-      'rsyslog::pki_base_dir'                          => '/etc/pki/simp-testing',
+      'rsyslog::app_pki_dir'                           => '/etc/pki/simp-testing/pki',
       'rsyslog::config::main_msg_queue_high_watermark' => 2,
       'rsyslog::config::main_msg_queue_low_watermark'  => 1
     }
@@ -82,7 +82,7 @@ describe 'rsyslog class' do
       'rsyslog::logrotate'                  => true,
       'rsyslog::tls_tcp_server'             => true,
       'rsyslog::pki'                        => false,
-      'rsyslog::pki_base_dir'                => '/etc/pki/simp-testing',
+      'rsyslog::app_pki_dir'                => '/etc/pki/simp-testing/pki',
       'rsyslog::trusted_nets'               => ['any'],
       'rsyslog::server::enable_firewall'    => true,
       'rsyslog::server::enable_selinux'     => true,

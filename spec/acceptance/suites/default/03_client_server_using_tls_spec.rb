@@ -14,7 +14,7 @@ describe 'rsyslog client -> 1 server using TLS' do
         logrotate          => true,
         enable_tls_logging => true,
         pki                => false,
-        pki_base_dir       => '/etc/pki/simp-testing',
+        app_pki_dir        => '/etc/pki/simp-testing/pki',
       }
 
       rsyslog::rule::remote { 'send_the_logs':
@@ -45,7 +45,7 @@ rsyslog::server::enable_firewall : true
         logrotate          => true,
         enable_tls_logging => true,
         pki                => false,
-        pki_base_dir       => '/etc/pki/simp-testing',
+        app_pki_dir        => '/etc/pki/simp-testing/pki',
         trusted_nets       => ['any']
       }
 
