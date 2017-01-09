@@ -207,7 +207,7 @@ class my_rsyslog_client {
     failover_log_servers => ['first.log.server','second.log.server'],
     enable_tls_logging   => false,
     enable_logging       => false,
-    enable_pki           => false,
+    pki                  => false,
   }
 ```
 

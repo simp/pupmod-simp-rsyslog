@@ -86,28 +86,27 @@
 #   ``logrotate`` module.
 #
 # @param pki
-#   Enable SIMP management of PKI keys
+#   * If 'simp', include SIMP's pki module and use pki::copy to manage
+#     application certs in /etc/pki/simp_apps/rsyslog/pki
+#   * If true, do *not* include SIMP's pki module, but still use pki::copy
+#     to manage certs in /etc/pki/simp_apps/rsyslog/pki
+#   * If false, do not include SIMP's pki module and do not use pki::copy
+#     to manage certs.  You will need to appropriately assign a subset of:
+#     * app_pki_dir
+#     * app_pki_key
+#     * app_pki_cert
+#     * app_pki_ca
+#     * app_pki_ca_dir
 #
-#   * Options
-#       * 'simp' => Use the SIMP key distribution mechanism
-#       * true   => Use the ``pki::copy`` method
-#       * false  => Do not manage the PKI keys, you're on your own
+# @param app_pki_external_source
+#   * If pki = 'simp' or true, this is the directory from which certs will be
+#     copied, via pki::copy.  Defaults to /etc/pki/simp.
 #
-# @param pki_base_dir
-#   The location, on disk, for the module's PKI certificates
+#   * If pki = false, this variable has no effect.
 #
-#   * By default, we expect the certificates to be in a ``pki`` subdirectory of
-#     ``pki_base_dir`` so this should not be included in your path.
-#
-#   * The default expected directory structure is:
-#       * ``pki_base_dir``/pki/cacerts
-#           * All CA Certificates in PEM format with Hash-based aliases
-#       * ``pki_base_dir``/pki/cacerts/cacerts.pem
-#           * All CA Certificates in a single PEM file
-#       * ``pki_base_dir``/pki/public/${``facts['fqdn']``}.pub
-#           * The daemon's public X.509 Certificate in PEM format
-#       * ``pki_base_dir``/pki/private/${``facts['fqdn']``}.pem
-#           * The daemon's private RSA key in PEM format
+# @param app_pki_dir
+#   Basepath of $default_net_stream_driver_ca_file, default_net_stream_driver_cert_file,
+#   and $default_net_stream_driver_key_file
 #
 # @author Chris Tessmer <chris.tessmer@onyxpoint.com>
 # @author Kendall Moore <kendall.moore@onyxpoint.com>
@@ -115,26 +114,27 @@
 # @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 class rsyslog (
-  String                        $service_name          = $::rsyslog::params::service_name,
-  String                        $package_name          = $::rsyslog::params::package_name,
-  String                        $tls_package_name      = $::rsyslog::params::tls_package_name,
-  Simplib::Netlist              $trusted_nets          = simplib::lookup('simp_options::trusted_nets', {'default_value' => ['127.0.0.1/32'] }),
-  Boolean                       $enable_tls_logging    = false,
-  Simplib::Netlist              $log_servers           = simplib::lookup('simp_options::syslog::log_servers', { 'default_value' => [] }),
-  Simplib::Netlist              $failover_log_servers  = simplib::lookup('simp_options::syslog::failover_log_servers', { 'default_value' => [] }),
-  Stdlib::Absolutepath          $queue_spool_directory = '/var/spool/rsyslog',
-  Stdlib::Absolutepath          $rule_dir              = '/etc/rsyslog.simp.d',
-  Boolean                       $tcp_server            = false,
-  Simplib::Port                 $tcp_listen_port       = 514,
-  Boolean                       $tls_tcp_server        = false,
-  Simplib::Port                 $tls_tcp_listen_port   = 6514,
-  Boolean                       $udp_server            = false,
-  String                        $udp_listen_address    = '127.0.0.1',
-  Simplib::Port                 $udp_listen_port       = 514,
-  Boolean                       $read_journald         = $::rsyslog::params::read_journald,
-  Boolean                       $logrotate             = simplib::lookup('simp_options::logrotate', {'default_value' => false}),
-  Variant[Boolean,Enum['simp']] $pki                   = simplib::lookup('simp_options::pki', {'default_value' => false}),
-  Stdlib::Absolutepath          $pki_base_dir          = '/etc/rsyslog.d'
+  String                        $service_name            = $::rsyslog::params::service_name,
+  String                        $package_name            = $::rsyslog::params::package_name,
+  String                        $tls_package_name        = $::rsyslog::params::tls_package_name,
+  Simplib::Netlist              $trusted_nets            = simplib::lookup('simp_options::trusted_nets', {'default_value'                  => ['127.0.0.1/32'] }),
+  Boolean                       $enable_tls_logging      = false,
+  Simplib::Netlist              $log_servers             = simplib::lookup('simp_options::syslog::log_servers', { 'default_value'          => [] }),
+  Simplib::Netlist              $failover_log_servers    = simplib::lookup('simp_options::syslog::failover_log_servers', { 'default_value' => [] }),
+  Stdlib::Absolutepath          $queue_spool_directory   = '/var/spool/rsyslog',
+  Stdlib::Absolutepath          $rule_dir                = '/etc/rsyslog.simp.d',
+  Boolean                       $tcp_server              = false,
+  Simplib::Port                 $tcp_listen_port         = 514,
+  Boolean                       $tls_tcp_server          = false,
+  Simplib::Port                 $tls_tcp_listen_port     = 6514,
+  Boolean                       $udp_server              = false,
+  String                        $udp_listen_address      = '127.0.0.1',
+  Simplib::Port                 $udp_listen_port         = 514,
+  Boolean                       $read_journald           = $::rsyslog::params::read_journald,
+  Boolean                       $logrotate               = simplib::lookup('simp_options::logrotate', {'default_value'                     => false}),
+  Variant[Boolean,Enum['simp']] $pki                     = simplib::lookup('simp_options::pki', {'default_value'                           => false}),
+  Stdlib::Absolutepath          $app_pki_external_source = simplib::lookup('simp_options::pki::source', {'default_value'                   => '/etc/simp/pki'}),
+  Stdlib::Absolutepath          $app_pki_dir             = '/etc/pki/simp_apps/rsyslog/pki'
 ) inherits ::rsyslog::params {
 
   contain '::rsyslog::install'
@@ -148,11 +148,5 @@ class rsyslog (
   if $logrotate {
     contain '::rsyslog::config::logrotate'
     Class['rsyslog::service'] -> Class['rsyslog::config::logrotate']
-  }
-
-  if $pki {
-    contain '::rsyslog::config::pki'
-    Class['rsyslog::config::pki'] -> Class['rsyslog::config']
-    Class['rsyslog::config::pki'] ~> Class['rsyslog::service']
   }
 }
