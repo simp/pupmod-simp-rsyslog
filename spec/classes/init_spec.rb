@@ -69,6 +69,8 @@ describe 'rsyslog' do
           }}
 
           it { is_expected.to contain_class('pki') }
+          it { is_expected.to contain_pki__copy('rsyslog') }
+          it { is_expected.to contain_file('/etc/pki/simp_apps/rsyslog/x509')}
         end
 
         context 'rsyslog class with TLS enabled' do
@@ -89,6 +91,9 @@ describe 'rsyslog' do
             :pki                => false,
            }}
           ###it_behaves_like 'a structured module'
+          it { is_expected.to_not contain_class('pki') }
+          it { is_expected.to_not contain_pki__copy('rsyslog') }
+          it { is_expected.to_not contain_file('/etc/pki/simp_apps/rsyslog/x509')}
           it { is_expected.to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf').with_content(/^\$ActionSendStreamDriverAuthMode anon/) }
         end
 
@@ -100,6 +105,9 @@ describe 'rsyslog' do
             :pki                => true
           }}
 
+          it { is_expected.to_not contain_class('pki') }
+          it { is_expected.to contain_pki__copy('rsyslog') }
+          it { is_expected.to contain_file('/etc/pki/simp_apps/rsyslog/x509')}
           it { is_expected.to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf').with_content(%r{^\$ActionSendStreamDriverAuthMode x509/name}) }
         end
 

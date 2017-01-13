@@ -96,7 +96,10 @@ $IMJournalStateFile imjournal.state
 module(load="imfile")
 <% if @_tls_tcp_server -%>
 
+<%  if @_tcp_listen_port -%>
 module(load="imptcp")
+input(type="imptcp" port="<%= @_tcp_listen_port %>")
+<%  end -%>
 module(load="imtcp"
   StreamDriver.Mode="<%= @action_send_stream_driver_mode %>"
   StreamDriver.AuthMode="<%= @_action_send_stream_driver_auth_mode %>"
