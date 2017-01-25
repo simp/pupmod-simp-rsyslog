@@ -1,6 +1,7 @@
 * Wed Jan 11 2017 Nick Markowski <nmarkowski@keywcorp.com> - 7.0.0-0
 - Updated pki to use new scheme
 - Application certs now managed in /etc/pki/simp_apps/rsyslog/x509
+- Added trailing newline to drop rules
 
 * Sun Dec 11 2016 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.0.0-0
 - Update to Puppet 4 compatibility

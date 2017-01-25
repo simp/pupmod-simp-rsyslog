@@ -14,7 +14,7 @@
 #     rule => 're_match($msg, '^.*bad_stuff.*$')'
 #   }
 #
-# @param name [Stdlib::Absolutepath]
+# @attr name [Stdlib::Absolutepath]
 #   The filename that you will be dropping into place
 #
 # @param rule
@@ -34,6 +34,6 @@ define rsyslog::rule::drop (
   $_safe_name = regsubst($name,'/','__')
 
   rsyslog::rule { "07_simp_drop_rules/${_safe_name}.conf":
-    content => inline_template('if (<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") + ") then stop" %>')
+    content => inline_template('if (<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") + ") then stop\n" %>')
   }
 }
