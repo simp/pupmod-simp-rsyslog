@@ -1,3 +1,6 @@
+* Tue Feb 7 2017 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 7.0.0-0
+- Updated expression in logrotate for lastaction to evaluate correctly
+
 * Wed Jan 11 2017 Nick Markowski <nmarkowski@keywcorp.com> - 7.0.0-0
 - Updated pki to use new scheme
 - Application certs now managed in /etc/pki/simp_apps/rsyslog/x509

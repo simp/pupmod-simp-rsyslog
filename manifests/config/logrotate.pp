@@ -25,7 +25,7 @@ class rsyslog::config::logrotate (
 
   include '::logrotate'
 
-  $_restartcmd = 'systemd' in $facts['init_systems'] ? {
+  $_restartcmd = ('systemd' in $facts['init_systems']) ? {
     true    => '/usr/sbin/systemctl restart rsyslog',
     default => '/usr/sbin/service rsyslog restart'
   }
