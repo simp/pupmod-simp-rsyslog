@@ -21,10 +21,10 @@ describe 'rsyslog::rule::remote' do
 
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(
-          /ruleset\(\n\s*name="#{title}_ruleset"/
+          /ruleset\(\n\s*name="ruleset_#{title}"/
         ) }
         it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(
-          /if \(#{params[:rule]}\) then call #{title}_ruleset/
+          /if \(#{params[:rule]}\) then call ruleset_#{title}/
         ) }
       end
     end

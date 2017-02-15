@@ -11,7 +11,7 @@
   end
 -%>
 ruleset(
-  name="<%= @_safe_name %>_ruleset"
+  name="ruleset_<%= @_safe_name %>"
 ## TODO: Implement these once DA queues work properly inside of rulesets.
 #  queue.filename="<%= _queue_filename %>"
 <% if @queue_size -%>
@@ -220,4 +220,4 @@ ruleset(
 <% end -%>
 }
 
-if (<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %>) then call <%= @_safe_name %>_ruleset
+if (<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %>) then call ruleset_<%= @_safe_name %>
