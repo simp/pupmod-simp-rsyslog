@@ -1,5 +1,5 @@
 * Thu Mar 23 2017 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 7.0.2-0
-- Updated path for service to /sbin/service
+- Updated path for systemctl
 
 * Thu Feb 09 2017 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 7.0.1-0
 - Updated path for service to /sbin/service
