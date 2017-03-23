@@ -1,7 +1,10 @@
-* Thu Feb 9 2017 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 7.0.1-0
+* Thu Mar 23 2017 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 7.0.2-0
 - Updated path for service to /sbin/service
 
-* Tue Feb 7 2017 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 7.0.0-0
+* Thu Feb 09 2017 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 7.0.1-0
+- Updated path for service to /sbin/service
+
+* Tue Feb 07 2017 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 7.0.0-0
 - Updated expression in logrotate for lastaction to evaluate correctly
 
 * Wed Jan 11 2017 Nick Markowski <nmarkowski@keywcorp.com> - 7.0.0-0
