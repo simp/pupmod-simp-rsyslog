@@ -6,6 +6,8 @@ describe 'rsyslog::server' do
     it { is_expected.to create_class('rsyslog::server') }
     it { is_expected.to contain_class('rsyslog') }
     it { is_expected.to contain_class('rsyslog::server') }
+    it { is_expected.to contain_class('rsyslog::server::selinux') }
+    it { is_expected.not_to create_sel_boolean('nis_enabled') }
   end
 
   context 'supported operating systems' do
@@ -18,6 +20,8 @@ describe 'rsyslog::server' do
         context 'rsyslog::server class without any parameters' do
           let(:params) {{ }}
           it_behaves_like 'a structured module'
+          it { is_expected.not_to contain_class('rsyslog::server::firewall') }
+          it { is_expected.not_to contain_class('rsyslog::server::tcpwrappers') }
         end
 
         context 'rsyslog::server class with firewall enabled' do
@@ -98,18 +102,23 @@ describe 'rsyslog::server' do
         end
 
         context 'rsyslog::server class with SELinux enabled' do
-          let(:params) {{
-            :enable_selinux => true
-          }}
-          ###it_behaves_like 'a structured module'
+          let(:facts) {
+            facts[:selinux_current_mode] = 'enforcing'
+            facts
+          }
+          it_behaves_like 'a structured module'
           it { is_expected.to contain_class('rsyslog::server::selinux') }
+          it { is_expected.not_to create_sel_boolean('nis_enabled').with({
+            :persistent => true,
+            :value      => 'on'
+          }) }
         end
 
         context 'rsyslog::server class with TCPWrappers enabled' do
           let(:params) {{
             :enable_tcpwrappers => true
           }}
-          ###it_behaves_like 'a structured module'
+          it_behaves_like 'a structured module'
           it { is_expected.to contain_class('rsyslog::server::tcpwrappers') }
         end
 

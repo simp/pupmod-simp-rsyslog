@@ -15,21 +15,17 @@
 #
 class rsyslog::server (
   Boolean $enable_firewall    = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
-  Boolean $enable_selinux     = simplib::lookup('simp_options::selinux', { 'default_value' => false }),
   Boolean $enable_tcpwrappers = simplib::lookup('simp_options::tcpwrappers', { 'default_value' => false })
 ) {
   include '::rsyslog'
+
+  contain '::rsyslog::server::selinux'
+  Class['rsyslog::server::selinux'] -> Class['rsyslog::service']
 
   if $enable_firewall {
     contain '::rsyslog::server::firewall'
 
     Class['rsyslog::service'] -> Class['rsyslog::server::firewall']
-  }
-
-  if $enable_selinux {
-    contain '::rsyslog::server::selinux'
-
-    Class['rsyslog::server::selinux'] -> Class['rsyslog::service']
   }
 
   if $enable_tcpwrappers {
