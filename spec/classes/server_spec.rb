@@ -7,13 +7,13 @@ describe 'rsyslog::server' do
     it { is_expected.to contain_class('rsyslog') }
     it { is_expected.to contain_class('rsyslog::server') }
     it { is_expected.to contain_class('rsyslog::server::selinux') }
-    it { is_expected.not_to create_sel_boolean('nis_enabled') }
   end
 
   context 'supported operating systems' do
     on_supported_os.each do |os, facts|
       context "on #{os}" do
         let(:facts) do
+          facts[:selinux_current_mode] = 'disabled' 
           facts
         end
 
@@ -22,6 +22,7 @@ describe 'rsyslog::server' do
           it_behaves_like 'a structured module'
           it { is_expected.not_to contain_class('rsyslog::server::firewall') }
           it { is_expected.not_to contain_class('rsyslog::server::tcpwrappers') }
+          it { is_expected.not_to create_selboolean('nis_enabled') }
         end
 
         context 'rsyslog::server class with firewall enabled' do
@@ -102,16 +103,15 @@ describe 'rsyslog::server' do
         end
 
         context 'rsyslog::server class with SELinux enabled' do
-          let(:facts) {
-            facts[:selinux_current_mode] = 'enforcing'
-            facts
-          }
+          let(:facts) {facts.merge({ :selinux_current_mode => 'enforcing' })}
           it_behaves_like 'a structured module'
           it { is_expected.to contain_class('rsyslog::server::selinux') }
-          it { is_expected.not_to create_sel_boolean('nis_enabled').with({
-            :persistent => true,
-            :value      => 'on'
-          }) }
+          if facts[:os][:release][:major].to_i > 6
+            it { is_expected.to create_selboolean('nis_enabled').with({
+              :persistent => true,
+              :value      => 'on'
+            }) }
+          end
         end
 
         context 'rsyslog::server class with TCPWrappers enabled' do
