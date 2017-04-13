@@ -1,5 +1,5 @@
 * Tue Apr 11 2017 Nick Markowski <nmarkowski@keywcorp.com> - 7.0.3-0
-- selinux_enabled default now uses str2bool for robustness
+- rsyslog::server::enable_selinux now optional, for robustness
 
 * Tue Mar 28 2017 Nick Miller <nick.miller@onyxpoint.com> - 7.0.2-0
 - rsyslog::server now uses the state of selinux on the system instead
