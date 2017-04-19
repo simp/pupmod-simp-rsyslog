@@ -1,5 +1,8 @@
 require 'spec_helper'
 
+file_content_7 = "/usr/bin/systemctl restart rsyslog > /dev/null 2>&1 || true"
+file_content_6 = "/sbin/service rsyslog restart > /dev/null 2>&1 || true"
+
 describe 'rsyslog' do
   shared_examples_for 'a structured module' do
     it { is_expected.to compile.with_all_deps }
@@ -61,6 +64,14 @@ describe 'rsyslog' do
 
           it { is_expected.to contain_class('rsyslog::config::logrotate') }
           it { is_expected.to contain_logrotate__rule('syslog')}
+
+          if ['RedHat','CentOS'].include?(facts[:operatingsystem])
+            if facts[:operatingsystemmajrelease].to_s < '7'
+              it { should create_file('/etc/logrotate.d/syslog').with_content(/#{file_content_6}/)}
+            else
+              it { should create_file('/etc/logrotate.d/syslog').with_content(/#{file_content_7}/)}
+            end
+          end
         end
 
         context 'rsyslog class with pki = simp' do

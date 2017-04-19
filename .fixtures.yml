@@ -3,39 +3,27 @@ fixtures:
   repositories:
     auditd:
       repo: https://github.com/simp/pupmod-simp-auditd
-      ref: 7.0.0-pre1
     augeasproviders_core:
       repo: https://github.com/simp/augeasproviders_core
-      ref: simp-2.1.1
     augeasproviders_grub:
       repo: https://github.com/simp/augeasproviders_grub
-      ref: simp-2.3.1
     concat:
       repo: https://github.com/simp/puppetlabs-concat
-      ref: 2.2.0
     haveged:
       repo: https://github.com/simp/puppet-haveged
-      ref: simp-0.4.0-pre1
     iptables:
       repo: https://github.com/simp/pupmod-simp-iptables
-      refe: 6.0.0-pre1
     logrotate:
       repo: https://github.com/simp/pupmod-simp-logrotate
-      ref: 6.0.0-pre1
     pki:
       repo: https://github.com/simp/pupmod-simp-pki
-      ref: 6.0.0-pre1
     simplib:
       repo: https://github.com/simp/pupmod-simp-simplib
-      ref: 3.1.0
     stdlib:
       repo: https://github.com/simp/puppetlabs-stdlib
-      ref: 4.13.1
     stunnel:
       repo: https://github.com/simp/pupmod-simp-stunnel
-      ref: 6.0.0-pre1
     tcpwrappers:
       repo: https://github.com/simp/pupmod-simp-tcpwrappers
-      ref: 6.0.0-pre1
   symlinks:
     rsyslog: "#{source_dir}"
