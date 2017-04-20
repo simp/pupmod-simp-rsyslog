@@ -13,7 +13,7 @@ describe 'rsyslog::server' do
     on_supported_os.each do |os, facts|
       context "on #{os}" do
         let(:facts) do
-          facts[:selinux_current_mode] = 'disabled' 
+          facts[:selinux_current_mode] = 'disabled'
           facts
         end
 
@@ -112,6 +112,13 @@ describe 'rsyslog::server' do
               :value      => 'on'
             }) }
           end
+        end
+
+        context 'with selinux_enforcing = undef' do
+          let(:facts) {facts.merge({ :selinux_enforced => nil })}
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_class('rsyslog::server') }
+          it { is_expected.to_not contain_class('rsyslog::server::selinux') }
         end
 
         context 'rsyslog::server class with TCPWrappers enabled' do
