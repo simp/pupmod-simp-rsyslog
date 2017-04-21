@@ -25,13 +25,8 @@ class rsyslog::config::logrotate (
 
   include '::logrotate'
 
-  $_restartcmd = ('systemd' in $facts['init_systems']) ? {
-    true    => '/usr/bin/systemctl restart rsyslog',
-    default => '/sbin/service rsyslog restart'
-  }
-
   logrotate::rule { 'syslog':
-    log_files     => [
+    log_files                 => [
       '/var/log/boot.log',
       '/var/log/cron',
       '/var/log/iptables.log',
@@ -42,10 +37,10 @@ class rsyslog::config::logrotate (
       '/var/log/slapd*.log',
       '/var/log/spooler'
     ],
-    size          => $rotate_size,
-    rotate_period => $rotate_period,
-    rotate        => $rotate_preserve,
-    lastaction    => "${_restartcmd} > /dev/null 2>&1 || true",
-    missingok     => true
+    size                      => $rotate_size,
+    rotate_period             => $rotate_period,
+    rotate                    => $rotate_preserve,
+    lastaction_restart_logger => true,
+    missingok                 => true
   }
 }
