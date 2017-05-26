@@ -102,6 +102,48 @@ input(type=\\"imfile\\"
       it { is_expected.to be_running }
     end
 
+    it 'should collect iptables log messages in /var/log/iptables.log' do
+      # kern facility messages cannot be created by a user via logger,
+      # because the facility is automatically changed to user. So, the
+      # only way to test this is to cause an actual iptables drop.
+      # TODO:  The code below should be replaced with use of the actual
+      #   iptables modules, a new drop rule for some port, and then nc
+      #   to try to open a connection to that port.
+      #
+      # Set up iptables to disallow icmp requests
+      on client, 'iptables --list-rules'
+      on client, 'iptables -N LOG_AND_DROP'
+      on client, 'iptables -A LOG_AND_DROP -j LOG --log-prefix "IPT:"'
+      on client, 'iptables -A LOG_AND_DROP -j DROP'
+      on client, 'iptables -A INPUT -p icmp -m icmp --icmp-type 8 -j LOG_AND_DROP'
+      on client, 'ping -c 1 `facter ipaddress`', :accept_all_exit_codes => true
+
+      check = on(client, "grep -l 'IPT:' /var/log/iptables.log").stdout.strip
+      expect(check).to eq('/var/log/iptables.log')
+
+      # clean up iptables rules to allow later tests to start with a clean slate
+      on client, 'iptables --delete LOG_AND_DROP -j LOG --log-prefix "IPT:"'
+      on client, 'iptables --delete LOG_AND_DROP -j DROP'
+      on client, 'iptables --delete INPUT -p icmp -m icmp --icmp-type 8 -j LOG_AND_DROP'
+      on client, 'iptables -X LOG_AND_DROP'
+      on client, 'iptables --list-rules'
+    end
+
+    it 'should collect authpriv, local6, and local5 log messages in /var/log/secure' do
+      on client, 'logger -p authpriv.warning -t auth LOCAL_ONLY_AUTHPRIV_ANY_LOG'
+      on client, 'logger -t crond LOCAL_ONLY_CROND_LOG'
+      on client, 'logger -p local5.notice -t id1 LOCAL_ONLY_LOCAL5_ANY_LOG'
+      on client, 'logger -p local6.info -t id2 LOCAL_ONLY_LOCAL6_ANY_LOG'
+
+      [ 'LOCAL_ONLY_AUTHPRIV_ANY_LOG',
+        'LOCAL_ONLY_LOCAL5_ANY_LOG',
+        'LOCAL_ONLY_LOCAL6_ANY_LOG',
+      ].each do |message|
+          check = on(client, "grep -l '#{message}' /var/log/secure").stdout.strip
+          expect(check).to eq('/var/log/secure')
+      end
+    end
+
     it 'should add user-specified rules' do
       apply_manifest_on(client, manifest_plus_rules, :catch_failures => true)
 
