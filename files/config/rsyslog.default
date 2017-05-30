@@ -1,4 +1,4 @@
-if $syslogfacility-text == 'kern' and $msg startswith 'IPT:' then {
+if $syslogfacility-text == 'kern' and (($msg startswith ' IPT:') or ($msg startswith 'IPT:')) then {
   action(type="omfile" file="/var/log/iptables.log")
   stop
 }
@@ -11,11 +11,11 @@ if $programname == 'puppet-agent' then {
   stop
 }
 
-if $programname == 'puppet-master' and $syslogseverity-text == 'err' then {
-  action(type="omfile" file="/var/log/puppet-master-err.log")
+if $programname == 'puppetserver' and $syslogseverity-text == 'err' then {
+  action(type="omfile" file="/var/log/puppetserver-err.log")
 }
-if $programname == 'puppet-master' then {
-  action(type="omfile" file="/var/log/puppet-master.log")
+if $programname == 'puppetserver' then {
+  action(type="omfile" file="/var/log/puppetserver.log")
   stop
 }
 

@@ -1,3 +1,11 @@
+* Fri May 26 2017 Liz Nemsick <lnemsick.simp@gmail.com> - 7.0.3-0
+- Fixed bug in which default iptables rsyslog rule did not work
+  with rsyslog version 7.4.7.  Some versions of rsyslog include
+  the ' ' separator in the message payload, which impacts the
+  startswith rule.
+- Fixed bug whereby puppetserver log messages were not being
+  collected in puppetserver-specific logs.
+
 * Wed Apr 19 2017 Nick Markowski <nmarkowski@keywcorp.com> - 7.0.3-0
 - rsyslog::server::enable_selinux now optional, for robustness
 - Updated logrotate to use new lastaction API
