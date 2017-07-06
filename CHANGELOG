@@ -5,6 +5,7 @@
   startswith rule.
 - Fixed bug whereby puppetserver log messages were not being
   collected in puppetserver-specific logs.
+- Update puppet requirement in metadata.json
 
 * Wed Apr 19 2017 Nick Markowski <nmarkowski@keywcorp.com> - 7.0.3-0
 - rsyslog::server::enable_selinux now optional, for robustness
