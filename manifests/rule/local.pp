@@ -19,7 +19,7 @@
 #     stop_processing => true
 #   }
 #
-# @param name [Stdlib::Absolutepath]
+# @attr name
 #   The filename that you will be dropping into place
 #
 # @param rule
@@ -28,6 +28,8 @@
 #   * **NOTE:** Do **NOT** include the leading ``if/then``
 #       * Correct:   ``rule => "prifilt('*.*')"
 #       * Incorrect: ``rule => "if prifilt('*.*') then"``
+#
+#   * This **must** be set if ``$content`` is left empty
 #
 # @param target_log_file
 #   The target log file that omfile will be writing to
@@ -95,6 +97,14 @@
 # @param queue_save_on_shutdown
 # @param queue_dequeue_slowdown
 # @param queue_dequeue_time_begin
+# @param queue_dequeue_time_end
+#
+# @param content
+#   the **entire* content of the rsyslog::rule
+#
+#   * If you do not specify this, ``$rule`` is a required variable
+#
+#   * If you do specify this, ``$rule`` will be ignored
 #
 # @see https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/s1-basic_configuration_of_rsyslog.html Red Hat Basic Rsyslog Configuration
 #
@@ -103,7 +113,7 @@
 # @see http://www.rsyslog.com/doc/rainerscript.html RainerScript Documentation
 #
 define rsyslog::rule::local (
-  String                                          $rule,
+  Optional[String]                                $rule                                 = undef,
   Optional[Stdlib::Absolutepath]                  $target_log_file                      = undef,
   Boolean                                         $stop_processing                      = false,
   Optional[String]                                $dyna_file                            = undef,
@@ -154,16 +164,27 @@ define rsyslog::rule::local (
   Boolean                                         $queue_save_on_shutdown               = false,
   Integer[0]                                      $queue_dequeue_slowdown               = 0,
   Optional[Integer[0]]                            $queue_dequeue_time_begin             = undef,
-  Optional[Integer[0]]                            $queue_dequeue_time_end               = undef
+  Optional[Integer[0]]                            $queue_dequeue_time_end               = undef,
+  Optional[String]                                $content                              = undef
 ) {
 
-  if !($dyna_file or $target_log_file) {
-    fail('You must specify one of $dyna_file or $target_log_file')
+  unless ($rule or $content) {
+    fail('You must specify "$rule" if you are not specifying "$content"')
   }
 
   $_safe_name = regsubst($name,'/','__')
 
+  if $content {
+    $_content = $content
+  }
+  else {
+    if !($dyna_file or $target_log_file) {
+      fail('You must specify one of $dyna_file or $target_log_file')
+    }
+    $_content = template("${module_name}/rule/local.erb")
+  }
+
   rsyslog::rule { "99_simp_local/${_safe_name}.conf":
-    content => template("${module_name}/rule/local.erb")
+    content => $_content
   }
 }

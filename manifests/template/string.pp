@@ -14,7 +14,7 @@
 #
 #   template(name="example" type="string" string="/var/log/hosts/%HOSTNAME%/example.log")
 #
-# @param name
+# @attr name
 #   The literal name of the ``file`` (not file path) that will be used
 #
 # @param string

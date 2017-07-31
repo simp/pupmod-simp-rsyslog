@@ -15,7 +15,7 @@
 #   set $!usr!tp12!dataflow = field($msg, 58, 2);
 #   template(name="example" type="subtree" subtree="$!usr!tp12")
 #
-# @param name
+# @attr name
 #   The literal name of the ``file`` (not a path) that will be used
 #
 # @param subtree
@@ -35,7 +35,7 @@ define rsyslog::template::subtree (
   $_variables = join($variables,"\n")
 
   rsyslog::rule { "05_simp_templates/${_safe_name}.conf":
-    # lint:ignore:double_quoted_strings lint:ignore:only_variable_string
+    # lint:ignore:variables_not_enclosed
     content => @("EOM")
       $_variables
 

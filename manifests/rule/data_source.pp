@@ -22,7 +22,7 @@
 #       |EOM
 #   }
 #
-# @param name [Stdlib::Absolutepath]
+# @attr name 
 #   The filename that you will be dropping into place
 #
 # @param rule

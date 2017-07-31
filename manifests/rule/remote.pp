@@ -9,7 +9,7 @@
 #   * Other/Miscellaneous Rules
 #   * Local Rules
 #
-# If you wish to use TLS for forward RSyslog messages, you **MUST** configre it
+# If you wish to use TLS for forward RSyslog messages, you **MUST** configure it
 # via ``rsyslog::config``. Current EL versions of RSyslog 7 do not properly
 # support individual TLS settings via rulesets.
 #
@@ -28,12 +28,12 @@
 # ------------------------------------------------------------------------
 #
 # @example Send All ``local0`` Messages to ``1.2.3.4`` via TCP
-#   rsyslog::rule::other { 'send_local0_away':
+#   rsyslog::rule::remote { 'send_local0_away':
 #     rule        => "prifilt('local0.*')",
 #     log_servers => ['1.2.3.4']
 #   }
 #
-# @param name [Stdlib::Absolutepath]
+# @attr name
 #   The filename that you will be dropping into place
 #
 # @param rule
@@ -46,11 +46,16 @@
 #       * Correct:   ``rule => "prifilt('*.*')"
 #       * Incorrect: ``rule => "if prifilt('*.*') then"``
 #
+#  * This **must** be set if ``$content`` is left empty
+#
+# @param stop_processing
+#   Do not forward logs to any further ``ruleset``s after processing this ``ruleset``
+#
 # @param template
 #   The template that should be used to format the content
 #
 # @param dest
-#   If filled, the ``$content`` will be sent to **all hosts** in this Array.
+#   If filled, logs matchin ``$rule`` will be sent to **all hosts** in this Array.
 #
 #   * **WARNING:** If using this, do **NOT** add a destination to your ``rule``
 #
@@ -127,6 +132,13 @@
 # @param queue_dequeue_time_begin
 # @param queue_dequeue_time_end
 #
+# @param content
+#   the **entire* content of the rsyslog::rule
+#
+#   * If you do not specify this, ``$rule`` is a required variable
+#
+#   * If you do specify this, ``$rule`` will be ignored
+#
 # @see https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/s1-basic_configuration_of_rsyslog.html Red Hat Basic Rsyslog Configuration
 #
 # @see http://www.rsyslog.com/doc/expression.html Expressions in Rsyslog
@@ -134,7 +146,7 @@
 # @see http://www.rsyslog.com/doc/rainerscript.html RainerScript Documentation
 #
 define rsyslog::rule::remote (
-  String                                           $rule,
+  Optional[String]                                 $rule                                 = undef,
   Boolean                                          $stop_processing                      = false,
   Optional[String]                                 $template                             = undef,
   Simplib::Netlist                                 $dest                                 = [],
@@ -178,38 +190,49 @@ define rsyslog::rule::remote (
   Boolean                                          $queue_save_on_shutdown               = true,
   Integer[0]                                       $queue_dequeue_slowdown               = 0,
   Optional[Integer[0]]                             $queue_dequeue_time_begin             = undef,
-  Optional[Integer[0]]                             $queue_dequeue_time_end               = undef
+  Optional[Integer[0]]                             $queue_dequeue_time_end               = undef,
+  Optional[String]                                 $content                              = undef
 ) {
   include '::rsyslog'
 
-  if empty($dest) {
-    $_dest = $::rsyslog::log_servers
-  }
-  else {
-    $_dest = $dest
-  }
-
-  if empty($_dest) { fail('You must pass a destination array for $dest') }
-
-  if $queue_spool_directory {
-    $_queue_spool_directory = $queue_spool_directory
-  }
-  else {
-    $_queue_spool_directory = $::rsyslog::queue_spool_directory
-  }
-
-  $_use_tls = ( $::rsyslog::enable_tls_logging and $dest_type != 'udp' )
-
-  if empty($failover_log_servers) {
-    $_failover_servers = $::rsyslog::failover_log_servers
-  }
-  else {
-    $_failover_servers = $failover_log_servers
-  }
-
   $_safe_name = regsubst($name,'/','__')
 
+  unless ($rule or $content) {
+    fail('You must specify "$rule" if you are not specifying "$content"')
+  }
+
+  if $content {
+    $_content = $content
+  }
+  else {
+    if empty($dest) {
+      $_dest = $::rsyslog::log_servers
+    }
+    else {
+      $_dest = $dest
+    }
+
+    if empty($_dest) { fail('You must pass a destination array for $dest') }
+
+    if $queue_spool_directory {
+      $_queue_spool_directory = $queue_spool_directory
+    }
+    else {
+      $_queue_spool_directory = $::rsyslog::queue_spool_directory
+    }
+
+    $_use_tls = ( $::rsyslog::enable_tls_logging and $dest_type != 'udp' )
+
+    if empty($failover_log_servers) {
+      $_failover_servers = $::rsyslog::failover_log_servers
+    }
+    else {
+      $_failover_servers = $failover_log_servers
+    }
+    $_content = template("${module_name}/rule/remote.erb")
+  }
+
   rsyslog::rule { "10_simp_remote/${_safe_name}.conf":
-    content => template("${module_name}/rule/remote.erb")
+    content => $_content
   }
 }
