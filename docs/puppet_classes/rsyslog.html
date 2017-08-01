@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Puppet Class: rsyslog
+  
+    &mdash; Documentation by YARD 0.9.9
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "puppet_classes::rsyslog";
+  relpath = '../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../puppet_class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../_index.html">Index (r)</a> &raquo;
+    <span class='title'><span class='object_link'>Puppet Classes</span></span>
+     &raquo; 
+    <span class="title">rsyslog</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="puppet_class_list_link"
+        href="../puppet_class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Puppet Class: rsyslog</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>::rsyslog::params</dd>
+  </dl>
+  
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>
+      manifests/init.pp
+    </dd>
+  </dl>
+</div>
+
+<h2>Overview</h2>
+<div class="docstring">
+  <div class="discussion">
+    
+<p>Set up rsyslog 7</p>
+
+<p>The configuration is particularly slanted toward the issues present in the
+version of rsyslog included with Enterprise Linux systems. It should still
+work on other systems but they may have different/other bugs that have not
+been addressed.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>service_name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::rsyslog::params::service_name</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The name of the RSyslog service; typically <code>rsyslog</code></p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>package_name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::rsyslog::params::package_name</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The name of the Rsyslog package to install; typically <code>rsyslog</code></p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>tls_package_name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::rsyslog::params::tls_package_name</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The name of the Rsyslog package to install TLS utilities; typically
+<code>rsyslog-gnutls</code></p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>trusted_nets</span>
+      
+      
+        <span class='type'>(<tt>Simplib::Netlist</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>simplib::lookup(&#39;simp_options::trusted_nets&#39;, {&#39;default_value&#39;                  =&gt; [&#39;127.0.0.1/32&#39;] })</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A whitelist of subnets (in CIDR notation) permitted access</p>
+<ul><li>
+<p>This will be used in conjunction with IPTables (if enabled)  to allow
+connections from within the given subnets.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>enable_tls_logging</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Enable the TLS libraries where applicable</p>
+<ul><li>
+<p>If enabled, clients will encrypt all log data being sent to the given log 
+servers. Also, all log servers specified to use TLS (see 
+<code>rsyslog::server::tls_tcp_server</code>) will load the
+<code>imtcp</code> libraries  and set the necessary global
+<code>NetStreamDriver</code> information.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>log_servers</span>
+      
+      
+        <span class='type'>(<tt>Simplib::Netlist</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>simplib::lookup(&#39;simp_options::syslog::log_servers&#39;, { &#39;default_value&#39;          =&gt; [] })</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A list of primary RSyslog servers</p>
+<ul><li>
+<p>All nodes in this list will get a copy of <strong>all</strong> logs if
+remote logging  is enabled.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>failover_log_servers</span>
+      
+      
+        <span class='type'>(<tt>Simplib::Netlist</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>simplib::lookup(&#39;simp_options::syslog::failover_log_servers&#39;, { &#39;default_value&#39; =&gt; [] })</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A list of the failover RSyslog servers</p>
+<ul><li>
+<p>This <strong>order-dependent</strong> list will serve as all of the
+possible failover  log servers for clients to send to if the servers in
+<code>log_servers</code> are  unavailable.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>queue_spool_directory</span>
+      
+      
+        <span class='type'>(<tt>Stdlib::Absolutepath</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&#39;/var/spool/rsyslog&#39;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The path to the directory where RSyslog should store disk message queues</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>rule_dir</span>
+      
+      
+        <span class='type'>(<tt>Stdlib::Absolutepath</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&#39;/etc/rsyslog.simp.d&#39;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The path at which all managed rules will begin</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>tcp_server</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Make this host listen for <code>TCP</code> connections</p>
+<ul><li>
+<p>Ideally, all connections would be <code>TLS</code> enabled. Only enable
+this if  necessary.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>tcp_listen_port</span>
+      
+      
+        <span class='type'>(<tt>Simplib::Port</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>514</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The port upon which to listen for regular <code>TCP</code> connections</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>tls_tcp_server</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Make this host listen for <code>TLS</code> enabled <code>TCP</code>
+connections</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>tls_tcp_listen_port</span>
+      
+      
+        <span class='type'>(<tt>Simplib::Port</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>6514</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The port upon which to listen for <code>TLS</code> enabled <code>TCP</code>
+connections</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>udp_server</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Make this host listend for <code>UDP</code> connections</p>
+<ul><li>
+<p>This really should not be enabled unless you have devices that cannot 
+speak <code>TLS</code> @param enable_logrotate</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>udp_listen_address</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&#39;127.0.0.1&#39;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The address upon which to listen for <code>UDP</code> connections</p>
+<ul><li>
+<p>The default of <code>127.0.0.1</code> is set primariliy for supporting Java
+applications that cannot work with a modern method of logging.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>udp_listen_port</span>
+      
+      
+        <span class='type'>(<tt>Simplib::Port</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>514</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The port upon which to listen for <code>UDP</code> connections</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>read_journald</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::rsyslog::params::read_journald</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Enable the processing of <code>journald</code> messages natively in Rsyslog</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>logrotate</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>simplib::lookup(&#39;simp_options::logrotate&#39;, {&#39;default_value&#39;                     =&gt; false})</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Ensure that <code>logrotate</code> is enabled on this system</p>
+<ul><li>
+<p>You will need to configure specific logrotate settings via the
+<code>logrotate</code> module.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>pki</span>
+      
+      
+        <span class='type'>(<tt>Variant[Boolean,Enum['simp']]</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>simplib::lookup(&#39;simp_options::pki&#39;, {&#39;default_value&#39;                           =&gt; false})</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>If &#39;simp&#39;, include SIMP&#39;s pki module and use pki::copy to
+manage  application certs in /etc/pki/simp_apps/rsyslog/x509</p>
+</li><li>
+<p>If true, do <em>not</em> include SIMP&#39;s pki module, but still use
+pki::copy  to manage certs in /etc/pki/simp_apps/rsyslog/x509</p>
+</li><li>
+<p>If false, do not include SIMP&#39;s pki module and do not use pki::copy  to
+manage certs. You will need to appropriately assign a subset of:</p>
+</li><li>
+<p>app_pki_dir</p>
+</li><li>
+<p>app_pki_key</p>
+</li><li>
+<p>app_pki_cert</p>
+</li><li>
+<p>app_pki_ca</p>
+</li><li>
+<p>app_pki_ca_dir</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>app_pki_external_source</span>
+      
+      
+        <span class='type'>(<tt>Stdlib::Absolutepath</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>simplib::lookup(&#39;simp_options::pki::source&#39;, {&#39;default_value&#39;                   =&gt; &#39;/etc/pki/simp/x509&#39;})</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>If pki = &#39;simp&#39; or true, this is the directory from which certs
+will be  copied, via pki::copy. Defaults to /etc/pki/simp/x509.</p>
+</li><li>
+<p>If pki = false, this variable has no effect.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>app_pki_dir</span>
+      
+      
+        <span class='type'>(<tt>Stdlib::Absolutepath</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&#39;/etc/pki/simp_apps/rsyslog/x509&#39;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Basepath of $default_net_stream_driver_ca_file,
+default_net_stream_driver_cert_file, and
+$default_net_stream_driver_key_file</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Author:</p>
+<ul class="author">
+  
+    <li>
+      
+      
+      
+      
+        
+        <div class='inline'>
+<p>Chris Tessmer <a
+href="mailto:chris.tessmer@onyxpoint.com">chris.tessmer@onyxpoint.com</a></p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+      
+      
+      
+        
+        <div class='inline'>
+<p>Kendall Moore <a
+href="mailto:kendall.moore@onyxpoint.com">kendall.moore@onyxpoint.com</a></p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+      
+      
+      
+        
+        <div class='inline'>
+<p>Mike Riddle <a
+href="mailto:mike.riddle@onyxpoint.com">mike.riddle@onyxpoint.com</a></p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+      
+      
+      
+        
+        <div class='inline'>
+<p>Trevor Vaughan <a
+href="mailto:tvaughan@onyxpoint.com">tvaughan@onyxpoint.com</a></p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><div class="method_details_list">
+  <table class="source_code">
+    <tr>
+      <td>
+        <pre class="lines">
+
+
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154</pre>
+      </td>
+      <td>
+        <pre class="code"><span class="info file"># File 'manifests/init.pp', line 116</span>
+
+class rsyslog (
+  String                        $service_name            = $::rsyslog::params::service_name,
+  String                        $package_name            = $::rsyslog::params::package_name,
+  String                        $tls_package_name        = $::rsyslog::params::tls_package_name,
+  Simplib::Netlist              $trusted_nets            = simplib::lookup(&#39;simp_options::trusted_nets&#39;, {&#39;default_value&#39;                  =&gt; [&#39;127.0.0.1/32&#39;] }),
+  Boolean                       $enable_tls_logging      = false,
+  Simplib::Netlist              $log_servers             = simplib::lookup(&#39;simp_options::syslog::log_servers&#39;, { &#39;default_value&#39;          =&gt; [] }),
+  Simplib::Netlist              $failover_log_servers    = simplib::lookup(&#39;simp_options::syslog::failover_log_servers&#39;, { &#39;default_value&#39; =&gt; [] }),
+  Stdlib::Absolutepath          $queue_spool_directory   = &#39;/var/spool/rsyslog&#39;,
+  Stdlib::Absolutepath          $rule_dir                = &#39;/etc/rsyslog.simp.d&#39;,
+  Boolean                       $tcp_server              = false,
+  Simplib::Port                 $tcp_listen_port         = 514,
+  Boolean                       $tls_tcp_server          = false,
+  Simplib::Port                 $tls_tcp_listen_port     = 6514,
+  Boolean                       $udp_server              = false,
+  String                        $udp_listen_address      = &#39;127.0.0.1&#39;,
+  Simplib::Port                 $udp_listen_port         = 514,
+  Boolean                       $read_journald           = $::rsyslog::params::read_journald,
+  Boolean                       $logrotate               = simplib::lookup(&#39;simp_options::logrotate&#39;, {&#39;default_value&#39;                     =&gt; false}),
+  Variant[Boolean,Enum[&#39;simp&#39;]] $pki                     = simplib::lookup(&#39;simp_options::pki&#39;, {&#39;default_value&#39;                           =&gt; false}),
+  Stdlib::Absolutepath          $app_pki_external_source = simplib::lookup(&#39;simp_options::pki::source&#39;, {&#39;default_value&#39;                   =&gt; &#39;/etc/pki/simp/x509&#39;}),
+  Stdlib::Absolutepath          $app_pki_dir             = &#39;/etc/pki/simp_apps/rsyslog/x509&#39;
+) inherits ::rsyslog::params {
+
+  contain &#39;::rsyslog::install&#39;
+  contain &#39;::rsyslog::config&#39;
+  contain &#39;::rsyslog::service&#39;
+
+  # lint:ignore:arrow_on_right_operand_line
+  Class[&#39;rsyslog::install&#39;] -&gt;
+  Class[&#39;rsyslog::config&#39;] ~&gt;
+  Class[&#39;rsyslog::service&#39;]
+  # lint:endignore
+
+  if $logrotate {
+    contain &#39;::rsyslog::config::logrotate&#39;
+    Class[&#39;rsyslog::service&#39;] -&gt; Class[&#39;rsyslog::config::logrotate&#39;]
+  }
+}</pre>
+      </td>
+    </tr>
+  </table>
+</div>
+</div>
+
+      <div id="footer">
+  Generated on Tue Aug  1 16:10:55 2017 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.9 (ruby-2.1.9).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -17,7 +17,7 @@
 #     rule =>  "if prifilt('local0.*') then @@1.2.3.4"
 #   }
 #
-# @param name [Stdlib::Absolutepath]
+# @param name [String]
 #   The filename that you will be dropping into place
 #
 # @param rule

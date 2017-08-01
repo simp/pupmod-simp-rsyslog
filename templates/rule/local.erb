@@ -10,9 +10,9 @@
       dynafile = @dyna_file
     else
       # Assume that we need to create a template!
-      dynafile = @name
+      dynafile = @_safe_name
 -%>
-template(name="<%= @name %>" type="string" string="<%= @dyna_file %>")
+template(name="<%= @_safe_name %>" type="string" string="<%= @dyna_file %>")
 <%
     end
   end
@@ -47,9 +47,6 @@ if (<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %>) then {
 <% end -%>
 <% if @flush_on_tx_end -%>
     flushOnTXEnd="on"
-<% end -%>
-<% if @io_buffer_size -%>
-    ioBufferSize="<%= @io_buffer_size %>"
 <% end -%>
 <% if @io_buffer_size -%>
     ioBufferSize="<%= @io_buffer_size %>"

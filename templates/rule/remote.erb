@@ -7,7 +7,7 @@
   if @queue_filename
     _queue_filename = @queue_filename
   else
-    _queue_filename = @name + '_disk_queue'
+    _queue_filename = @_safe_name + '_disk_queue'
   end
 -%>
 ruleset(
@@ -22,7 +22,7 @@ ruleset(
 #  queue.maxdiskspace="<%= @queue_max_disk_space %>"
 <% end -%>
 <% if @queue_high_watermark -%>
-# queue.highwatermark="<%= @queue_high_watermark %>"
+#  queue.highwatermark="<%= @queue_high_watermark %>"
 <% end -%>
 #  queue.lowwatermark="<%= @queue_low_watermark %>"
 <% if @queue_full_delay_mark -%>

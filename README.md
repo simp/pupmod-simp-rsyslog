@@ -1,9 +1,11 @@
 #pupmod-simp-rsyslog
-[![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
-[![Build
-Status](https://travis-ci.org/simp/pupmod-simp-rsyslog.svg)](https://travis-ci.org/simp/pupmod-simp-rsyslog)
-[![SIMP
-compatibility](https://img.shields.io/badge/SIMP%20compatibility-4.2.*%2F5.1.*-orange.svg)](https://img.shields.io/badge/SIMP%20compatibility-4.2.*%2F5.1.*-orange.svg)
+
+[![License](https://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/73/badge)](https://bestpractices.coreinfrastructure.org/projects/73)
+[![Puppet Forge](https://img.shields.io/puppetforge/v/simp/rsyslog.svg)](https://forge.puppetlabs.com/simp/rsyslog)
+[![Puppet Forge Downloads](https://img.shields.io/puppetforge/dt/simp/rsyslog.svg)](https://forge.puppetlabs.com/simp/rsyslog)
+[![Build Status](https://travis-ci.org/simp/pupmod-simp-rsyslog.svg)](https://travis-ci.org/simp/pupmod-simp-rsyslog)
+
 
 #### Table of Contents
 
@@ -36,20 +38,11 @@ guarantees made about backwards compatibility.
 ## This is a SIMP module
 
 This module is a component of the
-[System Integrity Management
-Platform](https://github.com/NationalSecurityAgency/SIMP),
+[System Integrity Management Platform](https://simp-project.com),
 a compliance-management framework built on Puppet.
 
 If you find any issues, they can be submitted to our
 [JIRA](https://simp-project.atlassian.net/).
-
-Please read our
-[Contribution
-Guide](https://simp-project.atlassian.net/wiki/display/SD/Contributing+to+SIMP)
-and visit our
-[developer
-wiki](https://simp-project.atlassian.net/wiki/display/SD/SIMP+Development+Home).
-
 
 ## Module Description
 
@@ -183,8 +176,6 @@ would put ``prifilt('kern.err')`` in your ``rule`` paramter.
 This does **not** hold for a call to ``rsyslog::rule`` since that is the
 generic processor for all rules.
 
-See the documentation in the module [Docs Folder](doc/index.html) for details.
-
 ```puppet
 class my_rsyslog_client {
   class {'rsyslog':
@@ -277,29 +268,9 @@ rsyslog::rule::remote { 'upstream':
 
 ## Reference
 
-Classes for pupmod-simp-rsyslog:
-* [rsyslog](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/init.pp)
-* [rsyslog::params](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/params.pp)
-* [rsyslog::install](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/install.pp)
-* [rsyslog::config](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/config.pp)
-* [rsyslog::config::logging](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/config/logging.pp)
-* [rsyslog::config::pki](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/config/pki.pp)
-* [rsyslog::service](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/service.pp)
-* [rsyslog::server](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/server.pp)
-* [rsyslog::server::firewall](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/server/firewall.pp)
-* [rsyslog::server::selinux](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/server/selinux.pp)
-* [rsyslog::server::tcpwrappers](https://github.com/simp/pupmod-simp-rsyslog/tree/master/manifests/server/tcpwrappers.pp)
-
-Defines for pupmod-simp-rsyslog:
-* [rsyslog::rule::console](https://github.com/simp/pupmod-simp-rsyslog/tree/manifests/rule/console.pp)
-* [rsyslog::rule::drop](https://github.com/simp/pupmod-simp-rsyslog/tree/manifests/rule/drop.pp)
-* [rsyslog::rule::local](https://github.com/simp/pupmod-simp-rsyslog/tree/manifests/rule/local.pp)
-* [rsyslog::rule::other](https://github.com/simp/pupmod-simp-rsyslog/tree/manifests/rule/other.pp)
-* [rsyslog::rule::remote](https://github.com/simp/pupmod-simp-rsyslog/tree/manifests/rule/remote.pp)
-* [rsyslog::template::list](https://github.com/simp/pupmod-simp-rsyslog/tree/manifests/template/list.pp)
-* [rsyslog::template::plugin](https://github.com/simp/pupmod-simp-rsyslog/tree/manifests/template/plugin.pp)
-* [rsyslog::template::string](https://github.com/simp/pupmod-simp-rsyslog/tree/manifests/template/string.pp)
-* [rsyslog::template::subtree](https://github.com/simp/pupmod-simp-rsyslog/tree/manifests/template/subtree.pp)
+The full module reference can be found in the
+[module docs](https://simp.github.io/pupmod-simp-rsyslog) and in the local
+`docs/` directory.
 
 ## Limitations
 
@@ -313,12 +284,10 @@ strategy for failover as it may cause undesirable results such as lost logs.
 
 ## Development
 
-Please see the
-[SIMP Contribution
-Guidelines](https://simp-project.atlassian.net/wiki/display/SD/Contributing+to+SIMP).
+Please read our [Contribution Guide](http://simp.readthedocs.io/en/master/contributors_guide/index.html)
+and visit our [Developer Wiki](https://simp-project.atlassian.net/wiki/display/SD/SIMP+Development+Home)
 
-General developer documentation can be found on
-[Confluence](https://simp-project.atlassian.net/wiki/display/SD/SIMP+Development+Home).
-Visit the project homepage on [GitHub](https://simp-project.com),
-chat with us on our [HipChat](https://simp-project.hipchat.com/),
-and look at our issues on  [JIRA](https://simp-project.atlassian.net/).
+If you find any issues, they can be submitted to our
+[JIRA](https://simp-project.atlassian.net).
+
+[System Integrity Management Platform](https://simp-project.com)

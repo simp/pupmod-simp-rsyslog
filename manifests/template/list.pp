@@ -21,7 +21,7 @@
 #     property(name="msg")
 #   }
 #
-# @param name
+# @param name [String]
 #   The literal name (not path) of the ``file`` that will be written
 #
 # @param content
@@ -35,7 +35,7 @@ define rsyslog::template::list (
   $_content = join(map($content) |$key, $value| { "${key}(${value})" }, "\n  ")
 
   rsyslog::rule { "05_simp_templates/${_safe_name}.conf":
-    # lint:ignore:double_quoted_strings lint:ignore:only_variable_string
+    # lint:ignore:variables_not_enclosed
     content => @("EOM")
       template(name="${name}" type="list") {
         $_content

@@ -141,9 +141,11 @@ class rsyslog (
   contain '::rsyslog::config'
   contain '::rsyslog::service'
 
+  # lint:ignore:arrow_on_right_operand_line
   Class['rsyslog::install'] ->
   Class['rsyslog::config'] ~>
   Class['rsyslog::service']
+  # lint:endignore
 
   if $logrotate {
     contain '::rsyslog::config::logrotate'

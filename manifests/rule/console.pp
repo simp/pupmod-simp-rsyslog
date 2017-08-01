@@ -15,7 +15,7 @@
 #     users => ['*']
 #   }
 #
-# @param name [Stdlib::Absolutepath]
+# @param name [String]
 #   The filename that you will be dropping into place
 #
 # @param rule
