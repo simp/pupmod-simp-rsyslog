@@ -15,7 +15,7 @@
 #   set $!usr!tp12!dataflow = field($msg, 58, 2);
 #   template(name="example" type="subtree" subtree="$!usr!tp12")
 #
-# @attr name
+# @param name [String]
 #   The literal name of the ``file`` (not a path) that will be used
 #
 # @param subtree

@@ -21,7 +21,7 @@
 #     property(name="msg")
 #   }
 #
-# @attr name
+# @param name [String]
 #   The literal name (not path) of the ``file`` that will be written
 #
 # @param content

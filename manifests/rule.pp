@@ -25,7 +25,7 @@
 #     rule =>  "if prifilt('*.info') then stop"
 #   }
 #
-# @attr name [Pattern['^[^/]\S+/\S+\.conf$']]
+# @param name [Pattern['^[^/]\S+/\S+\.conf$']]
 #   The filename that you will be dropping into place
 #
 #   * **WARNING:** This must **NOT** be an absolute path!

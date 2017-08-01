@@ -1,15 +1,15 @@
 # A list of the parameters and their default values for RSyslog.
 #
-# service_name [String]
+# @param service_name [String]
 #   The name of the rsyslog service
 #
-# package_name [String]
+# @param package_name [String]
 #   The name of the rsyslog package
 #
-# tls_package_name [String]
+# @param tls_package_name [String]
 #   The name of the rsyslog package providing GNUTLS support
 #
-# read_journald [Boolean]
+# @param read_journald [Boolean]
 #   Tie in the reading of ``journald`` if available
 #
 # @author Trevor Vaughan <tvaughan@onyxpoint.com>

@@ -33,7 +33,7 @@
 #     log_servers => ['1.2.3.4']
 #   }
 #
-# @attr name
+# @param name [String]
 #   The filename that you will be dropping into place
 #
 # @param rule

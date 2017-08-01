@@ -12,7 +12,7 @@
 #
 #   template(name="example_plugin" type="plugin" plugin="my_plugin")
 #
-# @attr name
+# @param name [String]
 #   The literal name of the ``file`` (not the full path) that will be used
 #
 # @param plugin
