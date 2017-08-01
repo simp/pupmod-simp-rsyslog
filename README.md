@@ -176,8 +176,6 @@ would put ``prifilt('kern.err')`` in your ``rule`` paramter.
 This does **not** hold for a call to ``rsyslog::rule`` since that is the
 generic processor for all rules.
 
-See the documentation in the module [Docs Folder](doc/index.html) for details.
-
 ```puppet
 class my_rsyslog_client {
   class {'rsyslog':
