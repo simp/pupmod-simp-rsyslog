@@ -12,6 +12,9 @@ sudo: false
 cache: bundler
 before_script:
   - bundle update
+  - rm Gemfile.lock || true
+  - rvm @global do gem uninstall bundler -a -x
+  - rvm @global do gem install bundler -v '~> 1.14.0'
 bundler_args: --without development system_tests --path .vendor
 before_install: rm Gemfile.lock || true
 script:
