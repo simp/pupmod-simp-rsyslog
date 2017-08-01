@@ -55,7 +55,7 @@
 #   The template that should be used to format the content
 #
 # @param dest
-#   If filled, logs matchin ``$rule`` will be sent to **all hosts** in this Array.
+#   If filled, logs matching ``$rule`` will be sent to **all hosts** in this Array.
 #
 #   * **WARNING:** If using this, do **NOT** add a destination to your ``rule``
 #
