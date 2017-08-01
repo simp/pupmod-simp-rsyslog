@@ -6,7 +6,7 @@
 <title>
   File: README
   
-    &mdash; Documentation by YARD 0.9.5
+    &mdash; Documentation by YARD 0.9.9
   
 </title>
 
@@ -28,7 +28,7 @@
   </head>
   <body>
     <div class="nav_wrap">
-      <iframe id="nav" src="puppet_class_list.html"></iframe>
+      <iframe id="nav" src="puppet_class_list.html?1"></iframe>
       <div id="resizer"></div>
     </div>
 
@@ -56,8 +56,6 @@
 </div>
         <div class="clear"></div>
       </div>
-
-      <iframe id="search_frame" src="puppet_class_list.html"></iframe>
 
       <div id="content"><div id='filecontents'>
 <h1 id="label-pupmod-simp-rsyslog">pupmod-simp-rsyslog</h1>
@@ -244,6 +242,21 @@ failover_log_servers:
 
 <h3 id="label-I+want+to+send+everything+to+rsyslog+from+a+client">I want to send everything to rsyslog from a client</h3>
 
+<p><strong>NOTE</strong>: Everything must be in the form that would be in the
+middle of an <code>if/then</code> Rainerscript Expression.</p>
+
+<p>For example, if you wanted to filter on the standard priority
+<code>kern.err</code>, you would put
+<code>prifilt(&#39;kern.err&#39;)</code> in your <code>rule</code>
+paramter.</p>
+
+<p>This does <strong>not</strong> hold for a call to
+<code>rsyslog::rule</code> since that is the generic processor for all
+rules.</p>
+
+<p>See the documentation in the module <a href="doc/index.html">Docs
+Folder</a> for details.</p>
+
 <pre class="code ruby"><code class="ruby">class my_rsyslog_client {
   class {&#39;rsyslog&#39;:
     log_server_list      =&gt; [&#39;first.log.server&#39;,&#39;second.log.server&#39;],
@@ -251,7 +264,7 @@ failover_log_servers:
   }
 
   rsyslog::rule::remote { &#39;send_the_logs&#39;:
-    rule =&gt; &#39;*.*&#39;
+    rule =&gt; &#39;prifilt(\&#39;*.*\&#39;)&#39;
   }
 }
 </code></pre>
@@ -264,7 +277,7 @@ failover_log_servers:
     failover_log_servers =&gt; [&#39;first.log.server&#39;,&#39;second.log.server&#39;],
     enable_tls_logging   =&gt; false,
     enable_logging       =&gt; false,
-    enable_pki           =&gt; false,
+    pki                  =&gt; false,
   }
 </code></pre>
 
@@ -322,7 +335,7 @@ along.</p>
 
 rsyslog::rule::remote { &#39;upstream&#39;:
   # Send Everything
-  rule     =&gt; &#39;*.*&#39;,
+  rule     =&gt; &#39;prifilt(\&#39;*.*\&#39;)&#39;,
   # Use the &#39;upstream&#39; template defined above
   template =&gt; &#39;upstream&#39;,
   # The Upstream Destination Server
@@ -401,9 +414,9 @@ issues on <a href="https://simp-project.atlassian.net/">JIRA</a>.</p>
 </div></div>
 
       <div id="footer">
-  Generated on Fri Dec 16 12:55:44 2016 by
+  Generated on Tue Aug  1 16:10:54 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.5 (ruby-2.1.10).
+  0.9.9 (ruby-2.1.9).
 </div>
 
     </div>

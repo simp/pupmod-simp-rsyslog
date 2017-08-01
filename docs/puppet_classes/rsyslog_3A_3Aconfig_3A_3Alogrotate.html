@@ -6,7 +6,7 @@
 <title>
   Puppet Class: rsyslog::config::logrotate
   
-    &mdash; Documentation by YARD 0.9.5
+    &mdash; Documentation by YARD 0.9.9
   
 </title>
 
@@ -28,7 +28,7 @@
   </head>
   <body>
     <div class="nav_wrap">
-      <iframe id="nav" src="../puppet_class_list.html"></iframe>
+      <iframe id="nav" src="../puppet_class_list.html?1"></iframe>
       <div id="resizer"></div>
     </div>
 
@@ -59,8 +59,6 @@
         <div class="clear"></div>
       </div>
 
-      <iframe id="search_frame" src="../puppet_class_list.html"></iframe>
-
       <div id="content"><h1>Puppet Class: rsyslog::config::logrotate</h1>
 <div class="box_info">
   
@@ -72,6 +70,7 @@
     </dd>
   </dl>
 </div>
+
 <h2>Overview</h2>
 <div class="docstring">
   <div class="discussion">
@@ -114,10 +113,10 @@ managed on the system by this module.</p>
         <span class='name'>rotate_preserve</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;7&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>7</tt>)</em>
       
       
         &mdash;
@@ -132,7 +131,7 @@ managed on the system by this module.</p>
         <span class='name'>rotate_size</span>
       
       
-        <span class='type'>(<tt>Optional[Stdlib::Compat::Integer]</tt>)</span>
+        <span class='type'>(<tt>Optional[Integer[0]]</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>undef</tt>)</em>
@@ -185,32 +184,22 @@ managed on the system by this module.</p>
 43
 44
 45
-46
-47
-48
-49
-50
-51</pre>
+46</pre>
       </td>
       <td>
         <pre class="code"><span class="info file"># File 'manifests/config/logrotate.pp', line 19</span>
 
 class rsyslog::config::logrotate (
   Enum[&#39;daily&#39;,&#39;weekly&#39;,&#39;monthly&#39;,&#39;yearly&#39;] $rotate_period   = &#39;daily&#39;,
-  Stdlib::Compat::Integer                   $rotate_preserve = &#39;7&#39;,
-  Optional[Stdlib::Compat::Integer]         $rotate_size     = undef
+  Integer[0]                                $rotate_preserve = 7,
+  Optional[Integer[0]]                      $rotate_size     = undef
 ){
   assert_private()
 
   include &#39;::logrotate&#39;
 
-  $_restartcmd = &#39;systemd&#39; in $facts[&#39;init_systems&#39;] ? {
-    true    =&gt; &#39;/usr/sbin/systemctl restart rsyslog&#39;,
-    default =&gt; &#39;/usr/sbin/service rsyslog restart&#39;
-  }
-
-  logrotate::add { &#39;syslog&#39;:
-    log_files     =&gt; [
+  logrotate::rule { &#39;syslog&#39;:
+    log_files                 =&gt; [
       &#39;/var/log/boot.log&#39;,
       &#39;/var/log/cron&#39;,
       &#39;/var/log/iptables.log&#39;,
@@ -221,11 +210,11 @@ class rsyslog::config::logrotate (
       &#39;/var/log/slapd*.log&#39;,
       &#39;/var/log/spooler&#39;
     ],
-    size          =&gt; $rotate_size,
-    rotate_period =&gt; $rotate_period,
-    rotate        =&gt; $rotate_preserve,
-    lastaction    =&gt; &quot;${_restartcmd} &gt; /dev/null 2&gt;&amp;1 || true&quot;,
-    missingok     =&gt; true
+    size                      =&gt; $rotate_size,
+    rotate_period             =&gt; $rotate_period,
+    rotate                    =&gt; $rotate_preserve,
+    lastaction_restart_logger =&gt; true,
+    missingok                 =&gt; true
   }
 }</pre>
       </td>
@@ -235,9 +224,9 @@ class rsyslog::config::logrotate (
 </div>
 
       <div id="footer">
-  Generated on Fri Dec 16 12:55:46 2016 by
+  Generated on Tue Aug  1 16:10:56 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.5 (ruby-2.1.10).
+  0.9.9 (ruby-2.1.9).
 </div>
 
     </div>

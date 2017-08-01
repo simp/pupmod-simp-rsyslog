@@ -6,7 +6,7 @@
 <title>
   Defined Type: rsyslog::rule::remote
   
-    &mdash; Documentation by YARD 0.9.5
+    &mdash; Documentation by YARD 0.9.9
   
 </title>
 
@@ -28,7 +28,7 @@
   </head>
   <body>
     <div class="nav_wrap">
-      <iframe id="nav" src="../puppet_defined_type_list.html"></iframe>
+      <iframe id="nav" src="../puppet_defined_type_list.html?1"></iframe>
       <div id="resizer"></div>
     </div>
 
@@ -59,8 +59,6 @@
         <div class="clear"></div>
       </div>
 
-      <iframe id="search_frame" src="../puppet_defined_type_list.html"></iframe>
-
       <div id="content"><h1>Defined Type: rsyslog::rule::remote</h1>
 <div class="box_info">
   <dl>
@@ -70,6 +68,7 @@
     </dd>
   </dl>
 </div>
+
 <h2>Overview</h2>
 <div class="docstring">
   <div class="discussion">
@@ -90,6 +89,11 @@
 </li><li>
 <p>Local Rules</p>
 </li></ul>
+
+<p>If you wish to use TLS for forward RSyslog messages, you
+<strong>MUST</strong> configure it via <code>rsyslog::config</code>.
+Current EL versions of RSyslog 7 do not properly support individual TLS
+settings via rulesets.</p>
 <hr>
 
 <blockquote>
@@ -105,6 +109,9 @@ destination targets.</p>
 <p><strong>WARNING</strong></p>
 </blockquote>
 <hr>
+<ul><li>
+<p>This <strong>must</strong> be set if <code>$content</code> is left empty</p>
+</li></ul>
 
   </div>
 </div>
@@ -118,8 +125,9 @@ destination targets.</p>
 <p>Send All <code>local0</code> Messages to <code>1.2.3.4</code> via TCP</p>
 </div></p>
       
-      <pre class="example code"><code>rsyslog::rule::other { &#39;send_local0_away&#39;:
-  rule =&gt;  &quot;if prifilt(&#39;local0.*&#39;) then @@1.2.3.4&quot;
+      <pre class="example code"><code>rsyslog::rule::remote { &#39;send_local0_away&#39;:
+  rule        =&gt; &quot;prifilt(&#39;local0.*&#39;)&quot;,
+  log_servers =&gt; [&#39;1.2.3.4&#39;]
 }</code></pre>
     
   </div>
@@ -131,7 +139,7 @@ destination targets.</p>
         <span class='name'>name</span>
       
       
-        <span class='type'>(<tt>Stdlib::Absolutepath</tt>)</span>
+        <span class='type'>(<tt>String</tt>)</span>
       
       
       
@@ -147,8 +155,10 @@ destination targets.</p>
         <span class='name'>rule</span>
       
       
-        <span class='type'>(<tt>String</tt>)</span>
+        <span class='type'>(<tt>Optional[String]</tt>)</span>
       
+      
+        <em class="default">(defaults to: <tt>undef</tt>)</em>
       
       
         &mdash;
@@ -157,7 +167,35 @@ destination targets.</p>
 <ul><li>
 <p>This should only be the matching part of the expression, the remaining 
 parameters take care of ensuring that the material is properly routed.</p>
+</li><li>
+<p><strong>NOTE:</strong> Do <strong>NOT</strong> include the leading
+<code>if/then</code></p>
+<ul><li>
+<p>Correct: "rule =&gt; "prifilt(&#39;<em>.</em>&#39;)"</p>
+</li><li>
+<p>Incorrect: <code>rule =&gt; &quot;if prifilt(&#39;<strong>.</strong>&#39;)
+then&quot;</code></p>
 </li></ul>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>stop_processing</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Do not forward logs to any further <code>ruleset</code>s after processing
+this <code>ruleset</code></p>
 </div>
       
     </li>
@@ -185,7 +223,7 @@ parameters take care of ensuring that the material is properly routed.</p>
         <span class='name'>dest</span>
       
       
-        <span class='type'>(<tt>Array[String]</tt>)</span>
+        <span class='type'>(<tt>Simplib::Netlist</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>[]</tt>)</em>
@@ -193,7 +231,7 @@ parameters take care of ensuring that the material is properly routed.</p>
       
         &mdash;
         <div class='inline'>
-<p>If filled, the <code>$content</code> will be sent to <strong>all
+<p>If filled, logs matching <code>$rule</code> will be sent to <strong>all
 hosts</strong> in this Array.</p>
 <ul><li>
 <p><strong>WARNING:</strong> If using this, do <strong>NOT</strong> add a
@@ -230,7 +268,7 @@ will need to craft your own ruleset and leave <code>$dest</code> empty.</p>
         <span class='name'>failover_log_servers</span>
       
       
-        <span class='type'>(<tt>Array[String]</tt>)</span>
+        <span class='type'>(<tt>Simplib::Netlist</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>[]</tt>)</em>
@@ -265,10 +303,10 @@ this <code>rule</code></p>
         <span class='name'>zip_level</span>
       
       
-        <span class='type'>(<tt>Enum['0','1','2','3','4','5','6','7','8','9']</tt>)</span>
+        <span class='type'>(<tt>Integer[0,9]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;0&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>0</tt>)</em>
       
       
     </li>
@@ -278,10 +316,10 @@ this <code>rule</code></p>
         <span class='name'>max_error_messages</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;5&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>5</tt>)</em>
       
       
     </li>
@@ -317,7 +355,7 @@ this <code>rule</code></p>
         <span class='name'>rebind_interval</span>
       
       
-        <span class='type'>(<tt>Optional[Stdlib::Compat::Integer]</tt>)</span>
+        <span class='type'>(<tt>Optional[Integer[0]]</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>undef</tt>)</em>
@@ -330,10 +368,10 @@ this <code>rule</code></p>
         <span class='name'>action_resume_interval</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;30&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>30</tt>)</em>
       
       
     </li>
@@ -343,10 +381,10 @@ this <code>rule</code></p>
         <span class='name'>action_resume_retry_count</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[-1]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;-1&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>-</tt>)</em>
       
       
     </li>
@@ -362,6 +400,16 @@ this <code>rule</code></p>
         <em class="default">(defaults to: <tt>undef</tt>)</em>
       
       
+        &mdash;
+        <div class='inline'>
+<p>This is overridden by the
+<code>rsyslog::config::default_net_stream_driver</code></p>
+<ul><li>
+<p>EL versions of Rsyslog 7 do not support this properly in rulesets but it 
+may be specified</p>
+</li></ul>
+</div>
+      
     </li>
   
     <li>
@@ -369,11 +417,21 @@ this <code>rule</code></p>
         <span class='name'>stream_driver_mode</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;1&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>1</tt>)</em>
       
+      
+        &mdash;
+        <div class='inline'>
+<p>This is overridden by the
+<code>rsyslog::config::action_send_stream_driver_mode</code></p>
+<ul><li>
+<p>EL versions of Rsyslog 7 do not support this properly in rulesets but it 
+may be specified</p>
+</li></ul>
+</div>
       
     </li>
   
@@ -388,6 +446,16 @@ this <code>rule</code></p>
         <em class="default">(defaults to: <tt>&#39;x509/name&#39;</tt>)</em>
       
       
+        &mdash;
+        <div class='inline'>
+<p>This is overridden by the
+<code>rsyslog::config::action_send_stream_driver_auth_mode</code></p>
+<ul><li>
+<p>EL versions of Rsyslog 7 partially support this in rulesets and it may 
+have some effect</p>
+</li></ul>
+</div>
+      
     </li>
   
     <li>
@@ -400,6 +468,16 @@ this <code>rule</code></p>
       
         <em class="default">(defaults to: <tt>&quot;*.${::domain}&quot;</tt>)</em>
       
+      
+        &mdash;
+        <div class='inline'>
+<p>This is overridden by the
+<code>rsyslog::config::action_send_stream_driver_permitted_peers</code></p>
+<ul><li>
+<p>EL versions of Rsyslog 7 partially support this in rulesets and it may 
+have some effect</p>
+</li></ul>
+</div>
       
     </li>
   
@@ -460,7 +538,7 @@ this <code>rule</code></p>
         <span class='name'>queue_size</span>
       
       
-        <span class='type'>(<tt>Optional[Stdlib::Compat::Integer]</tt>)</span>
+        <span class='type'>(<tt>Optional[Integer[0]]</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>undef</tt>)</em>
@@ -473,10 +551,10 @@ this <code>rule</code></p>
         <span class='name'>queue_dequeue_batch_size</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;16&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>16</tt>)</em>
       
       
     </li>
@@ -486,7 +564,7 @@ this <code>rule</code></p>
         <span class='name'>queue_max_disk_space</span>
       
       
-        <span class='type'>(<tt>Optional[Stdlib::Compat::Integer]</tt>)</span>
+        <span class='type'>(<tt>Optional[Integer[0]]</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>undef</tt>)</em>
@@ -499,7 +577,7 @@ this <code>rule</code></p>
         <span class='name'>queue_high_watermark</span>
       
       
-        <span class='type'>(<tt>Optional[Stdlib::Compat::Integer]</tt>)</span>
+        <span class='type'>(<tt>Optional[Integer[0]]</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>undef</tt>)</em>
@@ -512,10 +590,10 @@ this <code>rule</code></p>
         <span class='name'>queue_low_watermark</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;2000&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>2000</tt>)</em>
       
       
     </li>
@@ -525,7 +603,7 @@ this <code>rule</code></p>
         <span class='name'>queue_full_delay_mark</span>
       
       
-        <span class='type'>(<tt>Optional[Stdlib::Compat::Integer]</tt>)</span>
+        <span class='type'>(<tt>Optional[Integer[0]]</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>undef</tt>)</em>
@@ -538,7 +616,7 @@ this <code>rule</code></p>
         <span class='name'>queue_light_delay_mark</span>
       
       
-        <span class='type'>(<tt>Optional[Stdlib::Compat::Integer]</tt>)</span>
+        <span class='type'>(<tt>Optional[Integer[0]]</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>undef</tt>)</em>
@@ -551,10 +629,10 @@ this <code>rule</code></p>
         <span class='name'>queue_discard_mark</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;9750&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>9750</tt>)</em>
       
       
     </li>
@@ -564,10 +642,10 @@ this <code>rule</code></p>
         <span class='name'>queue_discard_severity</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;8&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>8</tt>)</em>
       
       
     </li>
@@ -577,7 +655,7 @@ this <code>rule</code></p>
         <span class='name'>queue_checkpoint_interval</span>
       
       
-        <span class='type'>(<tt>Optional[Stdlib::Compat::Integer]</tt>)</span>
+        <span class='type'>(<tt>Optional[Integer[0]]</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>undef</tt>)</em>
@@ -616,10 +694,10 @@ this <code>rule</code></p>
         <span class='name'>queue_worker_threads</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;1&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>1</tt>)</em>
       
       
     </li>
@@ -629,10 +707,10 @@ this <code>rule</code></p>
         <span class='name'>queue_timeout_shutdown</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;0&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>0</tt>)</em>
       
       
     </li>
@@ -642,10 +720,10 @@ this <code>rule</code></p>
         <span class='name'>queue_timeout_action_completion</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;1000&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>1000</tt>)</em>
       
       
     </li>
@@ -655,10 +733,10 @@ this <code>rule</code></p>
         <span class='name'>queue_timeout_enqueue</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;2000&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>2000</tt>)</em>
       
       
     </li>
@@ -668,10 +746,10 @@ this <code>rule</code></p>
         <span class='name'>queue_timeout_worker_thread_shutdown</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;60000&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>60000</tt>)</em>
       
       
     </li>
@@ -681,10 +759,10 @@ this <code>rule</code></p>
         <span class='name'>queue_worker_thread_minimum_messages</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;100&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>100</tt>)</em>
       
       
     </li>
@@ -720,10 +798,10 @@ this <code>rule</code></p>
         <span class='name'>queue_dequeue_slowdown</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;0&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>0</tt>)</em>
       
       
     </li>
@@ -733,7 +811,7 @@ this <code>rule</code></p>
         <span class='name'>queue_dequeue_time_begin</span>
       
       
-        <span class='type'>(<tt>Optional[Stdlib::Compat::Integer]</tt>)</span>
+        <span class='type'>(<tt>Optional[Integer[0]]</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>undef</tt>)</em>
@@ -746,7 +824,7 @@ this <code>rule</code></p>
         <span class='name'>queue_dequeue_time_end</span>
       
       
-        <span class='type'>(<tt>Optional[Stdlib::Compat::Integer]</tt>)</span>
+        <span class='type'>(<tt>Optional[Integer[0]]</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>undef</tt>)</em>
@@ -756,14 +834,24 @@ this <code>rule</code></p>
   
     <li>
       
-        <span class='name'>stop_processing</span>
+        <span class='name'>content</span>
       
       
-        <span class='type'>(<tt>Boolean</tt>)</span>
+        <span class='type'>(<tt>Optional[String]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>false</tt>)</em>
+        <em class="default">(defaults to: <tt>undef</tt>)</em>
       
+      
+        &mdash;
+        <div class='inline'>
+<p>the *<em>entire</em> content of the rsyslog::rule</p>
+<ul><li>
+<p>If you do not specify this, <code>$rule</code> is a required variable</p>
+</li><li>
+<p>If you do specify this, <code>$rule</code> will be ignored</p>
+</li></ul>
+</div>
       
     </li>
   
@@ -788,48 +876,6 @@ this <code>rule</code></p>
         <pre class="lines">
 
 
-106
-107
-108
-109
-110
-111
-112
-113
-114
-115
-116
-117
-118
-119
-120
-121
-122
-123
-124
-125
-126
-127
-128
-129
-130
-131
-132
-133
-134
-135
-136
-137
-138
-139
-140
-141
-142
-143
-144
-145
-146
-147
 148
 149
 150
@@ -875,97 +921,145 @@ this <code>rule</code></p>
 190
 191
 192
-193</pre>
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238</pre>
       </td>
       <td>
-        <pre class="code"><span class="info file"># File 'manifests/rule/remote.pp', line 106</span>
+        <pre class="code"><span class="info file"># File 'manifests/rule/remote.pp', line 148</span>
 
 define rsyslog::rule::remote (
-  String $rule,
-  Boolean                                         $stop_processing                      = false,
-  Optional[String]                                $template                             = undef,
-  Array[String]                                   $dest                                 = [],
-  Enum[&#39;tcp&#39;,&#39;udp&#39;,&#39;relp&#39;]                        $dest_type                            = &#39;tcp&#39;,
-  Array[String]                                   $failover_log_servers                 = [],
-  Enum[&#39;traditional&#39;,&#39;octet-counted&#39;]             $tcp_framing                          = &#39;traditional&#39;,
-  Enum[&#39;0&#39;,&#39;1&#39;,&#39;2&#39;,&#39;3&#39;,&#39;4&#39;,&#39;5&#39;,&#39;6&#39;,&#39;7&#39;,&#39;8&#39;,&#39;9&#39;]   $zip_level                            = &#39;0&#39;,
-  Stdlib::Compat::Integer                         $max_error_messages                   = &#39;5&#39;,
-  Enum[&#39;none&#39;,&#39;single&#39;,&#39;stream:always&#39;]           $compression_mode                     = &#39;none&#39;,
-  Boolean                                         $compression_stream_flush_on_tx_end   = true,
-  Optional[Stdlib::Compat::Integer]               $rebind_interval                      = undef,
-  Stdlib::Compat::Integer                         $action_resume_interval               = &#39;30&#39;,
-  Stdlib::Compat::Integer                         $action_resume_retry_count            = &#39;-1&#39;,
-  Optional[String]                                $stream_driver                        = undef,
-  Stdlib::Compat::Integer                         $stream_driver_mode                   = &#39;1&#39;,
-  String                                          $stream_driver_auth_mode              = &#39;x509/name&#39;,
-  String                                          $stream_driver_permitted_peers        = &quot;*.${::domain}&quot;,
-  Boolean                                         $resend_last_msg_on_reconnect         = true,
-  Boolean                                         $udp_send_to_all                      = false,
-  Optional[String]                                $queue_filename                       = undef,
-  Optional[Stdlib::Absolutepath]                  $queue_spool_directory                = undef,
-  Optional[Stdlib::Compat::Integer]               $queue_size                           = undef,
-  Stdlib::Compat::Integer                         $queue_dequeue_batch_size             = &#39;16&#39;,
-  Optional[Stdlib::Compat::Integer]               $queue_max_disk_space                 = undef,
-  Optional[Stdlib::Compat::Integer]               $queue_high_watermark                 = undef,
-  Stdlib::Compat::Integer                         $queue_low_watermark                  = &#39;2000&#39;,
-  Optional[Stdlib::Compat::Integer]               $queue_full_delay_mark                = undef,
-  Optional[Stdlib::Compat::Integer]               $queue_light_delay_mark               = undef,
-  Stdlib::Compat::Integer                         $queue_discard_mark                   = &#39;9750&#39;,
-  Stdlib::Compat::Integer                         $queue_discard_severity               = &#39;8&#39;,
-  Optional[Stdlib::Compat::Integer]               $queue_checkpoint_interval            = undef,
-  Boolean                                         $queue_sync_queue_files               = false,
-  Enum[&#39;LinkedList&#39;,&#39;FixedArray&#39;,&#39;Direct&#39;,&#39;Disk&#39;] $queue_type                           = &#39;LinkedList&#39;,
-  Stdlib::Compat::Integer                         $queue_worker_threads                 = &#39;1&#39;,
-  Stdlib::Compat::Integer                         $queue_timeout_shutdown               = &#39;0&#39;,
-  Stdlib::Compat::Integer                         $queue_timeout_action_completion      = &#39;1000&#39;,
-  Stdlib::Compat::Integer                         $queue_timeout_enqueue                = &#39;2000&#39;,
-  Stdlib::Compat::Integer                         $queue_timeout_worker_thread_shutdown = &#39;60000&#39;,
-  Stdlib::Compat::Integer                         $queue_worker_thread_minimum_messages = &#39;100&#39;,
-  String                                          $queue_max_file_size                  = &#39;1m&#39;,
-  Boolean                                         $queue_save_on_shutdown               = true,
-  Stdlib::Compat::Integer                         $queue_dequeue_slowdown               = &#39;0&#39;,
-  Optional[Stdlib::Compat::Integer]               $queue_dequeue_time_begin             = undef,
-  Optional[Stdlib::Compat::Integer]               $queue_dequeue_time_end               = undef
+  Optional[String]                                 $rule                                 = undef,
+  Boolean                                          $stop_processing                      = false,
+  Optional[String]                                 $template                             = undef,
+  Simplib::Netlist                                 $dest                                 = [],
+  Enum[&#39;tcp&#39;,&#39;udp&#39;,&#39;relp&#39;]                         $dest_type                            = &#39;tcp&#39;,
+  Simplib::Netlist                                 $failover_log_servers                 = [],
+  Enum[&#39;traditional&#39;,&#39;octet-counted&#39;]              $tcp_framing                          = &#39;traditional&#39;,
+  Integer[0,9]                                     $zip_level                            = 0,
+  Integer[0]                                       $max_error_messages                   = 5,
+  Enum[&#39;none&#39;,&#39;single&#39;,&#39;stream:always&#39;]            $compression_mode                     = &#39;none&#39;,
+  Boolean                                          $compression_stream_flush_on_tx_end   = true,
+  Optional[Integer[0]]                             $rebind_interval                      = undef,
+  Integer[0]                                       $action_resume_interval               = 30,
+  Integer[-1]                                      $action_resume_retry_count            = -1,
+  Optional[String]                                 $stream_driver                        = undef,
+  Integer[0]                                       $stream_driver_mode                   = 1,
+  String                                           $stream_driver_auth_mode              = &#39;x509/name&#39;,
+  String                                           $stream_driver_permitted_peers        = &quot;*.${::domain}&quot;,
+  Boolean                                          $resend_last_msg_on_reconnect         = true,
+  Boolean                                          $udp_send_to_all                      = false,
+  Optional[String]                                 $queue_filename                       = undef,
+  Optional[Stdlib::Absolutepath]                   $queue_spool_directory                = undef,
+  Optional[Integer[0]]                             $queue_size                           = undef,
+  Integer[0]                                       $queue_dequeue_batch_size             = 16,
+  Optional[Integer[0]]                             $queue_max_disk_space                 = undef,
+  Optional[Integer[0]]                             $queue_high_watermark                 = undef,
+  Integer[0]                                       $queue_low_watermark                  = 2000,
+  Optional[Integer[0]]                             $queue_full_delay_mark                = undef,
+  Optional[Integer[0]]                             $queue_light_delay_mark               = undef,
+  Integer[0]                                       $queue_discard_mark                   = 9750,
+  Integer[0]                                       $queue_discard_severity               = 8,
+  Optional[Integer[0]]                             $queue_checkpoint_interval            = undef,
+  Boolean                                          $queue_sync_queue_files               = false,
+  Enum[&#39;LinkedList&#39;,&#39;FixedArray&#39;,&#39;Direct&#39;,&#39;Disk&#39;]  $queue_type                           = &#39;LinkedList&#39;,
+  Integer[0]                                       $queue_worker_threads                 = 1,
+  Integer[0]                                       $queue_timeout_shutdown               = 0,
+  Integer[0]                                       $queue_timeout_action_completion      = 1000,
+  Integer[0]                                       $queue_timeout_enqueue                = 2000,
+  Integer[0]                                       $queue_timeout_worker_thread_shutdown = 60000,
+  Integer[0]                                       $queue_worker_thread_minimum_messages = 100,
+  String                                           $queue_max_file_size                  = &#39;1m&#39;,
+  Boolean                                          $queue_save_on_shutdown               = true,
+  Integer[0]                                       $queue_dequeue_slowdown               = 0,
+  Optional[Integer[0]]                             $queue_dequeue_time_begin             = undef,
+  Optional[Integer[0]]                             $queue_dequeue_time_end               = undef,
+  Optional[String]                                 $content                              = undef
 ) {
   include &#39;::rsyslog&#39;
 
-  if empty($dest) {
-    $_dest = $::rsyslog::log_servers
-  }
-  else {
-    $_dest = $dest
-  }
-
-  validate_array($_dest)
-  if empty($_dest) { fail(&#39;Error: you must pass a destination array for $dest&#39;) }
-  validate_net_list($_dest)
-
-  $_queue_filename = empty($queue_filename) ? {
-    true    =&gt; &quot;${name}_disk_queue&quot;,
-    default =&gt; $queue_filename
-  }
-  $_queue_spool_directory = empty($queue_spool_directory) ? {
-    true    =&gt; $::rsyslog::queue_spool_directory,
-    default =&gt; $queue_spool_directory
-  }
-  $_use_tls = $::rsyslog::enable_tls_logging
-
-  if empty($failover_log_servers) {
-    $_failover_servers = $::rsyslog::failover_log_servers
-  }
-  else {
-    $_failover_servers = $failover_log_servers
-  }
-
-  if !empty($_failover_servers) {
-    validate_array($_failover_servers)
-    validate_net_list($_failover_servers)
-  }
-
   $_safe_name = regsubst($name,&#39;/&#39;,&#39;__&#39;)
 
+  unless ($rule or $content) {
+    fail(&#39;You must specify &quot;$rule&quot; if you are not specifying &quot;$content&quot;&#39;)
+  }
+
+  if $content {
+    $_content = $content
+  }
+  else {
+    if empty($dest) {
+      $_dest = $::rsyslog::log_servers
+    }
+    else {
+      $_dest = $dest
+    }
+
+    if empty($_dest) { fail(&#39;You must pass a destination array for $dest&#39;) }
+
+    if $queue_spool_directory {
+      $_queue_spool_directory = $queue_spool_directory
+    }
+    else {
+      $_queue_spool_directory = $::rsyslog::queue_spool_directory
+    }
+
+    $_use_tls = ( $::rsyslog::enable_tls_logging and $dest_type != &#39;udp&#39; )
+
+    if empty($failover_log_servers) {
+      $_failover_servers = $::rsyslog::failover_log_servers
+    }
+    else {
+      $_failover_servers = $failover_log_servers
+    }
+    $_content = template(&quot;${module_name}/rule/remote.erb&quot;)
+  }
+
   rsyslog::rule { &quot;10_simp_remote/${_safe_name}.conf&quot;:
-    content =&gt; template(&quot;${module_name}/rule/remote.erb&quot;)
+    content =&gt; $_content
   }
 }</pre>
       </td>
@@ -975,9 +1069,9 @@ define rsyslog::rule::remote (
 </div>
 
       <div id="footer">
-  Generated on Fri Dec 16 12:55:46 2016 by
+  Generated on Tue Aug  1 16:10:57 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.5 (ruby-2.1.10).
+  0.9.9 (ruby-2.1.9).
 </div>
 
     </div>

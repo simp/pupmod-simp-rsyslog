@@ -6,7 +6,7 @@
 <title>
   Defined Type: rsyslog::rule::drop
   
-    &mdash; Documentation by YARD 0.9.5
+    &mdash; Documentation by YARD 0.9.9
   
 </title>
 
@@ -28,7 +28,7 @@
   </head>
   <body>
     <div class="nav_wrap">
-      <iframe id="nav" src="../puppet_defined_type_list.html"></iframe>
+      <iframe id="nav" src="../puppet_defined_type_list.html?1"></iframe>
       <div id="resizer"></div>
     </div>
 
@@ -59,8 +59,6 @@
         <div class="clear"></div>
       </div>
 
-      <iframe id="search_frame" src="../puppet_defined_type_list.html"></iframe>
-
       <div id="content"><h1>Defined Type: rsyslog::rule::drop</h1>
 <div class="box_info">
   <dl>
@@ -70,6 +68,7 @@
     </dd>
   </dl>
 </div>
+
 <h2>Overview</h2>
 <div class="docstring">
   <div class="discussion">
@@ -104,7 +103,7 @@
 </div></p>
       
       <pre class="example code"><code>rsyslog::rule::drop { &#39;drop_bad_stuff&#39;:
-  rule =&gt; &#39;if re_match($msg, &#39;^.*bad_stuff.*$&#39;)&#39;
+  rule =&gt; &#39;re_match($msg, &#39;^.*bad_stuff.*$&#39;)&#39;
 }</code></pre>
     
   </div>
@@ -116,7 +115,7 @@
         <span class='name'>name</span>
       
       
-        <span class='type'>(<tt>Stdlib::Absolutepath</tt>)</span>
+        <span class='type'>(<tt>String</tt>)</span>
       
       
       
@@ -183,7 +182,7 @@ define rsyslog::rule::drop (
   $_safe_name = regsubst($name,&#39;/&#39;,&#39;__&#39;)
 
   rsyslog::rule { &quot;07_simp_drop_rules/${_safe_name}.conf&quot;:
-    content =&gt; inline_template(&#39;&lt;%= @rule.split(&quot;\n&quot;).collect{ |x| x.sub(/^\s+/,&quot;&quot;) }.join(&quot;\n&quot;) + &quot; then stop&quot; %&gt;&#39;)
+    content =&gt; inline_template(&#39;if (&lt;%= @rule.split(&quot;\n&quot;).collect{ |x| x.sub(/^\s+/,&quot;&quot;) }.join(&quot;\n&quot;) + &quot;) then stop\n&quot; %&gt;&#39;)
   }
 }</pre>
       </td>
@@ -193,9 +192,9 @@ define rsyslog::rule::drop (
 </div>
 
       <div id="footer">
-  Generated on Fri Dec 16 12:55:46 2016 by
+  Generated on Tue Aug  1 16:10:56 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.5 (ruby-2.1.10).
+  0.9.9 (ruby-2.1.9).
 </div>
 
     </div>

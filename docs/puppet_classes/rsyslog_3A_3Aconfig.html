@@ -6,7 +6,7 @@
 <title>
   Puppet Class: rsyslog::config
   
-    &mdash; Documentation by YARD 0.9.5
+    &mdash; Documentation by YARD 0.9.9
   
 </title>
 
@@ -28,7 +28,7 @@
   </head>
   <body>
     <div class="nav_wrap">
-      <iframe id="nav" src="../puppet_class_list.html"></iframe>
+      <iframe id="nav" src="../puppet_class_list.html?1"></iframe>
       <div id="resizer"></div>
     </div>
 
@@ -59,8 +59,6 @@
         <div class="clear"></div>
       </div>
 
-      <iframe id="search_frame" src="../puppet_class_list.html"></iframe>
-
       <div id="content"><h1>Puppet Class: rsyslog::config</h1>
 <div class="box_info">
   
@@ -72,6 +70,7 @@
     </dd>
   </dl>
 </div>
+
 <h2>Overview</h2>
 <div class="docstring">
   <div class="discussion">
@@ -301,10 +300,10 @@ of the built-in rsyslogd formats.</p>
         <span class='name'>syssock_rate_limit_interval</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;0&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>0</tt>)</em>
       
       
     </li>
@@ -314,10 +313,10 @@ of the built-in rsyslogd formats.</p>
         <span class='name'>syssock_rate_limit_burst</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;1000&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>1000</tt>)</em>
       
       
     </li>
@@ -327,10 +326,10 @@ of the built-in rsyslogd formats.</p>
         <span class='name'>syssock_rate_limit_severity</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;5&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>5</tt>)</em>
       
       
     </li>
@@ -424,23 +423,10 @@ of the built-in rsyslogd formats.</p>
   
     <li>
       
-        <span class='name'>main_msg_queue_max_file_size</span>
-      
-      
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
-      
-      
-        <em class="default">(defaults to: <tt>&#39;5&#39;</tt>)</em>
-      
-      
-    </li>
-  
-    <li>
-      
         <span class='name'>main_msg_queue_size</span>
       
       
-        <span class='type'>(<tt>Optional[Stdlib::Compat::Integer]</tt>)</span>
+        <span class='type'>(<tt>Optional[Integer[0]]</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>undef</tt>)</em>
@@ -463,7 +449,7 @@ memory queue.</p>
         <span class='name'>main_msg_queue_high_watermark</span>
       
       
-        <span class='type'>(<tt>Optional[Stdlib::Compat::Integer]</tt>)</span>
+        <span class='type'>(<tt>Optional[Integer[0]]</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>undef</tt>)</em>
@@ -485,7 +471,7 @@ number of messages</p>
         <span class='name'>main_msg_queue_low_watermark</span>
       
       
-        <span class='type'>(<tt>Optional[Stdlib::Compat::Integer]</tt>)</span>
+        <span class='type'>(<tt>Optional[Integer[0]]</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>undef</tt>)</em>
@@ -510,7 +496,7 @@ of messages</p>
         <span class='name'>main_msg_queue_discardmark</span>
       
       
-        <span class='type'>(<tt>Optional[Stdlib::Compat::Integer]</tt>)</span>
+        <span class='type'>(<tt>Optional[Integer[0]]</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>undef</tt>)</em>
@@ -531,7 +517,7 @@ of messages</p>
         <span class='name'>main_msg_queue_worker_thread_minimum_messages</span>
       
       
-        <span class='type'>(<tt>Optional[Stdlib::Compat::Integer]</tt>)</span>
+        <span class='type'>(<tt>Optional[Integer[0]]</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>undef</tt>)</em>
@@ -555,7 +541,7 @@ following formula: <code>$main_msg_queue_size/(($processorcount -
         <span class='name'>main_msg_queue_worker_threads</span>
       
       
-        <span class='type'>(<tt>Optional[Stdlib::Compat::Integer]</tt>)</span>
+        <span class='type'>(<tt>Optional[Integer[0]]</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>undef</tt>)</em>
@@ -576,10 +562,10 @@ following formula: <code>$main_msg_queue_size/(($processorcount -
         <span class='name'>main_msg_queue_worker_timeout_thread_shutdown</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;5000&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>5000</tt>)</em>
       
       
     </li>
@@ -589,10 +575,10 @@ following formula: <code>$main_msg_queue_size/(($processorcount -
         <span class='name'>main_msg_queue_timeout_enqueue</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;100&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>100</tt>)</em>
       
       
     </li>
@@ -602,10 +588,10 @@ following formula: <code>$main_msg_queue_size/(($processorcount -
         <span class='name'>main_msg_queue_dequeue_slowdown</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;0&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>0</tt>)</em>
       
       
     </li>
@@ -628,7 +614,7 @@ following formula: <code>$main_msg_queue_size/(($processorcount -
         <span class='name'>main_msg_queue_max_disk_space</span>
       
       
-        <span class='type'>(<tt>Optional[Stdlib::Compat::Integer]</tt>)</span>
+        <span class='type'>(<tt>Optional[Integer[0]]</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>undef</tt>)</em>
@@ -664,10 +650,10 @@ following formula: <code>$main_msg_queue_size/(($processorcount -
         <span class='name'>main_msg_queue_max_file_size</span>
       
       
-        <span class='type'></span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;5&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>5</tt>)</em>
       
       
         &mdash;
@@ -712,10 +698,10 @@ to disk.</p>
         <span class='name'>interval</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;0&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>0</tt>)</em>
       
       
         &mdash;
@@ -730,10 +716,10 @@ to disk.</p>
         <span class='name'>tls_tcp_max_sessions</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Integer[0]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;200&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>200</tt>)</em>
       
       
         &mdash;
@@ -764,13 +750,26 @@ to the server over <code>TLS</code></p>
   
     <li>
       
+        <span class='name'>default_net_stream_driver</span>
+      
+      
+        <span class='type'>(<tt>Enum['gtls','ptcp']</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&#39;gtls&#39;</tt>)</em>
+      
+      
+    </li>
+  
+    <li>
+      
         <span class='name'>default_net_stream_driver_ca_file</span>
       
       
         <span class='type'>(<tt>Stdlib::Absolutepath</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&quot;${::rsyslog::pki_base_dir}/pki/cacerts/cacerts.pem&quot;</tt>)</em>
+        <em class="default">(defaults to: <tt>&quot;${::rsyslog::app_pki_dir}/cacerts/cacerts.pem&quot;</tt>)</em>
       
       
     </li>
@@ -783,7 +782,7 @@ to the server over <code>TLS</code></p>
         <span class='type'>(<tt>Stdlib::Absolutepath</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&quot;${::rsyslog::pki_base_dir}/pki/public/${::fqdn}.pub&quot;</tt>)</em>
+        <em class="default">(defaults to: <tt>&quot;${::rsyslog::app_pki_dir}/public/${::fqdn}.pub&quot;</tt>)</em>
       
       
     </li>
@@ -796,7 +795,7 @@ to the server over <code>TLS</code></p>
         <span class='type'>(<tt>Stdlib::Absolutepath</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&quot;${::rsyslog::pki_base_dir}/pki/private/${::fqdn}.pem&quot;</tt>)</em>
+        <em class="default">(defaults to: <tt>&quot;${::rsyslog::app_pki_dir}/private/${::fqdn}.pem&quot;</tt>)</em>
       
       
     </li>
@@ -809,7 +808,7 @@ to the server over <code>TLS</code></p>
         <span class='type'>(<tt>Enum['1','0']</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>$::rsyslog::enable_pki</tt>)</em>
+        <em class="default">(defaults to: <tt>(</tt>)</em>
       
       
     </li>
@@ -845,7 +844,7 @@ to the server over <code>TLS</code></p>
         <span class='name'>ulimit_max_open_files</span>
       
       
-        <span class='type'>(<tt>Variant[Enum['unlimited'],Stdlib::Compat::Integer]</tt>)</span>
+        <span class='type'>(<tt>Variant[Enum['unlimited'],Integer[0]]</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>&#39;unlimited&#39;</tt>)</em>
@@ -952,6 +951,25 @@ information</p>
   
     <li>
       
+        <span class='name'>enable_default_rules</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>true</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Enables default rules for logging common services (e.g., iptables, puppet,
+slapd_auditd)</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
         <span class='name'>read_journald</span>
       
       
@@ -991,19 +1009,6 @@ configuration but <strong>before</strong> the SIMP applied configurations.</p>
       
     </li>
   
-    <li>
-      
-        <span class='name'>enable_default_rules</span>
-      
-      
-        <span class='type'>(<tt>Boolean</tt>)</span>
-      
-      
-        <em class="default">(defaults to: <tt>true</tt>)</em>
-      
-      
-    </li>
-  
 </ul>
 
 
@@ -1014,9 +1019,6 @@ configuration but <strong>before</strong> the SIMP applied configurations.</p>
         <pre class="lines">
 
 
-176
-177
-178
 179
 180
 181
@@ -1196,73 +1198,86 @@ configuration but <strong>before</strong> the SIMP applied configurations.</p>
 355
 356
 357
-358</pre>
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370</pre>
       </td>
       <td>
-        <pre class="code"><span class="info file"># File 'manifests/config.pp', line 176</span>
+        <pre class="code"><span class="info file"># File 'manifests/config.pp', line 179</span>
 
 class rsyslog::config (
-  String                                             $umask                                              = &#39;0027&#39;,
-  String                                             $localhostname                                      = $facts[&#39;fqdn&#39;],
-  Boolean                                            $preserve_fqdn                                      = true,
-  String[1,1]                                        $control_character_escape_prefix                    = &#39;#&#39;,
-  Enum[&#39;off&#39;,&#39;on&#39;]                                   $drop_msgs_with_malicious_dns_ptr_records           = &#39;off&#39;,
-  Enum[&#39;off&#39;,&#39;on&#39;]                                   $escape_control_characters_on_receive               = &#39;on&#39;,
-  String                                             $default_template                                   = &#39;original&#39;,
+  String                                $umask                                              = &#39;0027&#39;,
+  String                                $localhostname                                      = $facts[&#39;fqdn&#39;],
+  Boolean                               $preserve_fqdn                                      = true,
+  String[1,1]                           $control_character_escape_prefix                    = &#39;#&#39;,
+  Enum[&#39;off&#39;,&#39;on&#39;]                      $drop_msgs_with_malicious_dns_ptr_records           = &#39;off&#39;,
+  Enum[&#39;off&#39;,&#39;on&#39;]                      $escape_control_characters_on_receive               = &#39;on&#39;,
+  String                                $default_template                                   = &#39;original&#39;,
 
-  # Parameters for imuxsock with sensible defaults.
-  Boolean                                            $syssock_ignore_timestamp                           = true,
-  Boolean                                            $syssock_ignore_own_messages                        = true,
-  Boolean                                            $syssock_use                                        = true,
-  Optional[String]                                   $syssock_name                                       = undef,
-  Boolean                                            $syssock_flow_control                               = false,
-  Boolean                                            $syssock_use_pid_from_system                        = false,
-  Stdlib::Compat::Integer                            $syssock_rate_limit_interval                        = &#39;0&#39;,
-  Stdlib::Compat::Integer                            $syssock_rate_limit_burst                           = &#39;1000&#39;,
-  Stdlib::Compat::Integer                            $syssock_rate_limit_severity                        = &#39;5&#39;,
-  Boolean                                            $syssock_use_sys_timestamp                          = true,
-  Boolean                                            $syssock_annotate                                   = false,
-  Boolean                                            $syssock_parse_trusted                              = false,
-  Boolean                                            $syssock_unlink                                     = true,
+  # Parameters for imuxsock with sensible defaults
+  Boolean                               $syssock_ignore_timestamp                           = true,
+  Boolean                               $syssock_ignore_own_messages                        = true,
+  Boolean                               $syssock_use                                        = true,
+  Optional[String]                      $syssock_name                                       = undef,
+  Boolean                               $syssock_flow_control                               = false,
+  Boolean                               $syssock_use_pid_from_system                        = false,
+  Integer[0]                            $syssock_rate_limit_interval                        = 0,
+  Integer[0]                            $syssock_rate_limit_burst                           = 1000,
+  Integer[0]                            $syssock_rate_limit_severity                        = 5,
+  Boolean                               $syssock_use_sys_timestamp                          = true,
+  Boolean                               $syssock_annotate                                   = false,
+  Boolean                               $syssock_parse_trusted                              = false,
+  Boolean                               $syssock_unlink                                     = true,
 
-  # Main message queue global defaults.
-  Enum[&#39;LinkedList&#39;,&#39;FixedArray&#39;]                    $main_msg_queue_type                                = &#39;LinkedList&#39;,
-  String                                             $main_msg_queue_filename                            = &#39;main_msg_queue&#39;,
-  Stdlib::Compat::Integer                            $main_msg_queue_max_file_size                       = &#39;5&#39;,
-  Optional[Stdlib::Compat::Integer]                  $main_msg_queue_size                                = undef,
-  Optional[Stdlib::Compat::Integer]                  $main_msg_queue_high_watermark                      = undef,
-  Optional[Stdlib::Compat::Integer]                  $main_msg_queue_low_watermark                       = undef,
-  Optional[Stdlib::Compat::Integer]                  $main_msg_queue_discardmark                         = undef,
-  Optional[Stdlib::Compat::Integer]                  $main_msg_queue_worker_thread_minimum_messages      = undef,
-  Optional[Stdlib::Compat::Integer]                  $main_msg_queue_worker_threads                      = undef,
-  Stdlib::Compat::Integer                            $main_msg_queue_worker_timeout_thread_shutdown      = &#39;5000&#39;,
-  Stdlib::Compat::Integer                            $main_msg_queue_timeout_enqueue                     = &#39;100&#39;,
-  Stdlib::Compat::Integer                            $main_msg_queue_dequeue_slowdown                    = &#39;0&#39;,
-  Enum[&#39;on&#39;,&#39;off&#39;]                                   $main_msg_queue_save_on_shutdown                    = &#39;on&#39;,
-  Optional[Stdlib::Compat::Integer]                  $main_msg_queue_max_disk_space                      = undef,
+  # Main message queue global defaults
+  Enum[&#39;LinkedList&#39;,&#39;FixedArray&#39;]       $main_msg_queue_type                                = &#39;LinkedList&#39;,
+  String                                $main_msg_queue_filename                            = &#39;main_msg_queue&#39;,
+  Integer[0]                            $main_msg_queue_max_file_size                       = 5,
+  Optional[Integer[0]]                  $main_msg_queue_size                                = undef,
+  Optional[Integer[0]]                  $main_msg_queue_high_watermark                      = undef,
+  Optional[Integer[0]]                  $main_msg_queue_low_watermark                       = undef,
+  Optional[Integer[0]]                  $main_msg_queue_discardmark                         = undef,
+  Optional[Integer[0]]                  $main_msg_queue_worker_thread_minimum_messages      = undef,
+  Optional[Integer[0]]                  $main_msg_queue_worker_threads                      = undef,
+  Integer[0]                            $main_msg_queue_worker_timeout_thread_shutdown      = 5000,
+  Integer[0]                            $main_msg_queue_timeout_enqueue                     = 100,
+  Integer[0]                            $main_msg_queue_dequeue_slowdown                    = 0,
+  Enum[&#39;on&#39;,&#39;off&#39;]                      $main_msg_queue_save_on_shutdown                    = &#39;on&#39;,
+  Optional[Integer[0]]                  $main_msg_queue_max_disk_space                      = undef,
 
-  Enum[&#39;on&#39;,&#39;off&#39;]                                   $repeated_msg_reduction                             = &#39;on&#39;,
-  Stdlib::Absolutepath                               $work_directory                                     = &#39;/var/spool/rsyslog&#39;,
-  Stdlib::Compat::Integer                            $interval                                           = &#39;0&#39;,
-  Stdlib::Compat::Integer                            $tls_tcp_max_sessions                               = &#39;200&#39;,
-  Array[String]                                      $tls_input_tcp_server_stream_driver_permitted_peers = [&quot;*.${::domain}&quot;],
+  Enum[&#39;on&#39;,&#39;off&#39;]                      $repeated_msg_reduction                             = &#39;on&#39;,
+  Stdlib::Absolutepath                  $work_directory                                     = &#39;/var/spool/rsyslog&#39;,
+  Integer[0]                            $interval                                           = 0,
+  Integer[0]                            $tls_tcp_max_sessions                               = 200,
+  Array[String]                         $tls_input_tcp_server_stream_driver_permitted_peers = [&quot;*.${::domain}&quot;],
 
-  Stdlib::Absolutepath                               $default_net_stream_driver_ca_file                  = &quot;${::rsyslog::pki_base_dir}/pki/cacerts/cacerts.pem&quot;,
-  Stdlib::Absolutepath                               $default_net_stream_driver_cert_file                = &quot;${::rsyslog::pki_base_dir}/pki/public/${::fqdn}.pub&quot;,
-  Stdlib::Absolutepath                               $default_net_stream_driver_key_file                 = &quot;${::rsyslog::pki_base_dir}/pki/private/${::fqdn}.pem&quot;,
+  Enum[&#39;gtls&#39;,&#39;ptcp&#39;]                   $default_net_stream_driver                          = &#39;gtls&#39;,
+  Stdlib::Absolutepath                  $default_net_stream_driver_ca_file                  = &quot;${::rsyslog::app_pki_dir}/cacerts/cacerts.pem&quot;,
+  Stdlib::Absolutepath                  $default_net_stream_driver_cert_file                = &quot;${::rsyslog::app_pki_dir}/public/${::fqdn}.pub&quot;,
+  Stdlib::Absolutepath                  $default_net_stream_driver_key_file                 = &quot;${::rsyslog::app_pki_dir}/private/${::fqdn}.pem&quot;,
 
-  Enum[&#39;1&#39;,&#39;0&#39;]                                      $action_send_stream_driver_mode                     = $::rsyslog::enable_pki ? { true =&gt; &#39;1&#39;, default =&gt; &#39;0&#39; },
-  Optional[String]                                   $action_send_stream_driver_auth_mode                = undef,
-  Array[String]                                      $action_send_stream_driver_permitted_peers          = $::rsyslog::log_servers,
+  Enum[&#39;1&#39;,&#39;0&#39;]                         $action_send_stream_driver_mode                     = ($::rsyslog::pki or $::rsyslog::tls_tcp_server or $::rsyslog::enable_tls_logging) ? { true =&gt; &#39;1&#39;, default =&gt; &#39;0&#39; },
+  Optional[String]                      $action_send_stream_driver_auth_mode                = undef,
+  Array[String]                         $action_send_stream_driver_permitted_peers          = $::rsyslog::log_servers,
 
-  Variant[Enum[&#39;unlimited&#39;],Stdlib::Compat::Integer] $ulimit_max_open_files                              = &#39;unlimited&#39;,
-  Array[String]                                      $host_list                                          = [],
-  Array[String]                                      $domain_list                                        = [],
-  Boolean                                            $suppress_noauth_warn                               = false,
-  Boolean                                            $disable_remote_dns                                 = false,
-  Boolean                                            $enable_default_rules                               = true,
-  Boolean                                            $read_journald                                      = $::rsyslog::read_journald,
-  Boolean                                            $include_rsyslog_d                                  = false
+  Variant[Enum[&#39;unlimited&#39;],Integer[0]] $ulimit_max_open_files                              = &#39;unlimited&#39;,
+  Array[String]                         $host_list                                          = [],
+  Array[String]                         $domain_list                                        = [],
+  Boolean                               $suppress_noauth_warn                               = false,
+  Boolean                               $disable_remote_dns                                 = false,
+  Boolean                               $enable_default_rules                               = true,
+  Boolean                               $read_journald                                      = $::rsyslog::read_journald,
+  Boolean                               $include_rsyslog_d                                  = false
 ) {
   assert_private()
 
@@ -1274,6 +1289,13 @@ class rsyslog::config (
   $_udp_listen_port = pick($::rsyslog::udp_listen_port, &#39;514&#39;)
   $_enable_tls_logging = pick($::rsyslog::enable_tls_logging, false)
 
+  if $::rsyslog::pki {
+    pki::copy { &#39;rsyslog&#39;:
+      source =&gt; $::rsyslog::app_pki_external_source,
+      pki    =&gt; $::rsyslog::pki
+    }
+  }
+
   if $read_journald and member($facts[&#39;init_systems&#39;], &#39;systemd&#39;) {
     $_read_journald = true
   }
@@ -1282,13 +1304,14 @@ class rsyslog::config (
   }
 
   # set the driver auth_mode based on the mode
-  if empty( $action_send_stream_driver_auth_mode ) {
+  if $action_send_stream_driver_auth_mode {
+    $_action_send_stream_driver_auth_mode = $action_send_stream_driver_auth_mode
+  }
+  else {
     $_action_send_stream_driver_auth_mode = $action_send_stream_driver_mode ? {
       &#39;0&#39;     =&gt; &#39;anon&#39;,
       default =&gt; &#39;x509/name&#39;
     }
-  } else {
-    $_action_send_stream_driver_auth_mode = $action_send_stream_driver_auth_mode
   }
 
   $_default_template = $default_template ? {
@@ -1391,9 +1414,9 @@ class rsyslog::config (
 </div>
 
       <div id="footer">
-  Generated on Fri Dec 16 12:55:45 2016 by
+  Generated on Tue Aug  1 16:10:56 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.5 (ruby-2.1.10).
+  0.9.9 (ruby-2.1.9).
 </div>
 
     </div>

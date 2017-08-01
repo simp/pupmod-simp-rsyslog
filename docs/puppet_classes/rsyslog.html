@@ -6,7 +6,7 @@
 <title>
   Puppet Class: rsyslog
   
-    &mdash; Documentation by YARD 0.9.5
+    &mdash; Documentation by YARD 0.9.9
   
 </title>
 
@@ -28,7 +28,7 @@
   </head>
   <body>
     <div class="nav_wrap">
-      <iframe id="nav" src="../puppet_class_list.html"></iframe>
+      <iframe id="nav" src="../puppet_class_list.html?1"></iframe>
       <div id="resizer"></div>
     </div>
 
@@ -59,8 +59,6 @@
         <div class="clear"></div>
       </div>
 
-      <iframe id="search_frame" src="../puppet_class_list.html"></iframe>
-
       <div id="content"><h1>Puppet Class: rsyslog</h1>
 <div class="box_info">
   
@@ -77,6 +75,7 @@
     </dd>
   </dl>
 </div>
+
 <h2>Overview</h2>
 <div class="docstring">
   <div class="discussion">
@@ -154,10 +153,10 @@ been addressed.</p>
         <span class='name'>trusted_nets</span>
       
       
-        <span class='type'>(<tt>Array[String]</tt>)</span>
+        <span class='type'>(<tt>Simplib::Netlist</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>simplib::lookup(&#39;simp_options::trusted_nets&#39;, {&#39;default_value&#39; =&gt; [&#39;127.0.0.1/32&#39;] })</tt>)</em>
+        <em class="default">(defaults to: <tt>simplib::lookup(&#39;simp_options::trusted_nets&#39;, {&#39;default_value&#39;                  =&gt; [&#39;127.0.0.1/32&#39;] })</tt>)</em>
       
       
         &mdash;
@@ -201,10 +200,10 @@ servers. Also, all log servers specified to use TLS (see
         <span class='name'>log_servers</span>
       
       
-        <span class='type'>(<tt>Array[String]</tt>)</span>
+        <span class='type'>(<tt>Simplib::Netlist</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>simplib::lookup(&#39;simp_options::syslog::log_servers&#39;, { &#39;default_value&#39; =&gt; [] })</tt>)</em>
+        <em class="default">(defaults to: <tt>simplib::lookup(&#39;simp_options::syslog::log_servers&#39;, { &#39;default_value&#39;          =&gt; [] })</tt>)</em>
       
       
         &mdash;
@@ -223,7 +222,7 @@ remote logging  is enabled.</p>
         <span class='name'>failover_log_servers</span>
       
       
-        <span class='type'>(<tt>Array[String]</tt>)</span>
+        <span class='type'>(<tt>Simplib::Netlist</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>simplib::lookup(&#39;simp_options::syslog::failover_log_servers&#39;, { &#39;default_value&#39; =&gt; [] })</tt>)</em>
@@ -304,10 +303,10 @@ this if  necessary.</p>
         <span class='name'>tcp_listen_port</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Simplib::Port</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;514&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>514</tt>)</em>
       
       
         &mdash;
@@ -341,10 +340,10 @@ connections</p>
         <span class='name'>tls_tcp_listen_port</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Simplib::Port</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;6514&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>6514</tt>)</em>
       
       
         &mdash;
@@ -404,10 +403,10 @@ applications that cannot work with a modern method of logging.</p>
         <span class='name'>udp_listen_port</span>
       
       
-        <span class='type'>(<tt>Stdlib::Compat::Integer</tt>)</span>
+        <span class='type'>(<tt>Simplib::Port</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;514&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>514</tt>)</em>
       
       
         &mdash;
@@ -437,13 +436,13 @@ applications that cannot work with a modern method of logging.</p>
   
     <li>
       
-        <span class='name'>enable_logrotate</span>
+        <span class='name'>logrotate</span>
       
       
         <span class='type'>(<tt>Boolean</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>true</tt>)</em>
+        <em class="default">(defaults to: <tt>simplib::lookup(&#39;simp_options::logrotate&#39;, {&#39;default_value&#39;                     =&gt; false})</tt>)</em>
       
       
         &mdash;
@@ -465,21 +464,29 @@ applications that cannot work with a modern method of logging.</p>
         <span class='type'>(<tt>Variant[Boolean,Enum['simp']]</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>simplib::lookup(&#39;simp_options::pki&#39;, {&#39;default_value&#39; =&gt; false})</tt>)</em>
+        <em class="default">(defaults to: <tt>simplib::lookup(&#39;simp_options::pki&#39;, {&#39;default_value&#39;                           =&gt; false})</tt>)</em>
       
       
         &mdash;
-        <div class='inline'>
-<p>Enable SIMP management of PKI keys</p>
-<ul><li>
-<p>Options</p>
-<ul><li>
-<p>&#39;simp&#39; =&gt; Use the SIMP key distribution mechanism</p>
+        <div class='inline'><ul><li>
+<p>If &#39;simp&#39;, include SIMP&#39;s pki module and use pki::copy to
+manage  application certs in /etc/pki/simp_apps/rsyslog/x509</p>
 </li><li>
-<p>true =&gt; Use the <code>pki::copy</code> method</p>
+<p>If true, do <em>not</em> include SIMP&#39;s pki module, but still use
+pki::copy  to manage certs in /etc/pki/simp_apps/rsyslog/x509</p>
 </li><li>
-<p>false =&gt; Do not manage the PKI keys, you&#39;re on your own</p>
-</li></ul>
+<p>If false, do not include SIMP&#39;s pki module and do not use pki::copy  to
+manage certs. You will need to appropriately assign a subset of:</p>
+</li><li>
+<p>app_pki_dir</p>
+</li><li>
+<p>app_pki_key</p>
+</li><li>
+<p>app_pki_cert</p>
+</li><li>
+<p>app_pki_ca</p>
+</li><li>
+<p>app_pki_ca_dir</p>
 </li></ul>
 </div>
       
@@ -487,46 +494,42 @@ applications that cannot work with a modern method of logging.</p>
   
     <li>
       
-        <span class='name'>pki_base_dir</span>
+        <span class='name'>app_pki_external_source</span>
       
       
         <span class='type'>(<tt>Stdlib::Absolutepath</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;/etc/rsyslog.d&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>simplib::lookup(&#39;simp_options::pki::source&#39;, {&#39;default_value&#39;                   =&gt; &#39;/etc/pki/simp/x509&#39;})</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>If pki = &#39;simp&#39; or true, this is the directory from which certs
+will be  copied, via pki::copy. Defaults to /etc/pki/simp/x509.</p>
+</li><li>
+<p>If pki = false, this variable has no effect.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>app_pki_dir</span>
+      
+      
+        <span class='type'>(<tt>Stdlib::Absolutepath</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&#39;/etc/pki/simp_apps/rsyslog/x509&#39;</tt>)</em>
       
       
         &mdash;
         <div class='inline'>
-<p>The location, on disk, for the module&#39;s PKI certificates</p>
-<ul><li>
-<p>By default, we expect the certificates to be in a <code>pki</code>
-subdirectory of  <code>pki_base_dir</code> so this should not be included
-in your path.</p>
-</li><li>
-<p>The default expected directory structure is:</p>
-<ul><li>
-<p><code>pki_base_dir</code>/pki/cacerts</p>
-<ul><li>
-<p>All CA Certificates in PEM format with Hash-based aliases</p>
-</li></ul>
-</li><li>
-<p><code>pki_base_dir</code>/pki/cacerts/cacerts.pem</p>
-<ul><li>
-<p>All CA Certificates in a single PEM file</p>
-</li></ul>
-</li><li>
-<p><code>pki_base_dir</code>/pki/public/$&lt;code&gt;facts[&#39;fqdn&#39;]&lt;/code&gt;.pub</p>
-<ul><li>
-<p>The daemon&#39;s public X.509 Certificate in PEM format</p>
-</li></ul>
-</li><li>
-<p><code>pki_base_dir</code>/pki/private/$&lt;code&gt;facts[&#39;fqdn&#39;]&lt;/code&gt;.pem</p>
-<ul><li>
-<p>The daemon&#39;s private RSA key in PEM format</p>
-</li></ul>
-</li></ul>
-</li></ul>
+<p>Basepath of $default_net_stream_driver_ca_file,
+default_net_stream_driver_cert_file, and
+$default_net_stream_driver_key_file</p>
 </div>
       
     </li>
@@ -597,6 +600,7 @@ href="mailto:tvaughan@onyxpoint.com">tvaughan@onyxpoint.com</a></p>
         <pre class="lines">
 
 
+116
 117
 118
 119
@@ -634,55 +638,48 @@ href="mailto:tvaughan@onyxpoint.com">tvaughan@onyxpoint.com</a></p>
 151
 152
 153
-154
-155
-156
-157
-158</pre>
+154</pre>
       </td>
       <td>
-        <pre class="code"><span class="info file"># File 'manifests/init.pp', line 117</span>
+        <pre class="code"><span class="info file"># File 'manifests/init.pp', line 116</span>
 
 class rsyslog (
-  String                        $service_name          = $::rsyslog::params::service_name,
-  String                        $package_name          = $::rsyslog::params::package_name,
-  String                        $tls_package_name      = $::rsyslog::params::tls_package_name,
-  Array[String]                 $trusted_nets          = simplib::lookup(&#39;simp_options::trusted_nets&#39;, {&#39;default_value&#39; =&gt; [&#39;127.0.0.1/32&#39;] }),
-  Boolean                       $enable_tls_logging    = false,
-  Array[String]                 $log_servers           = simplib::lookup(&#39;simp_options::syslog::log_servers&#39;, { &#39;default_value&#39; =&gt; [] }),
-  Array[String]                 $failover_log_servers  = simplib::lookup(&#39;simp_options::syslog::failover_log_servers&#39;, { &#39;default_value&#39; =&gt; [] }),
-  Stdlib::Absolutepath          $queue_spool_directory = &#39;/var/spool/rsyslog&#39;,
-  Stdlib::Absolutepath          $rule_dir              = &#39;/etc/rsyslog.simp.d&#39;,
-  Boolean                       $tcp_server            = false,
-  Stdlib::Compat::Integer       $tcp_listen_port       = &#39;514&#39;,
-  Boolean                       $tls_tcp_server        = false,
-  Stdlib::Compat::Integer       $tls_tcp_listen_port   = &#39;6514&#39;,
-  Boolean                       $udp_server            = false,
-  String                        $udp_listen_address    = &#39;127.0.0.1&#39;,
-  Stdlib::Compat::Integer       $udp_listen_port       = &#39;514&#39;,
-  Boolean                       $read_journald         = $::rsyslog::params::read_journald,
-  Boolean                       $enable_logrotate      = true,
-  Variant[Boolean,Enum[&#39;simp&#39;]] $pki                   = simplib::lookup(&#39;simp_options::pki&#39;, {&#39;default_value&#39; =&gt; false}),
-  Stdlib::Absolutepath          $pki_base_dir          = &#39;/etc/rsyslog.d&#39;
+  String                        $service_name            = $::rsyslog::params::service_name,
+  String                        $package_name            = $::rsyslog::params::package_name,
+  String                        $tls_package_name        = $::rsyslog::params::tls_package_name,
+  Simplib::Netlist              $trusted_nets            = simplib::lookup(&#39;simp_options::trusted_nets&#39;, {&#39;default_value&#39;                  =&gt; [&#39;127.0.0.1/32&#39;] }),
+  Boolean                       $enable_tls_logging      = false,
+  Simplib::Netlist              $log_servers             = simplib::lookup(&#39;simp_options::syslog::log_servers&#39;, { &#39;default_value&#39;          =&gt; [] }),
+  Simplib::Netlist              $failover_log_servers    = simplib::lookup(&#39;simp_options::syslog::failover_log_servers&#39;, { &#39;default_value&#39; =&gt; [] }),
+  Stdlib::Absolutepath          $queue_spool_directory   = &#39;/var/spool/rsyslog&#39;,
+  Stdlib::Absolutepath          $rule_dir                = &#39;/etc/rsyslog.simp.d&#39;,
+  Boolean                       $tcp_server              = false,
+  Simplib::Port                 $tcp_listen_port         = 514,
+  Boolean                       $tls_tcp_server          = false,
+  Simplib::Port                 $tls_tcp_listen_port     = 6514,
+  Boolean                       $udp_server              = false,
+  String                        $udp_listen_address      = &#39;127.0.0.1&#39;,
+  Simplib::Port                 $udp_listen_port         = 514,
+  Boolean                       $read_journald           = $::rsyslog::params::read_journald,
+  Boolean                       $logrotate               = simplib::lookup(&#39;simp_options::logrotate&#39;, {&#39;default_value&#39;                     =&gt; false}),
+  Variant[Boolean,Enum[&#39;simp&#39;]] $pki                     = simplib::lookup(&#39;simp_options::pki&#39;, {&#39;default_value&#39;                           =&gt; false}),
+  Stdlib::Absolutepath          $app_pki_external_source = simplib::lookup(&#39;simp_options::pki::source&#39;, {&#39;default_value&#39;                   =&gt; &#39;/etc/pki/simp/x509&#39;}),
+  Stdlib::Absolutepath          $app_pki_dir             = &#39;/etc/pki/simp_apps/rsyslog/x509&#39;
 ) inherits ::rsyslog::params {
 
   contain &#39;::rsyslog::install&#39;
   contain &#39;::rsyslog::config&#39;
   contain &#39;::rsyslog::service&#39;
 
+  # lint:ignore:arrow_on_right_operand_line
   Class[&#39;rsyslog::install&#39;] -&gt;
   Class[&#39;rsyslog::config&#39;] ~&gt;
   Class[&#39;rsyslog::service&#39;]
+  # lint:endignore
 
-  if $enable_logrotate {
+  if $logrotate {
     contain &#39;::rsyslog::config::logrotate&#39;
     Class[&#39;rsyslog::service&#39;] -&gt; Class[&#39;rsyslog::config::logrotate&#39;]
-  }
-
-  if $pki {
-    contain &#39;::rsyslog::config::pki&#39;
-    Class[&#39;rsyslog::config::pki&#39;] -&gt; Class[&#39;rsyslog::config&#39;]
-    Class[&#39;rsyslog::config::pki&#39;] ~&gt; Class[&#39;rsyslog::service&#39;]
   }
 }</pre>
       </td>
@@ -692,9 +689,9 @@ class rsyslog (
 </div>
 
       <div id="footer">
-  Generated on Fri Dec 16 12:55:45 2016 by
+  Generated on Tue Aug  1 16:10:55 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.5 (ruby-2.1.10).
+  0.9.9 (ruby-2.1.9).
 </div>
 
     </div>
