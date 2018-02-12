@@ -8,9 +8,12 @@ fixtures:
     augeasproviders_grub:
       repo: https://github.com/simp/augeasproviders_grub
     concat:
+      # master is beyond 4.1.1, but has breaking changes to
+      # how fragments are ordered (MODULES-6625)
       repo: https://github.com/simp/puppetlabs-concat
+      ref: 4.1.1
     haveged:
-      repo: https://github.com/simp/puppet-haveged
+      repo: https://github.com/simp/pupmod-simp-haveged
     iptables:
       repo: https://github.com/simp/pupmod-simp-iptables
     logrotate:

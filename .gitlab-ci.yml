@@ -23,7 +23,7 @@
 .setup_bundler_env: &setup_bundler_env
   before_script:
     - '(find .vendor | wc -l) || :'
-    - gem install bundler --no-rdoc --no-ri
+    - bundle check || gem install bundler --no-rdoc --no-ri
     - rm -f Gemfile.lock
     - rm -rf pkg/
     - bundle install --no-binstubs --jobs $(nproc) --path=.vendor "${FLAGS[@]}"
@@ -150,6 +150,7 @@ pup5.3-unit:
   <<: *cache_bundler
   <<: *setup_bundler_env
   <<: *spec_tests
+  allow_failure: true
 
 
 # Keep an eye on the latest puppet 5
