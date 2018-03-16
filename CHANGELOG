@@ -1,3 +1,6 @@
+* Fri Mar 16 2018 Philippe Muller <philippe.muller@gmail.com> 7.1.1-0
+- Fixed several cases where literal '\n' was contained in file output
+
 * Mon Jul 31 2017 Liz Nemsick <lnemsick.simp@gmail.com> - 7.1.0-0
 - Add ability to specify full rule content for rsyslog::rule::local
   and rsyslog::rule::remote defined types.

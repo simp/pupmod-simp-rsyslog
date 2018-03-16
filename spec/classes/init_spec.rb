@@ -34,27 +34,25 @@ describe 'rsyslog' do
           end
         end
 
-        context 'rsyslog class without any parameters' do
-          let(:params) {{ }}
-          it_behaves_like 'a structured module'
-          it { is_expected.to contain_class('rsyslog').with_trusted_nets(['127.0.0.1/32']) }
-          it { is_expected.to contain_class('rsyslog').with_service_name('rsyslog') }
-          it { is_expected.to contain_class('rsyslog').with_package_name(rsyslog_package_name) }
-          it { is_expected.to contain_class('rsyslog').with_tls_package_name("#{rsyslog_package_name}-gnutls") }
-          it { is_expected.to contain_package("#{rsyslog_package_name}.x86_64").with_ensure('latest') }
-          it { is_expected.to contain_package("#{rsyslog_package_name}.i386").with_ensure('absent') }
+        let(:params) {{ }}
+        it_behaves_like 'a structured module'
+        it { is_expected.to contain_class('rsyslog').with_trusted_nets(['127.0.0.1/32']) }
+        it { is_expected.to contain_class('rsyslog').with_service_name('rsyslog') }
+        it { is_expected.to contain_class('rsyslog').with_package_name(rsyslog_package_name) }
+        it { is_expected.to contain_class('rsyslog').with_tls_package_name("#{rsyslog_package_name}-gnutls") }
+        it { is_expected.to contain_package("#{rsyslog_package_name}.x86_64").with_ensure('latest') }
+        it { is_expected.to contain_package("#{rsyslog_package_name}.i386").with_ensure('absent') }
 
-          if facts[:operatingsystemmajrelease] == '6'
-            it {
-              is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
-                .without_content(/ModLoad imjournal/)
-            }
-          else
-            it {
-              is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
-                .with_content(/ModLoad imjournal/)
-            }
-          end
+        if facts[:operatingsystemmajrelease] == '6'
+          it {
+            is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
+              .without_content(/ModLoad imjournal/)
+          }
+        else
+          it {
+            is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
+              .with_content(/ModLoad imjournal/)
+          }
         end
 
         context 'rsyslog class with logrotate enabled' do
@@ -72,6 +70,16 @@ describe 'rsyslog' do
               it { should create_file('/etc/logrotate.d/syslog').with_content(/#{file_content_7}/)}
             end
           end
+        end
+
+        it 'no file resources should have a literal \n' do
+          expect(
+            catalogue.resources.select { |resource|
+              resource.type == 'File' &&
+                resource[:content] &&
+                resource[:content].include?('\n')
+            }
+          ).to be_empty
         end
 
         context 'rsyslog class with pki = simp' do
