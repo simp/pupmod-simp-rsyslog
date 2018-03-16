@@ -305,7 +305,7 @@ class rsyslog::config (
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
-    content => '# Place ".conf" files that rsyslog should process independently of SIMP into this directory.\n'
+    content => "# Place \".conf\" files that rsyslog should process independently of SIMP into this directory.\n"
   }
 
   file { '/var/spool/rsyslog':
@@ -326,7 +326,7 @@ class rsyslog::config (
     owner   => 'root',
     group   => 'root',
     mode    => '0600',
-    content => "\$IncludeConfig ${::rsyslog::rule_dir}/*.conf"
+    content => "\$IncludeConfig ${::rsyslog::rule_dir}/*.conf\n"
   }
 
   file { '/etc/sysconfig/rsyslog':
@@ -353,7 +353,7 @@ class rsyslog::config (
 
   if $include_rsyslog_d {
     rsyslog::rule { '15_include_default_rsyslog/include_default_rsyslog.conf':
-      content => '$IncludeConfig /etc/rsyslog.d/'
+      content => "\$IncludeConfig /etc/rsyslog.d/\n"
     }
   }
 
