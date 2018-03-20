@@ -28,7 +28,7 @@ describe 'rsyslog' do
 
         rsyslog_package_name = 'rsyslog'
 
-        if ['RedHat','CentOS'].include?(facts[:operatingsystem])
+        if ['RedHat','CentOS','OracleLinux'].include?(facts[:operatingsystem])
           if facts[:operatingsystemmajrelease] == '6'
             rsyslog_package_name = 'rsyslog7'
           end
@@ -63,7 +63,7 @@ describe 'rsyslog' do
           it { is_expected.to contain_class('rsyslog::config::logrotate') }
           it { is_expected.to contain_logrotate__rule('syslog')}
 
-          if ['RedHat','CentOS'].include?(facts[:operatingsystem])
+          if ['RedHat','CentOS','OracleLinux'].include?(facts[:operatingsystem])
             if facts[:operatingsystemmajrelease].to_s < '7'
               it { should create_file('/etc/logrotate.d/syslog').with_content(/#{file_content_6}/)}
             else

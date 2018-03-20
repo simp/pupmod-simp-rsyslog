@@ -1,0 +1,32 @@
+HOSTS:
+  client:
+    roles:
+      - default
+      - master
+      - client
+    platform:   el-7-x86_64
+    box:        elastic/oel-7-x86_64
+    hypervisor: vagrant
+  server-1:
+    roles:
+      - server
+    platform:   el-7-x86_64
+    box:        elastic/oel-7-x86_64
+    hypervisor: vagrant
+  server-2:
+    roles:
+      - server
+    platform:   el-6-x86_64
+    box:        elastic/oel-6-x86_64
+    hypervisor: vagrant
+  server-3:
+    roles:
+      - failover_server
+    platform:   el-7-x86_64
+    box:        elastic/oel-7-x86_64
+    hypervisor: vagrant
+CONFIG:
+  log_level:       verbose
+  type:            aio
+  puppet_collection: puppet5
+  vagrant_memsize: 256
