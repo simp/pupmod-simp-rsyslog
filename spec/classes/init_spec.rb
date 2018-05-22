@@ -71,6 +71,8 @@ EOM
                   :unit => 'rsyslog.service',
                   :content => expected
                 } )
+
+              is_expected.to contain_class('systemd::systemctl::daemon_reload').that_comes_before('Class[rsyslog::service]')
             end
 
           end
