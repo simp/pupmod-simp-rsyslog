@@ -1,6 +1,6 @@
 {
   "name": "simp-rsyslog",
-  "version": "7.1.1",
+  "version": "7.1.2",
   "author": "SIMP Team",
   "summary": "A puppet module to support RSyslog versions 7 and higher using new style RainerScript.",
   "license": "Apache-2.0",
@@ -14,6 +14,9 @@
     "syslog"
   ],
   "dependencies": [
+    { "name": "camptocamp/systemd",
+      "version_requirement": ">= 1.1.1 < 2.0.0"
+    },
     {
       "name": "puppetlabs/stdlib",
       "version_requirement": ">= 4.13.1 < 5.0.0"

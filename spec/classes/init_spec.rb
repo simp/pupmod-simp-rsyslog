@@ -20,39 +20,72 @@ describe 'rsyslog' do
   end
 
   context 'supported operating systems' do
-    on_supported_os.each do |os, facts|
+    on_supported_os.each do |os, os_facts|
       context "on #{os}" do
         let(:facts) do
-          facts
+          os_facts
         end
 
-        rsyslog_package_name = 'rsyslog'
+        context 'default parameters' do
+          rsyslog_package_name = 'rsyslog'
 
-        if ['RedHat','CentOS'].include?(facts[:operatingsystem])
-          if facts[:operatingsystemmajrelease] == '6'
-            rsyslog_package_name = 'rsyslog7'
+          if ['RedHat','CentOS'].include?(os_facts[:operatingsystem])
+            if os_facts[:operatingsystemmajrelease] == '6'
+              rsyslog_package_name = 'rsyslog7'
+            end
           end
-        end
 
-        let(:params) {{ }}
-        it_behaves_like 'a structured module'
-        it { is_expected.to contain_class('rsyslog').with_trusted_nets(['127.0.0.1/32']) }
-        it { is_expected.to contain_class('rsyslog').with_service_name('rsyslog') }
-        it { is_expected.to contain_class('rsyslog').with_package_name(rsyslog_package_name) }
-        it { is_expected.to contain_class('rsyslog').with_tls_package_name("#{rsyslog_package_name}-gnutls") }
-        it { is_expected.to contain_package("#{rsyslog_package_name}.x86_64").with_ensure('latest') }
-        it { is_expected.to contain_package("#{rsyslog_package_name}.i386").with_ensure('absent') }
+          let(:params) {{ }}
+          it_behaves_like 'a structured module'
+          it { is_expected.to contain_class('rsyslog').with_trusted_nets(['127.0.0.1/32']) }
+          it { is_expected.to contain_class('rsyslog').with_service_name('rsyslog') }
+          it { is_expected.to contain_class('rsyslog').with_package_name(rsyslog_package_name) }
+          it { is_expected.to contain_class('rsyslog').with_tls_package_name("#{rsyslog_package_name}-gnutls") }
+          it { is_expected.to contain_package("#{rsyslog_package_name}.x86_64").with_ensure('latest') }
+          it { is_expected.to contain_package("#{rsyslog_package_name}.i386").with_ensure('absent') }
 
-        if facts[:operatingsystemmajrelease] == '6'
-          it {
-            is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
-              .without_content(/ModLoad imjournal/)
-          }
-        else
-          it {
-            is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
-              .with_content(/ModLoad imjournal/)
-          }
+          if os_facts[:operatingsystemmajrelease] == '6'
+            it {
+              is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
+                .without_content(/ModLoad imjournal/)
+            }
+          else
+            it {
+              is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
+                .with_content(/ModLoad imjournal/)
+            }
+          end
+
+          if os_facts[:init_systems].include?('systemd')
+            it do
+              expected = <<EOM
+# This file is managed by Puppet.
+
+[unit]
+
+Wants=network.target network-online.target
+After=network.target network-online.target
+EOM
+              is_expected.to contain_systemd__dropin_file('unit.conf')
+                .with( {
+                  :unit => 'rsyslog.service',
+                  :content => expected
+                } )
+
+              is_expected.to contain_class('systemd::systemctl::daemon_reload').that_comes_before('Class[rsyslog::service]')
+            end
+
+          end
+
+          it 'no file resources should have a literal \n' do
+            expect(
+              catalogue.resources.select { |resource|
+                resource.type == 'File' &&
+                  resource[:content] &&
+                  resource[:content].include?('\n')
+              }
+            ).to be_empty
+          end
         end
 
         context 'rsyslog class with logrotate enabled' do
@@ -63,23 +96,13 @@ describe 'rsyslog' do
           it { is_expected.to contain_class('rsyslog::config::logrotate') }
           it { is_expected.to contain_logrotate__rule('syslog')}
 
-          if ['RedHat','CentOS'].include?(facts[:operatingsystem])
-            if facts[:operatingsystemmajrelease].to_s < '7'
+          if ['RedHat','CentOS'].include?(os_facts[:operatingsystem])
+            if os_facts[:operatingsystemmajrelease].to_s < '7'
               it { should create_file('/etc/logrotate.d/syslog').with_content(/#{file_content_6}/)}
             else
               it { should create_file('/etc/logrotate.d/syslog').with_content(/#{file_content_7}/)}
             end
           end
-        end
-
-        it 'no file resources should have a literal \n' do
-          expect(
-            catalogue.resources.select { |resource|
-              resource.type == 'File' &&
-                resource[:content] &&
-                resource[:content].include?('\n')
-            }
-          ).to be_empty
         end
 
         context 'rsyslog class with pki = simp' do
