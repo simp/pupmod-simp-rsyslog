@@ -125,10 +125,12 @@ cache:
 
 .pe_2017_3: &pe_2017_3
   variables:
+    BEAKER_PUPPET_COLLECTION: 'puppet5'
     PUPPET_VERSION: '~> 5.3.2'
 
 .pe_2018_1: &pe_2018_1
   variables:
+    BEAKER_PUPPET_COLLECTION: 'puppet5'
     PUPPET_VERSION: '~> 5.5.1'
 
 .pup4_latest: &pup4_latest
@@ -137,6 +139,7 @@ cache:
 
 .pup5_latest: &pup5_latest
   variables:
+    BEAKER_PUPPET_COLLECTION: 'puppet5'
     PUPPET_VERSION: '~> 5.0'
 
 
@@ -294,7 +297,7 @@ oel-pup5_5:
   <<: *acceptance_base
   <<: *pe_2018_1
   script:
-    - 'bundle exec rake beaker:suites[default,oel_p5]'
+    - 'bundle exec rake beaker:suites[default,oel]'
 
 #=======================================================================
 # Deployment Jobs
