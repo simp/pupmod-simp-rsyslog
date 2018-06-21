@@ -1,7 +1,11 @@
 # **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 #
-# Setup RSyslog configuration. Creates /etc/rsyslog.conf and includes
-# all SIMP config subdirectories in /etc/rsyslog.simp.d.
+# Setup RSyslog configuration.
+# - When the host uses systemd, creates a rsyslog.service override file
+#   that fixes a service ordering problem present with  older versions
+#   of rsyslog.
+# - Creates /etc/rsyslog.conf and includes all SIMP config subdirectories
+#   in /etc/rsyslog.simp.d.
 #
 # **NOTE** Any undocumented parameters map directly to their counterparts in
 # the Rsyslog configuration files.
@@ -176,6 +180,9 @@
 #   * This will place the configuration files **after** the global
 #     configuration but **before** the SIMP applied configurations.
 #
+# @param systemd_override_file
+#   The basename of the systemd override file for the rsyslog service
+#
 class rsyslog::config (
   String                                $umask                                              = '0027',
   String                                $localhostname                                      = $facts['fqdn'],
@@ -238,7 +245,8 @@ class rsyslog::config (
   Boolean                               $disable_remote_dns                                 = false,
   Boolean                               $enable_default_rules                               = true,
   Boolean                               $read_journald                                      = $::rsyslog::read_journald,
-  Boolean                               $include_rsyslog_d                                  = false
+  Boolean                               $include_rsyslog_d                                  = false,
+  String                                $systemd_override_file                              = 'unit.conf'
 ) {
   assert_private()
 
@@ -366,5 +374,27 @@ class rsyslog::config (
     target => 'rsyslog',
     item   => 'max_open_files',
     value  => $ulimit_max_open_files
+  }
+
+  if member($facts['init_systems'], 'systemd') {
+    # Even though the problem this override file addresses was fixed
+    # after CentOS 7.4, its presence causes no problems with the later
+    # versions, because the Wants and After lists are de-duped.
+    $_override = @(OVERRIDE)
+        # This file is managed by Puppet.
+
+        [unit]
+
+        Wants=network.target network-online.target
+        After=network.target network-online.target
+        | OVERRIDE
+
+    systemd::dropin_file { $systemd_override_file:
+      unit    => 'rsyslog.service',
+      content => $_override
+    }
+
+    # make sure service gets restarted after systemctl daemon-reload
+    Class['systemd::systemctl::daemon_reload'] ~> Class['rsyslog::service']
   }
 }

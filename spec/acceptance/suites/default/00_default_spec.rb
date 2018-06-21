@@ -110,6 +110,23 @@ input(type=\\"imfile\\"
       it { is_expected.to be_running }
     end
 
+
+    it 'should ensure rsyslog.service starts after network.target and network-online.target' do
+      # client uses systemd
+      # following 3 lines for debug
+      on client, 'rpm -q rsyslog'
+      on client, 'cat /usr/lib/systemd/system/rsyslog.service'
+      on client, 'systemctl show rsyslog.service'
+
+      on client, 'cat /etc/systemd/system/rsyslog.service.d/unit.conf'
+
+      [ 'Wants', 'After' ].each do |req|
+        result = on(client, "systemctl show rsyslog.service | grep ^#{req}=").stdout
+        expect(result).to match /network.target/
+        expect(result).to match /network-online.target/
+      end
+    end
+
     it 'should collect iptables log messages in /var/log/iptables.log' do
       # Trigger an iptables block event for the logs
       require 'socket'

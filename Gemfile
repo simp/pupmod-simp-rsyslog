@@ -21,9 +21,11 @@ group :test do
 end
 
 group :development do
-  gem 'travis'
-  gem 'travis-lint'
-  gem 'travish'
+  install_if -> { Gem::Version.new(RUBY_VERSION) >= Gem::Version::new('2.3.0') } do
+    gem 'travis'
+    gem 'travis-lint'
+    gem 'travish'
+  end
   gem 'puppet-blacksmith'
   gem 'guard-rake'
   gem 'pry'

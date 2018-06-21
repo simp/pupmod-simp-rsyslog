@@ -1,4 +1,10 @@
-* Fri Mar 16 2018 Philippe Muller <philippe.muller@gmail.com> 7.1.1-0
+* Tue May 22 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.1.2-0
+- Add a systemd rsyslog.service override file that fixes a service
+  ordering problem present with older versions of rsyslog.  The
+  override ensures the network.target and network-online.target units
+  are added to the 'Wants' and 'After' lists for the rsyslog.service.
+
+* Fri Mar 16 2018 Philippe Muller <philippe.muller@gmail.com> - 7.1.1-0
 - Fixed several cases where literal '\n' was contained in file output
 
 * Mon Jul 31 2017 Liz Nemsick <lnemsick.simp@gmail.com> - 7.1.0-0
