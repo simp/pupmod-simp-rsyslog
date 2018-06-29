@@ -1,35 +1,21 @@
 ---
 fixtures:
   repositories:
-    auditd:
-      repo: https://github.com/simp/pupmod-simp-auditd
-    augeasproviders_core:
-      repo: https://github.com/simp/augeasproviders_core
-    augeasproviders_grub:
-      repo: https://github.com/simp/augeasproviders_grub
     concat:
       # master is beyond 4.1.1, but has breaking changes to
       # how fragments are ordered (MODULES-6625)
       repo: https://github.com/simp/puppetlabs-concat
       ref: 4.1.1
-    haveged:
-      repo: https://github.com/simp/pupmod-simp-haveged
-    iptables:
-      repo: https://github.com/simp/pupmod-simp-iptables
-    logrotate:
-      repo: https://github.com/simp/pupmod-simp-logrotate
-    pki:
-      repo: https://github.com/simp/pupmod-simp-pki
-    simplib:
-      repo: https://github.com/simp/pupmod-simp-simplib
-    stdlib:
-      repo: https://github.com/simp/puppetlabs-stdlib
-    stunnel:
-      repo: https://github.com/simp/pupmod-simp-stunnel
+    # haveged: https://github.com/simp/pupmod-simp-haveged
+    iptables: https://github.com/simp/pupmod-simp-iptables
+    logrotate: https://github.com/simp/pupmod-simp-logrotate
+    pki: https://github.com/simp/pupmod-simp-pki
+    simplib: https://github.com/simp/pupmod-simp-simplib
+    stdlib: https://github.com/simp/puppetlabs-stdlib
+    stunnel: https://github.com/simp/pupmod-simp-stunnel
     systemd:
       repo: https://github.com/simp/puppet-systemd
       branch: simp-master
-    tcpwrappers:
-      repo: https://github.com/simp/pupmod-simp-tcpwrappers
+    tcpwrappers: https://github.com/simp/pupmod-simp-tcpwrappers
   symlinks:
     rsyslog: "#{source_dir}"
