@@ -277,6 +277,22 @@ el-pup4_10-fips:
   script:
     - bundle exec rake beaker:suites
 
+el-pup4_10-failover:
+  <<: *acceptance_base
+  <<: *simp_6_1
+  script:
+    - 'bundle exec rake beaker:suites[failover]'
+  allow_failure: true
+
+el-pup4_10-failover-fips:
+  <<: *acceptance_base
+  <<: *simp_6_1
+  variables:
+    BEAKER_fips: 'yes'
+  script:
+    - 'bundle exec rake beaker:suites[failover]'
+  allow_failure: true
+
 # ----------------------------------------------------------------------
 # Puppet 5.5 for PE 2018.1 LTS
 el-pup5_5:
@@ -298,6 +314,29 @@ oel-pup5_5:
   <<: *pe_2018_1
   script:
     - 'bundle exec rake beaker:suites[default,oel]'
+
+el-pup5_5-failover:
+  <<: *acceptance_base
+  <<: *pe_2018_1
+  script:
+    - 'bundle exec rake beaker:suites[failover]'
+  allow_failure: true
+
+el-pup5_5-failover-fips:
+  <<: *acceptance_base
+  <<: *pe_2018_1
+  variables:
+    BEAKER_fips: 'yes'
+  script:
+    - 'bundle exec rake beaker:suites[failover]'
+  allow_failure: true
+
+oel-pup5_5-failover:
+  <<: *acceptance_base
+  <<: *pe_2018_1
+  script:
+    - 'bundle exec rake beaker:suites[failover,oel]'
+  allow_failure: true
 
 #=======================================================================
 # Deployment Jobs

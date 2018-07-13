@@ -1,6 +1,10 @@
-* Thu Jun 21 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.2.0-0
+* Fri Jul 13 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.2.0-0
 - Add support for Puppet5 and OEL
 - Update acceptance tests to use environment variables
+
+* Thu Jun 28 2018 Nick Miller <nick.miller@onyxpoint.com> - 7.1.3-0
+- Update docs
+- Update ci assets
 
 * Tue May 22 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.1.2-0
 - Add a systemd rsyslog.service override file that fixes a service
