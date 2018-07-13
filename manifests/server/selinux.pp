@@ -10,7 +10,7 @@
 class rsyslog::server::selinux {
   assert_private()
 
-  if ($facts['os']['name'] in ['RedHat','CentOS']) and ($facts['os']['release']['major'] > '6') {
+  if ($facts['os']['name'] in ['RedHat','CentOS','OracleLinux']) and ($facts['os']['release']['major'] > '6') {
     if $facts['selinux_current_mode'] and $facts['selinux_current_mode'] != 'disabled' {
       selboolean { 'nis_enabled':
         persistent => true,

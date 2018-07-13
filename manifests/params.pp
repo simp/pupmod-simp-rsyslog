@@ -16,7 +16,7 @@
 #
 class rsyslog::params {
   $service_name       = 'rsyslog'
-  if ($facts['os']['name'] in ['RedHat','CentOS']) and ($facts['os']['release']['major'] == '6') {
+  if ($facts['os']['name'] in ['RedHat','CentOS','OracleLinux']) and ($facts['os']['release']['major'] == '6') {
     $package_name  = 'rsyslog7'
     $read_journald = false
   }

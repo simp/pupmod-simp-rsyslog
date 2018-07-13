@@ -29,10 +29,8 @@ describe 'rsyslog' do
         context 'default parameters' do
           rsyslog_package_name = 'rsyslog'
 
-          if ['RedHat','CentOS'].include?(os_facts[:operatingsystem])
-            if os_facts[:operatingsystemmajrelease] == '6'
-              rsyslog_package_name = 'rsyslog7'
-            end
+          if os_facts[:operatingsystemmajrelease] == '6'
+            rsyslog_package_name = 'rsyslog7'
           end
 
           let(:params) {{ }}
@@ -96,12 +94,10 @@ EOM
           it { is_expected.to contain_class('rsyslog::config::logrotate') }
           it { is_expected.to contain_logrotate__rule('syslog')}
 
-          if ['RedHat','CentOS'].include?(os_facts[:operatingsystem])
-            if os_facts[:operatingsystemmajrelease].to_s < '7'
-              it { should create_file('/etc/logrotate.d/syslog').with_content(/#{file_content_6}/)}
-            else
-              it { should create_file('/etc/logrotate.d/syslog').with_content(/#{file_content_7}/)}
-            end
+          if os_facts[:operatingsystemmajrelease].to_s < '7'
+            it { should create_file('/etc/logrotate.simp.d/syslog').with_content(/#{file_content_6}/)}
+          else
+            it { should create_file('/etc/logrotate.simp.d/syslog').with_content(/#{file_content_7}/)}
           end
         end
 

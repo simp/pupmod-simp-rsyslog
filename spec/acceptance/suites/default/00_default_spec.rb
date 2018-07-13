@@ -27,6 +27,14 @@ describe 'rsyslog class' do
   let(:client){ only_host_with_role( hosts, 'client' ) }
   let(:manifest) {
     <<-EOS
+      # Turns off firewalld in EL7
+      include 'iptables'
+
+      iptables::listen::tcp_stateful { 'ssh':
+        dports       => 22,
+        trusted_nets => ['any'],
+      }
+
       class { 'rsyslog': pki  => false }
     EOS
   }
@@ -120,6 +128,23 @@ input(type=\\"imfile\\"
     end
 
     it 'should collect iptables log messages in /var/log/iptables.log' do
+      # Trigger an iptables block event for the logs
+      require 'socket'
+      require 'timeout'
+
+      begin
+        Timeout::timeout(5) do
+          begin
+            s = TCPSocket.new(client.ip, 44)
+            sleep(1)
+            s.close
+          rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
+            # This should be rejected
+          end
+        end
+      rescue Timeout::Error
+      end
+
       # kern facility messages cannot be created by a user via logger,
       # because the facility is automatically changed to user. So, the
       # only way to test this is to cause an actual iptables drop.

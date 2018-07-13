@@ -4,21 +4,6 @@ test_name 'client -> 1 server without TLS'
 
 describe 'rsyslog client -> 1 server without TLS' do
 
-  before(:context) do
-    hosts.each do |host|
-      interfaces = fact_on(host, 'interfaces').strip.split(',')
-      interfaces.delete_if do |x|
-        x =~ /^lo/
-      end
-
-      interfaces.each do |iface|
-        if fact_on(host, "ipaddress_#{iface}").strip.empty?
-          on(host, "ifup #{iface}", :accept_all_exit_codes => true)
-        end
-      end
-    end
-  end
-
   let(:client){ only_host_with_role( hosts, 'client' ) }
   let(:server){ hosts_with_role( hosts, 'server' ).first }
   let(:client_fqdn){ fact_on( client, 'fqdn' ) }
