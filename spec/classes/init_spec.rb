@@ -111,16 +111,6 @@ EOM
           it { is_expected.to contain_file('/etc/pki/simp_apps/rsyslog/x509')}
         end
 
-        context 'rsyslog class with TLS enabled' do
-          let(:params) {{
-            :tls_tcp_server => true
-          }}
-
-          it {
-            is_expected.to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf').with_content(%r(^\$ActionSendStreamDriverAuthMode x509/name))
-          }
-        end
-
         context 'rsyslog class without TLS' do
           # rsyslog needs to disable pki/tls
           let(:params) {{
@@ -132,7 +122,6 @@ EOM
           it { is_expected.to_not contain_class('pki') }
           it { is_expected.to_not contain_pki__copy('rsyslog') }
           it { is_expected.to_not contain_file('/etc/pki/simp_apps/rsyslog/x509')}
-          it { is_expected.to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf').with_content(/^\$ActionSendStreamDriverAuthMode anon/) }
         end
 
         context 'rsyslog class with TLS' do
@@ -146,7 +135,6 @@ EOM
           it { is_expected.to_not contain_class('pki') }
           it { is_expected.to contain_pki__copy('rsyslog') }
           it { is_expected.to contain_file('/etc/pki/simp_apps/rsyslog/x509')}
-          it { is_expected.to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf').with_content(%r{^\$ActionSendStreamDriverAuthMode x509/name}) }
         end
 
         context 'rsyslog server without TLS' do
