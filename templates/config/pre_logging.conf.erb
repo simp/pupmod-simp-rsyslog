@@ -162,13 +162,3 @@ $MainMsgQueueTimeoutEnqueue <%= @main_msg_queue_timeout_enqueue %>
 $MainMsgQueueDequeueSlowdown <%= @main_msg_queue_dequeue_slowdown %>
 $MainMsgQueueSaveOnShutdown <%= @main_msg_queue_save_on_shutdown %>
 $MainMsgQueueMaxDiskSpace <%= _main_msg_queue_max_disk_space %>
-
-#TODO: Remove these in favor of StreamDriver* directives directly in the actions themselves.
-$ActionSendStreamDriverMode <%= @action_send_stream_driver_mode %>
-$ActionSendStreamDriverAuthMode <%= @_action_send_stream_driver_auth_mode %>
-<% if @action_send_stream_driver_permitted_peers
-     @action_send_stream_driver_permitted_peers.each do |peer| -%>
-$ActionSendStreamDriverPermittedPeer <%= peer %>
-<%   end
-   end
--%>

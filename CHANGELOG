@@ -1,3 +1,10 @@
+* Mon Jul 30 2018 ralph-wright <ralph.wright@onyxpoint.com> - 7.2.0-0
+- Removed StreamDriver* directives from the global configuration, to
+  allow individual actions to control their specific stream settings.
+  This change was required to allow a host which is itself a syslog
+  server to receive TLS-encrypted data, but forward these messages
+  to a different remote syslog server as unencrypted data.
+
 * Fri Jul 13 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.2.0-0
 - Add support for Puppet5 and OEL
 - Update acceptance tests to use environment variables
