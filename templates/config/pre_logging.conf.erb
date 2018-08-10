@@ -59,7 +59,7 @@ global(
   dropMsgsWithMaliciousDnsPTRRecords="<%= @drop_msgs_with_malicious_dns_ptr_records %>"
   workDirectory="<%= @work_directory %>"
 )
-<% if @lsbmajdistrelease.to_i < 7 -%>
+<% if @_rsyslog7 -%>
 
 module(load="imklog")
 <% end -%>
@@ -163,12 +163,10 @@ $MainMsgQueueDequeueSlowdown <%= @main_msg_queue_dequeue_slowdown %>
 $MainMsgQueueSaveOnShutdown <%= @main_msg_queue_save_on_shutdown %>
 $MainMsgQueueMaxDiskSpace <%= _main_msg_queue_max_disk_space %>
 
-#TODO: Remove these in favor of StreamDriver* directives directly in the actions themselves.
+<% if @_rsyslog7  &&  @_enable_tls_logging  -%>
+# For Rsyslog 7, sending of TLS-encrypted messages does not work unless
+# this legacy, global config is set in addition to individual send stream
+# driver settings
+# TODO: Remove when support for Rsyslog 7 is dropped
 $ActionSendStreamDriverMode <%= @action_send_stream_driver_mode %>
-$ActionSendStreamDriverAuthMode <%= @_action_send_stream_driver_auth_mode %>
-<% if @action_send_stream_driver_permitted_peers
-     @action_send_stream_driver_permitted_peers.each do |peer| -%>
-$ActionSendStreamDriverPermittedPeer <%= peer %>
-<%   end
-   end
--%>
+<% end -%>

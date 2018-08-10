@@ -1,6 +1,6 @@
 # **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 #
-# Setup RSyslog configuration.
+# Setup Rsyslog configuration.
 # - When the host uses systemd, creates a rsyslog.service override file
 #   that fixes a service ordering problem present with  older versions
 #   of rsyslog.
@@ -135,12 +135,49 @@
 #   server over ``TLS``
 #
 # @param default_net_stream_driver
+#   When ``TLS`` is enabled (client and/or server), used to set the global
+#   DefaultNetStreamDriver configuration parameter.
+#
 # @param default_net_stream_driver_ca_file
+#   When ``TLS`` is enabled (client and/or server), used to set the global
+#   DefaultNetStreamDriverCAFile configuration parameter. Currently, this
+#   is the **ONLY** mechanism available to set the CA file for ``TLS``.
+#
 # @param default_net_stream_driver_cert_file
+#   When ``TLS`` is enabled (client and/or server), used to set the global
+#   global DefaultNetStreamDriverCertFile configuration parameter. Currently,
+#   this is the **ONLY** mechanism available to set the cert file for ``TLS``.
+#
 # @param default_net_stream_driver_key_file
+#   When ``TLS`` is enabled (client and/or server), used to set the global
+#   used to set the global DefaultNetStreamDriverKeyFile configuration
+#   parameter. Currently, this is the **ONLY** mechanism available to set the
+#   key file for ``TLS``.
+#
 # @param action_send_stream_driver_mode
+#
+#   * When ``$::rsyslog::tls_tcp_server = true``, used for imtcp module
+#     StreamDriver.Mode
+#
+#   * For Rsyslog 7, when ``$::rsyslog::enable_tls_logging = true``, used to set
+#     the deprecated, global rsyslog configuration, ActionSendStreamDriverMode.
+#     This setting and the corresponding send stream driver setting in
+#     ``rsyslog::rule::remote`` are **BOTH** required for sending TLS-encrypted
+#     logs with Rsyslog 7.
+#
 # @param action_send_stream_driver_auth_mode
+#
+#   * When ``$::rsyslog::tls_tcp_server = true``, used for imtcp module
+#     StreamDriver.AuthMode.  If undefined, this value is set based on
+#     ``$action_send_stream_driver_mode``.
+#
+#   * Otherwise deprecated. Send stream driver authentication mode is
+#     configured for individual send streams via ``rsyslog::rule::remote``.
+#
 # @param action_send_stream_driver_permitted_peers
+#   Deprecated and will be removed in a later version.  Send stream driver
+#   permitted peers are configured for individual send streams via
+#   ``rsyslog::rule::remote``.
 #
 # @param ulimit_max_open_files
 #   The maximum open files limit that should be set for the syslog server
@@ -236,7 +273,7 @@ class rsyslog::config (
 
   Enum['1','0']                         $action_send_stream_driver_mode                     = ($::rsyslog::pki or $::rsyslog::tls_tcp_server or $::rsyslog::enable_tls_logging) ? { true => '1', default => '0' },
   Optional[String]                      $action_send_stream_driver_auth_mode                = undef,
-  Array[String]                         $action_send_stream_driver_permitted_peers          = $::rsyslog::log_servers,
+  Optional[Array[String]]               $action_send_stream_driver_permitted_peers          = undef,
 
   Variant[Enum['unlimited'],Integer[0]] $ulimit_max_open_files                              = 'unlimited',
   Array[String]                         $host_list                                          = [],
@@ -250,13 +287,14 @@ class rsyslog::config (
 ) {
   assert_private()
 
-  $_tcp_server = pick($::rsyslog::tcp_server, false)
-  $_tls_tcp_server = pick($::rsyslog::tls_tcp_server, false)
-  $_tcp_listen_port = pick($::rsyslog::tcp_listen_port, '514')
-  $_tls_tcp_listen_port = pick($::rsyslog::tls_tcp_listen_port, '6514')
-  $_udp_server = pick($::rsyslog::udp_server, false)
-  $_udp_listen_port = pick($::rsyslog::udp_listen_port, '514')
-  $_enable_tls_logging = pick($::rsyslog::enable_tls_logging, false)
+  $_rsyslog7 = $::rsyslog::rsyslog7
+  $_tcp_server = $::rsyslog::tcp_server
+  $_tls_tcp_server = $::rsyslog::tls_tcp_server
+  $_tcp_listen_port = $::rsyslog::tcp_listen_port
+  $_tls_tcp_listen_port = $::rsyslog::tls_tcp_listen_port
+  $_udp_server = $::rsyslog::udp_server
+  $_udp_listen_port = $::rsyslog::udp_listen_port
+  $_enable_tls_logging = $::rsyslog::enable_tls_logging
 
   if $::rsyslog::pki {
     pki::copy { 'rsyslog':
@@ -272,7 +310,8 @@ class rsyslog::config (
     $_read_journald = false
   }
 
-  # set the driver auth_mode based on the mode
+  # TODO When we drop Rsyslog 7 support, rename this to be 
+  #      tls_input_tcp_server_stream_driver_auth_mode
   if $action_send_stream_driver_auth_mode {
     $_action_send_stream_driver_auth_mode = $action_send_stream_driver_auth_mode
   }
