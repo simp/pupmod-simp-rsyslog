@@ -19,44 +19,45 @@ describe 'rsyslog' do
     it { is_expected.to contain_service('rsyslog') }
   end
 
-  context 'supported operating systems' do
-    on_supported_os.each do |os, os_facts|
-      context "on #{os}" do
-        let(:facts) do
-          os_facts
+  on_supported_os.each do |os, os_facts|
+    context "on #{os}" do
+      let(:facts) do
+        os_facts
+      end
+
+      let(:global_conf_file) { '/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf' }
+
+      context 'default parameters' do
+        rsyslog_package_name = 'rsyslog'
+
+        if os_facts[:operatingsystemmajrelease] == '6'
+          rsyslog_package_name = 'rsyslog7'
         end
 
-        context 'default parameters' do
-          rsyslog_package_name = 'rsyslog'
+        let(:params) {{ }}
+        it_behaves_like 'a structured module'
+        it { is_expected.to contain_class('rsyslog').with_trusted_nets(['127.0.0.1/32']) }
+        it { is_expected.to contain_class('rsyslog').with_service_name('rsyslog') }
+        it { is_expected.to contain_class('rsyslog').with_package_name(rsyslog_package_name) }
+        it { is_expected.to contain_class('rsyslog').with_tls_package_name("#{rsyslog_package_name}-gnutls") }
+        it { is_expected.to contain_package("#{rsyslog_package_name}.x86_64").with_ensure('latest') }
+        it { is_expected.to contain_package("#{rsyslog_package_name}.i386").with_ensure('absent') }
 
-          if os_facts[:operatingsystemmajrelease] == '6'
-            rsyslog_package_name = 'rsyslog7'
-          end
+        if os_facts[:operatingsystemmajrelease] == '6'
+          it {
+            is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
+              .without_content(/ModLoad imjournal/)
+          }
+        else
+          it {
+            is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
+              .with_content(/ModLoad imjournal/)
+          }
+        end
 
-          let(:params) {{ }}
-          it_behaves_like 'a structured module'
-          it { is_expected.to contain_class('rsyslog').with_trusted_nets(['127.0.0.1/32']) }
-          it { is_expected.to contain_class('rsyslog').with_service_name('rsyslog') }
-          it { is_expected.to contain_class('rsyslog').with_package_name(rsyslog_package_name) }
-          it { is_expected.to contain_class('rsyslog').with_tls_package_name("#{rsyslog_package_name}-gnutls") }
-          it { is_expected.to contain_package("#{rsyslog_package_name}.x86_64").with_ensure('latest') }
-          it { is_expected.to contain_package("#{rsyslog_package_name}.i386").with_ensure('absent') }
-
-          if os_facts[:operatingsystemmajrelease] == '6'
-            it {
-              is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
-                .without_content(/ModLoad imjournal/)
-            }
-          else
-            it {
-              is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
-                .with_content(/ModLoad imjournal/)
-            }
-          end
-
-          if os_facts[:init_systems].include?('systemd')
-            it do
-              expected = <<EOM
+        if os_facts[:init_systems].include?('systemd')
+          it do
+            expected = <<EOM
 # This file is managed by Puppet.
 
 [unit]
@@ -64,102 +65,139 @@ describe 'rsyslog' do
 Wants=network.target network-online.target
 After=network.target network-online.target
 EOM
-              is_expected.to contain_systemd__dropin_file('unit.conf')
-                .with( {
-                  :unit => 'rsyslog.service',
-                  :content => expected
-                } )
+            is_expected.to contain_systemd__dropin_file('unit.conf')
+              .with( {
+                :unit => 'rsyslog.service',
+                :content => expected
+              } )
 
-              is_expected.to contain_class('systemd::systemctl::daemon_reload').that_comes_before('Class[rsyslog::service]')
-            end
-
+            is_expected.to contain_class('systemd::systemctl::daemon_reload')
+              .that_comes_before('Class[rsyslog::service]')
           end
 
-          it 'no file resources should have a literal \n' do
-            expect(
-              catalogue.resources.select { |resource|
-                resource.type == 'File' &&
-                  resource[:content] &&
-                  resource[:content].include?('\n')
-              }
-            ).to be_empty
-          end
         end
 
-        context 'rsyslog class with logrotate enabled' do
-          let(:params) {{
-            :logrotate => true
-          }}
-
-          it { is_expected.to contain_class('rsyslog::config::logrotate') }
-          it { is_expected.to contain_logrotate__rule('syslog')}
-
-          if os_facts[:operatingsystemmajrelease].to_s < '7'
-            it { should create_file('/etc/logrotate.simp.d/syslog').with_content(/#{file_content_6}/)}
-          else
-            it { should create_file('/etc/logrotate.simp.d/syslog').with_content(/#{file_content_7}/)}
-          end
+        it 'no file resources should have a literal \n' do
+          expect(
+            catalogue.resources.select { |resource|
+              resource.type == 'File' &&
+                resource[:content] &&
+                resource[:content].include?('\n')
+            }
+          ).to be_empty
         end
+      end
 
-        context 'rsyslog class with pki = simp' do
-          let(:params) {{
-            :pki => 'simp'
-          }}
+      context 'rsyslog class with logrotate enabled' do
+        let(:params) {{
+          :logrotate => true
+        }}
 
-          it { is_expected.to contain_class('pki') }
-          it { is_expected.to contain_pki__copy('rsyslog') }
-          it { is_expected.to contain_file('/etc/pki/simp_apps/rsyslog/x509')}
+        it { is_expected.to contain_class('rsyslog::config::logrotate') }
+        it { is_expected.to contain_logrotate__rule('syslog')}
+
+        if os_facts[:operatingsystemmajrelease].to_s < '7'
+          it { should create_file('/etc/logrotate.simp.d/syslog').with_content(/#{file_content_6}/)}
+        else
+          it { should create_file('/etc/logrotate.simp.d/syslog').with_content(/#{file_content_7}/)}
         end
+      end
 
-        context 'rsyslog class with TLS enabled' do
-          let(:params) {{
-            :tls_tcp_server => true
-          }}
+      context 'rsyslog class with pki = simp' do
+        let(:params) {{
+          :pki => 'simp'
+        }}
 
-          it {
-            is_expected.to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf').with_content(%r(^\$ActionSendStreamDriverAuthMode x509/name))
-          }
+        it { is_expected.to contain_class('pki') }
+        it { is_expected.to contain_pki__copy('rsyslog') }
+        it { is_expected.to contain_file('/etc/pki/simp_apps/rsyslog/x509')}
+      end
+
+      context 'rsyslog class without TLS' do
+        # rsyslog needs to disable pki/tls
+        let(:params) {{
+          :logrotate   => true,
+          :enable_tls_logging => false,
+          :pki                => false,
+         }}
+
+
+        it { is_expected.to_not contain_class('pki') }
+        it { is_expected.to_not contain_pki__copy('rsyslog') }
+        it { is_expected.to_not contain_file('/etc/pki/simp_apps/rsyslog/x509')}
+        it { is_expected.to_not contain_file(global_conf_file).with_content(/^\$DefaultNetStreamDriver/) }
+        it { is_expected.to_not contain_file(global_conf_file).with_content(/^\$ActionSendStreamDriverMode/) }
+      end
+
+      context 'rsyslog class with TLS' do
+        # rsyslog needs to disable pki/tls
+        let(:params) {{
+          :logrotate          => true,
+          :enable_tls_logging => true,
+          :pki                => true
+        }}
+
+        it { is_expected.to_not contain_class('pki') }
+        it { is_expected.to contain_pki__copy('rsyslog') }
+        it { is_expected.to contain_file('/etc/pki/simp_apps/rsyslog/x509')}
+        it { is_expected.to contain_file(global_conf_file)
+          .with_content(%r{^\$DefaultNetstreamDriverCertFile /etc/pki/simp_apps/rsyslog/x509/public/foo.example.com.pub})
+        }
+
+        it { is_expected.to contain_file(global_conf_file).with_content(%r{^\$DefaultNetstreamDriver gtls}) }
+        it { is_expected.to contain_file(global_conf_file)
+          .with_content(%r{^\$DefaultNetstreamDriverCAFile /etc/pki/simp_apps/rsyslog/x509/cacerts/cacerts.pem})
+        }
+
+        it { is_expected.to contain_file(global_conf_file)
+          .with_content(%r{^\$DefaultNetstreamDriverKeyFile /etc/pki/simp_apps/rsyslog/x509/private/foo.example.com.pem})
+        }
+
+        if os_facts[:operatingsystemmajrelease] == '6'
+          it { is_expected.to contain_file(global_conf_file).with_content(%r{^\$ActionSendStreamDriverMode 1}) }
         end
+      end
 
-        context 'rsyslog class without TLS' do
-          # rsyslog needs to disable pki/tls
-          let(:params) {{
-            :logrotate   => true,
-            :enable_tls_logging => false,
-            :pki                => false,
-           }}
-          ###it_behaves_like 'a structured module'
-          it { is_expected.to_not contain_class('pki') }
-          it { is_expected.to_not contain_pki__copy('rsyslog') }
-          it { is_expected.to_not contain_file('/etc/pki/simp_apps/rsyslog/x509')}
-          it { is_expected.to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf').with_content(/^\$ActionSendStreamDriverAuthMode anon/) }
-        end
+      context 'rsyslog server with TLS enabled' do
+        let(:params) {{
+          :tls_tcp_server => true
+        }}
 
-        context 'rsyslog class with TLS' do
-          # rsyslog needs to disable pki/tls
-          let(:params) {{
-            :logrotate          => true,
-            :enable_tls_logging => true,
-            :pki                => true
-          }}
+        it { is_expected.to contain_file(global_conf_file).with_content(%r{^module\(load="imtcp"}) }
+        it { is_expected.to contain_file(global_conf_file).with_content(%r{StreamDriver.Mode="1"}) }
+        it { is_expected.to contain_file(global_conf_file).with_content(%r{StreamDriver.AuthMode="x509/name"}) }
+        it { is_expected.to contain_file(global_conf_file).with_content(%r{PermittedPeer=\["\*\.example.com"\]}) }
+        it { is_expected.to contain_file(global_conf_file).with_content(%r{MaxSessions="200"}) }
+        it { is_expected.to contain_file(global_conf_file).with_content(%r{input\(type="imtcp" port="6514"\)}) }
 
-          it { is_expected.to_not contain_class('pki') }
-          it { is_expected.to contain_pki__copy('rsyslog') }
-          it { is_expected.to contain_file('/etc/pki/simp_apps/rsyslog/x509')}
-          it { is_expected.to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf').with_content(%r{^\$ActionSendStreamDriverAuthMode x509/name}) }
-        end
+        it { is_expected.to contain_file(global_conf_file)
+          .with_content(%r{^\$DefaultNetstreamDriverCertFile /etc/pki/simp_apps/rsyslog/x509/public/foo.example.com.pub})
+        }
 
-        context 'rsyslog server without TLS' do
-          # rsyslog needs to disable pki/tls
-          let(:params) {{
-            :tcp_server         => true,
-            :logrotate          => true,
-            :enable_tls_logging => false,
-            :pki                => false,
-           }}
+        it { is_expected.to contain_file(global_conf_file).with_content(%r{^\$DefaultNetstreamDriver gtls}) }
+        it { is_expected.to contain_file(global_conf_file)
+          .with_content(%r{^\$DefaultNetstreamDriverCAFile /etc/pki/simp_apps/rsyslog/x509/cacerts/cacerts.pem})
+        }
 
-          it { is_expected.to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf').with_content(/514/) }
-        end
+        it { is_expected.to contain_file(global_conf_file)
+          .with_content(%r{^\$DefaultNetstreamDriverKeyFile /etc/pki/simp_apps/rsyslog/x509/private/foo.example.com.pem})
+        }
+
+      end
+
+
+      context 'rsyslog server without TLS' do
+        # rsyslog needs to disable pki/tls
+        let(:params) {{
+          :tcp_server         => true,
+          :logrotate          => true,
+          :enable_tls_logging => false,
+          :pki                => false,
+         }}
+
+        it { is_expected.to contain_file(global_conf_file).with_content(%r{^module\(load="imtcp"}) }
+        it { is_expected.to contain_file(global_conf_file).with_content(%r{input\(type="imtcp" port="514"\)}) }
+        it { is_expected.to_not contain_file(global_conf_file).with_content(/^\$DefaultNetStreamDriver/) }
       end
     end
   end

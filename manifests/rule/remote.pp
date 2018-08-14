@@ -9,9 +9,19 @@
 #   * Other/Miscellaneous Rules
 #   * Local Rules
 #
-# If you wish to use TLS for forward RSyslog messages, you **MUST** configure it
-# via ``rsyslog::config``. Current EL versions of RSyslog 7 do not properly
-# support individual TLS settings via rulesets.
+# In general, individual send stream driver settings are properly supported
+# with the Rsyslog 8 EL versions available for CentOS 7 and the Rsyslog 7
+# EL versions available for CentOS 6. However, for TLS support, you must
+# also configure global Rsyslog parameters as follows:
+#
+# * TLS sending and/or receiving requires the global DefaultNetStreamDriver,
+#   DefaultNetStreamDriverCAFile, DefaultNetStreamDriverCertFile, and
+#   DefaultNetStreamDriverKeyFile parameters to be configure via
+#   ``rsyslog::config``.
+#
+# * TLS sending for Rsyslog 7 EL versions requires the global
+#   ActionSendStreamDriverMode configuration parameter to be configured via
+#   ``rsyslog::config`` **IN ADDITION TO** the ``$stream_driver_mode``.
 #
 # ------------------------------------------------------------------------
 #
@@ -81,29 +91,16 @@
 # @param action_resume_retry_count
 #
 # @param stream_driver
-#   This is overridden by the ``rsyslog::config::default_net_stream_driver``
-#
-#   * EL versions of Rsyslog 7 do not support this properly in rulesets but it
-#     may be specified
+#  Overridden by 'DefaultNetstreamDriver' global stream configuration
+#  specified by ``rsyslog::config::default_net_stream_driver``.
 #
 # @param stream_driver_mode
-#   This is overridden by the ``rsyslog::config::action_send_stream_driver_mode``
-#
-#   * EL versions of Rsyslog 7 do not support this properly in rulesets but it
-#     may be specified
+#   For Rsyslog 7,  the stream driver mode must be **ALSO** be set by
+#   the 'ActionSendStreamDriverMode' global stream configuration via
+#   ``rsyslog::config::action_send_stream_driver_mode``.
 #
 # @param stream_driver_auth_mode
-#   This is overridden by the ``rsyslog::config::action_send_stream_driver_auth_mode``
-#
-#   * EL versions of Rsyslog 7 partially support this in rulesets and it may
-#     have some effect
-#
 # @param stream_driver_permitted_peers
-#   This is overridden by the ``rsyslog::config::action_send_stream_driver_permitted_peers``
-#
-#   * EL versions of Rsyslog 7 partially support this in rulesets and it may
-#     have some effect
-#
 # @param resend_last_msg_on_reconnect
 # @param udp_send_to_all
 # @param queue_filename
@@ -213,6 +210,13 @@ define rsyslog::rule::remote (
     }
 
     if empty($_dest) { fail('You must pass a destination array for $dest') }
+
+    if $queue_filename {
+      $_queue_filename = $queue_filename
+    }
+    else {
+      $_queue_filename = "${_safe_name}_disk_queue"
+    }
 
     if $queue_spool_directory {
       $_queue_spool_directory = $queue_spool_directory

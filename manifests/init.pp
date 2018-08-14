@@ -1,12 +1,12 @@
-# Set up rsyslog 7
+# Set up Rsyslog 7/8
 #
 # The configuration is particularly slanted toward the issues present in the
-# version of rsyslog included with Enterprise Linux systems. It should still
+# versions of rsyslog included with Enterprise Linux systems. It should still
 # work on other systems but they may have different/other bugs that have not
 # been addressed.
 #
 # @param service_name
-#   The name of the RSyslog service; typically ``rsyslog``
+#   The name of the Rsyslog service; typically ``rsyslog``
 #
 # @param package_name
 #   The name of the Rsyslog package to install; typically ``rsyslog``
@@ -29,20 +29,20 @@
 #     and set the necessary global ``NetStreamDriver`` information.
 #
 # @param log_servers
-#   A list of primary RSyslog servers
+#   A list of primary Rsyslog servers
 #
 #   * All nodes in this list will get a copy of **all** logs if remote logging
 #     is enabled.
 #
 # @param failover_log_servers
-#   A list of the failover RSyslog servers
+#   A list of the failover Rsyslog servers
 #
 #   * This **order-dependent** list will serve as all of the possible failover
 #     log servers for clients to send to if the servers in ``log_servers`` are
 #     unavailable.
 #
 # @param queue_spool_directory
-#   The path to the directory where RSyslog should store disk message queues
+#   The path to the directory where Rsyslog should store disk message queues
 #
 # @param rule_dir
 #   The path at which all managed rules will begin
@@ -66,7 +66,8 @@
 #   Make this host listend for ``UDP`` connections
 #
 #   * This really should not be enabled unless you have devices that cannot
-#     speak ``TLS`` @param enable_logrotate
+#     speak ``TLS``
+#
 # @param udp_listen_address
 #   The address upon which to listen for ``UDP`` connections
 #
@@ -108,10 +109,7 @@
 #   Basepath of $default_net_stream_driver_ca_file, default_net_stream_driver_cert_file,
 #   and $default_net_stream_driver_key_file
 #
-# @author Chris Tessmer <chris.tessmer@onyxpoint.com>
-# @author Kendall Moore <kendall.moore@onyxpoint.com>
-# @author Mike Riddle <mike.riddle@onyxpoint.com>
-# @author Trevor Vaughan <tvaughan@onyxpoint.com>
+# @author https://github.com/simp/pupmod-simp-rsyslog/graphs/contributors
 #
 class rsyslog (
   String                        $service_name            = $::rsyslog::params::service_name,
