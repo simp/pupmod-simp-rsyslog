@@ -347,12 +347,18 @@ class rsyslog::config (
     mode   => '0755'
   }
 
+  $_readme = @(README)
+    # In Puppet hieradata, set 'rsyslog::config::include_rsyslog_d' to true
+    # and place ".conf" files that rsyslog should process independently of
+    # SIMP into this directory.
+    | README
+
   file { '/etc/rsyslog.d/README_SIMP.conf':
     ensure  => 'file',
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
-    content => "# Place \".conf\" files that rsyslog should process independently of SIMP into this directory.\n"
+    content => $_readme
   }
 
   file { '/var/spool/rsyslog':

@@ -20,6 +20,7 @@ describe 'rsyslog::rule' do
 
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path').with_ensure('directory') }
+        it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path').with_notify('Class[Rsyslog::Service]') }
         it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path.conf').with_content(
           %r(\$IncludeConfig\s+/etc/rsyslog.simp.d/some_path/\*\.conf)
         )}
