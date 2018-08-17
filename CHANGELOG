@@ -1,3 +1,9 @@
+* Fri Aug 17 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.2.0-0
+- Fixed a bug in which removal of a rsyslog::rule from the catalog
+  did not cause the rsyslog service to restart, when other rules
+  corresponding to files in the same rsyslog configuration
+  subdirectory were present.
+
 * Fri Aug 10 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.2.0-0
 - Reinstated ActionSendStreamDriverMode directive into the global
   configuration when sending TLS-encrypted messages for Rsyslog

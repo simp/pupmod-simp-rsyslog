@@ -89,6 +89,15 @@ input(type=\\"imfile\\"
     EOS
   }
 
+  let(:another_drop_rule) {
+    <<-EOS
+      rsyslog::rule::drop { '1_drop_openldap_passwords':
+        rule => '$syslogtag == \\'slapd_audit\\' and $msg contains \\'Password:: \\''
+      }
+
+    EOS
+  }
+
   context 'default parameters (no pki)' do
     # Using puppet_apply as a helper
     it 'should work with no errors' do
@@ -192,8 +201,8 @@ input(type=\\"imfile\\"
       end
     end
 
-    it 'should add user-specified rules' do
-      apply_manifest_on(client, manifest_plus_rules, :catch_failures => true)
+    it 'should add user-specified rules and restart rsyslog service' do
+      result = apply_manifest_on(client, manifest_plus_rules, :catch_failures => true)
 
       # verify files for user-specified rules exist
       on client, "test -f /etc/rsyslog.simp.d/06_simp_console/0_default_emerg.conf"
@@ -202,18 +211,45 @@ input(type=\\"imfile\\"
       on client, "test -f /etc/rsyslog.simp.d/99_simp_local/0_default_sudosh.conf"
       on client, "test -f /etc/rsyslog.simp.d/20_simp_other/aide_report.conf"
       on client, "test -f /etc/rsyslog.simp.d/10_simp_remote/all_forward.conf"
+
+      refresh_msg = "Stage[main]/Rsyslog::Service/Service[rsyslog]: Triggered 'refresh' from"
+      expect(result.stdout).to match(Regexp.escape(refresh_msg))
     end
 
-    it 'should remove OBE user-specified rules' do
+    it 'should restart rsyslog service after another rule is added to an existing subdirectory' do
+      result = apply_manifest_on(client, manifest_plus_rules + another_drop_rule, :catch_failures => true)
+      on client, 'test -f /etc/rsyslog.simp.d/07_simp_drop_rules/audispd.conf'
+      on client, 'test -f /etc/rsyslog.simp.d/07_simp_drop_rules/1_drop_openldap_passwords.conf'
+
+      refresh_msg = "Stage[main]/Rsyslog::Service/Service[rsyslog]: Triggered 'refresh' from 1 events"
+      expect(result.stdout).to match(Regexp.escape(refresh_msg))
+    end
+
+    it 'should remove OBE-user-specified rule from an subdirectory with other rules and restart rsyslog service' do
+      result = apply_manifest_on(client, manifest_plus_rules, :catch_failures => true)
+      on client, 'test -f /etc/rsyslog.simp.d/07_simp_drop_rules/audispd.conf'
+      on client, 'test ! -f /etc/rsyslog.simp.d/07_simp_drop_rules/1_drop_openldap_passwords.conf'
+
+      refresh_msg = "Stage[main]/Rsyslog::Service/Service[rsyslog]: Triggered 'refresh' from 1 events"
+      expect(result.stdout).to match(Regexp.escape(refresh_msg))
+    end
+
+    it 'should remove OBE user-specified rules and resulting empty subdirectories' do
       apply_manifest_on(client, manifest, {:catch_failures => true})
 
       # verify files for OBE user-specified rules have been removed
-      on client, "test ! -f /etc/rsyslog.simp.d/06_simp_console/0_default_emerg.conf"
-      on client, "test ! -f /etc/rsyslog.simp.d/05_simp_data_sources/openldap_audit.conf"
-      on client, "test ! -f /etc/rsyslog.simp.d/07_simp_drop_rules/audispd.conf"
-      on client, "test ! -f /etc/rsyslog.simp.d/99_simp_local/0_default_sudosh.conf"
-      on client, "test ! -f /etc/rsyslog.simp.d/20_simp_other/aide_report.conf"
-      on client, "test ! -f /etc/rsyslog.simp.d/10_simp_remote/all_forward.conf"
+      on client, 'test ! -f /etc/rsyslog.simp.d/06_simp_console/0_default_emerg.conf'
+      on client, 'test ! -d /etc/rsyslog.simp.d/06_simp_console'
+      on client, 'test ! -f /etc/rsyslog.simp.d/05_simp_data_sources/openldap_audit.conf'
+      on client, 'test ! -d /etc/rsyslog.simp.d/05_simp_data_sources'
+      on client, 'test ! -f /etc/rsyslog.simp.d/07_simp_drop_rules/audispd.conf'
+      on client, 'test ! -d /etc/rsyslog.simp.d/07_simp_drop_rules'
+      on client, 'test ! -f /etc/rsyslog.simp.d/99_simp_local/0_default_sudosh.conf'
+      on client, 'test -d /etc/rsyslog.simp.d/99_simp_local'  # another rule still there
+      on client, 'test ! -f /etc/rsyslog.simp.d/20_simp_other/aide_report.conf'
+      on client, 'test ! -d /etc/rsyslog.simp.d/20_simp_other'
+      on client, 'test ! -f /etc/rsyslog.simp.d/10_simp_remote/all_forward.conf'
+      on client, 'test ! -d /etc/rsyslog.simp.d/10_simp_remote'
     end
 
     if fact('operatingsystemmajrelease') > '6'

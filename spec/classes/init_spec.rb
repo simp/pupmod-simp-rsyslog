@@ -10,6 +10,14 @@ describe 'rsyslog' do
     it { is_expected.to contain_class('rsyslog') }
     it { is_expected.to contain_class('rsyslog::params') }
     it { is_expected.to contain_class('rsyslog::config') }
+    it {
+      expected = <<EOM
+# In Puppet hieradata, set 'rsyslog::config::include_rsyslog_d' to true
+# and place ".conf" files that rsyslog should process independently of
+# SIMP into this directory.
+EOM
+      is_expected.to contain_file('/etc/rsyslog.d/README_SIMP.conf').with_content(expected)
+    }
 
     it do
       is_expected.to contain_class('rsyslog::install').that_comes_before('Class[rsyslog::config]')

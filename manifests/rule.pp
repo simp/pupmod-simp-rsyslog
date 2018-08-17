@@ -55,6 +55,8 @@ define rsyslog::rule (
   $_base_directory = "${::rsyslog::rule_dir}/${_name_array[0]}"
 
   if !defined(File[$_base_directory]) {
+    # Be sure to notify on directory changes so that rsyslog service
+    # is restarted when rules are removed.
     file { $_base_directory:
       ensure  => 'directory',
       owner   => 'root',
@@ -62,7 +64,8 @@ define rsyslog::rule (
       recurse => true,
       purge   => true,
       force   => true,
-      mode    => '0640'
+      mode    => '0640',
+      notify  => Class['rsyslog::service']
     }
   }
 
