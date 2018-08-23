@@ -96,8 +96,14 @@ ruleset(
 <%     if @stream_driver_auth_mode -%>
     StreamDriverAuthMode="<%= @stream_driver_auth_mode %>"
 <%     end -%>
-<%     if @stream_driver_permitted_peers -%>
-    StreamDriverPermittedPeers="<%= @stream_driver_permitted_peers %>"
+<%     if @stream_driver_permitted_peers and !@stream_driver_permitted_peers.empty? -%>
+<%       if @stream_driver_permitted_peers  == "HOSTNAME"
+           _permitted_peers = _host
+         else
+           _permitted_peers = @stream_driver_permitted_peers
+         end
+-%>
+    StreamDriverPermittedPeers="<%= _permitted_peers %>"
 <%     end -%>
 <%   end -%>
     ResendLastMSGOnReconnect="<%= _bool_xlat[@resend_last_msg_on_reconnect] %>"
@@ -197,8 +203,14 @@ ruleset(
 <%       if @stream_driver_auth_mode -%>
     StreamDriverAuthMode="<%= @stream_driver_auth_mode %>"
 <%       end -%>
-<%       if @stream_driver_permitted_peers -%>
-    StreamDriverPermittedPeers="<%= @stream_driver_permitted_peers %>"
+<%       if @stream_driver_permitted_peers and !@stream_driver_permitted_peers.empty? -%>
+<%         if @stream_driver_permitted_peers  == "HOSTNAME"
+             s_permitted_peers = s_host
+           else
+             s_permitted_peers = @stream_driver_permitted_peers
+           end
+-%>
+    StreamDriverPermittedPeers="<%= s_permitted_peers %>"
 <%       end -%>
 <%     end -%>
     ResendLastMSGOnReconnect="<%= _bool_xlat[@resend_last_msg_on_reconnect] %>"

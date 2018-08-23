@@ -1,3 +1,13 @@
+* Thu Aug 23 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> 7.2.0-0
+- When TLS is used to send t remote log servers the Permitted Peers
+  was being set to *.domain.  This worked as long as everything had
+  the same domain.  It was changed to default to HOSTNAME, which will
+  set the Peers to the name of the host used.  If the FQDN is not
+  being used in the server list or the certificates do not use the FQDN
+  as the  CN, then stream_driver_permitted_peers must be set.  See
+  https://media.readthedocs.org/pdf/rsyslog/stable/rsyslog.pdf for information
+  on what rsyslog is expecting.
+
 * Fri Aug 17 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.2.0-0
 - Fixed a bug in which removal of a rsyslog::rule from the catalog
   did not cause the rsyslog service to restart, when other rules

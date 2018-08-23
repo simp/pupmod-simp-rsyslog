@@ -94,8 +94,8 @@ EOM
               :compression_mode                     => 'single',
               :compression_stream_flush_on_tx_end   => false,
               :rebind_interval                      => 1,
-              :action_resume_interval               => 40, 
-              :action_resume_retry_count            => 1, 
+              :action_resume_interval               => 40,
+              :action_resume_retry_count            => 1,
               :stream_driver                        => 'my_stream_driver',
               :stream_driver_mode                   => 2,
               :stream_driver_auth_mode              => 'my_stream_driver/x509/name',
@@ -250,6 +250,175 @@ EOM
           ) }
         end
 
+        context 'with rule and and TLS turned on and default values' do
+          let(:hieradata) { "rsyslog_tls" }
+          let(:params) do
+            {
+              :rule => 'test_rule',
+              :dest => ['logserver.my.domain', 'logserver2.other.place:4444'],
+              :failover_log_servers => ['failover.my.domain', 'failover.other.place:4444']
+            }
+          end
+          let(:precondition) do
+            'include rsyslog'
+          end
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(<<EOM
+ruleset(
+  name="ruleset_test_name"
+## TODO: Implement these once DA queues work properly inside of rulesets.
+#  queue.filename="test_name_disk_queue"
+#  queue.dequeuebatchsize="16"
+#  queue.lowwatermark="2000"
+#  queue.discardmark="9750"
+#  queue.discardseverity="8"
+#  queue.syncqueuefiles="off"
+#  queue.type="LinkedList"
+#  queue.workerthreads="1"
+#  queue.timeoutshutdown="0"
+#  queue.timeoutactioncompletion="1000"
+#  queue.timeoutenqueue="2000"
+#  queue.timeoutworkerthreadshutdown="60000"
+#  queue.workerthreadminimummessages="100"
+#  queue.maxfilesize="1m"
+#  queue.saveonshutdown="on"
+#  queue.dequeueslowdown="0"
+) {
+  action(
+    type="omfwd"
+    protocol="tcp"
+    target="logserver.my.domain"
+    port="6514"
+    TCP_Framing="traditional"
+    ZipLevel="0"
+## TODO: Implement this once we upgrade to v7-stable or later.
+#    maxErrorMessages="5"
+## TODO: Implement this once we upgrade to v7-stable or later.
+#    compression.mode="none"
+## TODO: Implement this once we upgrade to v7-stable or later.
+#    compression.stream.flushOnTXEnd="on"
+    StreamDriverMode="1"
+    StreamDriverAuthMode="x509/name"
+    StreamDriverPermittedPeers="logserver.my.domain"
+    ResendLastMSGOnReconnect="on"
+  )
+  action(
+    type="omfwd"
+    protocol="tcp"
+    target="logserver2.other.place"
+    port="4444"
+    TCP_Framing="traditional"
+    ZipLevel="0"
+## TODO: Implement this once we upgrade to v7-stable or later.
+#    maxErrorMessages="5"
+## TODO: Implement this once we upgrade to v7-stable or later.
+#    compression.mode="none"
+## TODO: Implement this once we upgrade to v7-stable or later.
+#    compression.stream.flushOnTXEnd="on"
+    StreamDriverMode="1"
+    StreamDriverAuthMode="x509/name"
+    StreamDriverPermittedPeers="logserver2.other.place"
+    ResendLastMSGOnReconnect="on"
+  )
+
+  action(
+    type="omfwd"
+    protocol="tcp"
+    target="failover.my.domain"
+    port="6514"
+    TCP_Framing="traditional"
+    ZipLevel="0"
+## TODO: Implement this once we upgrade to v7-stable or later.
+#    maxErrorMessages="5"
+## TODO: Implement this once we upgrade to v7-stable or later.
+#    compression.mode="none"
+## TODO: Implement this once we upgrade to v7-stable or later.
+#    compression.stream.flushOnTXEnd="on"
+    StreamDriverMode="1"
+    StreamDriverAuthMode="x509/name"
+    StreamDriverPermittedPeers="failover.my.domain"
+    ResendLastMSGOnReconnect="on"
+    action.resumeRetryCount="-1"
+    action.execOnlyWhenPreviousIsSuspended="on"
+  )
+
+  action(
+    type="omfwd"
+    protocol="tcp"
+    target="failover.other.place"
+    port="4444"
+## NOTE: This must exist for the last failover host so that we can queue logs to disk when needed.
+    queue.filename="test_name_disk_queue_action"
+    queue.dequeuebatchsize="16"
+    queue.lowwatermark="2000"
+    queue.discardmark="9750"
+    queue.discardseverity="8"
+    queue.syncqueuefiles="off"
+    queue.type="LinkedList"
+    queue.workerthreads="1"
+    queue.timeoutshutdown="0"
+    queue.timeoutactioncompletion="1000"
+    queue.timeoutenqueue="2000"
+    queue.timeoutworkerthreadshutdown="60000"
+    queue.workerthreadminimummessages="100"
+    queue.maxfilesize="1m"
+    queue.saveonshutdown="on"
+    queue.dequeueslowdown="0"
+    TCP_Framing="traditional"
+    ZipLevel="0"
+## TODO: Implement this once we upgrade to v7-stable or later.
+#    maxErrorMessages="5"
+## TODO: Implement this once we upgrade to v7-stable or later.
+#    compression.mode="none"
+## TODO: Implement this once we upgrade to v7-stable or later.
+#    compression.stream.flushOnTXEnd="on"
+    StreamDriverMode="1"
+    StreamDriverAuthMode="x509/name"
+    StreamDriverPermittedPeers="failover.other.place"
+    ResendLastMSGOnReconnect="on"
+    action.resumeRetryCount="-1"
+    action.execOnlyWhenPreviousIsSuspended="on"
+  )
+}
+
+if (test_rule) then call ruleset_test_name
+EOM
+          ) }
+        end
+
+        context 'with TLS turned on and destination set to IP Address' do
+          let(:hieradata) { "rsyslog_tls" }
+          let(:params) do
+            {
+              :rule => 'test_rule',
+              :dest => ['1.2.3.4'],
+            }
+          end
+          let(:precondition) do
+            'include rsyslog'
+          end
+
+          it { is_expected.to_not compile.with_all_deps }
+        end
+
+        context 'with TLS turned on and failover set to IP address' do
+          let(:hieradata) { "rsyslog_tls" }
+          let(:params) do
+            {
+              :rule => 'test_rule',
+              :dest => ['logserver1.my.domain'],
+              :failover_log_server => ['1.2.3.4'],
+              :stream_driver => "gtls",
+            }
+          end
+          let(:precondition) do
+            'include rsyslog'
+          end
+
+          it { is_expected.to_not compile.with_all_deps }
+        end
+
         context 'when content specified' do
           let(:params) do
             {
@@ -278,10 +447,7 @@ EOM
 
           it { is_expected.to_not compile.with_all_deps }
         end
- 
-        #TODO:  Add TLS-enabled tests.  Although TLS-enabled test cases are
-        # handled in acceptance tests, there is no thorough validation of
-        # the configuration files generated for those test cases.
+
       end
     end
   end
