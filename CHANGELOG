@@ -1,3 +1,7 @@
+* Fri Aug 24 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.2.1-0
+- Updated the tests to no longer reference sudosh as our custom test since we
+  are moving away from using it and it could cause confusion.
+
 * Fri Aug 17 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.2.0-0
 - Fixed a bug in which removal of a rsyslog::rule from the catalog
   did not cause the rsyslog service to restart, when other rules
