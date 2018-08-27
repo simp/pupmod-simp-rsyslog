@@ -97,7 +97,7 @@ ruleset(
     StreamDriverAuthMode="<%= @stream_driver_auth_mode %>"
 <%     end -%>
 <%     if @stream_driver_permitted_peers and !@stream_driver_permitted_peers.empty? -%>
-<%       if @stream_driver_permitted_peers  == "HOSTNAME"
+<%       if @stream_driver_permitted_peers  == "LOGSERVERNAME"
            _permitted_peers = _host
          else
            _permitted_peers = @stream_driver_permitted_peers
@@ -204,7 +204,7 @@ ruleset(
     StreamDriverAuthMode="<%= @stream_driver_auth_mode %>"
 <%       end -%>
 <%       if @stream_driver_permitted_peers and !@stream_driver_permitted_peers.empty? -%>
-<%         if @stream_driver_permitted_peers  == "HOSTNAME"
+<%         if @stream_driver_permitted_peers  == "LOGSERVERNAME"
              s_permitted_peers = s_host
            else
              s_permitted_peers = @stream_driver_permitted_peers
