@@ -3,7 +3,7 @@
   was being set to *.domain.  This worked as long as the log server was in
   the same domain as the client, which is not necesarily true.
   The default was changed to "LOGSERVERNAME", which will
-  set the Peers in te forwarder to the name of the logserver host as set in
+  set the Peers in the forwarder to the name of the logserver host as set in
   the dest parameter.  Since IP addresses are allowed to be used in the dest
   parameter,  if LOGSERVERNAME is used it will check if the dest is a hostname
   or an IP and issue and error if the dest param is not a hostname.
