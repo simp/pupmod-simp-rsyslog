@@ -1,17 +1,14 @@
 * Thu Aug 23 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> 7.2.0-0
-- When TLS is used to send to remote log servers the Permitted Peers
-  was being set to *.domain.  This worked as long as the log server was in
-  the same domain as the client, which is not necesarily true.
-  The default was changed to "LOGSERVERNAME", which will
-  set the Peers in te forwarder to the name of the logserver host as set in
-  the dest parameter.  Since IP addresses are allowed to be used in the dest
-  parameter,  if LOGSERVERNAME is used it will check if the dest is a hostname
-  or an IP and issue and error if the dest param is not a hostname.
-  If the FQDN is not being used in the server list or the certificates do not use
-  the FQDN as the  CN or as an subject alt name, then stream_driver_permitted_peers
-  must be set.
+- The default for stream_driver_permitted_peers is set to undef.
+  This results in no StreamDriverPermittedPeers directive being used.
+  (used to default to "*.<domainname>").
+- Added check if stream_driver_permitted_peers is set to empty it will
+  set the StreamDriverPermittedPeers directive to the hostname in the action.
+  rsyslog::remote::rule can use a single list of servers and failover servers
+  and configure the client to allow connections only to those servers with
+  one rule.
   See https://media.readthedocs.org/pdf/rsyslog/stable/rsyslog.pdf for information
-  on what rsyslog is expecting.
+  on setting StreamDireverPermittedPeers.
 
 * Fri Aug 17 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.2.0-0
 - Fixed a bug in which removal of a rsyslog::rule from the catalog

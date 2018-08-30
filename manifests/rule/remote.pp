@@ -101,11 +101,13 @@
 #
 # @param stream_driver_auth_mode
 # @param stream_driver_permitted_peers
-#   accepted fingerprint (SHA1) or name of remote peer. Note that this directive requires TLS netstream drivers.
-#   Each server in dest and failover_log_servers gets it own action.  If this is set to 'LOGSERVERNAME'  it assumes the 
-#   list of servers is a FQDN and sets stream_driver_permitted_peers to the FQDN.  This setting needs to match
-#   the name used in the certificate from the server.  If you need to use IP Addresses or the certificates for the
-#   server do not use the hostname as the CN in the certificate then you must explicitly set this.
+#   This directive is only used if tls is enabled.
+#   If this in undefined, no directive will be set.
+#   If it is an empty string, the hostname of the remote logserver will used.
+#   If it is set to anything else that value will be used.
+#
+#   rsyslog expects  a comma serparated list of fingerprint (SHA1) or name of remote peers
+#   to match against the certificate presented from the remote host.
 #   @see https://media.readthedocs.org/pdf/rsyslog/stable/rsyslog.pdf
 # @param resend_last_msg_on_reconnect
 # @param udp_send_to_all
@@ -148,6 +150,7 @@
 #
 # @see http://www.rsyslog.com/doc/rainerscript.html RainerScript Documentation
 #
+# @see https://simp.readthedocs.io/en/master/user_guide/HOWTO/Central_Log_Collection.html
 define rsyslog::rule::remote (
   Optional[String]                                 $rule                                 = undef,
   Boolean                                          $stop_processing                      = false,
@@ -166,7 +169,7 @@ define rsyslog::rule::remote (
   Optional[String]                                 $stream_driver                        = undef,
   Integer[0]                                       $stream_driver_mode                   = 1,
   String                                           $stream_driver_auth_mode              = 'x509/name',
-  String                                           $stream_driver_permitted_peers        = 'LOGSERVERNAME',
+  Optional[String]                                 $stream_driver_permitted_peers        = undef,
   Boolean                                          $resend_last_msg_on_reconnect         = true,
   Boolean                                          $udp_send_to_all                      = false,
   Optional[String]                                 $queue_filename                       = undef,
@@ -239,22 +242,27 @@ define rsyslog::rule::remote (
     else {
       $_failover_servers = $failover_log_servers
     }
-    # If using TLS and stream_driver_permited peers is set to 'LOGSERVERNAME'  check that
-    # the destination and failover servers are not using an IPADDRESS.
+
     if $_use_tls {
-      if $stream_driver_permitted_peers == "LOGSERVERNAME" {
-        $_dest.each | $d | {
+      if $stream_driver_permitted_peers and empty($stream_driver_permitted_peers) {
+        # If TLS enabled and stream_driver_permitted_peers is empty
+        # check that the parameters for dest and failover_log_servers
+        # are using hostnames and not IP Addresses.
+        $dest.each | $d | {
           assert_type(Variant[Simplib::Hostname,Simplib::Hostname::Port], $d ) | $x, $y | {
-            fail("If using TLS and stream_driver_permitted_peers is set to LOGSERVERNAME, then you must use a host name for destination. ${d} is not a hostname.")
+            fail("If using TLS and stream_driver_permitted_peers is undef, then you must use a hostname for log_servers. ${d} is not a hostname. Either set stream_driver_permitted peers to an appropriate string or use hostnames for servers in the destination list.")
           }
         }
-        $_failover_servers.each | $f | {
-          assert_type(Variant[Simplib::Hostname,Simplib::Hostname::Port], $f ) | $x, $y | {
-            fail("If using TLS and stream_driver_permitted_peers is set to LOGSERVERNAME, then you must use a host name for failover srevers. ${d} is not a hostname.")
+        if  ! empty($_failover_servers) {
+          $_failover_servers.each | $d | {
+            assert_type(Variant[Simplib::Hostname,Simplib::Hostname::Port], $d ) | $x, $y | {
+              fail("If using TLS and stream_driver_permitted_peers is undef, then you must use a hostname for log_servers. ${d} is not a hostname. Either set stream_driver_permitted peers to an appropriate string or use hostnames for servers in the failover_log_server list.")
+            }
           }
         }
       }
     }
+
     $_content = template("${module_name}/rule/remote.erb")
   }
 

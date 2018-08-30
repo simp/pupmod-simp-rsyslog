@@ -19,64 +19,10 @@ describe 'rsyslog::rule::remote' do
               :dest => ['1.2.3.4','5.6.7.8:5678']
             }
           end
+          let(:expected) { File.read('spec/expected/remote_defaults.txt') }
 
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(<<EOM
-ruleset(
-  name="ruleset_test_name"
-## TODO: Implement these once DA queues work properly inside of rulesets.
-#  queue.filename="test_name_disk_queue"
-#  queue.dequeuebatchsize="16"
-#  queue.lowwatermark="2000"
-#  queue.discardmark="9750"
-#  queue.discardseverity="8"
-#  queue.syncqueuefiles="off"
-#  queue.type="LinkedList"
-#  queue.workerthreads="1"
-#  queue.timeoutshutdown="0"
-#  queue.timeoutactioncompletion="1000"
-#  queue.timeoutenqueue="2000"
-#  queue.timeoutworkerthreadshutdown="60000"
-#  queue.workerthreadminimummessages="100"
-#  queue.maxfilesize="1m"
-#  queue.saveonshutdown="on"
-#  queue.dequeueslowdown="0"
-) {
-  action(
-    type="omfwd"
-    protocol="tcp"
-    target="1.2.3.4"
-    port="514"
-    TCP_Framing="traditional"
-    ZipLevel="0"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    maxErrorMessages="5"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.mode="none"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.stream.flushOnTXEnd="on"
-    ResendLastMSGOnReconnect="on"
-  )
-  action(
-    type="omfwd"
-    protocol="tcp"
-    target="5.6.7.8"
-    port="5678"
-    TCP_Framing="traditional"
-    ZipLevel="0"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    maxErrorMessages="5"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.mode="none"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.stream.flushOnTXEnd="on"
-    ResendLastMSGOnReconnect="on"
-  )
-}
-
-if (test_rule) then call ruleset_test_name
-EOM
-          ) }
+          it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
         end
 
         context 'with rule and all optional params specified' do
@@ -129,262 +75,66 @@ EOM
               :queue_dequeue_time_end               => 2
             }
           end
+          let(:expected) { File.read('spec/expected/remote_with_settings.txt') }
 
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(<<EOM
-ruleset(
-  name="ruleset_test_name"
-## TODO: Implement these once DA queues work properly inside of rulesets.
-#  queue.filename="my_queue"
-#  queue.size="1000"
-#  queue.dequeuebatchsize="100"
-#  queue.maxdiskspace="100000"
-#  queue.highwatermark="900"
-#  queue.lowwatermark="200"
-#  queue.fulldelaymark="940"
-#  queue.lightdelaymark="300"
-#  queue.discardmark="975"
-#  queue.discardseverity="7"
-#  queue.checkpointinterval="2"
-#  queue.syncqueuefiles="on"
-#  queue.type="LinkedList"
-#  queue.workerthreads="2"
-#  queue.timeoutshutdown="1"
-#  queue.timeoutactioncompletion="100"
-#  queue.timeoutenqueue="200"
-#  queue.timeoutworkerthreadshutdown="6000"
-#  queue.workerthreadminimummessages="10"
-#  queue.maxfilesize="2m"
-#  queue.saveonshutdown="on"
-#  queue.dequeueslowdown="0"
-#  queue.dequeuetimebegin="1"
-#  queue.dequeuetimeend="2"
-) {
-  action(
-    type="omfwd"
-    template="my_template"
-    protocol="relp"
-    target="1.2.3.4"
-    port="514"
-    TCP_Framing="octet-counted"
-    ZipLevel="1"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    maxErrorMessages="6"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.mode="single"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.stream.flushOnTXEnd="off"
-    RebindInterval="1"
-    ResendLastMSGOnReconnect="off"
-  )
-
-  action(
-    type="omfwd"
-    template="my_template"
-    protocol="relp"
-    target="5.6.7.8"
-    port="5678"
-    TCP_Framing="octet-counted"
-    ZipLevel="1"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    maxErrorMessages="6"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.mode="single"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.stream.flushOnTXEnd="off"
-    RebindInterval="1"
-    ResendLastMSGOnReconnect="off"
-    action.resumeRetryCount="1"
-    action.execOnlyWhenPreviousIsSuspended="on"
-  )
-
-  action(
-    type="omfwd"
-    template="my_template"
-    protocol="relp"
-    target="9.10.11.12"
-    port="514"
-## NOTE: This must exist for the last failover host so that we can queue logs to disk when needed.
-    queue.filename="my_queue_action"
-    queue.size="1000"
-    queue.dequeuebatchsize="100"
-    queue.maxdiskspace="100000"
-    queue.highwatermark="900"
-    queue.lowwatermark="200"
-    queue.fulldelaymark="940"
-    queue.lightdelaymark="300"
-    queue.discardmark="975"
-    queue.discardseverity="7"
-    queue.checkpointinterval="2"
-    queue.syncqueuefiles="on"
-    queue.type="LinkedList"
-    queue.workerthreads="2"
-    queue.timeoutshutdown="1"
-    queue.timeoutactioncompletion="100"
-    queue.timeoutenqueue="200"
-    queue.timeoutworkerthreadshutdown="6000"
-    queue.workerthreadminimummessages="10"
-    queue.maxfilesize="2m"
-    queue.saveonshutdown="on"
-    queue.dequeueslowdown="0"
-    queue.dequeuetimebegin="1"
-    queue.dequeuetimeend="2"
-    TCP_Framing="octet-counted"
-    ZipLevel="1"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    maxErrorMessages="6"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.mode="single"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.stream.flushOnTXEnd="off"
-    RebindInterval="1"
-    ResendLastMSGOnReconnect="off"
-    action.resumeRetryCount="1"
-    action.execOnlyWhenPreviousIsSuspended="on"
-  )
-  stop
-}
-
-if (test_rule) then call ruleset_test_name
-EOM
-          ) }
+          it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
         end
 
-        context 'with rule and and TLS turned on and default values' do
+        context 'with rule and and TLS turned on and set to -' do
           let(:hieradata) { "rsyslog_tls" }
           let(:params) do
             {
               :rule => 'test_rule',
               :dest => ['logserver.my.domain', 'logserver2.other.place:4444'],
-              :failover_log_servers => ['failover.my.domain', 'failover.other.place:4444']
+              :failover_log_servers => ['failover.my.domain', 'failover.other.place:4444'],
+              :stream_driver_permitted_peers => ''
             }
           end
           let(:precondition) do
             'include rsyslog'
           end
+          let(:expected) { File.read('spec/expected/remote_tls_with_peers_empty.txt') }
 
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(<<EOM
-ruleset(
-  name="ruleset_test_name"
-## TODO: Implement these once DA queues work properly inside of rulesets.
-#  queue.filename="test_name_disk_queue"
-#  queue.dequeuebatchsize="16"
-#  queue.lowwatermark="2000"
-#  queue.discardmark="9750"
-#  queue.discardseverity="8"
-#  queue.syncqueuefiles="off"
-#  queue.type="LinkedList"
-#  queue.workerthreads="1"
-#  queue.timeoutshutdown="0"
-#  queue.timeoutactioncompletion="1000"
-#  queue.timeoutenqueue="2000"
-#  queue.timeoutworkerthreadshutdown="60000"
-#  queue.workerthreadminimummessages="100"
-#  queue.maxfilesize="1m"
-#  queue.saveonshutdown="on"
-#  queue.dequeueslowdown="0"
-) {
-  action(
-    type="omfwd"
-    protocol="tcp"
-    target="logserver.my.domain"
-    port="6514"
-    TCP_Framing="traditional"
-    ZipLevel="0"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    maxErrorMessages="5"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.mode="none"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.stream.flushOnTXEnd="on"
-    StreamDriverMode="1"
-    StreamDriverAuthMode="x509/name"
-    StreamDriverPermittedPeers="logserver.my.domain"
-    ResendLastMSGOnReconnect="on"
-  )
-  action(
-    type="omfwd"
-    protocol="tcp"
-    target="logserver2.other.place"
-    port="4444"
-    TCP_Framing="traditional"
-    ZipLevel="0"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    maxErrorMessages="5"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.mode="none"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.stream.flushOnTXEnd="on"
-    StreamDriverMode="1"
-    StreamDriverAuthMode="x509/name"
-    StreamDriverPermittedPeers="logserver2.other.place"
-    ResendLastMSGOnReconnect="on"
-  )
+          it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
+        end
 
-  action(
-    type="omfwd"
-    protocol="tcp"
-    target="failover.my.domain"
-    port="6514"
-    TCP_Framing="traditional"
-    ZipLevel="0"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    maxErrorMessages="5"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.mode="none"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.stream.flushOnTXEnd="on"
-    StreamDriverMode="1"
-    StreamDriverAuthMode="x509/name"
-    StreamDriverPermittedPeers="failover.my.domain"
-    ResendLastMSGOnReconnect="on"
-    action.resumeRetryCount="-1"
-    action.execOnlyWhenPreviousIsSuspended="on"
-  )
+        context 'with rule and and TLS turned on peers set to undef' do
+          let(:hieradata) { "rsyslog_tls" }
+          let(:params) do
+            {
+              :rule => 'test_rule',
+              :dest => ['logserver.my.domain', 'logserver2.other.place:4444'],
+              :failover_log_servers => ['failover.my.domain', 'failover.other.place:4444'],
+            }
+          end
+          let(:precondition) do
+            'include rsyslog'
+          end
+          let(:expected) { File.read('spec/expected/remote_tls_with_peers_undef.txt') }
 
-  action(
-    type="omfwd"
-    protocol="tcp"
-    target="failover.other.place"
-    port="4444"
-## NOTE: This must exist for the last failover host so that we can queue logs to disk when needed.
-    queue.filename="test_name_disk_queue_action"
-    queue.dequeuebatchsize="16"
-    queue.lowwatermark="2000"
-    queue.discardmark="9750"
-    queue.discardseverity="8"
-    queue.syncqueuefiles="off"
-    queue.type="LinkedList"
-    queue.workerthreads="1"
-    queue.timeoutshutdown="0"
-    queue.timeoutactioncompletion="1000"
-    queue.timeoutenqueue="2000"
-    queue.timeoutworkerthreadshutdown="60000"
-    queue.workerthreadminimummessages="100"
-    queue.maxfilesize="1m"
-    queue.saveonshutdown="on"
-    queue.dequeueslowdown="0"
-    TCP_Framing="traditional"
-    ZipLevel="0"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    maxErrorMessages="5"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.mode="none"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.stream.flushOnTXEnd="on"
-    StreamDriverMode="1"
-    StreamDriverAuthMode="x509/name"
-    StreamDriverPermittedPeers="failover.other.place"
-    ResendLastMSGOnReconnect="on"
-    action.resumeRetryCount="-1"
-    action.execOnlyWhenPreviousIsSuspended="on"
-  )
-}
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
+        end
 
-if (test_rule) then call ruleset_test_name
-EOM
-          ) }
+        context 'with rule and and TLS turned on peers set to string' do
+          let(:hieradata) { "rsyslog_tls" }
+          let(:params) do
+            {
+              :rule => 'test_rule',
+              :dest => ['logserver.my.domain', 'logserver2.other.place:4444'],
+              :failover_log_servers => ['failover.my.domain', 'failover.other.place:4444'],
+              :stream_driver_permitted_peers => '*.my.domain,*.other.place'
+            }
+          end
+          let(:precondition) do
+            'include rsyslog'
+          end
+          let(:expected) { File.read('spec/expected/remote_tls_with_peers_set.txt') }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
         end
 
         context 'with TLS turned on and destination set to IP Address' do
@@ -393,6 +143,7 @@ EOM
             {
               :rule => 'test_rule',
               :dest => ['1.2.3.4'],
+              :stream_driver_permitted_peers => ''
             }
           end
           let(:precondition) do
@@ -410,6 +161,7 @@ EOM
               :dest => ['logserver1.my.domain'],
               :failover_log_server => ['1.2.3.4'],
               :stream_driver => "gtls",
+              :stream_driver_permitted_peers => ''
             }
           end
           let(:precondition) do
