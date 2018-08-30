@@ -63,9 +63,9 @@ input(type=\\"imfile\\"
         rule   => '$programname == \\'audispd\\''
       }
 
-      rsyslog::rule::local { '0_default_sudosh':
-        rule            => '$programname == \\'sudosh\\'',
-        dyna_file       => 'sudosh_template',
+      rsyslog::rule::local { '0_default_custom_test':
+        rule            => '$programname == \\'custom_test\\'',
+        dyna_file       => 'custom_test_template',
         stop_processing => true
       }
 
@@ -208,7 +208,7 @@ input(type=\\"imfile\\"
       on client, "test -f /etc/rsyslog.simp.d/06_simp_console/0_default_emerg.conf"
       on client, "test -f /etc/rsyslog.simp.d/05_simp_data_sources/openldap_audit.conf"
       on client, "test -f /etc/rsyslog.simp.d/07_simp_drop_rules/audispd.conf"
-      on client, "test -f /etc/rsyslog.simp.d/99_simp_local/0_default_sudosh.conf"
+      on client, "test -f /etc/rsyslog.simp.d/99_simp_local/0_default_custom_test.conf"
       on client, "test -f /etc/rsyslog.simp.d/20_simp_other/aide_report.conf"
       on client, "test -f /etc/rsyslog.simp.d/10_simp_remote/all_forward.conf"
 
@@ -244,7 +244,7 @@ input(type=\\"imfile\\"
       on client, 'test ! -d /etc/rsyslog.simp.d/05_simp_data_sources'
       on client, 'test ! -f /etc/rsyslog.simp.d/07_simp_drop_rules/audispd.conf'
       on client, 'test ! -d /etc/rsyslog.simp.d/07_simp_drop_rules'
-      on client, 'test ! -f /etc/rsyslog.simp.d/99_simp_local/0_default_sudosh.conf'
+      on client, 'test ! -f /etc/rsyslog.simp.d/99_simp_local/0_default_custom_test.conf'
       on client, 'test -d /etc/rsyslog.simp.d/99_simp_local'  # another rule still there
       on client, 'test ! -f /etc/rsyslog.simp.d/20_simp_other/aide_report.conf'
       on client, 'test ! -d /etc/rsyslog.simp.d/20_simp_other'
