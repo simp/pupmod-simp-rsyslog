@@ -33,6 +33,7 @@ ruleset(
 #    compression.stream.flushOnTXEnd="on"
     StreamDriverMode="1"
     StreamDriverAuthMode="x509/name"
+    StreamDriverPermittedPeers="logserver.my.domain"
     ResendLastMSGOnReconnect="on"
   )
   action(
@@ -50,6 +51,7 @@ ruleset(
 #    compression.stream.flushOnTXEnd="on"
     StreamDriverMode="1"
     StreamDriverAuthMode="x509/name"
+    StreamDriverPermittedPeers="logserver2.other.place"
     ResendLastMSGOnReconnect="on"
   )
 
@@ -68,6 +70,7 @@ ruleset(
 #    compression.stream.flushOnTXEnd="on"
     StreamDriverMode="1"
     StreamDriverAuthMode="x509/name"
+    StreamDriverPermittedPeers="failover.my.domain"
     ResendLastMSGOnReconnect="on"
     action.resumeRetryCount="-1"
     action.execOnlyWhenPreviousIsSuspended="on"
@@ -105,6 +108,7 @@ ruleset(
 #    compression.stream.flushOnTXEnd="on"
     StreamDriverMode="1"
     StreamDriverAuthMode="x509/name"
+    StreamDriverPermittedPeers="failover.other.place"
     ResendLastMSGOnReconnect="on"
     action.resumeRetryCount="-1"
     action.execOnlyWhenPreviousIsSuspended="on"

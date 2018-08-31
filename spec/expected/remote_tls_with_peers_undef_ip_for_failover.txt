@@ -21,7 +21,7 @@ ruleset(
   action(
     type="omfwd"
     protocol="tcp"
-    target="logserver.my.domain"
+    target="logserver1.my.domain"
     port="6514"
     TCP_Framing="traditional"
     ZipLevel="0"
@@ -33,54 +33,15 @@ ruleset(
 #    compression.stream.flushOnTXEnd="on"
     StreamDriverMode="1"
     StreamDriverAuthMode="x509/name"
-    StreamDriverPermittedPeers="logserver.my.domain"
-    ResendLastMSGOnReconnect="on"
-  )
-  action(
-    type="omfwd"
-    protocol="tcp"
-    target="logserver2.other.place"
-    port="4444"
-    TCP_Framing="traditional"
-    ZipLevel="0"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    maxErrorMessages="5"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.mode="none"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.stream.flushOnTXEnd="on"
-    StreamDriverMode="1"
-    StreamDriverAuthMode="x509/name"
-    StreamDriverPermittedPeers="logserver2.other.place"
+    StreamDriverPermittedPeers="*.foo.bar.domain.com"
     ResendLastMSGOnReconnect="on"
   )
 
   action(
     type="omfwd"
     protocol="tcp"
-    target="failover.my.domain"
+    target="1.2.3.4"
     port="6514"
-    TCP_Framing="traditional"
-    ZipLevel="0"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    maxErrorMessages="5"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.mode="none"
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.stream.flushOnTXEnd="on"
-    StreamDriverMode="1"
-    StreamDriverAuthMode="x509/name"
-    StreamDriverPermittedPeers="failover.my.domain"
-    ResendLastMSGOnReconnect="on"
-    action.resumeRetryCount="-1"
-    action.execOnlyWhenPreviousIsSuspended="on"
-  )
-
-  action(
-    type="omfwd"
-    protocol="tcp"
-    target="failover.other.place"
-    port="4444"
 ## NOTE: This must exist for the last failover host so that we can queue logs to disk when needed.
     queue.filename="test_name_disk_queue_action"
     queue.dequeuebatchsize="16"
@@ -108,7 +69,7 @@ ruleset(
 #    compression.stream.flushOnTXEnd="on"
     StreamDriverMode="1"
     StreamDriverAuthMode="x509/name"
-    StreamDriverPermittedPeers="failover.other.place"
+    StreamDriverPermittedPeers="*.foo.bar.domain.com"
     ResendLastMSGOnReconnect="on"
     action.resumeRetryCount="-1"
     action.execOnlyWhenPreviousIsSuspended="on"

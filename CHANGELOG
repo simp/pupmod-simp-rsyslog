@@ -1,14 +1,18 @@
 * Thu Aug 23 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> 7.2.0-0
-- The default for stream_driver_permitted_peers is set to undef.
-  This results in no StreamDriverPermittedPeers directive being used.
-  (used to default to "*.<domainname>").
-- Added check if stream_driver_permitted_peers is set to empty it will
-  set the StreamDriverPermittedPeers directive to the hostname in the action.
-  rsyslog::remote::rule can use a single list of servers and failover servers
-  and configure the client to allow connections only to those servers with
-  one rule.
+- in rsyslog::rule::remote, used for forwarding logs to a remote logserver,
+  the default for stream_driver_permitted_peers is set to undef,
+  which, if TLS is being used, will set the StreamDriverPermittedPeers
+  directive to the hostname.  This allows the user  to easily use
+  a list of hostnames from different domains.  Previously, it was setting
+  it by default, to "*.<domain>"  which would only permit logserver hosts
+  from the domain the clinet was in.
+- For backwards compatability: If TLS is enabled and stream_driver_permitted_peers
+  is undef it will check if ip addresses are being used in the logserver or
+  failover log server lists.  If they are being used it will
+  use "*.<domain." for the StreamDriverPermittedPeers
+  directive.
   See https://media.readthedocs.org/pdf/rsyslog/stable/rsyslog.pdf for information
-  on setting StreamDireverPermittedPeers.
+  on setting StreamDriverPermittedPeers.
 
 * Fri Aug 24 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.2.1-0
 - Updated the tests to no longer reference sudosh as our custom test since we

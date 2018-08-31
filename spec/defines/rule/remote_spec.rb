@@ -2,15 +2,13 @@ require 'spec_helper'
 
 describe 'rsyslog::rule::remote' do
   context 'supported operating systems' do
-    on_supported_os.each do |os, os_facts|
+    on_supported_os.each do |os, facts|
       context "on #{os}" do
         let(:title) do
           'test_name'
         end
 
-        let(:facts) do
-          os_facts
-        end
+        let(:facts) {facts.merge({:domain => 'foo.bar.domain.com'})}
 
         context 'with rule and default parameters' do
           let(:params) do
@@ -88,25 +86,7 @@ describe 'rsyslog::rule::remote' do
               :rule => 'test_rule',
               :dest => ['logserver.my.domain', 'logserver2.other.place:4444'],
               :failover_log_servers => ['failover.my.domain', 'failover.other.place:4444'],
-              :stream_driver_permitted_peers => ''
-            }
-          end
-          let(:precondition) do
-            'include rsyslog'
-          end
-          let(:expected) { File.read('spec/expected/remote_tls_with_peers_empty.txt') }
-
-          it { is_expected.to compile.with_all_deps }
-          it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
-        end
-
-        context 'with rule and and TLS turned on peers set to undef' do
-          let(:hieradata) { "rsyslog_tls" }
-          let(:params) do
-            {
-              :rule => 'test_rule',
-              :dest => ['logserver.my.domain', 'logserver2.other.place:4444'],
-              :failover_log_servers => ['failover.my.domain', 'failover.other.place:4444'],
+              :stream_driver_permitted_peers => :undef
             }
           end
           let(:precondition) do
@@ -135,6 +115,7 @@ describe 'rsyslog::rule::remote' do
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
+          it { is_expected.not_to contain_notify("TLS StreamDriverPermittedPeers Notice") }
         end
 
         context 'with TLS turned on and destination set to IP Address' do
@@ -143,14 +124,17 @@ describe 'rsyslog::rule::remote' do
             {
               :rule => 'test_rule',
               :dest => ['1.2.3.4'],
-              :stream_driver_permitted_peers => ''
+              :stream_driver_permitted_peers => :undef
             }
           end
           let(:precondition) do
             'include rsyslog'
           end
+          let(:expected) { File.read('spec/expected/remote_tls_with_peers_undef_ip_for_logserver.txt') }
 
-          it { is_expected.to_not compile.with_all_deps }
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
+          it { is_expected.to contain_notify("TLS StreamDriverPermittedPeers Notice") }
         end
 
         context 'with TLS turned on and failover set to IP address' do
@@ -159,16 +143,18 @@ describe 'rsyslog::rule::remote' do
             {
               :rule => 'test_rule',
               :dest => ['logserver1.my.domain'],
-              :failover_log_server => ['1.2.3.4'],
-              :stream_driver => "gtls",
-              :stream_driver_permitted_peers => ''
+              :failover_log_servers => ['1.2.3.4'],
+              :stream_driver_permitted_peers => :undef
             }
           end
           let(:precondition) do
             'include rsyslog'
           end
+          let(:expected) { File.read('spec/expected/remote_tls_with_peers_undef_ip_for_failover.txt') }
 
-          it { is_expected.to_not compile.with_all_deps }
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
+          it { is_expected.to contain_notify("TLS StreamDriverPermittedPeers Notice") }
         end
 
         context 'when content specified' do

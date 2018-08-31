@@ -201,6 +201,8 @@ define rsyslog::rule::remote (
 ) {
   include '::rsyslog'
 
+  $_notify_msg = "TLS is being used and stream_driver_permitted_peers is undefined. If stream_driver_permitted_peers is undefined, rsyslog::remote::rule uses the name supplied in the dest or failover_log_server field for the action.  If IP Addresses are being used, thi will most likely not match the CN or fingerprint of the certificate being presented from the log server and the connection will be denied.  The StreamDriverPermittedPeers directive was defaulted to \"*.${facts['domain']}\".  The rule being defined should be reviewed to ensure this is valid.  It is recommended to use FQDN in the dest and failover_log_server parameters if TLS is being used or set the stream_driver_permitted_peers parameter to a valid string."
+
   $_safe_name = regsubst($name,'/','__')
 
   unless ($rule or $content) {
@@ -244,20 +246,22 @@ define rsyslog::rule::remote (
     }
 
     if $_use_tls {
-      if $stream_driver_permitted_peers and empty($stream_driver_permitted_peers) {
-        # If TLS enabled and stream_driver_permitted_peers is empty
-        # check that the parameters for dest and failover_log_servers
-        # are using hostnames and not IP Addresses.
-        $dest.each | $d | {
-          assert_type(Variant[Simplib::Hostname,Simplib::Hostname::Port], $d ) | $x, $y | {
-            fail("If using TLS and stream_driver_permitted_peers is undef, then you must use a hostname for log_servers. ${d} is not a hostname. Either set stream_driver_permitted peers to an appropriate string or use hostnames for servers in the destination list.")
-          }
+      # If $stream_driver_permitted_peers is not defined , then determine if you should default to using the hostname
+      # or if IP addresses are used default to *.domain
+      if $stream_driver_permitted_peers  {
+        $_stream_driver_permitted_peers = $stream_driver_permitted_peers
+      } else {
+        $_all_servers = [$_dest, $_failover_servers].flatten
+        $_filtered = $_all_servers.filter |$server|  {
+          $result = assert_type(Variant[Simplib::IP, Simplib::IP::CIDR, Simplib::IP::V4::DDQ], $server) |$expected, $actual| { }
+          $result != undef
         }
-        if  ! empty($_failover_servers) {
-          $_failover_servers.each | $d | {
-            assert_type(Variant[Simplib::Hostname,Simplib::Hostname::Port], $d ) | $x, $y | {
-              fail("If using TLS and stream_driver_permitted_peers is undef, then you must use a hostname for log_servers. ${d} is not a hostname. Either set stream_driver_permitted peers to an appropriate string or use hostnames for servers in the failover_log_server list.")
-            }
+        if $_filtered.empty {
+          $_stream_driver_permitted_peers = undef
+        } else {
+          $_stream_driver_permitted_peers = "*.${facts['domain']}"
+          notify { "TLS StreamDriverPermittedPeers Notice":
+            message => ("${_notify_msg}")
           }
         }
       }
@@ -269,4 +273,5 @@ define rsyslog::rule::remote (
   rsyslog::rule { "10_simp_remote/${_safe_name}.conf":
     content => $_content
   }
+
 }
