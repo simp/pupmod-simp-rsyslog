@@ -1,4 +1,4 @@
-* Thu Aug 30 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> 7.2.0-0
+* Thu Aug 30 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> 7.2.1-0
 - in rsyslog::rule::remote, used for forwarding logs to a remote logserver,
   the default for stream_driver_permitted_peers is set to undef,
   which, if TLS is being used, will set the StreamDriverPermittedPeers
@@ -14,7 +14,7 @@
   See https://media.readthedocs.org/pdf/rsyslog/stable/rsyslog.pdf for information
   on setting StreamDriverPermittedPeers.
 
-* Fri Aug 24 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.2.0-0
+* Fri Aug 24 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.2.1-0
 - Updated the tests to no longer reference sudosh as our custom test since we
   are moving away from using it and it could cause confusion.
 
