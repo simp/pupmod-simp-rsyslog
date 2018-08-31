@@ -260,8 +260,8 @@ define rsyslog::rule::remote (
           $_stream_driver_permitted_peers = undef
         } else {
           $_stream_driver_permitted_peers = "*.${facts['domain']}"
-          notify { "TLS StreamDriverPermittedPeers Notice":
-            message => ("${_notify_msg}")
+          notify { 'TLS StreamDriverPermittedPeers Notice':
+            message => (${_notify_msg})
           }
         }
       }
