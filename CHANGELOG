@@ -1,4 +1,4 @@
-* Thu Aug 23 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> 7.2.0-0
+* Thu Aug 30 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> 7.2.0-0
 - in rsyslog::rule::remote, used for forwarding logs to a remote logserver,
   the default for stream_driver_permitted_peers is set to undef,
   which, if TLS is being used, will set the StreamDriverPermittedPeers
