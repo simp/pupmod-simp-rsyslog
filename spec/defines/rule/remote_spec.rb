@@ -115,7 +115,7 @@ describe 'rsyslog::rule::remote' do
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
-          it { is_expected.not_to contain_notify("TLS StreamDriverPermittedPeers Notice") }
+          it { is_expected.not_to contain_notify("TLS StreamDriverPermittedPeers #{title}") }
         end
 
         context 'with TLS turned on and destination set to IP Address' do
@@ -134,7 +134,7 @@ describe 'rsyslog::rule::remote' do
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
-          it { is_expected.to contain_notify("TLS StreamDriverPermittedPeers Notice") }
+          it { is_expected.to contain_notify("TLS StreamDriverPermittedPeers #{title}") }
         end
 
         context 'with TLS turned on and failover set to IP address' do
@@ -154,7 +154,7 @@ describe 'rsyslog::rule::remote' do
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
-          it { is_expected.to contain_notify("TLS StreamDriverPermittedPeers Notice") }
+          it { is_expected.to contain_notify("TLS StreamDriverPermittedPeers #{title}") }
         end
 
         context 'when content specified' do

@@ -152,9 +152,9 @@
 #
 # @see https://simp.readthedocs.io/en/master/user_guide/HOWTO/Central_Log_Collection.html
 define rsyslog::rule::remote (
-  Optional[String]                                 $rule                                 = undef,
+  Optional[String[1]]                              $rule                                 = undef,
   Boolean                                          $stop_processing                      = false,
-  Optional[String]                                 $template                             = undef,
+  Optional[String[1]]                              $template                             = undef,
   Simplib::Netlist                                 $dest                                 = [],
   Enum['tcp','udp','relp']                         $dest_type                            = 'tcp',
   Simplib::Netlist                                 $failover_log_servers                 = [],
@@ -166,13 +166,13 @@ define rsyslog::rule::remote (
   Optional[Integer[0]]                             $rebind_interval                      = undef,
   Integer[0]                                       $action_resume_interval               = 30,
   Integer[-1]                                      $action_resume_retry_count            = -1,
-  Optional[String]                                 $stream_driver                        = undef,
+  Optional[String[1]]                              $stream_driver                        = undef,
   Integer[0]                                       $stream_driver_mode                   = 1,
   String                                           $stream_driver_auth_mode              = 'x509/name',
-  Optional[String]                                 $stream_driver_permitted_peers        = undef,
+  Optional[String[1]]                              $stream_driver_permitted_peers        = undef,
   Boolean                                          $resend_last_msg_on_reconnect         = true,
   Boolean                                          $udp_send_to_all                      = false,
-  Optional[String]                                 $queue_filename                       = undef,
+  Optional[String[1]]                              $queue_filename                       = undef,
   Optional[Stdlib::Absolutepath]                   $queue_spool_directory                = undef,
   Optional[Integer[0]]                             $queue_size                           = undef,
   Integer[0]                                       $queue_dequeue_batch_size             = 16,
@@ -192,16 +192,16 @@ define rsyslog::rule::remote (
   Integer[0]                                       $queue_timeout_enqueue                = 2000,
   Integer[0]                                       $queue_timeout_worker_thread_shutdown = 60000,
   Integer[0]                                       $queue_worker_thread_minimum_messages = 100,
-  String                                           $queue_max_file_size                  = '1m',
+  String[1]                                        $queue_max_file_size                  = '1m',
   Boolean                                          $queue_save_on_shutdown               = true,
   Integer[0]                                       $queue_dequeue_slowdown               = 0,
   Optional[Integer[0]]                             $queue_dequeue_time_begin             = undef,
   Optional[Integer[0]]                             $queue_dequeue_time_end               = undef,
-  Optional[String]                                 $content                              = undef
+  Optional[String[1]]                              $content                              = undef
 ) {
   include '::rsyslog'
 
-  $_notify_msg = "TLS is being used and stream_driver_permitted_peers is undefined. If stream_driver_permitted_peers is undefined, rsyslog::remote::rule uses the name supplied in the dest or failover_log_server field for the action.  If IP Addresses are being used, thi will most likely not match the CN or fingerprint of the certificate being presented from the log server and the connection will be denied.  The StreamDriverPermittedPeers directive was defaulted to \"*.${facts['domain']}\".  The rule being defined should be reviewed to ensure this is valid.  It is recommended to use FQDN in the dest and failover_log_server parameters if TLS is being used or set the stream_driver_permitted_peers parameter to a valid string."
+  $_notify_msg = 'TLS is being used and stream_driver_permitted_peers is undefined. In this case, rsyslog::remote::rule uses the name supplied in the dest and/or failover_log_server field for the action. If IP Addresses are being used, this will probably not match the CN or fingerprint of the certificate being presented from the log server and the connection will be denied.  The StreamDriverPermittedPeers directive was defaulted to "*.${facts["domain"]}".  The rule being defined should be reviewed to ensure this is valid. It is recommended to use FQDN in the dest and failover_log_server parameters if TLS is being used or specifically set the stream_driver_permitted_peers parameter'
 
   $_safe_name = regsubst($name,'/','__')
 
@@ -260,8 +260,9 @@ define rsyslog::rule::remote (
           $_stream_driver_permitted_peers = undef
         } else {
           $_stream_driver_permitted_peers = "*.${facts['domain']}"
-          notify { 'TLS StreamDriverPermittedPeers Notice':
-            message => ("rsyslog::rule::remote ${_notify_msg}")
+          notify { "TLS StreamDriverPermittedPeers ${name}":
+            message  => ("rsyslog::rule::remote ${_notify_msg}"),
+            loglevel => 'warning'
           }
         }
       }
@@ -273,5 +274,4 @@ define rsyslog::rule::remote (
   rsyslog::rule { "10_simp_remote/${_safe_name}.conf":
     content => $_content
   }
-
 }
