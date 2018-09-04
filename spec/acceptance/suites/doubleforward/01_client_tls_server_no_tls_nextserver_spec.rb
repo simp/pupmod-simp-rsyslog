@@ -93,7 +93,6 @@ rsyslog::server::enable_firewall : true
       # Forward plain TCP to our remote log servers
       rsyslog::rule::remote { 'send_the_logs_plain_tcp':
         stream_driver => 'tcp',
-        stream_driver_permitted_peers => '',
         rule => 'prifilt(\\'*.*\\')'
       }
 
