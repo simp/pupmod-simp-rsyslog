@@ -201,7 +201,7 @@ define rsyslog::rule::remote (
 ) {
   include '::rsyslog'
 
-  $_notify_msg = 'TLS is being used and stream_driver_permitted_peers is undefined. In this case, rsyslog::remote::rule uses the name supplied in the dest and/or failover_log_server field for the action. If IP Addresses are being used, this will probably not match the CN or fingerprint of the certificate being presented from the log server and the connection will be denied.  The StreamDriverPermittedPeers directive was defaulted to "*.${facts["domain"]}".  The rule being defined should be reviewed to ensure this is valid. It is recommended to use FQDN in the dest and failover_log_server parameters if TLS is being used or specifically set the stream_driver_permitted_peers parameter'
+  $_notify_msg = 'TLS is being used and stream_driver_permitted_peers is undefined. In this case, rsyslog::remote::rule uses the name supplied in the dest and/or failover_log_server field for the action. If IP Addresses are being used, this will probably not match the CN or fingerprint of the certificate being presented from the log server and the connection will be denied.  The StreamDriverPermittedPeers directive was defaulted to "*.${facts["domain"]}".  The rule being defined should be reviewed to ensure this is valid. It is recommended to use FQDN in the dest and failover_log_server parameters if TLS is being used or specifically set the stream_driver_permitted_peers parameter' # lint:ignore:single_quote_string_with_variables
 
   $_safe_name = regsubst($name,'/','__')
 
