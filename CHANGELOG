@@ -1,3 +1,18 @@
+* Thu Aug 30 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> 7.2.1-0
+- Updated rsyslog::rule::remote to select a more intelligent default
+  for StreamDriverPermittedPeers, when TLS is enabled.  This improvement
+  fixes the bug in which forwarding of logs to servers in different domains
+  was not possible with the stream_driver_permitted_peers default.  Now,
+  rsyslog::rule::remote::stream_driver_permitted_peers defaults to 'undef',
+  instead of the domain of the Puppet client, and has the following default
+  behavior:
+  - When all of the remote servers are specified with hostname variants, the
+    StreamDriverPermittedPeers directive for the forwarding action for each
+    server will be set to that server's hostname.
+  - If any of the remote servers is specified as an IP address variant, the
+    StreamDriverPermittedPeers directive for the forwarding action for
+    each server will be set to the domain of the Puppet client.
+
 * Fri Aug 24 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.2.1-0
 - Updated the tests to no longer reference sudosh as our custom test since we
   are moving away from using it and it could cause confusion.

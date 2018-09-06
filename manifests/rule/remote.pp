@@ -1,4 +1,7 @@
-# Adds a rule to send messages to a remote system
+# Adds a rule to send messages to one or more remote system.
+# The rule will include a forwarding ('omfwd') action for each
+# primary and failover syslog server specified via ``$dest`` and
+# ``$failover_log_servers``, respectively.
 #
 # In general, the order will be:
 #
@@ -39,8 +42,8 @@
 #
 # @example Send All ``local0`` Messages to ``1.2.3.4`` via TCP
 #   rsyslog::rule::remote { 'send_local0_away':
-#     rule        => "prifilt('local0.*')",
-#     log_servers => ['1.2.3.4']
+#     rule => "prifilt('local0.*')",
+#     dest => ['1.2.3.4']
 #   }
 #
 # @param name [String]
@@ -73,7 +76,8 @@
 #   The destination type for all entries in ``$dest``
 #
 #   * At this time, if you wish to have different types per destination, you
-#     will need to craft your own ruleset and leave ``$dest`` empty.
+#     will need to either create a ``rsyslog::rule::remote`` for each destnation
+#     or craft your own ruleset and leave ``$dest`` empty.
 #
 # @param failover_log_servers
 #   The listed systems will be used as failover servers for all logs matching
@@ -91,16 +95,56 @@
 # @param action_resume_retry_count
 #
 # @param stream_driver
-#  Overridden by 'DefaultNetstreamDriver' global stream configuration
-#  specified by ``rsyslog::config::default_net_stream_driver``.
+#   * This is only used to set the StreamDriver directive in the forwarding
+#     actions for remote servers if TLS is enabled and ``$dest_type`` is
+#     not UDP.
+#
+#   * Overridden by 'DefaultNetstreamDriver' global stream configuration
+#     specified by ``rsyslog::config::default_net_stream_driver``.
 #
 # @param stream_driver_mode
-#   For Rsyslog 7,  the stream driver mode must be **ALSO** be set by
-#   the 'ActionSendStreamDriverMode' global stream configuration via
+#   * This is only used to set the StreamDriverMode directive in the
+#     forwarding actions for remote servers if TLS is enabled and
+#     ``$dest_type`` is not UDP.
+#
+#   * For Rsyslog 7,  the stream driver mode must be **ALSO** be set by
+#     the 'ActionSendStreamDriverMode' global stream configuration via
 #   ``rsyslog::config::action_send_stream_driver_mode``.
 #
 # @param stream_driver_auth_mode
+#   This is only used to set the StreamDriverAuthMode directive in the
+#   forwarding actions for remote servers if TLS is enabled and
+#   ``$dest_type`` is not UDP.
+#
 # @param stream_driver_permitted_peers
+#   * This is only used to set the StreamDriverPermittedPeers directive
+#     in the forwarding actions for remote servers if TLS is enabled and
+#     ``$dest_type`` is not UDP.
+#
+#   * If this is set, the value will be used for all forwarding actions
+#     for the remote servers in ``$dest`` and ``$failover_log_servers``.
+#
+#   * If this is undefined,
+#
+#     - If *ALL* of the remote servers in ``$dest`` and
+#       ``$failover_log_servers`` are specified as a hostname variants, the
+#       StreamDriverPermittedPeers directive for the forwarding action for
+#       each server will be set to that server's hostname.
+#
+#     - If *ANY* and of the remote servers in ``$dest`` and
+#       ``$failover_log_servers`` is specified as an IP address variant, the
+#       StreamDriverPermittedPeers directive for the forwarding action for
+#       each server will be set to the domain of the Puppet client.
+#       This behavior provides backward compatibility with earlier
+#       versions of this module.
+#
+#   * rsyslog expects StreamDriverPermittedPeers to be a comma-separated
+#     list of fingerprints (SHA1) and/or names of remote peers, which it
+#     will use to match against the certificate presented from the remote
+#     server.
+#
+#   * @see https://media.readthedocs.org/pdf/rsyslog/stable/rsyslog.pdf
+#
 # @param resend_last_msg_on_reconnect
 # @param udp_send_to_all
 # @param queue_filename
@@ -142,10 +186,11 @@
 #
 # @see http://www.rsyslog.com/doc/rainerscript.html RainerScript Documentation
 #
+# @see https://simp.readthedocs.io/en/master/user_guide/HOWTO/Central_Log_Collection.html
 define rsyslog::rule::remote (
-  Optional[String]                                 $rule                                 = undef,
+  Optional[String[1]]                              $rule                                 = undef,
   Boolean                                          $stop_processing                      = false,
-  Optional[String]                                 $template                             = undef,
+  Optional[String[1]]                              $template                             = undef,
   Simplib::Netlist                                 $dest                                 = [],
   Enum['tcp','udp','relp']                         $dest_type                            = 'tcp',
   Simplib::Netlist                                 $failover_log_servers                 = [],
@@ -157,13 +202,13 @@ define rsyslog::rule::remote (
   Optional[Integer[0]]                             $rebind_interval                      = undef,
   Integer[0]                                       $action_resume_interval               = 30,
   Integer[-1]                                      $action_resume_retry_count            = -1,
-  Optional[String]                                 $stream_driver                        = undef,
+  Optional[String[1]]                              $stream_driver                        = undef,
   Integer[0]                                       $stream_driver_mode                   = 1,
   String                                           $stream_driver_auth_mode              = 'x509/name',
-  String                                           $stream_driver_permitted_peers        = "*.${::domain}",
+  Optional[String[1]]                              $stream_driver_permitted_peers        = undef,
   Boolean                                          $resend_last_msg_on_reconnect         = true,
   Boolean                                          $udp_send_to_all                      = false,
-  Optional[String]                                 $queue_filename                       = undef,
+  Optional[String[1]]                              $queue_filename                       = undef,
   Optional[Stdlib::Absolutepath]                   $queue_spool_directory                = undef,
   Optional[Integer[0]]                             $queue_size                           = undef,
   Integer[0]                                       $queue_dequeue_batch_size             = 16,
@@ -183,14 +228,16 @@ define rsyslog::rule::remote (
   Integer[0]                                       $queue_timeout_enqueue                = 2000,
   Integer[0]                                       $queue_timeout_worker_thread_shutdown = 60000,
   Integer[0]                                       $queue_worker_thread_minimum_messages = 100,
-  String                                           $queue_max_file_size                  = '1m',
+  String[1]                                        $queue_max_file_size                  = '1m',
   Boolean                                          $queue_save_on_shutdown               = true,
   Integer[0]                                       $queue_dequeue_slowdown               = 0,
   Optional[Integer[0]]                             $queue_dequeue_time_begin             = undef,
   Optional[Integer[0]]                             $queue_dequeue_time_end               = undef,
-  Optional[String]                                 $content                              = undef
+  Optional[String[1]]                              $content                              = undef
 ) {
   include '::rsyslog'
+
+  $_notify_msg = 'TLS is being used and stream_driver_permitted_peers is undefined. In this case, rsyslog::remote::rule uses the name supplied in the dest and/or failover_log_server field for the action. If IP Addresses are being used, this will probably not match the CN or fingerprint of the certificate being presented from the log server and the connection will be denied.  The StreamDriverPermittedPeers directive was defaulted to "*.${facts["domain"]}".  The rule being defined should be reviewed to ensure this is valid. It is recommended to use FQDN in the dest and failover_log_server parameters if TLS is being used or specifically set the stream_driver_permitted_peers parameter' # lint:ignore:single_quote_string_with_variables
 
   $_safe_name = regsubst($name,'/','__')
 
@@ -233,6 +280,34 @@ define rsyslog::rule::remote (
     else {
       $_failover_servers = $failover_log_servers
     }
+
+    if $_use_tls {
+      if $stream_driver_permitted_peers  {
+        $_stream_driver_permitted_peers = $stream_driver_permitted_peers
+      } else {
+        # If $stream_driver_permitted_peers is not defined, then determine if
+        # you should can use the hostname of each server or must fallback
+        # to the client's domain.
+        $_all_servers = [$_dest, $_failover_servers].flatten
+        $_filtered = $_all_servers.filter |$server|  {
+          $result = assert_type(Variant[Simplib::IP, Simplib::IP::CIDR, Simplib::IP::V4::DDQ], $server) |$expected, $actual| { }
+          $result != undef
+        }
+        if $_filtered.empty {
+          # No IP address variants found, so use remote server hostnames
+          $_stream_driver_permitted_peers = undef
+        } else {
+          # At least 1 IP address variant found, so, for backwards
+          # compatibility, use the client's domain as a best-effort guess
+          $_stream_driver_permitted_peers = "*.${facts['domain']}"
+          notify { "TLS StreamDriverPermittedPeers ${name}":
+            message  => ("rsyslog::rule::remote ${_notify_msg}"),
+            loglevel => 'warning'
+          }
+        }
+      }
+    }
+
     $_content = template("${module_name}/rule/remote.erb")
   }
 

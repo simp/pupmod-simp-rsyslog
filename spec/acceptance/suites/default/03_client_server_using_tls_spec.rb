@@ -26,7 +26,7 @@ describe 'rsyslog client -> 1 server using TLS' do
   let(:client_manifest) {
     <<-EOS
       class { 'rsyslog':
-        log_servers        => ['server-1'],
+        log_servers        => ["#{server_fqdn}"],
         logrotate          => true,
         enable_tls_logging => true,
         pki                => false,
@@ -56,7 +56,7 @@ rsyslog::server::enable_firewall : true
       }
 
       class { 'rsyslog':
-        log_servers        => ['server-1'],
+        log_servers        => ["#{server_fqdn}"],
         tls_tcp_server     => true,
         logrotate          => true,
         enable_tls_logging => true,
