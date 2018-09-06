@@ -221,7 +221,7 @@ input(type=\\"imfile\\"
       on client, 'test -f /etc/rsyslog.simp.d/07_simp_drop_rules/audispd.conf'
       on client, 'test -f /etc/rsyslog.simp.d/07_simp_drop_rules/1_drop_openldap_passwords.conf'
 
-      refresh_msg = "Stage[main]/Rsyslog::Service/Service[rsyslog]: Triggered 'refresh' from 1 events"
+      refresh_msg = "Stage[main]/Rsyslog::Service/Service[rsyslog]: Triggered 'refresh' from 1 event"
       expect(result.stdout).to match(Regexp.escape(refresh_msg))
     end
 
@@ -230,7 +230,7 @@ input(type=\\"imfile\\"
       on client, 'test -f /etc/rsyslog.simp.d/07_simp_drop_rules/audispd.conf'
       on client, 'test ! -f /etc/rsyslog.simp.d/07_simp_drop_rules/1_drop_openldap_passwords.conf'
 
-      refresh_msg = "Stage[main]/Rsyslog::Service/Service[rsyslog]: Triggered 'refresh' from 1 events"
+      refresh_msg = "Stage[main]/Rsyslog::Service/Service[rsyslog]: Triggered 'refresh' from 1 event"
       expect(result.stdout).to match(Regexp.escape(refresh_msg))
     end
 

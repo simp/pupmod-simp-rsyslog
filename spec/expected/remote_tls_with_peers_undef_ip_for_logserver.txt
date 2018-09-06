@@ -33,7 +33,7 @@ ruleset(
 #    compression.stream.flushOnTXEnd="on"
     StreamDriverMode="1"
     StreamDriverAuthMode="x509/name"
-    StreamDriverPermittedPeers="*.foo.bar.domain.com"
+    StreamDriverPermittedPeers="*.example.com"
     ResendLastMSGOnReconnect="on"
   )
 }

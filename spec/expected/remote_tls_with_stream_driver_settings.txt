@@ -31,8 +31,9 @@ ruleset(
 #    compression.mode="none"
 ## TODO: Implement this once we upgrade to v7-stable or later.
 #    compression.stream.flushOnTXEnd="on"
-    StreamDriverMode="1"
-    StreamDriverAuthMode="x509/name"
+    StreamDriver="my_stream_driver"
+    StreamDriverMode="2"
+    StreamDriverAuthMode="my_stream_driver/x509/name"
     StreamDriverPermittedPeers="*.my.domain,*.other.place"
     ResendLastMSGOnReconnect="on"
   )
@@ -49,8 +50,9 @@ ruleset(
 #    compression.mode="none"
 ## TODO: Implement this once we upgrade to v7-stable or later.
 #    compression.stream.flushOnTXEnd="on"
-    StreamDriverMode="1"
-    StreamDriverAuthMode="x509/name"
+    StreamDriver="my_stream_driver"
+    StreamDriverMode="2"
+    StreamDriverAuthMode="my_stream_driver/x509/name"
     StreamDriverPermittedPeers="*.my.domain,*.other.place"
     ResendLastMSGOnReconnect="on"
   )
@@ -68,8 +70,9 @@ ruleset(
 #    compression.mode="none"
 ## TODO: Implement this once we upgrade to v7-stable or later.
 #    compression.stream.flushOnTXEnd="on"
-    StreamDriverMode="1"
-    StreamDriverAuthMode="x509/name"
+    StreamDriver="my_stream_driver"
+    StreamDriverMode="2"
+    StreamDriverAuthMode="my_stream_driver/x509/name"
     StreamDriverPermittedPeers="*.my.domain,*.other.place"
     ResendLastMSGOnReconnect="on"
     action.resumeRetryCount="-1"
@@ -106,8 +109,9 @@ ruleset(
 #    compression.mode="none"
 ## TODO: Implement this once we upgrade to v7-stable or later.
 #    compression.stream.flushOnTXEnd="on"
-    StreamDriverMode="1"
-    StreamDriverAuthMode="x509/name"
+    StreamDriver="my_stream_driver"
+    StreamDriverMode="2"
+    StreamDriverAuthMode="my_stream_driver/x509/name"
     StreamDriverPermittedPeers="*.my.domain,*.other.place"
     ResendLastMSGOnReconnect="on"
     action.resumeRetryCount="-1"

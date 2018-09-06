@@ -32,11 +32,14 @@ describe 'rsyslog class' do
   let(:client){ only_host_with_role( hosts, 'client' ) }
   let(:client_fqdn){ fact_on( client, 'fqdn' ) }
   let(:servers){ hosts_with_role( hosts, 'server' ) }
+  let(:server1_fqdn){ fact_on( servers[0], 'fqdn' ) }
+  let(:server2_fqdn){ fact_on( servers[1], 'fqdn' ) }
   let(:failover_servers){ hosts_with_role( hosts, 'failover_server' ) }
+  let(:failover_server_fqdn){ fact_on( failover_servers.first, 'fqdn' ) }
 
   let(:client_manifest_hieradata) {
     {
-      'rsyslog::log_servers'        => ['server-1','server-2'],
+      'rsyslog::log_servers'        => [server1_fqdn, server2_fqdn],
       'rsyslog::logrotate'          => true,
       'rsyslog::enable_tls_logging' => true,
       'rsyslog::pki'                => false,
@@ -55,8 +58,8 @@ describe 'rsyslog class' do
 
   let(:client_failover_hieradata) {
     {
-      'rsyslog::log_servers'          => ['server-1','server-2'],
-      'rsyslog::failover_log_servers' => ['server-3'],
+      'rsyslog::log_servers'          => [server1_fqdn, server2_fqdn],
+      'rsyslog::failover_log_servers' => [failover_server_fqdn],
       'rsyslog::logrotate'            => true,
       'rsyslog::enable_tls_logging'   => true,
       'rsyslog::pki'                  => false,
@@ -66,8 +69,8 @@ describe 'rsyslog class' do
 
   let(:client_failover_small_queue_hieradata) {
     {
-      'rsyslog::log_servers'                           => ['server-1','server-2'],
-      'rsyslog::failover_log_servers'                  => ['server-3'],
+      'rsyslog::log_servers'                           => [server1_fqdn, server2_fqdn],
+      'rsyslog::failover_log_servers'                  => [failover_server_fqdn],
       'rsyslog::logrotate'                             => true,
       'rsyslog::enable_tls_logging'                    => true,
       'rsyslog::pki'                                   => false,

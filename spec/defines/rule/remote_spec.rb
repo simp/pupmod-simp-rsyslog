@@ -1,14 +1,17 @@
 require 'spec_helper'
 
 describe 'rsyslog::rule::remote' do
-  context 'supported operating systems' do
-    on_supported_os.each do |os, facts|
-      context "on #{os}" do
-        let(:title) do
-          'test_name'
-        end
+  on_supported_os.each do |os, os_facts|
+    context "on #{os}" do
+      let(:title) do
+        'test_name'
+      end
 
-        let(:facts) {facts.merge({:domain => 'foo.bar.domain.com'})}
+      let(:facts) {
+        os_facts
+      }
+
+      context 'without TLS' do
 
         context 'with rule and default parameters' do
           let(:params) do
@@ -23,7 +26,7 @@ describe 'rsyslog::rule::remote' do
           it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
         end
 
-        context 'with rule and all optional params specified' do
+        context 'with rule and all optional non-TLS params specified' do
           let(:params) do
             {
               :rule => 'test_rule',
@@ -40,10 +43,6 @@ describe 'rsyslog::rule::remote' do
               :rebind_interval                      => 1,
               :action_resume_interval               => 40,
               :action_resume_retry_count            => 1,
-              :stream_driver                        => 'my_stream_driver',
-              :stream_driver_mode                   => 2,
-              :stream_driver_auth_mode              => 'my_stream_driver/x509/name',
-              :stream_driver_permitted_peers        => "*.${::domain}",
               :resend_last_msg_on_reconnect         => false,
               :udp_send_to_all                      => true,
               :queue_filename                       => 'my_queue',
@@ -78,58 +77,66 @@ describe 'rsyslog::rule::remote' do
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
         end
+      end
 
-        context 'with rule and and TLS turned on and set to -' do
-          let(:hieradata) { "rsyslog_tls" }
+      context 'with TLS' do
+        let(:hieradata) { "rsyslog_tls" }
+        context 'with rule and all hostnames dests' do
+
           let(:params) do
             {
               :rule => 'test_rule',
-              :dest => ['logserver.my.domain', 'logserver2.other.place:4444'],
-              :failover_log_servers => ['failover.my.domain', 'failover.other.place:4444'],
-              :stream_driver_permitted_peers => :undef
+              :dest => ['logserver.my.domain', 'logserver2.other.place:4444']
             }
           end
-          let(:precondition) do
-            'include rsyslog'
-          end
-          let(:expected) { File.read('spec/expected/remote_tls_with_peers_undef.txt') }
+          let(:expected) { File.read('spec/expected/remote_tls_with_peers_undef_hostname_for_logserver.txt') }
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
         end
 
-        context 'with rule and and TLS turned on peers set to string' do
-          let(:hieradata) { "rsyslog_tls" }
+        context 'with rule and all hostnames remotes' do
           let(:params) do
             {
-              :rule => 'test_rule',
-              :dest => ['logserver.my.domain', 'logserver2.other.place:4444'],
-              :failover_log_servers => ['failover.my.domain', 'failover.other.place:4444'],
+              :rule                  => 'test_rule',
+              :dest                  => ['logserver.my.domain', 'logserver2.other.place:4444'],
+              :failover_log_servers  => ['failover.my.domain', 'failover.other.place:4444']
+            }
+          end
+          let(:expected) { File.read('spec/expected/remote_tls_with_peers_undef_hostname_for_remotes.txt') }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
+        end
+
+        context 'with rule optional stream_driver params' do
+          let(:params) do
+            {
+              :rule                          => 'test_rule',
+              :dest                          => ['logserver.my.domain', 'logserver2.other.place:4444'],
+              :failover_log_servers          => ['failover.my.domain', 'failover.other.place:4444'],
+              :stream_driver                 => 'my_stream_driver',
+              :stream_driver_mode            => 2,
+              :stream_driver_auth_mode       => 'my_stream_driver/x509/name',
               :stream_driver_permitted_peers => '*.my.domain,*.other.place'
             }
           end
-          let(:precondition) do
-            'include rsyslog'
-          end
-          let(:expected) { File.read('spec/expected/remote_tls_with_peers_set.txt') }
+
+          let(:expected) { File.read('spec/expected/remote_tls_with_stream_driver_settings.txt') }
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
           it { is_expected.not_to contain_notify("TLS StreamDriverPermittedPeers #{title}") }
         end
 
-        context 'with TLS turned on and destination set to IP Address' do
-          let(:hieradata) { "rsyslog_tls" }
+        context 'with rule and dest with an IP Address' do
           let(:params) do
             {
               :rule => 'test_rule',
               :dest => ['1.2.3.4'],
-              :stream_driver_permitted_peers => :undef
             }
           end
-          let(:precondition) do
-            'include rsyslog'
-          end
+
           let(:expected) { File.read('spec/expected/remote_tls_with_peers_undef_ip_for_logserver.txt') }
 
           it { is_expected.to compile.with_all_deps }
@@ -137,55 +144,50 @@ describe 'rsyslog::rule::remote' do
           it { is_expected.to contain_notify("TLS StreamDriverPermittedPeers #{title}") }
         end
 
-        context 'with TLS turned on and failover set to IP address' do
-          let(:hieradata) { "rsyslog_tls" }
+        context 'with rule, hostname dest, and failover with an IP address' do
           let(:params) do
             {
               :rule => 'test_rule',
               :dest => ['logserver1.my.domain'],
               :failover_log_servers => ['1.2.3.4'],
-              :stream_driver_permitted_peers => :undef
             }
           end
-          let(:precondition) do
-            'include rsyslog'
-          end
+
           let(:expected) { File.read('spec/expected/remote_tls_with_peers_undef_ip_for_failover.txt') }
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
           it { is_expected.to contain_notify("TLS StreamDriverPermittedPeers #{title}") }
         end
+      end
 
-        context 'when content specified' do
-          let(:params) do
-            {
-              :content => "if (\$programname == 'audispd') then stop\n",
-            }
+      context 'when content specified' do
+        let(:params) do
+          {
+            :content => "if (\$programname == 'audispd') then stop\n",
+          }
           end
 
-          it { is_expected.to compile.with_all_deps }
-          it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(
-           "if ($programname == 'audispd') then stop\n"
-          ) }
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(
+         "if ($programname == 'audispd') then stop\n"
+        ) }
+      end
+
+      context 'when neither content nor rule specified' do
+        let(:params) do
+          { }
         end
 
-        context 'when neither content nor rule specified' do
-          let(:params) do
-            { }
-          end
+        it { is_expected.to_not compile.with_all_deps }
+      end
 
-          it { is_expected.to_not compile.with_all_deps }
+      context 'when rule is specified but no destinations are specified' do
+        let(:params) do
+          { :rule => 'test_rule'}
         end
 
-        context 'when rule is specified but no destinations are specified' do
-          let(:params) do
-            { :rule => 'test_rule'}
-          end
-
-          it { is_expected.to_not compile.with_all_deps }
-        end
-
+        it { is_expected.to_not compile.with_all_deps }
       end
     end
   end
