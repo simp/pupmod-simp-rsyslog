@@ -1,3 +1,7 @@
+* Tue Sep 11 2018 Nicholas Markowski <nicholas.markowski@onyxpoint.com> - 7.2.1-0
+- Updated $app_pki_external_source to accept any string. This matches the
+  functionality of pki::copy.
+
 * Thu Aug 30 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> 7.2.1-0
 - Updated rsyslog::rule::remote to select a more intelligent default
   for StreamDriverPermittedPeers, when TLS is enabled.  This improvement

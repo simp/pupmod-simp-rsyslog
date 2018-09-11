@@ -131,7 +131,7 @@ class rsyslog (
   Boolean                       $read_journald           = $::rsyslog::params::read_journald,
   Boolean                       $logrotate               = simplib::lookup('simp_options::logrotate', {'default_value'                     => false}),
   Variant[Boolean,Enum['simp']] $pki                     = simplib::lookup('simp_options::pki', {'default_value'                           => false}),
-  Stdlib::Absolutepath          $app_pki_external_source = simplib::lookup('simp_options::pki::source', {'default_value'                   => '/etc/pki/simp/x509'}),
+  String                        $app_pki_external_source = simplib::lookup('simp_options::pki::source', {'default_value'                   => '/etc/pki/simp/x509'}),
   Stdlib::Absolutepath          $app_pki_dir             = '/etc/pki/simp_apps/rsyslog/x509'
 ) inherits ::rsyslog::params {
 
