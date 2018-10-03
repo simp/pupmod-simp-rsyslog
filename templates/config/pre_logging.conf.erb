@@ -173,13 +173,13 @@ $MainMsgQueueMaxDiskSpace <%= _main_msg_queue_max_disk_space %>
 <% end -%>
 
 <%
-  if @_enable_tls_logging && @facts['rsyslogd'] && @facts['rsyslogd']['version']
-    if scope.call_function('versioncmp', [@facts['rsyslogd']['version'], '8.0.0']) < 0
+   if @_enable_tls_logging
+     if !@facts['rsyslogd'] || (@facts['rsyslogd']['version'] && scope.call_function('versioncmp', [@facts['rsyslogd']['version'], '8.0.0']) < 0)
 -%>
 # For Rsyslog 7, sending of TLS-encrypted messages does not work unless
 # this legacy, global config is set in addition to individual send stream
 # driver settings
 # TODO: Remove when support for Rsyslog 7 is dropped
 $ActionSendStreamDriverMode <%= @action_send_stream_driver_mode %>
-<%  end -%>
+<%   end -%>
 <% end -%>

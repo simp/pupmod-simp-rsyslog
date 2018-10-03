@@ -30,7 +30,17 @@ EOM
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
       let(:facts) do
-        os_facts
+        rsyslog_facts = {
+          :rsyslogd => {
+            'version' => '8.0.0'
+          }
+        }
+
+        if os_facts[:operatingsystemmajrelease] == '6'
+          rsyslog_facts[:rsyslogd]['version'] = '5.2.1'
+        end
+
+        os_facts.merge(rsyslog_facts)
       end
 
       let(:global_conf_file) { '/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf' }

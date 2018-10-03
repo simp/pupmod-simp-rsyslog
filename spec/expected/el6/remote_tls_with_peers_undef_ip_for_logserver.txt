@@ -1,0 +1,18 @@
+ruleset(
+  name="ruleset_test_name"
+) {
+  action(
+    type="omfwd"
+    protocol="tcp"
+    target="1.2.3.4"
+    port="6514"
+    TCP_Framing="traditional"
+    ZipLevel="0"
+    StreamDriverMode="1"
+    StreamDriverAuthMode="x509/name"
+    StreamDriverPermittedPeers="*.example.com"
+    ResendLastMSGOnReconnect="on"
+  )
+}
+
+if (test_rule) then call ruleset_test_name

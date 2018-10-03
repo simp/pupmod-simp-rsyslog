@@ -138,7 +138,7 @@ ruleset(
     target="<%= s_host %>"
     port="<%= s_port %>"
 <%     if s_target.eql? _final_host -%>
-## NOTE: This must exist for the last failover host so that we can queue logs to disk when needed.
+# NOTE: This must exist for the last failover host so that we can queue logs to disk when needed.
     queue.filename="<%= @_queue_filename %>_action"
 <%       if @queue_size -%>
     queue.size="<%= @queue_size %>"
