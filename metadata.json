@@ -14,8 +14,8 @@
     "syslog"
   ],
   "dependencies": [
-    { "name": "simp/systemd",
-      "version_requirement": ">= 1.1.1 < 2.0.0"
+    { "name": "camptocamp/systemd",
+      "version_requirement": ">= 2.1.0 < 3.0.0"
     },
     {
       "name": "puppetlabs/stdlib",
