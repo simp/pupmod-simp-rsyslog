@@ -287,7 +287,6 @@ class rsyslog::config (
 ) {
   assert_private()
 
-  $_rsyslog7 = $::rsyslog::rsyslog7
   $_tcp_server = $::rsyslog::tcp_server
   $_tls_tcp_server = $::rsyslog::tls_tcp_server
   $_tcp_listen_port = $::rsyslog::tcp_listen_port
