@@ -13,7 +13,9 @@ fixtures:
     simplib: https://github.com/simp/pupmod-simp-simplib
     stdlib: https://github.com/simp/puppetlabs-stdlib
     stunnel: https://github.com/simp/pupmod-simp-stunnel
-    systemd:  https://github.com/simp/puppet-systemd
+    systemd:  
+      repo: https://github.com/simp/puppet-systemd
+      branch: simp-master
     tcpwrappers: https://github.com/simp/pupmod-simp-tcpwrappers
   symlinks:
     rsyslog: "#{source_dir}"
