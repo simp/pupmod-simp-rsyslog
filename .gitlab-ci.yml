@@ -98,6 +98,10 @@ cache:
 #
 # | Release   | Puppet | Ruby | End-of-Life Date |
 # |-----------|--------|------|------------------|
+# | PE 2016.4 | 4.7*   | 2.1  | 2018-10
+# | PE 2016.5 | 4.8    | 2.1  | 2017-05
+# | SIMP 6.0  | 4.8    | 2.1  | TBD
+# | PE 2017.1 | 4.9    | 2.1  | 2017-10
 # | PE 2017.2 | 4.10   | 2.1  | 2018-02
 # | SIMP 6.1  | 4.10   | 2.1  | TBD
 # | PE 2017.3 | 5.3    | 2.4  | 2018-08
@@ -106,6 +110,14 @@ cache:
 # * PE 2016.4 released with Puppet 4.7.0, but upgraded to the 4.10 series
 # starting with 2016.4.5.
 #
+
+.pe_2016_4: &pe_2016_4
+  variables:
+    PUPPET_VERSION: '~> 4.7.0'
+
+.simp_6_0: &simp_6_0
+  variables:
+    PUPPET_VERSION: '~> 4.8.1'
 
 .simp_6_1: &simp_6_1
   variables:
@@ -177,6 +189,20 @@ pup5_latest-lint:
 #
 
 # ----------------------------------------------------------------------
+# Puppet 4.7 for early releases of PE 2016.4 LTS
+pup4_7-unit:
+  <<: *unit_base
+  <<: *pe_2016_4
+  image: 'ruby:2.1'
+
+# ----------------------------------------------------------------------
+# Puppet 4.8 for SIMP 6 and PE 2016.5
+pup4_8-unit:
+  <<: *unit_base
+  <<: *simp_6_0
+  image: 'ruby:2.1'
+
+# ----------------------------------------------------------------------
 # Puppet 4.10 for SIMP 6.1, PE 2016.4 LTS, and 2017.2
 pup4_10-unit:
   <<: *unit_base
@@ -212,6 +238,28 @@ pup5_latest-unit:
 # Because acceptance tests are so much more expensive than other tests, this
 # test matrix is even more limited.  Here we stick to versions supported
 # by non-EOL meta-releases of SIMP and LTS versions of Puppet Enterprise.
+
+# ----------------------------------------------------------------------
+# Puppet 4.8 for SIMP 6.0 and PE 2016.5
+el-pup4_8:
+  <<: *acceptance_base
+  <<: *simp_6_0
+  script:
+    - 'bundle exec rake beaker:suites'
+
+el-pup4_8-fips:
+  <<: *acceptance_base
+  <<: *simp_6_0
+  variables:
+    BEAKER_fips: 'yes'
+  script:
+    - 'bundle exec rake beaker:suites'
+
+oel-pup4_8:
+  <<: *acceptance_base
+  <<: *simp_6_0
+  script:
+    - 'bundle exec rake beaker:suites[default,oel]'
 
 # ----------------------------------------------------------------------
 # Puppet 4.10 for SIMP 6.1, PE 2016.4 LTS, and PE 2017.2
