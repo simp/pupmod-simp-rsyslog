@@ -59,9 +59,13 @@ global(
   dropMsgsWithMaliciousDnsPTRRecords="<%= @drop_msgs_with_malicious_dns_ptr_records %>"
   workDirectory="<%= @work_directory %>"
 )
-<% if @_rsyslog7 -%>
+<%
+  if @facts['rsyslogd'] && @facts['rsyslogd']['version']
+    if scope.call_function('versioncmp', [@facts['rsyslogd']['version'], '7.0.0']) >= 0
+-%>
 
 module(load="imklog")
+<%  end -%>
 <% end -%>
 
 module(load="imuxsock"
@@ -131,42 +135,51 @@ $DefaultNetstreamDriverCAFile <%= @default_net_stream_driver_ca_file %>
 $DefaultNetstreamDriverKeyFile <%= @default_net_stream_driver_key_file %>
 <% end -%>
 
-## Implement these once we upgrade to v7-stable or later.
-#main_queue(
-#  queue.type="<%= @main_msg_queue_type %>"
-#  queue.filename="<%= @main_msg_queue_filename %>"
-#  queue.maxfilesize="<%= @main_msg_queue_max_file_size %>M"
-#  queue.size="<%= _main_msg_queue_size %>"
-#  queue.highwatermark="<%= _main_msg_queue_high_watermark %>"
-#  queue.lowwatermark="<%= _main_msg_queue_low_watermark %>"
-#  queue.discardmark="<%= _main_msg_queue_discardmark %>"
-#  queue.workerthreadminimummessages="<%= _main_msg_queue_worker_thread_minimum_messages %>"
-#  queue.workerthreads="<%= _main_msg_queue_worker_threads %>"
-#  queue.timeoutenqueue="<%= @main_msg_queue_timeout_enqueue %>"
-#  queue.dequeueslowdown="<%= @main_msg_queue_dequeue_slowdown %>"
-#  queue.saveonshutdown="<%= @main_msg_queue_save_on_shutdown %>"
-#  queue.maxdiskspace="<%= _main_msg_queue_max_disk_space %>"
-#)
+<%
+  if @facts['rsyslogd'] && @facts['rsyslogd']['version']
+    if scope.call_function('versioncmp', [@facts['rsyslogd']['version'], '8.0.0']) >= 0
+-%>
+main_queue(
+  queue.type="<%= @main_msg_queue_type %>"
+  queue.filename="<%= @main_msg_queue_filename %>"
+  queue.maxfilesize="<%= @main_msg_queue_max_file_size %>M"
+  queue.size="<%= _main_msg_queue_size %>"
+  queue.highwatermark="<%= _main_msg_queue_high_watermark %>"
+  queue.lowwatermark="<%= _main_msg_queue_low_watermark %>"
+  queue.discardmark="<%= _main_msg_queue_discardmark %>"
+  queue.workerthreadminimummessages="<%= _main_msg_queue_worker_thread_minimum_messages %>"
+  queue.workerthreads="<%= _main_msg_queue_worker_threads %>"
+  queue.timeoutenqueue="<%= @main_msg_queue_timeout_enqueue %>"
+  queue.dequeueslowdown="<%= @main_msg_queue_dequeue_slowdown %>"
+  queue.saveonshutdown="<%= @main_msg_queue_save_on_shutdown %>"
+  queue.maxdiskspace="<%= _main_msg_queue_max_disk_space %>"
+)
+<%   else -%>
 
-#TODO: Remove these once the above becomes applicable.
 $MainMsgQueueType <%= @main_msg_queue_type %>
 $MainMsgQueueFilename <%= @main_msg_queue_filename %>
 $MainMsgQueueMaxFileSize <%= @main_msg_queue_max_file_size %>M
 $MainMsgQueueSize <%= _main_msg_queue_size %>
 $MainMsgQueueHighWatermark <%= _main_msg_queue_high_watermark %>
 $MainMsgQueueLowWatermark <%= _main_msg_queue_low_watermark %>
-$MainMsgQueueDiscardMark <%= _main_msg_queue_low_watermark %>
+$MainMsgQueueDiscardMark <%= _main_msg_queue_discardmark %>
 $MainMsgQueueWorkerThreadMinimumMessages <%= _main_msg_queue_worker_thread_minimum_messages %>
-$MainMsgQueueWorkerThreads <%= @main_msg_queue_timeout_enqueue %>
+$MainMsgQueueWorkerThreads <%= _main_msg_queue_worker_threads %>
 $MainMsgQueueTimeoutEnqueue <%= @main_msg_queue_timeout_enqueue %>
 $MainMsgQueueDequeueSlowdown <%= @main_msg_queue_dequeue_slowdown %>
 $MainMsgQueueSaveOnShutdown <%= @main_msg_queue_save_on_shutdown %>
 $MainMsgQueueMaxDiskSpace <%= _main_msg_queue_max_disk_space %>
+<%   end -%>
+<% end -%>
 
-<% if @_rsyslog7  &&  @_enable_tls_logging  -%>
+<%
+   if @_enable_tls_logging
+     if !@facts['rsyslogd'] || (@facts['rsyslogd']['version'] && scope.call_function('versioncmp', [@facts['rsyslogd']['version'], '8.0.0']) < 0)
+-%>
 # For Rsyslog 7, sending of TLS-encrypted messages does not work unless
 # this legacy, global config is set in addition to individual send stream
 # driver settings
 # TODO: Remove when support for Rsyslog 7 is dropped
 $ActionSendStreamDriverMode <%= @action_send_stream_driver_mode %>
+<%   end -%>
 <% end -%>

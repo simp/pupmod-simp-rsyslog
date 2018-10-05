@@ -3,6 +3,24 @@ require 'spec_helper'
 file_content_7 = "/usr/bin/systemctl restart rsyslog > /dev/null 2>&1 || true"
 file_content_6 = "/sbin/service rsyslog restart > /dev/null 2>&1 || true"
 
+reg_exp_el7 = <<EOM
+main_queue\(
+  queue.type=.*
+  queue.filename=.*
+  queue.maxfilesize=.*
+  queue.size=.*
+  queue.highwatermark=.*
+  queue.lowwatermark=.*
+  queue.discardmark=.*
+  queue.workerthreadminimummessages=.*
+  queue.workerthreads=.*
+  queue.timeoutenqueue=.*
+  queue.dequeueslowdown=.*
+  queue.saveonshutdown=.*
+  queue.maxdiskspace=.*
+\)
+EOM
+
 describe 'rsyslog' do
   shared_examples_for 'a structured module' do
     it { is_expected.to compile.with_all_deps }
@@ -30,7 +48,17 @@ EOM
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
       let(:facts) do
-        os_facts
+        rsyslog_facts = {
+          :rsyslogd => {
+            'version' => '8.0.0'
+          }
+        }
+
+        if os_facts[:operatingsystemmajrelease] == '6'
+          rsyslog_facts[:rsyslogd]['version'] = '5.2.1'
+        end
+
+        os_facts.merge(rsyslog_facts)
       end
 
       let(:global_conf_file) { '/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf' }
@@ -56,10 +84,18 @@ EOM
             is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
               .without_content(/ModLoad imjournal/)
           }
+          it {
+            is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
+              .with_content(/[$]?MainMsgQueueType LinkedList\n[$]?MainMsgQueueFilename main_msg_queue\n[$]?MainMsgQueueMaxFileSize [\d]*M\n[$]?MainMsgQueueSize [\d]*\n[$]?MainMsgQueueHighWatermark [\d]*\n[$]?MainMsgQueueLowWatermark [\d]*\n[$]?MainMsgQueueDiscardMark [\d]*\n[$]?MainMsgQueueWorkerThreadMinimumMessages [\d]*\n[$]?MainMsgQueueWorkerThreads [\d]*\n[$]?MainMsgQueueTimeoutEnqueue 100\n[$]?MainMsgQueueDequeueSlowdown 0\n[$]?MainMsgQueueSaveOnShutdown on\n[$]?MainMsgQueueMaxDiskSpace [\d]*M/)
+          }
         else
           it {
             is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
               .with_content(/ModLoad imjournal/)
+          }
+          it {
+            is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
+              .with_content(/queue.type=\"LinkedList\"\n  queue.filename=\"main_msg_queue\"\n  queue.maxfilesize=\"[\d]*M\"\n  queue.size=\"[\d]*\"\n  queue.highwatermark=\"[\d]*\"\n  queue.lowwatermark=\"[\d]*\"\n  queue.discardmark=\"[\d]*\"\n  queue.workerthreadminimummessages=\"[\d]*\"\n  queue.workerthreads=\"[\d]*\"\n  queue.timeoutenqueue=\"100\"\n  queue.dequeueslowdown=\"0\"\n  queue.saveonshutdown=\"on\"\n  queue.maxdiskspace=\"[\d]*M\"/)
           }
         end
 

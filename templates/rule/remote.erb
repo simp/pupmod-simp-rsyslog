@@ -6,46 +6,51 @@
 -%>
 ruleset(
   name="ruleset_<%= @_safe_name %>"
-## TODO: Implement these once DA queues work properly inside of rulesets.
-#  queue.filename="<%= @_queue_filename %>"
-<% if @queue_size -%>
-#  queue.size="<%= @queue_size %>"
-<% end -%>
-#  queue.dequeuebatchsize="<%= @queue_dequeue_batch_size %>"
-<% if @queue_max_disk_space -%>
-#  queue.maxdiskspace="<%= @queue_max_disk_space %>"
-<% end -%>
-<% if @queue_high_watermark -%>
-#  queue.highwatermark="<%= @queue_high_watermark %>"
-<% end -%>
-#  queue.lowwatermark="<%= @queue_low_watermark %>"
-<% if @queue_full_delay_mark -%>
-#  queue.fulldelaymark="<%= @queue_full_delay_mark %>"
-<% end -%>
-<% if @queue_light_delay_mark -%>
-#  queue.lightdelaymark="<%= @queue_light_delay_mark %>"
-<% end -%>
-#  queue.discardmark="<%= @queue_discard_mark %>"
-#  queue.discardseverity="<%= @queue_discard_severity %>"
-<% if @queue_checkpoint_interval -%>
-#  queue.checkpointinterval="<%= @queue_checkpoint_interval %>"
-<% end -%>
-#  queue.syncqueuefiles="<%= _bool_xlat[@queue_sync_queue_files] %>"
-#  queue.type="<%= @queue_type %>"
-#  queue.workerthreads="<%= @queue_worker_threads %>"
-#  queue.timeoutshutdown="<%= @queue_timeout_shutdown %>"
-#  queue.timeoutactioncompletion="<%= @queue_timeout_action_completion %>"
-#  queue.timeoutenqueue="<%= @queue_timeout_enqueue %>"
-#  queue.timeoutworkerthreadshutdown="<%= @queue_timeout_worker_thread_shutdown %>"
-#  queue.workerthreadminimummessages="<%= @queue_worker_thread_minimum_messages %>"
-#  queue.maxfilesize="<%= @queue_max_file_size %>"
-#  queue.saveonshutdown="<%= _bool_xlat[@queue_save_on_shutdown] %>"
-#  queue.dequeueslowdown="<%= @queue_dequeue_slowdown %>"
-<% if @queue_dequeue_time_begin -%>
-#  queue.dequeuetimebegin="<%= @queue_dequeue_time_begin %>"
-<% end -%>
-<% if @queue_dequeue_time_end -%>
-#  queue.dequeuetimeend="<%= @queue_dequeue_time_end %>"
+<%
+  if @facts['rsyslogd'] && @facts['rsyslogd']['version']
+    if scope.call_function('versioncmp', [@facts['rsyslogd']['version'], '8.0.0']) >= 0
+-%>
+  queue.filename="<%= @_queue_filename %>"
+<%   if @queue_size -%>
+  queue.size="<%= @queue_size %>"
+<%   end -%>
+  queue.dequeuebatchsize="<%= @queue_dequeue_batch_size %>"
+<%   if @queue_max_disk_space -%>
+  queue.maxdiskspace="<%= @queue_max_disk_space %>"
+<%   end -%>
+<%   if @queue_high_watermark -%>
+  queue.highwatermark="<%= @queue_high_watermark %>"
+<%   end -%>
+  queue.lowwatermark="<%= @queue_low_watermark %>"
+<%   if @queue_full_delay_mark -%>
+  queue.fulldelaymark="<%= @queue_full_delay_mark %>"
+<%   end -%>
+<%   if @queue_light_delay_mark -%>
+  queue.lightdelaymark="<%= @queue_light_delay_mark %>"
+<%   end -%>
+  queue.discardmark="<%= @queue_discard_mark %>"
+  queue.discardseverity="<%= @queue_discard_severity %>"
+<%   if @queue_checkpoint_interval -%>
+  queue.checkpointinterval="<%= @queue_checkpoint_interval %>"
+<%   end -%>
+  queue.syncqueuefiles="<%= _bool_xlat[@queue_sync_queue_files] %>"
+  queue.type="<%= @queue_type %>"
+  queue.workerthreads="<%= @queue_worker_threads %>"
+  queue.timeoutshutdown="<%= @queue_timeout_shutdown %>"
+  queue.timeoutactioncompletion="<%= @queue_timeout_action_completion %>"
+  queue.timeoutenqueue="<%= @queue_timeout_enqueue %>"
+  queue.timeoutworkerthreadshutdown="<%= @queue_timeout_worker_thread_shutdown %>"
+  queue.workerthreadminimummessages="<%= @queue_worker_thread_minimum_messages %>"
+  queue.maxfilesize="<%= @queue_max_file_size %>"
+  queue.saveonshutdown="<%= _bool_xlat[@queue_save_on_shutdown] %>"
+  queue.dequeueslowdown="<%= @queue_dequeue_slowdown %>"
+<%   if @queue_dequeue_time_begin -%>
+  queue.dequeuetimebegin="<%= @queue_dequeue_time_begin %>"
+<%   end -%>
+<%   if @queue_dequeue_time_end -%>
+  queue.dequeuetimeend="<%= @queue_dequeue_time_end %>"
+<%   end -%>
+<%  end -%>
 <% end -%>
 ) {
 <% @_dest.each do |dest| -%>
@@ -73,16 +78,19 @@ ruleset(
 <%   if @zip_level -%>
     ZipLevel="<%= @zip_level %>"
 <%   end -%>
-<%   if @max_error_messages -%>
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    maxErrorMessages="<%= @max_error_messages %>"
+<%
+     if @facts['rsyslogd'] && @facts['rsyslogd']['version']
+       if scope.call_function('versioncmp', [@facts['rsyslogd']['version'], '8.0.0']) >= 0
+-%>
+<%       if @max_error_messages -%>
+    maxErrorMessages="<%= @max_error_messages %>"
+<%       end -%>
+<%       if @compression_mode -%>
+    compression.mode="<%= @compression_mode %>"
+<%       end -%>
+    compression.stream.flushOnTXEnd="<%= _bool_xlat[@compression_stream_flush_on_tx_end] %>"
+<%     end -%>
 <%   end -%>
-<%   if @compression_mode -%>
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.mode="<%= @compression_mode %>"
-<%   end -%>
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.stream.flushOnTXEnd="<%= _bool_xlat[@compression_stream_flush_on_tx_end] %>"
 <%   if @rebind_interval -%>
     RebindInterval="<%= @rebind_interval %>"
 <%   end -%>
@@ -130,7 +138,7 @@ ruleset(
     target="<%= s_host %>"
     port="<%= s_port %>"
 <%     if s_target.eql? _final_host -%>
-## NOTE: This must exist for the last failover host so that we can queue logs to disk when needed.
+# NOTE: This must exist for the last failover host so that we can queue logs to disk when needed.
     queue.filename="<%= @_queue_filename %>_action"
 <%       if @queue_size -%>
     queue.size="<%= @queue_size %>"
@@ -178,16 +186,19 @@ ruleset(
 <%     if @zip_level -%>
     ZipLevel="<%= @zip_level %>"
 <%     end -%>
-<%     if @max_error_messages -%>
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    maxErrorMessages="<%= @max_error_messages %>"
+<%
+       if @facts['rsyslogd'] && @facts['rsyslogd']['version']
+         if scope.call_function('versioncmp', [@facts['rsyslogd']['version'], '8.0.0']) >= 0
+-%>
+<%         if @max_error_messages -%>
+    maxErrorMessages="<%= @max_error_messages %>"
+<%         end -%>
+<%         if @compression_mode -%>
+    compression.mode="<%= @compression_mode %>"
+<%         end -%>
+    compression.stream.flushOnTXEnd="<%= _bool_xlat[@compression_stream_flush_on_tx_end] %>"
+<%       end -%>
 <%     end -%>
-<%     if @compression_mode -%>
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.mode="<%= @compression_mode %>"
-<%     end -%>
-## TODO: Implement this once we upgrade to v7-stable or later.
-#    compression.stream.flushOnTXEnd="<%= _bool_xlat[@compression_stream_flush_on_tx_end] %>"
 <%     if @rebind_interval -%>
     RebindInterval="<%= @rebind_interval %>"
 <%     end -%>
