@@ -154,8 +154,7 @@ main_queue(
   queue.saveonshutdown="<%= @main_msg_queue_save_on_shutdown %>"
   queue.maxdiskspace="<%= _main_msg_queue_max_disk_space %>"
 )
-<%   end -%>
-<% else -%>
+<%   else -%>
 
 $MainMsgQueueType <%= @main_msg_queue_type %>
 $MainMsgQueueFilename <%= @main_msg_queue_filename %>
@@ -170,6 +169,7 @@ $MainMsgQueueTimeoutEnqueue <%= @main_msg_queue_timeout_enqueue %>
 $MainMsgQueueDequeueSlowdown <%= @main_msg_queue_dequeue_slowdown %>
 $MainMsgQueueSaveOnShutdown <%= @main_msg_queue_save_on_shutdown %>
 $MainMsgQueueMaxDiskSpace <%= _main_msg_queue_max_disk_space %>
+<%   end -%>
 <% end -%>
 
 <%
