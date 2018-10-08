@@ -39,6 +39,11 @@
   unless @main_msg_queue_max_disk_space
     _main_msg_queue_max_disk_space = "#{(_main_msg_queue_size / 1024).round}M"
   end
+
+  _dns_enable = 'on'
+  if @disable_remote_dns
+    _dns_enable = 'off'
+  end
 -%>
 <%
   # Create a boolean translation hash for true/false -> on/off
@@ -58,6 +63,16 @@ global(
   preserveFQDN="<%= t_bool_xlat[@preserve_fqdn] %>"
   dropMsgsWithMaliciousDnsPTRRecords="<%= @drop_msgs_with_malicious_dns_ptr_records %>"
   workDirectory="<%= @work_directory %>"
+<%
+  if @facts['rsyslogd'] && @facts['rsyslogd']['version']
+    if scope.call_function('versioncmp', [@facts['rsyslogd']['version'], '8.6.0']) >= 0
+-%>
+  net.permitACLWarning="<%= t_bool_xlat[@suppress_noauth_warn] %>"
+  net.enableDNS="<%= _dns_enable %>"
+<%
+    end
+  end
+-%>
 )
 <%
   if @facts['rsyslogd'] && @facts['rsyslogd']['version']
@@ -65,8 +80,10 @@ global(
 -%>
 
 module(load="imklog")
-<%  end -%>
-<% end -%>
+<%
+    end
+  end
+-%>
 
 module(load="imuxsock"
   SysSock.IgnoreTimestamp="<%= t_bool_xlat[@syssock_ignore_timestamp] %>"

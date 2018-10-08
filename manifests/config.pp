@@ -186,11 +186,13 @@
 #     **way** up.
 #
 # @param host_list
+#   This option is only valid in rsyslog versions < 8.6.0
 #   Hosts that should be logged with their simple hostname
 #
 #   * See the ``-l`` option in ``rsyslogd(8)`` for more information
 #
 # @param domain_list
+#   This option is only valid in rsyslog versions < 8.6.0
 #   Array of domains that should be stripped off before logging
 #
 #   * See the ``-s`` option in ``rsyslogd(8)`` for more information
@@ -309,7 +311,7 @@ class rsyslog::config (
     $_read_journald = false
   }
 
-  # TODO When we drop Rsyslog 7 support, rename this to be 
+  # TODO When we drop Rsyslog 7 support, rename this to be
   #      tls_input_tcp_server_stream_driver_auth_mode
   if $action_send_stream_driver_auth_mode {
     $_action_send_stream_driver_auth_mode = $action_send_stream_driver_auth_mode
@@ -440,5 +442,15 @@ class rsyslog::config (
 
     # make sure service gets restarted after systemctl daemon-reload
     Class['systemd::systemctl::daemon_reload'] ~> Class['rsyslog::service']
+  }
+
+# give deprecation warning if rsyslog is 8.6 or later and the -l or -s options
+# are being used.
+  if $facts['rsyslogd'] and $facts['rsyslogd']['version'] {
+    if versioncmp($facts['rsyslogd']['version'], '8.6.0') > 0  {
+      if ! empty($host_list) or ! empty($domain_list) {
+        warning('Rsyslog has deprecated the -l and -s options in version 8.6.0 and later')
+      }
+    }
   }
 }

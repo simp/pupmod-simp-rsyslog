@@ -244,5 +244,37 @@ EOM
         it { is_expected.to_not contain_file(global_conf_file).with_content(/^\$DefaultNetStreamDriver/) }
       end
     end
+    context "with later versions of rsyslog on #{os}" do
+      let(:facts) do
+        rsyslog_facts = {
+          :rsyslogd => {
+            'version' => '8.6.0'
+          }
+        }
+        if os_facts[:operatingsystemmajrelease] == '6'
+           rsyslog_facts[:rsyslogd]['version'] = '7.4.10'
+        end
+        os_facts.merge(rsyslog_facts)
+      end
+      let(:hieradata) { 'rsyslog_config_settings' }
+
+      if os_facts[:operatingsystemmajrelease] == '6'
+        it {
+          is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
+            .without_content(/net.permitACLWarning=\"off\"\n  net.enableDNS="off"\n/)
+        }
+        it {
+          is_expected.to contain_file('/etc/sysconfig/rsyslog').with_content(/SYSLOGD_OPTIONS=\" -l my.host.com -s foo.bar -x\"$/)
+        }
+      else
+        it {
+          is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
+            .with_content(/net.permitACLWarning=\"off\"\n  net.enableDNS="off"\n/)
+        }
+        it {
+          is_expected.to contain_file('/etc/sysconfig/rsyslog').with_content(/SYSLOGD_OPTIONS=\"\"$/)
+        }
+      end
+    end
   end
 end
