@@ -444,12 +444,16 @@ class rsyslog::config (
     Class['systemd::systemctl::daemon_reload'] ~> Class['rsyslog::service']
   }
 
-# give deprecation warning if rsyslog is 8.6 or later and the -l or -s options
-# are being used.
+  # give deprecation warning if rsyslog is 8.6 or later and the -l or -s options
+  # are being used.
   if $facts['rsyslogd'] and $facts['rsyslogd']['version'] {
     if versioncmp($facts['rsyslogd']['version'], '8.6.0') > 0  {
-      if ! empty($host_list) or ! empty($domain_list) {
-        warning('Rsyslog has deprecated the -l and -s options in version 8.6.0 and later')
+      if ! empty($host_list) {
+        warning('rsyslog::config::host_list will be ignored: Rsyslog deprecated the -l option in version 8.6.0')
+      }
+
+      if ! empty($domain_list) {
+        warning('rsyslog::config::domain_list will be ignored: Rsyslog deprecated the -s option in version 8.6.0')
       }
     }
   }
