@@ -1,0 +1,8 @@
+---
+rsyslog::config::host_list:
+  - 'my.host.com'
+
+rsyslog::config::domain_list:
+  - 'foo.bar'
+
+rsyslog::config::disable_remote_dns: true

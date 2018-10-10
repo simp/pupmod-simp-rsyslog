@@ -3,28 +3,22 @@
 # in versions 8.6 and later of rsyslogd
   if @facts['rsyslogd'] && @facts['rsyslogd']['version']
     if scope.call_function('versioncmp', [@facts['rsyslogd']['version'], '8.6.0']) < 0
+      opts = ''
+      unless @host_list.empty?
+        opts = opts + " -l #{Array(@host_list).join(':')}"
+      end
 
--%>
+      unless @domain_list.empty?
+        opts = opts + " -s #{Array(@domain_list).join(':')}"
+      end
 
-<%
-opts = ''
-unless @host_list.empty?
-  opts = opts + " -l #{Array(@host_list).join(':')}"
-end
+      if @suppress_noauth_warn
+        opts = opts + " -w"
+      end
 
-unless @domain_list.empty?
-  opts = opts + " -s #{Array(@domain_list).join(':')}"
-end
-
-if @suppress_noauth_warn
-  opts = opts + " -w"
-end
-
-if @disable_remote_dns
-  opts = opts + " -x"
-end
--%>
-<%
+      if @disable_remote_dns
+        opts = opts + " -x"
+      end
     end
   end
 -%>
