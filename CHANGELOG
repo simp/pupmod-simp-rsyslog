@@ -1,3 +1,15 @@
+* Mon Oct 08 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 7.2.1-0
+- Added logic to properly handle rsyslogd parameters for V8.6 and later
+  as documented in CentOS 7.5 Release notes.  These include moving -x and -w
+  options to global.conf and issuing deprecation warning for -l and -s
+  options.
+
+* Wed Oct 05 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.2.1-0
+- Added fact for version of rsyslogd
+- Updated templates to use RainerScript rsyslogd v8 and later
+- Fixed the MainMsgQueueDiscardMark and MainMsgQueueWorkerThreads
+  parameters
+
 * Wed Oct 03 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.2.1-0
 - Update range of simp/systemd to allow version with Hiera 5
 
