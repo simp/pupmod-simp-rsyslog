@@ -119,8 +119,8 @@ input(type=\\"imfile\\"
 
         [ 'Wants', 'After' ].each do |req|
           result = on(client, "systemctl show rsyslog.service | grep ^#{req}=").stdout
-          expect(result).to match /network.target/
-          expect(result).to match /network-online.target/
+          expect(result).to match(/network.target/)
+          expect(result).to match(/network-online.target/)
         end
       else
         puts "Skipping test on #{client.name}, which does not use systemd"
