@@ -1,3 +1,7 @@
+* Thu Oct 11 2018 Nick Miller <nick.miller@onyxpoint.com> - 7.2.1-0
+- Changed rsyslog::install::ensure from 'latest' to 'installed'
+  - It will also respect `simp_options::package_ensure`
+
 * Mon Oct 08 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 7.2.1-0
 - Added logic to properly handle rsyslogd parameters for V8.6 and later
   as documented in CentOS 7.5 Release notes.  These include moving -x and -w
