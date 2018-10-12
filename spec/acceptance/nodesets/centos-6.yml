@@ -11,30 +11,30 @@ HOSTS:
       - default
       - master
       - client
-    platform:   el-6-x86_64
-    box:        centos/6
+    platform: el-6-x86_64
+    box: centos/6
     hypervisor: <%= hypervisor %>
   server-1:
     roles:
       - server
-    platform:   el-6-x86_64
-    box:        centos/6
+    platform: el-6-x86_64
+    box: centos/6
     hypervisor: <%= hypervisor %>
   server-2:
     roles:
       - server
-    platform:   el-6-x86_64
-    box:        centos/6
+    platform: el-6-x86_64
+    box: centos/6
     hypervisor: <%= hypervisor %>
   server-3:
     roles:
       - failover_server
-    platform:   el-6-x86_64
-    box:        centos/6
+    platform: el-6-x86_64
+    box: centos/6
     hypervisor: <%= hypervisor %>
 CONFIG:
-  log_level:       verbose
-  type:            aio
+  log_level: verbose
+  type: aio
   vagrant_memsize: 256
 <% if ENV['BEAKER_PUPPET_COLLECTION'] -%>
   puppet_collection: <%= ENV['BEAKER_PUPPET_COLLECTION'] %>
