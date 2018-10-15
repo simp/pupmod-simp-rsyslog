@@ -1,27 +1,27 @@
-* Thu Oct 11 2018 Nick Miller <nick.miller@onyxpoint.com> - 7.2.1-0
+* Thu Oct 11 2018 Nick Miller <nick.miller@onyxpoint.com> - 7.3.0-0
 - Changed rsyslog::install::ensure from 'latest' to 'installed'
   - It will also respect `simp_options::package_ensure`
 
-* Mon Oct 08 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 7.2.1-0
+* Mon Oct 08 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 7.3.0-0
 - Added logic to properly handle rsyslogd parameters for V8.6 and later
   as documented in CentOS 7.5 Release notes.  These include moving -x and -w
   options to global.conf and issuing deprecation warning for -l and -s
   options.
 
-* Wed Oct 05 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.2.1-0
+* Wed Oct 05 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.3.0-0
 - Added fact for version of rsyslogd
 - Updated templates to use RainerScript rsyslogd v8 and later
 - Fixed the MainMsgQueueDiscardMark and MainMsgQueueWorkerThreads
   parameters
 
-* Wed Oct 03 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.2.1-0
+* Wed Oct 03 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.3.0-0
 - Update range of simp/systemd to allow version with Hiera 5
 
-* Tue Sep 11 2018 Nicholas Markowski <nicholas.markowski@onyxpoint.com> - 7.2.1-0
+* Tue Sep 11 2018 Nicholas Markowski <nicholas.markowski@onyxpoint.com> - 7.3.0-0
 - Updated $app_pki_external_source to accept any string. This matches the
   functionality of pki::copy.
 
-* Thu Aug 30 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> 7.2.1-0
+* Thu Aug 30 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> 7.3.0-0
 - Updated rsyslog::rule::remote to select a more intelligent default
   for StreamDriverPermittedPeers, when TLS is enabled.  This improvement
   fixes the bug in which forwarding of logs to servers in different domains
@@ -36,7 +36,7 @@
     StreamDriverPermittedPeers directive for the forwarding action for
     each server will be set to the domain of the Puppet client.
 
-* Fri Aug 24 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.2.1-0
+* Fri Aug 24 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.3.0-0
 - Updated the tests to no longer reference sudosh as our custom test since we
   are moving away from using it and it could cause confusion.
 
