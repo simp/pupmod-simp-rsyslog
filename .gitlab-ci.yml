@@ -266,7 +266,6 @@ oel-pup5_5:
   <<: *pe_2018_1
   script:
     - 'bundle exec rake beaker:suites[default,oel]'
-  allow_failure: true
 
 el-pup5_5-failover:
   <<: *acceptance_base
