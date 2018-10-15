@@ -76,7 +76,7 @@ EOM
         it { is_expected.to contain_class('rsyslog').with_service_name('rsyslog') }
         it { is_expected.to contain_class('rsyslog').with_package_name(rsyslog_package_name) }
         it { is_expected.to contain_class('rsyslog').with_tls_package_name("#{rsyslog_package_name}-gnutls") }
-        it { is_expected.to contain_package("#{rsyslog_package_name}.x86_64").with_ensure('latest') }
+        it { is_expected.to contain_package("#{rsyslog_package_name}.x86_64").with_ensure('installed') }
         it { is_expected.to contain_package("#{rsyslog_package_name}.i386").with_ensure('absent') }
 
         if os_facts[:operatingsystemmajrelease] == '6'

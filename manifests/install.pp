@@ -9,13 +9,15 @@
 #     parameter
 #
 class rsyslog::install (
-  String $ensure = 'latest'
+  String $ensure = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
 ) {
   assert_private()
 
   $_full_rsyslog_package = "${::rsyslog::package_name}.${facts['hardwaremodel']}"
 
-  package { $_full_rsyslog_package: ensure => $ensure }
+  package { $_full_rsyslog_package:
+    ensure => $ensure
+  }
 
   # remove existing/conflicting packages
   if $::rsyslog::package_name == 'rsyslog7' {

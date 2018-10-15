@@ -5,21 +5,6 @@ test_name 'rsyslog class'
 
 describe 'rsyslog class' do
 
-  before(:context) do
-    hosts.each do |host|
-      interfaces = fact_on(host, 'interfaces').strip.split(',')
-      interfaces.delete_if do |x|
-        x =~ /^lo/
-      end
-
-      interfaces.each do |iface|
-        if fact_on(host, "ipaddress_#{iface}").strip.empty?
-          on(host, "ifup #{iface}", :accept_all_exit_codes => true)
-        end
-      end
-    end
-  end
-
   package_name = 'rsyslog'
   if fact('osfamily') == 'RedHat' && fact('operatingsystemmajrelease') == '6'
     package_name = 'rsyslog7'
@@ -134,8 +119,8 @@ input(type=\\"imfile\\"
 
         [ 'Wants', 'After' ].each do |req|
           result = on(client, "systemctl show rsyslog.service | grep ^#{req}=").stdout
-          expect(result).to match /network.target/
-          expect(result).to match /network-online.target/
+          expect(result).to match(/network.target/)
+          expect(result).to match(/network-online.target/)
         end
       else
         puts "Skipping test on #{client.name}, which does not use systemd"

@@ -6,14 +6,13 @@ fixtures:
       # how fragments are ordered (MODULES-6625)
       repo: https://github.com/simp/puppetlabs-concat
       ref: 4.1.1
-    # haveged: https://github.com/simp/pupmod-simp-haveged
     iptables: https://github.com/simp/pupmod-simp-iptables
     logrotate: https://github.com/simp/pupmod-simp-logrotate
     pki: https://github.com/simp/pupmod-simp-pki
     simplib: https://github.com/simp/pupmod-simp-simplib
     stdlib: https://github.com/simp/puppetlabs-stdlib
     stunnel: https://github.com/simp/pupmod-simp-stunnel
-    systemd:  
+    systemd:
       repo: https://github.com/simp/puppet-systemd
       branch: simp-master
     tcpwrappers: https://github.com/simp/pupmod-simp-tcpwrappers
