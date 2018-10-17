@@ -8,7 +8,7 @@
   options to global.conf and issuing deprecation warning for -l and -s
   options.
 
-* Wed Oct 05 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.3.0-0
+* Fri Oct 05 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.3.0-0
 - Added fact for version of rsyslogd
 - Updated templates to use RainerScript rsyslogd v8 and later
 - Fixed the MainMsgQueueDiscardMark and MainMsgQueueWorkerThreads
