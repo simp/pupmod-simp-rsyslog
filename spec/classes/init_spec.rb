@@ -104,7 +104,7 @@ EOM
             expected = <<EOM
 # This file is managed by Puppet.
 
-[unit]
+[Unit]
 
 Wants=network.target network-online.target
 After=network.target network-online.target
