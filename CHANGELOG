@@ -9,6 +9,7 @@
   options.
 
 * Fri Oct 05 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.3.0-0
+- Fixed a bug in the systemd override file for rsyslog
 - Added fact for version of rsyslogd
 - Updated templates to use RainerScript rsyslogd v8 and later
 - Fixed the MainMsgQueueDiscardMark and MainMsgQueueWorkerThreads
