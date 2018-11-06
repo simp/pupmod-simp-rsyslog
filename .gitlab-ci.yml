@@ -1,312 +1,284 @@
+# The testing matrix considers ruby/puppet versions supported by SIMP and PE:
+#
+# https://puppet.com/docs/pe/2018.1/component_versions_in_recent_pe_releases.html
+# https://puppet.com/misc/puppet-enterprise-lifecycle
+# https://puppet.com/docs/pe/2018.1/overview/getting_support_for_pe.html
+# ------------------------------------------------------------------------------
+# Release       Puppet   Ruby   EOL
+# SIMP 6.1      4.10.6   2.1.9  TBD
+# SIMP 6.2      4.10.12  2.1.9  TBD
+# PE 2016.4.15  4.10.12  2.1.9  2018-12 (LTS)
+# PE 2017.3.10  5.3.8    2.4.4  2018-12 (STS)
+# SIMP 6.3      5.5.7    2.4.4  TBD***
+# PE 2018.1     5.5.6    2.4.4  2020-05 (LTS)***
+# PE 2019.0     6.0      2.5.1  2019-08-31^^^
+#
+# *** = Modules created for SIMP 6.3+ are not required to support Puppet < 5.5
+# ^^^ = SIMP doesn't support 6 yet; tests are info-only and allowed to fail
 ---
-
-#=======================================================================
-# Global stuff
 stages:
   - 'sanity'
-  - 'lint'
-  - 'unit'
+  - 'validation'
   - 'acceptance'
+  - 'compliance'
   - 'deployment'
 
-# Default versions are set only as fallbacks for jobs that don't care which
-# version they use.  Versions should be explicitly set in any job with specific
-# version requirements, even if they match these defaults.
-image: 'ruby:2.1'
+image: 'ruby:2.4'
+
 variables:
-  PUPPET_VERSION: '~> 4.10.0'
-  BUNDLER_VERSION: '' # Unset this in case it's defined on the runner
-  BUNDLER_EXTRA_ARGS: '--without development system_tests'
-  MODULE_NAME: "$(ruby -r json -e 'JSON.load(File.read('metadata.json'))['name']')"
-  MODULE_VERSION: "$(ruby -r json -e 'JSON.load(File.read('metadata.json'))['version']')"
-  GEM_HOME: '${CI_PROJECT_DIR}/vendor/ruby' # Isolate the Ruby Gems environment
-  GEM_PATH: '$GEM_HOME'
+  PUPPET_VERSION:    'UNDEFINED' # <- Matrixed jobs MUST override this (or fail)
+  BUNDLER_VERSION:   '1.16.1'
 
-before_script:
-  - 'PATH="${GEM_HOME}/bin:${PATH}"; export PATH'
-  - '[ "$BUNDLER_VERSION" ] && BUNDLER_VERSION_ARGS="-v $BUNDLER_VERSION"; export BUNDLER_VERSION_ARGS'
-  - 'ruby -v'
-  - 'gem environment'
-  - 'gem sources -u'
-  - 'gem install bundler --no-document $BUNDLER_VERSION_ARGS'
-  - 'bundle install -j "$(nproc)" --no-binstubs --path vendor $BUNDLER_EXTRA_ARGS'
+  # Force dependencies into a path the gitlab-runner user can write to.
+  # (This avoids some failures on Runners with misconfigured ruby environments.)
+  GEM_HOME:          .vendor/gem_install
+  BUNDLE_CACHE_PATH: .vendor/bundle
+  BUNDLE_PATH:       .vendor/bundle
+  BUNDLE_BIN:        .vendor/gem_install/bin
+  BUNDLE_NO_PRUNE:   'true'
 
-cache:
-  key: '${CI_COMMIT_REF_SLUG}'
-  paths:
-    - 'vendor/ruby'
 
-#=======================================================================
-# Anchors
+# bundler dependencies and caching
+#
+# - Cache bundler gems between pipelines foreach Ruby version
+# - Try to use cached and local resources before downloading dependencies
+# --------------------------------------
+.setup_bundler_env: &setup_bundler_env
+  cache:
+    untracked: true
+    key: "${CI_PROJECT_NAMESPACE}_ruby-${MATRIX_RUBY_VERSION}_bundler"
+    paths:
+      - '.vendor'
+  before_script:
+    - 'ruby -e "puts %(Environment Variables:\n  * #{ENV.keys.grep(/PUPPET|SIMP|BEAKER|MATRIX/).map{|v| %(#{v} = #{ENV[v]})}.join(%(\n  * ))})"'
+    - 'declare GEM_BUNDLER_VER=(-v "~> ${BUNDLER_VERSION:-1.16.0}")'
+    - 'declare GEM_INSTALL_CMD=(gem install --no-document)'
+    - 'declare BUNDLER_INSTALL_CMD=(bundle install --no-binstubs --jobs $(nproc) "${FLAGS[@]}")'
+    - 'mkdir -p ${GEM_HOME} ${BUNDLER_BIN}'
+    - 'gem list -ie "${GEM_BUNDLER_VER[@]}" --silent bundler || "${GEM_INSTALL_CMD[@]}" --local "${GEM_BUNDLER_VER[@]}" bundler || "${GEM_INSTALL_CMD[@]}" "${GEM_BUNDLER_VER[@]}" bundler'
+    - 'rm -rf pkg/ || :'
+    - 'bundle check || rm -f Gemfile.lock && ("${BUNDLER_INSTALL_CMD[@]}" --local || "${BUNDLER_INSTALL_CMD[@]}" || bundle pristine ||  "${BUNDLER_INSTALL_CMD[@]}") || { echo "PIPELINE: Bundler could not install everything (see log output above)" && exit 99 ; }'
 
-.lint_base: &lint_base
-  stage: 'lint'
+# To avoid running a prohibitive number of tests every commit,
+# don't set this env var in your gitlab instance
+.only_with_SIMP_FULL_MATRIX: &only_with_SIMP_FULL_MATRIX
+  only:
+    variables:
+      - $SIMP_FULL_MATRIX == "yes"
+
+# Puppet Versions
+#-----------------------------------------------------------------------
+
+.pup_4: &pup_4
+  image: 'ruby:2.4'
+  variables:
+    PUPPET_VERSION: '~> 4.0'
+    MATRIX_RUBY_VERSION: '2.1'
+
+.pup_4_10: &pup_4_10
+  image: 'ruby:2.1'
+  variables:
+    PUPPET_VERSION: '~> 4.10.4'
+    MATRIX_RUBY_VERSION: '2.1'
+
+.pup_5: &pup_5
+  image: 'ruby:2.4'
+  variables:
+    PUPPET_VERSION: '~> 5.0'
+    BEAKER_PUPPET_COLLECTION: 'puppet5'
+    MATRIX_RUBY_VERSION: '2.4'
+
+.pup_5_3: &pup_5_3
+  image: 'ruby:2.4'
+  variables:
+    PUPPET_VERSION: '~> 5.3.0'
+    BEAKER_PUPPET_COLLECTION: 'puppet5'
+    MATRIX_RUBY_VERSION: '2.4'
+
+.pup_5_5_7: &pup_5_5_7
+  image: 'ruby:2.4'
+  variables:
+    PUPPET_VERSION: '5.5.7'
+    BEAKER_PUPPET_COLLECTION: 'puppet5'
+    MATRIX_RUBY_VERSION: '2.4'
+
+.pup_6: &pup_6
+  allow_failure: true
+  image: 'ruby:2.5'
+  variables:
+    PUPPET_VERSION: '~> 6.0'
+    BEAKER_PUPPET_COLLECTION: 'puppet6'
+    MATRIX_RUBY_VERSION: '2.5'
+
+
+# Testing Environments
+#-----------------------------------------------------------------------
+
+.lint_tests: &lint_tests
+  stage: 'validation'
   tags: ['docker']
+  <<: *setup_bundler_env
   script:
     - 'bundle exec rake syntax'
     - 'bundle exec rake lint'
-  cache:
-    policy: 'pull'
-  dependencies: []
-  artifacts:
-    when: 'always'
-    paths:
-      - 'Gemfile.lock'
+    - 'bundle exec rake metadata_lint'
 
-.unit_base: &unit_base
-  stage: 'unit'
+.unit_tests: &unit_tests
+  stage: 'validation'
   tags: ['docker']
-  variables:
-    STRINGIFY_FACTS: 'no'
-    TRUSTED_NODE_DATA: 'yes'
+  <<: *setup_bundler_env
   script:
     - 'bundle exec rake spec'
-  cache:
-    policy: 'pull'
-  dependencies: []
-  artifacts:
-    when: 'always'
-    paths:
-      - 'Gemfile.lock'
 
 .acceptance_base: &acceptance_base
   stage: 'acceptance'
   tags: ['beaker']
-  variables:
-    BUNDLER_EXTRA_ARGS: '--without development'
-  cache:
-    policy: 'pull'
-  dependencies: []
-  artifacts:
-    when: 'always'
-    paths:
-      - 'Gemfile.lock'
+  <<: *setup_bundler_env
 
-# ----------------------------------------------------------------------
-# Version Matrix
-#
-# It would be too expensive, both in time and compute resources, to test
-# against every last version combination, so we restrict it to a subset.
-# Version sets are selected based on current support policies for major platform
-# software, such as Puppet and Ruby.  Namely, we use the version combinations
-# bundled in Puppet Enterprise.
-#
-# For more information see:
-#  * https://puppet.com/docs/pe/latest/overview/component_versions_in_recent_pe_releases.html
-#  * https://puppet.com/misc/puppet-enterprise-lifecycle
-#  * https://puppet.com/docs/pe/latest/overview/getting_support_for_pe.html#standard-releases-and-long-term-support-releases
-#
-# | Release   | Puppet | Ruby | End-of-Life Date |
-# |-----------|--------|------|------------------|
-# | PE 2017.2 | 4.10   | 2.1  | 2018-02
-# | SIMP 6.1  | 4.10   | 2.1  | TBD
-# | PE 2017.3 | 5.3    | 2.4  | 2018-08
-# | PE 2018.1 | 5.5    | 2.4  | 2020-05
-#
-# * PE 2016.4 released with Puppet 4.7.0, but upgraded to the 4.10 series
-# starting with 2016.4.5.
-#
-
-.simp_6_1: &simp_6_1
-  variables:
-    PUPPET_VERSION: '~> 4.10.8'
-
-.pe_2017_3: &pe_2017_3
-  variables:
-    BEAKER_PUPPET_COLLECTION: 'puppet5'
-    PUPPET_VERSION: '~> 5.3.2'
-
-.pe_2018_1: &pe_2018_1
-  variables:
-    BEAKER_PUPPET_COLLECTION: 'puppet5'
-    PUPPET_VERSION: '~> 5.5.1'
-
-.pup4_latest: &pup4_latest
-  variables:
-    PUPPET_VERSION: '~> 4.0'
-
-.pup5_latest: &pup5_latest
-  variables:
-    BEAKER_PUPPET_COLLECTION: 'puppet5'
-    PUPPET_VERSION: '~> 5.0'
+.compliance_base: &compliance_base
+  stage: 'compliance'
+  tags: ['beaker']
+  <<: *setup_bundler_env
 
 
+# Pipeline / testing matrix
 #=======================================================================
-# Basic Sanity Checks
-#
 
-# Execute simple sanity checks on the environment before proceeding to more
-# resource-intensive jobs.  Besides running checks, this condenses the initial
-# cache generation into a single job for the later stages.  The first stage,
-# in particular, would otherwise suffer a heavy cache-miss penalty as its
-# jobs kick off in parallel.
 sanity_checks:
+  <<: *pup_5
+  <<: *setup_bundler_env
   stage: 'sanity'
   tags: ['docker']
   script:
+    - 'if `hash apt-get`; then apt-get update; fi'
+    - 'if `hash apt-get`; then apt-get install -y rpm; fi'
     - 'bundle exec rake check:dot_underscore'
     - 'bundle exec rake check:test_file'
     - 'bundle exec rake pkg:check_version'
     - 'bundle exec rake pkg:compare_latest_tag'
+    - 'bundle exec rake pkg:create_tag_changelog'
+    - 'bundle exec puppet module build'
 
-tag_check:
-  stage: 'sanity'
-  only: ['tags']
-  tags: ['docker']
-  script: '[ "$CI_COMMIT_TAG" = "$MODULE_VERSION" ] || ( echo "ERROR: Tag does not match metadata version" && exit 1 )'
+# Linting
+#-----------------------------------------------------------------------
 
+pup4-lint:
+  <<: *pup_4
+  <<: *lint_tests
 
-#=======================================================================
-# Lint Tests
-#
+pup5-lint:
+  <<: *pup_5
+  <<: *lint_tests
 
-# Linting, for the most part, isn't affected by version changes in Puppet,
-# so we only test against the latest version for each MAJOR release.
-pup4_latest-lint:
-  <<: *lint_base
-  <<: *pup4_latest
-  image: 'ruby:2.1'
+pup6-lint:
+  <<: *pup_6
+  <<: *lint_tests
 
-pup5_latest-lint:
-  <<: *lint_base
-  <<: *pup5_latest
-  image: 'ruby:2.4'
+# Unit Tests
+#-----------------------------------------------------------------------
 
-#=======================================================================
-# Unit Test Matrix
-#
+pup5-unit:
+  <<: *pup_5
+  <<: *unit_tests
 
-# ----------------------------------------------------------------------
-# Puppet 4.10 for SIMP 6.1, PE 2016.4 LTS, and 2017.2
-pup4_10-unit:
-  <<: *unit_base
-  <<: *simp_6_1
-  image: 'ruby:2.1'
+pup5.3-unit:
+  <<: *pup_5_3
+  <<: *unit_tests
 
-# ----------------------------------------------------------------------
-# Puppet 5.3 for PE 2017.3
-pup5_3-unit:
-  <<: *unit_base
-  <<: *pe_2017_3
-  image: 'ruby:2.4'
+pup5.5.7-unit:
+  <<: *pup_5_5_7
+  <<: *unit_tests
 
-# ----------------------------------------------------------------------
-# Puppet 5.5 for PE 2018.1 LTS
-pup5_5-unit:
-  <<: *unit_base
-  <<: *pe_2018_1
-  image: 'ruby:2.4'
+pup4.10-unit:
+  <<: *pup_4_10
+  <<: *unit_tests
 
-# ----------------------------------------------------------------------
-# Keep an eye on the latest Puppet 5.x release
-pup5_latest-unit:
-  <<: *unit_base
-  <<: *pup5_latest
-  image: 'ruby:2.4'
+pup6-unit:
+  <<: *pup_6
+  <<: *unit_tests
 
-
-# ==============================================================================
 # Acceptance tests
-#
-
-# Because acceptance tests are so much more expensive than other tests, this
-# test matrix is even more limited.  Here we stick to versions supported
-# by non-EOL meta-releases of SIMP and LTS versions of Puppet Enterprise.
-
-# ----------------------------------------------------------------------
-# Puppet 4.10 for SIMP 6.1, PE 2016.4 LTS, and PE 2017.2
-el-pup4_10:
+# ==============================================================================
+pup4.10:
+  <<: *pup_4_10
   <<: *acceptance_base
-  <<: *simp_6_1
   script:
     - 'bundle exec rake beaker:suites'
 
-el-pup4_10-fips:
+pup4.10-failover:
+  <<: *pup_4_10
   <<: *acceptance_base
-  <<: *simp_6_1
-  variables:
-    BEAKER_fips: 'yes'
-  script:
-    - bundle exec rake beaker:suites
-
-el-pup4_10-failover:
-  <<: *acceptance_base
-  <<: *simp_6_1
+  <<: *only_with_SIMP_FULL_MATRIX
   script:
     - 'bundle exec rake beaker:suites[failover]'
-  allow_failure: true
 
-el-pup4_10-failover-fips:
+pup4.10-fips:
+  <<: *pup_4_10
   <<: *acceptance_base
-  <<: *simp_6_1
-  variables:
-    BEAKER_fips: 'yes'
+  <<: *only_with_SIMP_FULL_MATRIX
+  script:
+    - 'BEAKER_fips=yes bundle exec rake beaker:suites'
+
+pup4.10-failover-fips:
+  <<: *pup_4_10
+  <<: *acceptance_base
+  <<: *only_with_SIMP_FULL_MATRIX
+  script:
+    - 'BEAKER_fips=yes bundle exec rake beaker:suites[failover]'
+
+pup5.5.7:
+  <<: *pup_5_5_7
+  <<: *acceptance_base
+  script:
+    - 'bundle exec rake beaker:suites'
+
+pup5.5.7-failover:
+  <<: *pup_5_5_7
+  <<: *acceptance_base
   script:
     - 'bundle exec rake beaker:suites[failover]'
-  allow_failure: true
 
-# ----------------------------------------------------------------------
-# Puppet 5.5 for PE 2018.1 LTS
-el-pup5_5:
+pup5.5.7-fips:
+  <<: *pup_5_5_7
   <<: *acceptance_base
-  <<: *pe_2018_1
   script:
-    - 'bundle exec rake beaker:suites'
+    - 'BEAKER_fips=yes bundle exec rake beaker:suites'
 
-el-pup5_5-fips:
+pup5.5.7-fips-failover:
+  <<: *pup_5_5_7
   <<: *acceptance_base
-  <<: *pe_2018_1
-  variables:
-    BEAKER_fips: 'yes'
   script:
-    - 'bundle exec rake beaker:suites'
+    - 'BEAKER_fips=yes bundle exec rake beaker:suites[failover]'
 
-oel-pup5_5:
+pup5.5.7-oel:
+  <<: *pup_5_5_7
   <<: *acceptance_base
-  <<: *pe_2018_1
   script:
     - 'bundle exec rake beaker:suites[default,oel]'
 
-el-pup5_5-failover:
+pup5.5.7-oel-failover:
+  <<: *pup_5_5_7
   <<: *acceptance_base
-  <<: *pe_2018_1
-  script:
-    - 'bundle exec rake beaker:suites[failover]'
-  allow_failure: true
-
-el-pup5_5-failover-fips:
-  <<: *acceptance_base
-  <<: *pe_2018_1
-  variables:
-    BEAKER_fips: 'yes'
-  script:
-    - 'bundle exec rake beaker:suites[failover]'
-  allow_failure: true
-
-oel-pup5_5-failover:
-  <<: *acceptance_base
-  <<: *pe_2018_1
+  <<: *only_with_SIMP_FULL_MATRIX
   script:
     - 'bundle exec rake beaker:suites[failover,oel]'
-  allow_failure: true
 
-#=======================================================================
-# Deployment Jobs
-
-module_build:
-  only:
-    - 'tags'
-  stage: 'deployment'
-  tags:
-    - 'docker'
+pup5.5.7-oel-fips:
+  <<: *pup_5_5_7
+  <<: *acceptance_base
+  <<: *only_with_SIMP_FULL_MATRIX
   script:
-    - 'bundle exec rake clean'
-    - 'rm -rf pkg/'
-    - 'bundle exec puppet module build'
-  artifacts:
-    name: 'forge_release-${CI_COMMIT_TAG}'
-    when: 'on_success'
-    paths:
-      - 'pkg/${MODULE_NAME}-${MODULE_VERSION}.tar.gz'
+    - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,oel]'
 
-# vi:tabstop=2:shiftwidth=2:expandtab
+pup5.5.7-oel-failover-fips:
+  <<: *pup_5_5_7
+  <<: *acceptance_base
+  <<: *only_with_SIMP_FULL_MATRIX
+  script:
+    - 'BEAKER_fips=yes bundle exec rake beaker:suites[failover,oel]'
+
+# pup5.5.7-compliance-fips:
+#   <<: *pup_5_5_7
+#   <<: *compliance_base
+#   script:
+#     - 'BEAKER_fips=yes bundle exec rake beaker:suites[compliance]'
