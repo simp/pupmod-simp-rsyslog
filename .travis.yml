@@ -97,7 +97,7 @@ jobs:
         - bundle exec rake spec
 
     - stage: deploy
-      rvm: 2.4.1
+      rvm: 2.4.4
       script:
         - true
       before_deploy:
@@ -118,5 +118,4 @@ jobs:
             secure: "dLEr1qGxxo9+sR1LKnj8LD8jrYmNKiKkQr+6Us/O4vzL4z4JO1F8Hta9J9wunVbjsuwyZa7gmHEBObOxcmnKJKqwoHofIQVxdbd5R0xl5nfd2WCx7/m6yocU5ZEbn/toxNYw9J61Mts99L3iFTg2Stjkn20agTmkt6T7HUQOCdachs46EZ/cAOGUNxqM013Vk/EgVT0FFYkMda6KbIZ7GOjuToCH8/YgYhl3xZr1R+GKLlXqUV3Yvokc3Xi7DTmVr85q4FoLQoS85tEjfwtBuuLD1DX003QM66IJDca2ZgD+FMIrGxtOQs6Md1hPiMlO4qNzyGf6N9e1v5LgxzcLLsZ6cndEXZJ/hCGBV6AlsIObvjjyuK0qAv2/ztoDOZKfJFRZU4hGEcaYVdC/oJY8M8sNnNLapleForM3mtX3v6H+fgHQtI3wtYWeZvCuEkP76qt9VxKD03X70JgDu34tXtxwm/eQF0Aj0+/SaUS/gQbF0o9wPBnV9/4Q32ERC/r3qPp4MzGsifMdsy80SUxiVtYaJDESbDLcS9eg46MwvcpsVje5U17ldA1fCRZW5rQ0feb7bUqfUAbeAmg9E0wJrzcY4zrdSzq7SqtteaDtTMfQnstVe3kvw4eLEWYULoELo+BV6JelMtqGBvKWtjhsqmuq1DnAqoDqKKnH46HF73I="
           on:
             tags: true
-            rvm: 2.4.1
             condition: '($SKIP_FORGE_PUBLISH != true)'
