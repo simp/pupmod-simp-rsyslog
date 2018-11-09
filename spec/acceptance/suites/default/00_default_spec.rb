@@ -88,6 +88,8 @@ input(type=\\"imfile\\"
     it 'should work with no errors' do
       apply_manifest_on(client, manifest, :catch_failures => true)
 
+      # requires 2 runs to be idempotent on centos6
+      apply_manifest_on(client, manifest, :catch_failures => true)
       # reboot to apply auditd changes
       # shell( 'shutdown -r now', { :expect_connection_failure => true } )
     end

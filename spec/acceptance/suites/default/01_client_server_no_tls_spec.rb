@@ -74,6 +74,9 @@ rsyslog::server::enable_firewall : true
     it 'should configure server without errors' do
       set_hieradata_on(server, hieradata)
       apply_manifest_on(server, server_manifest, :catch_failures => true)
+
+      # requires 2 runs to be idempotent on centos6
+      apply_manifest_on(server, server_manifest, :catch_failures => true)
     end
 
     it 'should configure server idempotently' do
