@@ -1,3 +1,7 @@
+* Mon Mar 04 2019 Liz Nemsick <lnemsick.simp@gmail.com> - 7.3.1-0
+- Expanded the upper limit of the stdlib Puppet module version
+- Updated a URL in the README.md
+
 * Thu Oct 11 2018 Nick Miller <nick.miller@onyxpoint.com> - 7.3.0-0
 - Changed rsyslog::install::ensure from 'latest' to 'installed'
   - It will also respect `simp_options::package_ensure`

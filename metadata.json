@@ -1,6 +1,6 @@
 {
   "name": "simp-rsyslog",
-  "version": "7.3.0",
+  "version": "7.3.1",
   "author": "SIMP Team",
   "summary": "A puppet module to support RSyslog versions 7 and higher using new style RainerScript.",
   "license": "Apache-2.0",
@@ -19,7 +19,7 @@
     },
     {
       "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 4.13.1 < 5.0.0"
+      "version_requirement": ">= 4.13.1 < 6.0.0"
     },
     {
       "name": "simp/iptables",
