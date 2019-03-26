@@ -10,7 +10,7 @@ fixtures:
     stunnel: https://github.com/simp/pupmod-simp-stunnel
     systemd:
       repo: https://github.com/simp/puppet-systemd
-      branch: simp-master
+      branch: master
     tcpwrappers: https://github.com/simp/pupmod-simp-tcpwrappers
   symlinks:
     rsyslog: "#{source_dir}"
