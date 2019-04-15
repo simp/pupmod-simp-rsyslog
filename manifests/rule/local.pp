@@ -12,6 +12,20 @@
 #   * Other/Miscellaneous Rules
 #   * Local Rules
 #
+# NOTE: Since many of the parameters here may need to be modified on a
+# case-by-base basis, this defined type uses capabilities presented by the
+# ``simplib::dlookup`` function to allow for either global overrides or
+# instance-specific overrides.
+#
+# Global overrides work the same way as classes
+# (``rsyslog::rule::local::file_create_mode: '0644'``) but will affect **all**
+# instances of the defined type that are not specifically overridden as shown
+# below.
+#
+# Instance specific overrides preclude the need for a resource collector in
+# that you can place the follwing in Hiera to affect a single instance named
+# ``my_rule``: ``Rsyslog::Rule::Local[my_rule]::file_create_mode: '0600'``
+#
 # @example Capture OpenLDAP Logs Then Stop Processing
 #   rsyslog::rule::local { 'collect_openldap':
 #     rule            => "prifilt('local4.*')",
@@ -113,59 +127,59 @@
 # @see http://www.rsyslog.com/doc/rainerscript.html RainerScript Documentation
 #
 define rsyslog::rule::local (
-  Optional[String]                                $rule                                 = undef,
-  Optional[Stdlib::Absolutepath]                  $target_log_file                      = undef,
-  Boolean                                         $stop_processing                      = false,
-  Optional[String]                                $dyna_file                            = undef,
-  Optional[String]                                $template                             = undef,
-  Integer[0]                                      $dyna_file_cache_size                 = 10,
-  Integer[0,9]                                    $zip_level                            = 0,
-  Boolean                                         $very_robust_zip                      = true,
-  Integer[0]                                      $flush_interval                       = 0,
-  Boolean                                         $async_writing                        = false,
-  Boolean                                         $flush_on_tx_end                      = true,
-  Optional[Integer[0]]                            $io_buffer_size                       = undef,
-  Optional[String]                                $dir_owner                            = undef,
-  Optional[Integer[0]]                            $dir_owner_num                        = undef,
-  Optional[String]                                $dir_group                            = undef,
-  Optional[Integer[0]]                            $dir_group_num                        = undef,
-  Optional[String]                                $file_owner                           = undef,
-  Optional[Integer[0]]                            $file_owner_num                       = undef,
-  Optional[String]                                $file_group                           = undef,
-  Optional[Integer[0]]                            $file_group_num                       = undef,
-  String                                          $file_create_mode                     = '0644',
-  String                                          $dir_create_mode                      = '0700',
-  Boolean                                         $fail_on_chown_failure                = true,
-  Boolean                                         $create_dirs                          = true,
-  Boolean                                         $sync                                 = false,
-  Optional[String]                                $sig_provider                         = undef,
-  Optional[String]                                $cry_provider                         = undef,
-  Optional[Stdlib::Absolutepath]                  $queue_filename                       = undef,
-  Optional[Stdlib::Absolutepath]                  $queue_spool_directory                = undef,
-  Optional[Integer[0]]                            $queue_size                           = undef,
-  Integer[0]                                      $queue_dequeue_batch_size             = 16,
-  Optional[Integer[0]]                            $queue_max_disk_space                 = undef,
-  Optional[Integer[0]]                            $queue_high_watermark                 = undef,
-  Integer[0]                                      $queue_low_watermark                  = 2000,
-  Optional[Integer[0]]                            $queue_full_delay_mark                = undef,
-  Optional[Integer[0]]                            $queue_light_delay_mark               = undef,
-  Integer[0]                                      $queue_discard_mark                   = 9750,
-  Integer[0]                                      $queue_discard_severity               = 8,
-  Optional[Integer[0]]                            $queue_checkpoint_interval            = undef,
-  Boolean                                         $queue_sync_queue_files               = false,
-  Enum['FixedArray','LinkedList','Direct','Disk'] $queue_type                           = 'Direct',
-  Integer[0]                                      $queue_worker_threads                 = 1,
-  Integer[0]                                      $queue_timeout_shutdown               = 0,
-  Integer[0]                                      $queue_timeout_action_completion      = 1000,
-  Integer[0]                                      $queue_timeout_enqueue                = 2000,
-  Integer[0]                                      $queue_timeout_worker_thread_shutdown = 60000,
-  Integer[0]                                      $queue_worker_thread_minimum_messages = 100,
-  String                                          $queue_max_file_size                  = '1m',
-  Boolean                                         $queue_save_on_shutdown               = false,
-  Integer[0]                                      $queue_dequeue_slowdown               = 0,
-  Optional[Integer[0]]                            $queue_dequeue_time_begin             = undef,
-  Optional[Integer[0]]                            $queue_dequeue_time_end               = undef,
-  Optional[String]                                $content                              = undef
+  Optional[String[1]]            $rule                                 = undef,
+  Optional[Stdlib::Absolutepath] $target_log_file                      = undef,
+  Boolean                        $stop_processing                      = false,
+  Optional[String[1]]            $dyna_file                            = undef,
+  Optional[String[1]]            $template                             = undef,
+  Integer[0]                     $dyna_file_cache_size                 = 10,
+  Integer[0,9]                   $zip_level                            = 0,
+  Boolean                        $very_robust_zip                      = true,
+  Integer[0]                     $flush_interval                       = 0,
+  Boolean                        $async_writing                        = false,
+  Boolean                        $flush_on_tx_end                      = true,
+  Optional[Integer[0]]           $io_buffer_size                       = undef,
+  Optional[String[1]]            $dir_owner                            = undef,
+  Optional[Integer[0]]           $dir_owner_num                        = undef,
+  Optional[String[1]]            $dir_group                            = undef,
+  Optional[Integer[0]]           $dir_group_num                        = undef,
+  Optional[String[1]]            $file_owner                           = undef,
+  Optional[Integer[0]]           $file_owner_num                       = undef,
+  Optional[String[1]]            $file_group                           = undef,
+  Optional[Integer[0]]           $file_group_num                       = undef,
+  Stdlib::Filemode               $file_create_mode                     = simplib::dlookup('rsyslog::rule::local', 'file_create_mode', $name, { 'default_value' => '0640' }),
+  Stdlib::Filemode               $dir_create_mode                      = simplib::dlookup('rsyslog::rule::local', 'dir_create_mode', $name, { 'default_value' => '0700' }),
+  Boolean                        $fail_on_chown_failure                = true,
+  Boolean                        $create_dirs                          = true,
+  Boolean                        $sync                                 = false,
+  Optional[String[1]]            $sig_provider                         = undef,
+  Optional[String[1]]            $cry_provider                         = undef,
+  Optional[Stdlib::Absolutepath] $queue_filename                       = undef,
+  Optional[Stdlib::Absolutepath] $queue_spool_directory                = undef,
+  Optional[Integer[0]]           $queue_size                           = undef,
+  Integer[0]                     $queue_dequeue_batch_size             = 16,
+  Optional[Integer[0]]           $queue_max_disk_space                 = undef,
+  Optional[Integer[0]]           $queue_high_watermark                 = undef,
+  Integer[0]                     $queue_low_watermark                  = 2000,
+  Optional[Integer[0]]           $queue_full_delay_mark                = undef,
+  Optional[Integer[0]]           $queue_light_delay_mark               = undef,
+  Integer[0]                     $queue_discard_mark                   = 9750,
+  Integer[0]                     $queue_discard_severity               = 8,
+  Optional[Integer[0]]           $queue_checkpoint_interval            = undef,
+  Boolean                        $queue_sync_queue_files               = false,
+  Rsyslog::QueueType             $queue_type                           = 'Direct',
+  Integer[0]                     $queue_worker_threads                 = 1,
+  Integer[0]                     $queue_timeout_shutdown               = 0,
+  Integer[0]                     $queue_timeout_action_completion      = 1000,
+  Integer[0]                     $queue_timeout_enqueue                = 2000,
+  Integer[0]                     $queue_timeout_worker_thread_shutdown = 60000,
+  Integer[0]                     $queue_worker_thread_minimum_messages = 100,
+  String[1]                      $queue_max_file_size                  = simplib::dlookup('rsyslog::rule::local', 'queue_max_file_size', $name, { 'default_value' => '1m' }),
+  Boolean                        $queue_save_on_shutdown               = false,
+  Integer[0]                     $queue_dequeue_slowdown               = 0,
+  Optional[Integer[0]]           $queue_dequeue_time_begin             = undef,
+  Optional[Integer[0]]           $queue_dequeue_time_end               = undef,
+  Optional[String[1]]            $content                              = undef
 ) {
 
   unless ($rule or $content) {

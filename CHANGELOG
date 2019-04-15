@@ -1,3 +1,10 @@
+* Mon Apr 15 2019 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.4.0-0
+- Set rsyslog::rule::local::file_create_mode to 0640 by default
+- Allow the following to be set directly via Hiera using simplib::dlookup:
+  - rsyslog::rule::local::file_create_mode
+  - rsyslog::rule::local::dir_create_mode
+  - rsyslog::rule::local::queue_max_file_size
+
 * Tue Mar 26 2019 Joseph Sharkey <shark.bruhaha@gmail.com> - 7.4.0-0
 - Updated dependencies to use camptocamp/systemd
 
