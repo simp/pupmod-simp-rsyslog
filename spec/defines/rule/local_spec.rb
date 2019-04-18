@@ -33,7 +33,7 @@ if (test_rule) then {
     flushInterval="0"
     flushOnTXEnd="on"
     fileCreateMode="0640"
-    dirCreateMode="0700"
+    dirCreateMode="0750"
     failOnChownFailure="on"
     createDirs="on"
     queue.dequeuebatchsize="16"
