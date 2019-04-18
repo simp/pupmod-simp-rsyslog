@@ -148,7 +148,7 @@ define rsyslog::rule::local (
   Optional[String[1]]            $file_group                           = undef,
   Optional[Integer[0]]           $file_group_num                       = undef,
   Stdlib::Filemode               $file_create_mode                     = simplib::dlookup('rsyslog::rule::local', 'file_create_mode', $name, { 'default_value' => '0640' }),
-  Stdlib::Filemode               $dir_create_mode                      = simplib::dlookup('rsyslog::rule::local', 'dir_create_mode', $name, { 'default_value' => '0700' }),
+  Stdlib::Filemode               $dir_create_mode                      = simplib::dlookup('rsyslog::rule::local', 'dir_create_mode', $name, { 'default_value' => '0750' }),
   Boolean                        $fail_on_chown_failure                = true,
   Boolean                        $create_dirs                          = true,
   Boolean                        $sync                                 = false,
