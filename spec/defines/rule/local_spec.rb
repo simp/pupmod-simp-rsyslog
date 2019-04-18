@@ -11,7 +11,7 @@ describe 'rsyslog::rule::local' do
         let(:facts) do
           os_facts
         end
-     
+
         context 'when only rule and target_log_file specified' do
           let(:params) do
             {
@@ -32,8 +32,8 @@ if (test_rule) then {
     veryRobustZip="on"
     flushInterval="0"
     flushOnTXEnd="on"
-    fileCreateMode="0644"
-    dirCreateMode="0700"
+    fileCreateMode="0640"
+    dirCreateMode="0750"
     failOnChownFailure="on"
     createDirs="on"
     queue.dequeuebatchsize="16"
@@ -79,7 +79,7 @@ EOM
               :file_owner_num                       => 300,
               :file_group                           => 'rsyslog_file_group',
               :file_group_num                       => 400,
-              :file_create_mode                     => '0640',
+              :file_create_mode                     => '0644',
               :dir_create_mode                      => '0750',
               :fail_on_chown_failure                => false,
               :create_dirs                          => false,
@@ -135,7 +135,7 @@ if (test_rule) then {
     fileOwnerNum="300"
     fileGroup="rsyslog_file_group"
     fileGroupNum="400"
-    fileCreateMode="0640"
+    fileCreateMode="0644"
     dirCreateMode="0750"
     sync="on"
     sig.provider="sig_provider"
