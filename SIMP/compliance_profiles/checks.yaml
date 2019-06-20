@@ -7,13 +7,14 @@ checks:
       value: true
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AU-4:1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AU-4:1: true
       disa_stig: true
       RHEL-07-030320: true
       SRG-OS-000341-GPOS-00132: true
       cci:CCI-001849: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AU-4:1
       disa_stig:
       - RHEL-07-030320
@@ -28,13 +29,14 @@ checks:
       value: 'on'
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AU-5:b: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AU-5:b: true
       disa_stig: true
       RHEL-07-030090: true
       SRG-OS-000046-GPOS-00022: true
       cci:CCI-000139: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AU-5:b
       disa_stig:
       - RHEL-07-030090
@@ -46,9 +48,10 @@ checks:
       value: LinkedList
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AU-5:b: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AU-5:b: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AU-5:b
   oval:com.puppet.forge.simp.rsyslog.config.preserve_fqdn:
     settings:
@@ -56,9 +59,10 @@ checks:
       value: true
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AU-3: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AU-3: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AU-3
   oval:com.puppet.forge.simp.rsyslog.config.umask:
     settings:
@@ -66,11 +70,12 @@ checks:
       value: '0027'
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AC-2: true
-      nist_800_53_rev4:AC-2:4: true
-      nist_800_53_rev4:AC-6: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-2: true
+      nist_800_53:rev4:AC-2:4: true
+      nist_800_53:rev4:AC-6: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AC-2
       - AC-2:4
       - AC-6
@@ -80,11 +85,12 @@ checks:
       value: true
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AU-4: true
-      nist_800_53_rev4:AU-5:b: true
-      nist_800_53_rev4:AU-11: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AU-4: true
+      nist_800_53:rev4:AU-5:b: true
+      nist_800_53:rev4:AU-11: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AU-4
       - AU-5:b
       - AU-11
@@ -94,9 +100,10 @@ checks:
       value: "/etc/rsyslog.simp.d"
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:CM-6: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:CM-6: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - CM-6
   oval:com.puppet.forge.simp.rsyslog.server.enable_firewall:
     settings:
@@ -104,13 +111,14 @@ checks:
       value: true
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AU-4:1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AU-4:1: true
       disa_stig: true
       RHEL-07-030320: true
       SRG-OS-000341-GPOS-00132: true
       cci:CCI-001849: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AU-4:1
       disa_stig:
       - RHEL-07-030320
@@ -122,13 +130,14 @@ checks:
       value: true
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AC-3:3: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-3:3: true
       disa_stig: true
       RHEL-07-020210: true
       SRG-OS-000445-GPOS-00199: true
       cci:CCI-002696: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AC-3:3
       disa_stig:
       - RHEL-07-020210
@@ -140,13 +149,14 @@ checks:
       value: true
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AC-4: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-4: true
       disa_stig: true
       RHEL-07-040810: true
       SRG-OS-000480-GPOS-00227: true
       cci:CCI-000366: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AC-4
       disa_stig:
       - RHEL-07-040810
