@@ -1,6 +1,9 @@
 ---
 fixtures:
   repositories:
+    auditd: https://github.com/simp/pupmod-simp-auditd
+    augeasproviders_core: https://github.com/hercules-team/augeasproviders_core
+    augeasproviders_grub: https://github.com/hercules-team/augeasproviders_grub
     compliance_markup: https://github.com/simp/pupmod-simp-compliance_markup
     concat:
       # master is beyond 4.1.1, but has breaking changes to
@@ -11,6 +14,7 @@ fixtures:
     logrotate: https://github.com/simp/pupmod-simp-logrotate
     pki: https://github.com/simp/pupmod-simp-pki
     selinux_core: https://github.com/puppetlabs/puppetlabs-selinux_core
+    simp_options: https://github.com/simp/pupmod-simp-simp_options
     simplib: https://github.com/simp/pupmod-simp-simplib
     stdlib: https://github.com/simp/puppetlabs-stdlib
     stunnel: https://github.com/simp/pupmod-simp-stunnel
