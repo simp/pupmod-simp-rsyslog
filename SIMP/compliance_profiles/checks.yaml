@@ -79,21 +79,6 @@ checks:
       - AC-2
       - AC-2:4
       - AC-6
-  oval:com.puppet.forge.simp.rsyslog.logrotate:
-    settings:
-      parameter: rsyslog::logrotate
-      value: true
-    type: puppet-class-parameter
-    controls:
-      nist_800_53:rev4: true
-      nist_800_53:rev4:AU-4: true
-      nist_800_53:rev4:AU-5:b: true
-      nist_800_53:rev4:AU-11: true
-    identifiers:
-      nist_800_53:rev4:
-      - AU-4
-      - AU-5:b
-      - AU-11
   oval:com.puppet.forge.simp.rsyslog.rule_dir:
     settings:
       parameter: rsyslog::rule_dir
@@ -105,25 +90,6 @@ checks:
     identifiers:
       nist_800_53:rev4:
       - CM-6
-  oval:com.puppet.forge.simp.rsyslog.server.enable_firewall:
-    settings:
-      parameter: rsyslog::server::enable_firewall
-      value: true
-    type: puppet-class-parameter
-    controls:
-      nist_800_53:rev4: true
-      nist_800_53:rev4:AU-4:1: true
-      disa_stig: true
-      RHEL-07-030320: true
-      SRG-OS-000341-GPOS-00132: true
-      cci:CCI-001849: true
-    identifiers:
-      nist_800_53:rev4:
-      - AU-4:1
-      disa_stig:
-      - RHEL-07-030320
-      - SRG-OS-000341-GPOS-00132
-      - CCI-001849
   oval:com.puppet.forge.simp.rsyslog.server.enable_selinux:
     settings:
       parameter: rsyslog::server::enable_selinux
@@ -143,22 +109,3 @@ checks:
       - RHEL-07-020210
       - SRG-OS-000445-GPOS-00199
       - CCI-002696
-  oval:com.puppet.forge.simp.rsyslog.server.enable_tcpwrappers:
-    settings:
-      parameter: rsyslog::server::enable_tcpwrappers
-      value: true
-    type: puppet-class-parameter
-    controls:
-      nist_800_53:rev4: true
-      nist_800_53:rev4:AC-4: true
-      disa_stig: true
-      RHEL-07-040810: true
-      SRG-OS-000480-GPOS-00227: true
-      cci:CCI-000366: true
-    identifiers:
-      nist_800_53:rev4:
-      - AC-4
-      disa_stig:
-      - RHEL-07-040810
-      - SRG-OS-000480-GPOS-00227
-      - CCI-000366
