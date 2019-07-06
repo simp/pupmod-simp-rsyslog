@@ -1,0 +1,111 @@
+---
+version: 2.0.0
+checks:
+  oval:com.puppet.forge.simp.rsyslog.config.enable_default_rules:
+    settings:
+      parameter: rsyslog::config::enable_default_rules
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AU-4:1: true
+      disa_stig: true
+      RHEL-07-030320: true
+      SRG-OS-000341-GPOS-00132: true
+      cci:CCI-001849: true
+    identifiers:
+      nist_800_53:rev4:
+      - AU-4:1
+      disa_stig:
+      - RHEL-07-030320
+      - SRG-OS-000341-GPOS-00132
+      - CCI-001849
+    oval-ids:
+    - xccdf_org:ssgproject:content_rule_rsyslog_cron_logging
+    - rsyslog_cron_logging
+  oval:com.puppet.forge.simp.rsyslog.config.main_msg_queue_save_on_shutdown:
+    settings:
+      parameter: rsyslog::config::main_msg_queue_save_on_shutdown
+      value: 'on'
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AU-5:b: true
+      disa_stig: true
+      RHEL-07-030090: true
+      SRG-OS-000046-GPOS-00022: true
+      cci:CCI-000139: true
+    identifiers:
+      nist_800_53:rev4:
+      - AU-5:b
+      disa_stig:
+      - RHEL-07-030090
+      - SRG-OS-000046-GPOS-00022
+      - CCI-000139
+  oval:com.puppet.forge.simp.rsyslog.config.main_msg_queue_type:
+    settings:
+      parameter: rsyslog::config::main_msg_queue_type
+      value: LinkedList
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AU-5:b: true
+    identifiers:
+      nist_800_53:rev4:
+      - AU-5:b
+  oval:com.puppet.forge.simp.rsyslog.config.preserve_fqdn:
+    settings:
+      parameter: rsyslog::config::preserve_fqdn
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AU-3: true
+    identifiers:
+      nist_800_53:rev4:
+      - AU-3
+  oval:com.puppet.forge.simp.rsyslog.config.umask:
+    settings:
+      parameter: rsyslog::config::umask
+      value: '0027'
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-2: true
+      nist_800_53:rev4:AC-2:4: true
+      nist_800_53:rev4:AC-6: true
+    identifiers:
+      nist_800_53:rev4:
+      - AC-2
+      - AC-2:4
+      - AC-6
+  oval:com.puppet.forge.simp.rsyslog.rule_dir:
+    settings:
+      parameter: rsyslog::rule_dir
+      value: "/etc/rsyslog.simp.d"
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:CM-6: true
+    identifiers:
+      nist_800_53:rev4:
+      - CM-6
+  oval:com.puppet.forge.simp.rsyslog.server.enable_selinux:
+    settings:
+      parameter: rsyslog::server::enable_selinux
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-3:3: true
+      disa_stig: true
+      RHEL-07-020210: true
+      SRG-OS-000445-GPOS-00199: true
+      cci:CCI-002696: true
+    identifiers:
+      nist_800_53:rev4:
+      - AC-3:3
+      disa_stig:
+      - RHEL-07-020210
+      - SRG-OS-000445-GPOS-00199
+      - CCI-002696
