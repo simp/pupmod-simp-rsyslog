@@ -23,8 +23,10 @@ describe 'compliance_markup', type: :class do
   ]
 
   allowed_failures = {
-    'documented_missing_parameters' => [],
-    'documented_missing_resources' => [] 
+    'documented_missing_parameters' => [
+    ] + expected_classes.map{|c| Regexp.new("^(?!#{c}(::.*)?)")},
+    'documented_missing_resources' => [
+    ] + expected_classes.map{|c| Regexp.new("^(?!#{c}(::.*)?)")}
   }
 
   on_supported_os.each do |os, os_facts|
@@ -90,9 +92,24 @@ describe 'compliance_markup', type: :class do
             it "should have no issues with the '#{report_section}' report" do
               if compliance_profile_data[report_section]
                 # This just gets us a good print out of what went wrong
-                expect(
-                  compliance_profile_data[report_section] - Array(allowed_failures[report_section])
-                ).to eq([])
+                  compliance_profile_data[report_section].delete_if{ |item|
+                    rm = false
+
+                    Array(allowed_failures[report_section]).each do |allowed|
+                      if allowed.is_a?(Regexp)
+                        if allowed.match?(item)
+                          rm = true
+                          break
+                        end
+                      else
+                        rm = (allowed == item)
+                      end
+                    end
+
+                    rm
+                  }
+
+                expect(compliance_profile_data[report_section]).to eq([])
               end
             end
           end
