@@ -1,0 +1,15 @@
+name: EL7 rsyslog STIG
+title: rsyslog STIG for EL 7
+supports:
+  - os-family: redhat
+maintainer: SIMP Team
+copyright: Onyx Point, Inc.
+copyright_email: simp@onyxpoint.com
+license: Apache-2.0
+summary: |
+  A collection of InSpec tests for the rsyslog subsystem
+version: 0.0.1
+depends:
+  - name: disa_stig-el7-baseline
+    path: ../../inspec_deps/inspec_profiles/profiles/disa_stig-el7-baseline
+
