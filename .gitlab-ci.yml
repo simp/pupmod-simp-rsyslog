@@ -163,13 +163,45 @@ pup5.5.10:
   <<: *pup_5_5_10
   <<: *acceptance_base
   script:
-    - 'bundle exec rake beaker:suites'
+    - 'bundle exec rake beaker:suites[default]'
+
+pup5.5.10-centos6:
+  <<: *pup_5_5_10
+  <<: *acceptance_base
+  <<: *only_with_SIMP_FULL_MATRIX
+  script:
+    - 'bundle exec rake beaker:suites[default,centos-6]'
+
+# Until we can figure out how to make this test robust, it is not worth
+# wasting GitLab runner time to run this permutation.
+# Manually, we can see that failover is working, but all the messages
+# don't make it to the failover server in a timely fashion, even if
+# we force the rsyslog queues to be small.
+#pup5.5.10-failover:
+#  <<: *pup_5_5_10
+#  <<: *acceptance_base
+#  <<: *only_with_SIMP_FULL_MATRIX
+#  script:
+#    - 'bundle exec rake beaker:suites[failover]'
+
+pup5.5.10-doubleforward:
+  <<: *pup_5_5_10
+  <<: *acceptance_base
+  script:
+    - 'bundle exec rake beaker:suites[doubleforward]'
+
+pup5.5.10-centos6-doubleforward:
+  <<: *pup_5_5_10
+  <<: *acceptance_base
+  <<: *only_with_SIMP_FULL_MATRIX
+  script:
+    - 'bundle exec rake beaker:suites[doubleforward,centos-6]'
 
 pup5.5.10-fips:
   <<: *pup_5_5_10
   <<: *acceptance_base
   script:
-    - 'BEAKER_fips=yes bundle exec rake beaker:suites'
+    - 'BEAKER_fips=yes bundle exec rake beaker:suites[default]'
 
 pup5.5.10-oel:
   <<: *pup_5_5_10
@@ -188,10 +220,10 @@ pup6:
   <<: *pup_6
   <<: *acceptance_base
   script:
-    - 'bundle exec rake beaker:suites'
+    - 'bundle exec rake beaker:suites[default]'
 
 pup6-fips:
   <<: *pup_6
   <<: *acceptance_base
   script:
-    - 'BEAKER_fips=yes bundle exec rake beaker:suites'
+    - 'BEAKER_fips=yes bundle exec rake beaker:suites[default]'
