@@ -3,7 +3,7 @@ require 'json'
 
 test_name 'Check Inspec for simp profile'
 
-describe 'run inspec against the appropriate fixtures for simp rsyslog profile' do
+describe 'run inspec against the appropriate fixtures' do
 
   profiles_to_validate = ['disa_stig']
 
@@ -51,15 +51,6 @@ describe 'run inspec against the appropriate fixtures for simp rsyslog profile' 
             end
 
             it 'should not have any failing tests' do
-              # 2 tests erroneously fail
-              # - 'All privileged function executions must be audited':
-              #    - inspec_profiles/profiles/disa_stig-el7-baseline/controls/V-72095.rb
-              #    - inspec is expecting watches for executables.  We are checking with
-              #      syscalls instead
-              # - 'The system must send rsyslog output to a log aggregation server':
-              #    - inspec_profiles/profiles/disa_stig-el7-baseline/controls/V-72209.rb
-              #    - inspec should skip, as rsyslog is not setup
-
               if @inspec_report[:data][:failed] > 0
                 puts @inspec_report[:data][:report]
               end
