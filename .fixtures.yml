@@ -19,5 +19,9 @@ fixtures:
     stunnel: https://github.com/simp/pupmod-simp-stunnel
     systemd: https://github.com/simp/puppet-systemd
     tcpwrappers: https://github.com/simp/pupmod-simp-tcpwrappers
+    disa_stig-el7-baseline:
+      repo: https://github.com/simp/inspec-profile-disa_stig-el7
+      branch:  master
+      target: spec/fixtures/inspec_deps/inspec_profiles/profiles
   symlinks:
     rsyslog: "#{source_dir}"
