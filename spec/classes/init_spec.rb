@@ -118,7 +118,6 @@ EOM
             is_expected.to contain_class('systemd::systemctl::daemon_reload')
               .that_comes_before('Class[rsyslog::service]')
           end
-
         end
 
         it 'no file resources should have a literal \n' do
@@ -164,7 +163,6 @@ EOM
           :enable_tls_logging => false,
           :pki                => false,
          }}
-
 
         it { is_expected.to_not contain_class('pki') }
         it { is_expected.to_not contain_pki__copy('rsyslog') }
@@ -229,7 +227,6 @@ EOM
 
       end
 
-
       context 'rsyslog server without TLS' do
         # rsyslog needs to disable pki/tls
         let(:params) {{
@@ -243,7 +240,17 @@ EOM
         it { is_expected.to contain_file(global_conf_file).with_content(%r{input\(type="imtcp" port="514"\)}) }
         it { is_expected.to_not contain_file(global_conf_file).with_content(/^\$DefaultNetStreamDriver/) }
       end
+
+      context "including the rsyslog.d directory" do
+        let(:hieradata) { 'include_rsyslog_d' }
+        it {
+          is_expected.to contain_rsyslog__rule('15_include_default_rsyslog/include_default_rsyslog.conf')
+            .with_content('$IncludeConfig /etc/rsyslog.d/*.conf
+')
+	}
+      end
     end
+
     context "with later versions of rsyslog on #{os}" do
       let(:facts) do
         rsyslog_facts = {
