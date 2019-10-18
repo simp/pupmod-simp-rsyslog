@@ -1,3 +1,6 @@
+* Wed Oct 16 2019 Kendall Moore <kendall.moore@onyxpoint.com> - 7.5.1
+- Fixed a bug where including rsyslog.d parsed more than just .conf files
+
 * Thu Jun 06 2019 Steven Pritchard <steven.pritchard@onypoint.com> - 7.5.0-0
 - Add v2 compliance_markup data
 
