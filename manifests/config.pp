@@ -407,7 +407,7 @@ class rsyslog::config (
 
   if $include_rsyslog_d {
     rsyslog::rule { '15_include_default_rsyslog/include_default_rsyslog.conf':
-      content => "\$IncludeConfig /etc/rsyslog.d/\n"
+      content => "\$IncludeConfig /etc/rsyslog.d/*.conf\n"
     }
   }
 
