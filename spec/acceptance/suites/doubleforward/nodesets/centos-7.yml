@@ -11,31 +11,25 @@ HOSTS:
       - default
       - master
       - client
-    platform: el-8-x86_64
-    box: generic/oracle8
+    platform:   el-7-x86_64
+    box:        centos/7
     hypervisor: <%= hypervisor %>
   server-1:
     roles:
       - server
-    platform: el-8-x86_64
-    box: generic/oracle8
+    platform:   el-7-x86_64
+    box:        centos/7
     hypervisor: <%= hypervisor %>
   server-2:
     roles:
-      - server
-    platform: el-7-x86_64
-    box: generic/oracle7
-    hypervisor: <%= hypervisor %>
-  server-3:
-    roles:
-      - failover_server
-    platform: el-8-x86_64
-    box: generic/oracle8
+      - nextserver
+    platform:   el-7-x86_64
+    box:        centos/7
     hypervisor: <%= hypervisor %>
 CONFIG:
   log_level:       verbose
   type:            aio
   vagrant_memsize: 256
-<% if ENV['BEAKER_PUPPET_COLLECTION'] -%>
-  puppet_collection: <%= ENV['BEAKER_PUPPET_COLLECTION'] %>
+<% if ENV['BEAKER_PUPPET_ENVIRONMENT'] -%>
+  puppet_environment: <%= ENV['BEAKER_PUPPET_ENVIRONMENT'] %>
 <% end -%>

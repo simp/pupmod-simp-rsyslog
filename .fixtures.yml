@@ -9,6 +9,9 @@ fixtures:
     augeasproviders_grub: https://github.com/hercules-team/augeasproviders_grub
     compliance_markup: https://github.com/simp/pupmod-simp-compliance_markup
     concat: https://github.com/simp/puppetlabs-concat
+    firewalld:
+      repo: https://github.com/simp/pupmod-voxpupuli-firewalld
+      ref: v4.1.0
     iptables: https://github.com/simp/pupmod-simp-iptables
     logrotate: https://github.com/simp/pupmod-simp-logrotate
     pki: https://github.com/simp/pupmod-simp-pki
