@@ -268,14 +268,13 @@ rsyslog::rule::remote { 'upstream':
 
 ## Reference
 
-The full module reference can be found in the
-[module docs](https://simp.github.io/pupmod-simp-rsyslog) and in the local
-`docs/` directory.
+Please refer to the [REFERENCE.md](./REFERENCE.md).
 
 ## Limitations
 
-This module is only designed to work in RHEL or CentOS 6 and 7. Any other
-operating systems have not been tested and results cannot be guaranteed.
+This module is only designed to work in RHEL, CentOS or OracleLinux versions
+6, 7 and 8. Any other operating systems have not been tested and results
+cannot be guaranteed.
 
 By default, `pupmod-simp-rsyslog` tries to do the right thing during a failover
 scenario and make sure that logs are always stored no matter what the state of
