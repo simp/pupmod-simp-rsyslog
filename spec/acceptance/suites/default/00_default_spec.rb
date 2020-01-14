@@ -243,7 +243,7 @@ input(type=\\"imfile\\"
       it 'should see entries from the journal in /var/log/messages' do
         on client, "echo someeasytosearchforstring | systemd-cat -p notice -t acceptance"
 
-        on client, "grep someeasytosearchforstring /var/log/messages"
+        retry_on client, "grep someeasytosearchforstring /var/log/messages"
       end
     end
 

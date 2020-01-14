@@ -11,26 +11,15 @@ HOSTS:
       - default
       - master
       - client
-    platform: el-8-x86_64
-    box: centos/8
+    platform: el-7-x86_64
+    box: centos/7
     hypervisor: <%= hypervisor %>
     yum_repos:
       chef-current:
-        baseurl: 'https://packages.chef.io/repos/yum/current/el/8/$basearch'
+        baseurl: 'https://packages.chef.io/repos/yum/current/el/7/$basearch'
         gpgkeys:
           - https://packages.chef.io/chef.asc
   server-1:
-    roles:
-      - server
-    platform: el-8-x86_64
-    box: centos/8
-    hypervisor: <%= hypervisor %>
-    yum_repos:
-      chef-current:
-        baseurl: 'https://packages.chef.io/repos/yum/current/el/8/$basearch'
-        gpgkeys:
-          - https://packages.chef.io/chef.asc
-  server-2:
     roles:
       - server
     platform: el-7-x86_64
@@ -41,15 +30,26 @@ HOSTS:
         baseurl: 'https://packages.chef.io/repos/yum/current/el/7/$basearch'
         gpgkeys:
           - https://packages.chef.io/chef.asc
-  server-3:
+  server-2:
     roles:
-      - failover_server
+      - server
     platform: el-8-x86_64
     box: centos/8
     hypervisor: <%= hypervisor %>
     yum_repos:
       chef-current:
         baseurl: 'https://packages.chef.io/repos/yum/current/el/8/$basearch'
+        gpgkeys:
+          - https://packages.chef.io/chef.asc
+  server-3:
+    roles:
+      - failover_server
+    platform: el-7-x86_64
+    box: centos/7
+    hypervisor: <%= hypervisor %>
+    yum_repos:
+      chef-current:
+        baseurl: 'https://packages.chef.io/repos/yum/current/el/7/$basearch'
         gpgkeys:
           - https://packages.chef.io/chef.asc
 CONFIG:

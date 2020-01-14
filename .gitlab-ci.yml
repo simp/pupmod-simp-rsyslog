@@ -69,10 +69,10 @@ variables:
     BEAKER_PUPPET_COLLECTION: 'puppet5'
     MATRIX_RUBY_VERSION: '2.4'
 
-.pup_5_5_10: &pup_5_5_10
+.pup_5_5_16: &pup_5_5_16
   image: 'ruby:2.4'
   variables:
-    PUPPET_VERSION: '5.5.10'
+    PUPPET_VERSION: '5.5.16'
     BEAKER_PUPPET_COLLECTION: 'puppet5'
     MATRIX_RUBY_VERSION: '2.4'
 
@@ -149,8 +149,8 @@ pup5-unit:
   <<: *pup_5
   <<: *unit_tests
 
-pup5.5.10-unit:
-  <<: *pup_5_5_10
+pup5.5.16-unit:
+  <<: *pup_5_5_16
   <<: *unit_tests
 
 pup6-unit:
@@ -159,58 +159,58 @@ pup6-unit:
 
 # Acceptance tests
 # ==============================================================================
-pup5.5.10:
-  <<: *pup_5_5_10
+pup5.5.16:
+  <<: *pup_5_5_16
   <<: *acceptance_base
   script:
-    - 'bundle exec rake beaker:suites[default]'
+    - 'bundle exec rake beaker:suites[default,default]'
 
-pup5.5.10-centos6:
-  <<: *pup_5_5_10
+pup5.5.16-centos7:
+  <<: *pup_5_5_16
   <<: *acceptance_base
   <<: *only_with_SIMP_FULL_MATRIX
   script:
-    - 'bundle exec rake beaker:suites[default,centos-6]'
+    - 'bundle exec rake beaker:suites[default,centos-7]'
 
 # Until we can figure out how to make this test robust, it is not worth
 # wasting GitLab runner time to run this permutation.
 # Manually, we can see that failover is working, but all the messages
 # don't make it to the failover server in a timely fashion, even if
 # we force the rsyslog queues to be small.
-#pup5.5.10-failover:
-#  <<: *pup_5_5_10
+#pup5.5.16-failover:
+#  <<: *pup_5_5_16
 #  <<: *acceptance_base
 #  <<: *only_with_SIMP_FULL_MATRIX
 #  script:
-#    - 'bundle exec rake beaker:suites[failover]'
+#    - 'bundle exec rake beaker:suites[failover,default]'
 
-pup5.5.10-doubleforward:
-  <<: *pup_5_5_10
+pup5.5.16-doubleforward:
+  <<: *pup_5_5_16
   <<: *acceptance_base
   script:
-    - 'bundle exec rake beaker:suites[doubleforward]'
+    - 'bundle exec rake beaker:suites[doubleforward,default]'
 
-pup5.5.10-centos6-doubleforward:
-  <<: *pup_5_5_10
+pup5.5.16-centos7-doubleforward:
+  <<: *pup_5_5_16
   <<: *acceptance_base
   <<: *only_with_SIMP_FULL_MATRIX
   script:
-    - 'bundle exec rake beaker:suites[doubleforward,centos-6]'
+    - 'bundle exec rake beaker:suites[doubleforward,centos-7]'
 
-pup5.5.10-fips:
-  <<: *pup_5_5_10
+pup5.5.16-fips:
+  <<: *pup_5_5_16
   <<: *acceptance_base
   script:
-    - 'BEAKER_fips=yes bundle exec rake beaker:suites[default]'
+    - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,default]'
 
-pup5.5.10-oel:
-  <<: *pup_5_5_10
+pup5.5.16-oel:
+  <<: *pup_5_5_16
   <<: *acceptance_base
   script:
     - 'bundle exec rake beaker:suites[default,oel]'
 
-pup5.5.10-oel-fips:
-  <<: *pup_5_5_10
+pup5.5.16-oel-fips:
+  <<: *pup_5_5_16
   <<: *acceptance_base
   <<: *only_with_SIMP_FULL_MATRIX
   script:
@@ -220,16 +220,18 @@ pup6:
   <<: *pup_6
   <<: *acceptance_base
   script:
-    - 'bundle exec rake beaker:suites[default]'
+    - 'bundle exec rake beaker:suites[default,default]'
 
 pup6-fips:
   <<: *pup_6
   <<: *acceptance_base
   script:
-    - 'BEAKER_fips=yes bundle exec rake beaker:suites[default]'
+    - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,default]'
 
 pup6-compliance:
+  # See SIMP-7483
+  allow_failure: true
   <<: *pup_6
   <<: *compliance_base
   script:
-    - 'BEAKER_fips=yes bundle exec rake beaker:suites[compliance]'
+    - 'BEAKER_fips=yes bundle exec rake beaker:suites[compliance,default]'

@@ -268,14 +268,14 @@ rsyslog::rule::remote { 'upstream':
 
 ## Reference
 
-The full module reference can be found in the
-[module docs](https://simp.github.io/pupmod-simp-rsyslog) and in the local
-`docs/` directory.
+Please refer to the [REFERENCE.md](./REFERENCE.md).
 
 ## Limitations
 
-This module is only designed to work in RHEL or CentOS 6 and 7. Any other
-operating systems have not been tested and results cannot be guaranteed.
+SIMP Puppet modules are generally intended for use on Red Hat Enterprise
+Linux and compatible distributions, such as CentOS. Please see the
+[`metadata.json` file](./metadata.json) for the most up-to-date list of
+supported operating systems, Puppet versions, and module dependencies.
 
 By default, `pupmod-simp-rsyslog` tries to do the right thing during a failover
 scenario and make sure that logs are always stored no matter what the state of
