@@ -1,6 +1,6 @@
 # **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 #
-# Manage the RSyslog service
+# @summary Manage the RSyslog service
 #
 # @param enable
 #   Enable the rsyslog service
@@ -17,7 +17,7 @@ class rsyslog::service(
     $_ensure = 'stopped'
   }
 
-  service { $::rsyslog::service_name:
+  service { $rsyslog::service_name:
     ensure     => $_ensure,
     enable     => $enable,
     hasrestart => true,

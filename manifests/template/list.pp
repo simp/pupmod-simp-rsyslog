@@ -1,4 +1,4 @@
-# Add a template list to the rsyslog configuration file.
+# @summary Add a template list to the rsyslog configuration file
 #
 # RSyslog list templates can contain properties and constants. In order to
 # capture this functionality, we have opted for making a hash of these. The

@@ -1,4 +1,4 @@
-# Add a rule for collecting logs from files on the system
+# @summary Add a rule for collecting logs from files on the system
 #
 # In general, the order will be:
 #

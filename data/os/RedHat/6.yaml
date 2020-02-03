@@ -1,0 +1,4 @@
+---
+rsyslog::package_name: 'rsyslog7'
+rsyslog::read_journald: false
+rsyslog::rsyslog7: true

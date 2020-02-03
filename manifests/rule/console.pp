@@ -1,4 +1,4 @@
-# Add a rule for writing logs to the console
+# @summary Add a rule for writing logs to the console
 #
 # These rules first in priority. In general, the order will be:
 #

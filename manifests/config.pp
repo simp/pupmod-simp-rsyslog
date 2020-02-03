@@ -1,6 +1,6 @@
 # **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 #
-# Setup Rsyslog configuration.
+# @summary Setup Rsyslog configuration
 # - When the host uses systemd, creates a rsyslog.service override file
 #   that fixes a service ordering problem present with  older versions
 #   of rsyslog.
@@ -156,10 +156,10 @@
 #
 # @param action_send_stream_driver_mode
 #
-#   * When ``$::rsyslog::tls_tcp_server = true``, used for imtcp module
+#   * When ``$rsyslog::tls_tcp_server = true``, used for imtcp module
 #     StreamDriver.Mode
 #
-#   * For Rsyslog 7, when ``$::rsyslog::enable_tls_logging = true``, used to set
+#   * For Rsyslog 7, when ``$rsyslog::enable_tls_logging = true``, used to set
 #     the deprecated, global rsyslog configuration, ActionSendStreamDriverMode.
 #     This setting and the corresponding send stream driver setting in
 #     ``rsyslog::rule::remote`` are **BOTH** required for sending TLS-encrypted
@@ -167,7 +167,7 @@
 #
 # @param action_send_stream_driver_auth_mode
 #
-#   * When ``$::rsyslog::tls_tcp_server = true``, used for imtcp module
+#   * When ``$rsyslog::tls_tcp_server = true``, used for imtcp module
 #     StreamDriver.AuthMode.  If undefined, this value is set based on
 #     ``$action_send_stream_driver_mode``.
 #
@@ -266,14 +266,14 @@ class rsyslog::config (
   Stdlib::Absolutepath                  $work_directory                                     = '/var/spool/rsyslog',
   Integer[0]                            $interval                                           = 0,
   Integer[0]                            $tls_tcp_max_sessions                               = 200,
-  Array[String]                         $tls_input_tcp_server_stream_driver_permitted_peers = ["*.${::domain}"],
+  Array[String]                         $tls_input_tcp_server_stream_driver_permitted_peers = ["*.${facts['domain']}"],
 
   Enum['gtls','ptcp']                   $default_net_stream_driver                          = 'gtls',
-  Stdlib::Absolutepath                  $default_net_stream_driver_ca_file                  = "${::rsyslog::app_pki_dir}/cacerts/cacerts.pem",
-  Stdlib::Absolutepath                  $default_net_stream_driver_cert_file                = "${::rsyslog::app_pki_dir}/public/${::fqdn}.pub",
-  Stdlib::Absolutepath                  $default_net_stream_driver_key_file                 = "${::rsyslog::app_pki_dir}/private/${::fqdn}.pem",
+  Stdlib::Absolutepath                  $default_net_stream_driver_ca_file                  = "${rsyslog::app_pki_dir}/cacerts/cacerts.pem",
+  Stdlib::Absolutepath                  $default_net_stream_driver_cert_file                = "${rsyslog::app_pki_dir}/public/${::fqdn}.pub",
+  Stdlib::Absolutepath                  $default_net_stream_driver_key_file                 = "${rsyslog::app_pki_dir}/private/${::fqdn}.pem",
 
-  Enum['1','0']                         $action_send_stream_driver_mode                     = ($::rsyslog::pki or $::rsyslog::tls_tcp_server or $::rsyslog::enable_tls_logging) ? { true => '1', default => '0' },
+  Enum['1','0']                         $action_send_stream_driver_mode                     = ($rsyslog::pki or $rsyslog::tls_tcp_server or $rsyslog::enable_tls_logging) ? { true => '1', default => '0' },
   Optional[String]                      $action_send_stream_driver_auth_mode                = undef,
   Optional[Array[String]]               $action_send_stream_driver_permitted_peers          = undef,
 
@@ -283,24 +283,26 @@ class rsyslog::config (
   Boolean                               $suppress_noauth_warn                               = false,
   Boolean                               $disable_remote_dns                                 = false,
   Boolean                               $enable_default_rules                               = true,
-  Boolean                               $read_journald                                      = $::rsyslog::read_journald,
+  Boolean                               $read_journald                                      = $rsyslog::read_journald,
   Boolean                               $include_rsyslog_d                                  = false,
   String                                $systemd_override_file                              = 'unit.conf'
 ) {
   assert_private()
 
-  $_tcp_server = $::rsyslog::tcp_server
-  $_tls_tcp_server = $::rsyslog::tls_tcp_server
-  $_tcp_listen_port = $::rsyslog::tcp_listen_port
-  $_tls_tcp_listen_port = $::rsyslog::tls_tcp_listen_port
-  $_udp_server = $::rsyslog::udp_server
-  $_udp_listen_port = $::rsyslog::udp_listen_port
-  $_enable_tls_logging = $::rsyslog::enable_tls_logging
+  $_tcp_server = $rsyslog::tcp_server
+  $_tls_tcp_server = $rsyslog::tls_tcp_server
+  $_tcp_listen_port = $rsyslog::tcp_listen_port
+  $_tls_tcp_listen_port = $rsyslog::tls_tcp_listen_port
+  $_udp_server = $rsyslog::udp_server
+  $_udp_listen_port = $rsyslog::udp_listen_port
+  $_enable_tls_logging = $rsyslog::enable_tls_logging
 
-  if $::rsyslog::pki {
+  if $rsyslog::pki {
+    simplib::assert_optional_dependency($module_name, 'simp/pki')
+
     pki::copy { 'rsyslog':
-      source => $::rsyslog::app_pki_external_source,
-      pki    => $::rsyslog::pki
+      source => $rsyslog::app_pki_external_source,
+      pki    => $rsyslog::pki
     }
   }
 
@@ -331,7 +333,7 @@ class rsyslog::config (
   }
 
   # This is where the custom rules will go. They will be purged if not managed!
-  file { $::rsyslog::rule_dir:
+  file { $rsyslog::rule_dir:
     ensure  => 'directory',
     owner   => 'root',
     group   => 'root',

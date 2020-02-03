@@ -1,4 +1,4 @@
-# Add template plugins to the rsyslog configuration file.
+# @summary Add template plugins to the rsyslog configuration file.
 #
 # **NOTE:** Plugins are **as-is**. This means that you will only supply the
 # plugin name and assume that the plugin has already been loaded by RSyslog.

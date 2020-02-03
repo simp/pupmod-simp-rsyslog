@@ -3,30 +3,11 @@ require 'spec_helper'
 file_content_7 = "/usr/bin/systemctl restart rsyslog > /dev/null 2>&1 || true"
 file_content_6 = "/sbin/service rsyslog restart > /dev/null 2>&1 || true"
 
-reg_exp_el7 = <<EOM
-main_queue\(
-  queue.type=.*
-  queue.filename=.*
-  queue.maxfilesize=.*
-  queue.size=.*
-  queue.highwatermark=.*
-  queue.lowwatermark=.*
-  queue.discardmark=.*
-  queue.workerthreadminimummessages=.*
-  queue.workerthreads=.*
-  queue.timeoutenqueue=.*
-  queue.dequeueslowdown=.*
-  queue.saveonshutdown=.*
-  queue.maxdiskspace=.*
-\)
-EOM
-
 describe 'rsyslog' do
   shared_examples_for 'a structured module' do
     it { is_expected.to compile.with_all_deps }
     it { is_expected.to create_class('rsyslog') }
     it { is_expected.to contain_class('rsyslog') }
-    it { is_expected.to contain_class('rsyslog::params') }
     it { is_expected.to contain_class('rsyslog::config') }
     it {
       expected = <<EOM

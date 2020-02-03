@@ -1,4 +1,4 @@
-# Add template strings to the rsyslog configuration
+# @summary Add template strings to the rsyslog configuration
 #
 # You'll need to write the entire template line due to the complexity of the
 # rsyslog configuration parameters.
