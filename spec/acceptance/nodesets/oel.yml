@@ -9,21 +9,22 @@ HOSTS:
   client:
     roles:
       - default
+      - master
       - client
-    platform: el-7-x86_64
-    box: generic/oracle7
+    platform: el-8-x86_64
+    box: generic/oracle8
     hypervisor: <%= hypervisor %>
   server-1:
     roles:
       - server
-    platform: el-7-x86_64
-    box: generic/oracle7
+    platform: el-8-x86_64
+    box: generic/oracle8
     hypervisor: <%= hypervisor %>
   server-2:
     roles:
       - server
-    platform: el-6-x86_64
-    box: onyxpoint/oel-6-x86_64
+    platform: el-7-x86_64
+    box: generic/oracle7
     hypervisor: <%= hypervisor %>
   server-3:
     roles:
