@@ -1,4 +1,7 @@
 * Mon Feb 03 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.6.0-0
+- Add a default rule to log packets dropped by firewalld to
+  /var/log/firewall.log
+- Add /var/log/firewall.log to SIMP's 'syslog' logrotate rule
 - Move iptables, logrotate, pki, and tcpwrappers to optional dependencies
 - Cleaned up puppet strings support
 - Removed params pattern and migrated to data in modules
