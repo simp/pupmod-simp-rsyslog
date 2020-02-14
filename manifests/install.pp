@@ -1,6 +1,6 @@
 # **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 #
-# Installs the packages necessary for use of RSyslog
+# @summary Installs the packages necessary for use of RSyslog
 #
 # @param ensure
 #   How to install the packages
@@ -20,7 +20,7 @@ class rsyslog::install (
   }
 
   # remove existing/conflicting packages
-  if $::rsyslog::package_name == 'rsyslog7' {
+  if $rsyslog::package_name == 'rsyslog7' {
     package { "rsyslog.${facts['hardwaremodel']}":
       ensure            => 'absent',
       uninstall_options => ['--nodeps'],
@@ -38,8 +38,8 @@ class rsyslog::install (
     }
   }
 
-  if ( $::rsyslog::enable_tls_logging or $::rsyslog::tls_tcp_server ) {
-    package { $::rsyslog::tls_package_name:
+  if ( $rsyslog::enable_tls_logging or $rsyslog::tls_tcp_server ) {
+    package { $rsyslog::tls_package_name:
       ensure  => $ensure,
       require => Package[$_full_rsyslog_package]
     }

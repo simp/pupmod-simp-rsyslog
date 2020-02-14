@@ -5,39 +5,40 @@
 
 **Classes**
 
-* [`rsyslog`](#rsyslog): Set up rsyslog 7  The configuration is particularly slanted toward the issues present in the version of rsyslog included with Enterprise Linu
-* [`rsyslog::config`](#rsyslogconfig): **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**  Setup RSyslog configuration. - When the 
-* [`rsyslog::config::logrotate`](#rsyslogconfiglogrotate): **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**  Default log rotation for RSyslog  The li
-* [`rsyslog::install`](#rsysloginstall): **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**  Installs the packages necessary for use 
-* [`rsyslog::params`](#rsyslogparams): A list of the parameters and their default values for RSyslog.
-* [`rsyslog::server`](#rsyslogserver): Sets up the RSyslog server  This class is designed to configure the externally facing interfaces for a RSyslog system. If you do not need ext
-* [`rsyslog::server::firewall`](#rsyslogserverfirewall): **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**  Sets up the firewall rules for RSyslog w
-* [`rsyslog::server::selinux`](#rsyslogserverselinux): **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**  Sets up SELinux for RSyslog  Switches on
-* [`rsyslog::server::tcpwrappers`](#rsyslogservertcpwrappers): **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**  Sets up TCPWrappers for RSyslog both pla
-* [`rsyslog::service`](#rsyslogservice): **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**  Manage the RSyslog service
+* [`rsyslog`](#rsyslog): Set up Rsyslog 7/8
+* [`rsyslog::config`](#rsyslogconfig): Setup Rsyslog configuration
+* [`rsyslog::config::logrotate`](#rsyslogconfiglogrotate): Default log rotation for RSyslog
+* [`rsyslog::install`](#rsysloginstall): Installs the packages necessary for use of RSyslog
+* [`rsyslog::server`](#rsyslogserver): Sets up the RSyslog server
+* [`rsyslog::server::firewall`](#rsyslogserverfirewall): Sets up the firewall rules for RSyslog with IPTables
+* [`rsyslog::server::selinux`](#rsyslogserverselinux): Sets up SELinux for RSyslog
+* [`rsyslog::server::tcpwrappers`](#rsyslogservertcpwrappers): Sets up TCPWrappers for RSyslog both plain TCP and TCP over TLS as necessary
+* [`rsyslog::service`](#rsyslogservice): Manage the RSyslog service
 
 **Defined types**
 
-* [`rsyslog::rule`](#rsyslogrule): Adds a rule  This is used by the various ``rsyslog::rule::*`` Defined Types to apply rules to the system.  Feel free to use this Defined Type
-* [`rsyslog::rule::console`](#rsyslogruleconsole): Add a rule for writing logs to the console  These rules first in priority. In general, the order will be:    * Data Source Rules   * Console 
-* [`rsyslog::rule::data_source`](#rsyslogruledata_source): Add a rule for collecting logs from files on the system  In general, the order will be:    * Data Source Rules   * Console Rules   * Drop Rul
-* [`rsyslog::rule::drop`](#rsyslogruledrop): Add a rule to drop content  In general, the order will be:    * Data Source Rules   * Console Rules   * Drop Rules   * Remote Rules   * Other
-* [`rsyslog::rule::local`](#rsyslogrulelocal): Add a rule targeting writing local system logs  **NOTE:** Any option that is not explicitly documented here matches the ``ruleset`` options i
-* [`rsyslog::rule::other`](#rsyslogruleother): Adds an arbitrary rule  The main reason to use this is to ensure proper ordering in the stack. If you want to insert a rule anywhere, use the
-* [`rsyslog::rule::remote`](#rsyslogruleremote): Adds a rule to send messages to a remote system  In general, the order will be:    * Data Source Rules   * Console Rules   * Drop Rules   * R
-* [`rsyslog::template::list`](#rsyslogtemplatelist): Add a template list to the rsyslog configuration file.  RSyslog list templates can contain properties and constants. In order to capture this
-* [`rsyslog::template::plugin`](#rsyslogtemplateplugin): Add template plugins to the rsyslog configuration file.  **NOTE:** Plugins are **as-is**. This means that you will only supply the plugin nam
-* [`rsyslog::template::string`](#rsyslogtemplatestring): Add template strings to the rsyslog configuration  You'll need to write the entire template line due to the complexity of the rsyslog configu
-* [`rsyslog::template::subtree`](#rsyslogtemplatesubtree): Add template subtrees to the rsyslog configuration  You'll need to write the entire subtree line due to the complexity of the rsyslog configu
+* [`rsyslog::rule`](#rsyslogrule): Adds a rule
+* [`rsyslog::rule::console`](#rsyslogruleconsole): Add a rule for writing logs to the console
+* [`rsyslog::rule::data_source`](#rsyslogruledata_source): Add a rule for collecting logs from files on the system
+* [`rsyslog::rule::drop`](#rsyslogruledrop): Add a rule to drop content
+* [`rsyslog::rule::local`](#rsyslogrulelocal): Add a rule targeting writing local system logs
+* [`rsyslog::rule::other`](#rsyslogruleother): Adds an arbitrary rule
+* [`rsyslog::rule::remote`](#rsyslogruleremote): Adds a rule to send messages to one or more remote system
+* [`rsyslog::template::list`](#rsyslogtemplatelist): Add a template list to the rsyslog configuration file
+* [`rsyslog::template::plugin`](#rsyslogtemplateplugin): Add template plugins to the rsyslog configuration file.
+* [`rsyslog::template::string`](#rsyslogtemplatestring): Add template strings to the rsyslog configuration
+* [`rsyslog::template::subtree`](#rsyslogtemplatesubtree): Add template subtrees to the rsyslog configuration
+
+**Data types**
+
+* [`Rsyslog::QueueType`](#rsyslogqueuetype): Rsyslog Queue Types
 
 ## Classes
 
 ### rsyslog
 
-Set up rsyslog 7
-
 The configuration is particularly slanted toward the issues present in the
-version of rsyslog included with Enterprise Linux systems. It should still
+versions of rsyslog included with Enterprise Linux systems. It should still
 work on other systems but they may have different/other bugs that have not
 been addressed.
 
@@ -49,9 +50,7 @@ The following parameters are available in the `rsyslog` class.
 
 Data type: `String`
 
-The name of the RSyslog service; typically ``rsyslog``
-
-Default value: $::rsyslog::params::service_name
+The name of the Rsyslog service; typically ``rsyslog``
 
 ##### `package_name`
 
@@ -59,15 +58,13 @@ Data type: `String`
 
 The name of the Rsyslog package to install; typically ``rsyslog``
 
-Default value: $::rsyslog::params::package_name
-
 ##### `tls_package_name`
 
 Data type: `String`
 
 The name of the Rsyslog package to install TLS utilities; typically ``rsyslog-gnutls``
 
-Default value: $::rsyslog::params::tls_package_name
+Default value: "${package_name}-gnutls"
 
 ##### `trusted_nets`
 
@@ -97,7 +94,7 @@ Default value: `false`
 
 Data type: `Simplib::Netlist`
 
-A list of primary RSyslog servers
+A list of primary Rsyslog servers
 
 * All nodes in this list will get a copy of **all** logs if remote logging
   is enabled.
@@ -108,7 +105,7 @@ Default value: simplib::lookup('simp_options::syslog::log_servers', { 'default_v
 
 Data type: `Simplib::Netlist`
 
-A list of the failover RSyslog servers
+A list of the failover Rsyslog servers
 
 * This **order-dependent** list will serve as all of the possible failover
   log servers for clients to send to if the servers in ``log_servers`` are
@@ -120,7 +117,7 @@ Default value: simplib::lookup('simp_options::syslog::failover_log_servers', { '
 
 Data type: `Stdlib::Absolutepath`
 
-The path to the directory where RSyslog should store disk message queues
+The path to the directory where Rsyslog should store disk message queues
 
 Default value: '/var/spool/rsyslog'
 
@@ -174,7 +171,7 @@ Data type: `Boolean`
 Make this host listend for ``UDP`` connections
 
 * This really should not be enabled unless you have devices that cannot
-  speak ``TLS`` @param enable_logrotate
+  speak ``TLS``
 
 Default value: `false`
 
@@ -202,8 +199,6 @@ Default value: 514
 Data type: `Boolean`
 
 Enable the processing of ``journald`` messages natively in Rsyslog
-
-Default value: $::rsyslog::params::read_journald
 
 ##### `logrotate`
 
@@ -236,7 +231,7 @@ Default value: simplib::lookup('simp_options::pki', {'default_value'            
 
 ##### `app_pki_external_source`
 
-Data type: `Stdlib::Absolutepath`
+Data type: `String`
 
 * If pki = 'simp' or true, this is the directory from which certs will be
   copied, via pki::copy.  Defaults to /etc/pki/simp/x509.
@@ -258,7 +253,6 @@ Default value: '/etc/pki/simp_apps/rsyslog/x509'
 
 **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 
-Setup RSyslog configuration.
 - When the host uses systemd, creates a rsyslog.service override file
   that fixes a service ordering problem present with  older versions
   of rsyslog.
@@ -630,13 +624,14 @@ Data type: `Array[String]`
 A *wildcard-capable* Array of domains that should be allowed to talk to the
 server over ``TLS``
 
-Default value: ["*.${::domain}"]
+Default value: ["*.${facts['domain']}"]
 
 ##### `default_net_stream_driver`
 
 Data type: `Enum['gtls','ptcp']`
 
-
+When ``TLS`` is enabled (client and/or server), used to set the global
+DefaultNetStreamDriver configuration parameter.
 
 Default value: 'gtls'
 
@@ -644,31 +639,45 @@ Default value: 'gtls'
 
 Data type: `Stdlib::Absolutepath`
 
+When ``TLS`` is enabled (client and/or server), used to set the global
+DefaultNetStreamDriverCAFile configuration parameter. Currently, this
+is the **ONLY** mechanism available to set the CA file for ``TLS``.
 
-
-Default value: "${::rsyslog::app_pki_dir}/cacerts/cacerts.pem"
+Default value: "${rsyslog::app_pki_dir}/cacerts/cacerts.pem"
 
 ##### `default_net_stream_driver_cert_file`
 
 Data type: `Stdlib::Absolutepath`
 
+When ``TLS`` is enabled (client and/or server), used to set the global
+global DefaultNetStreamDriverCertFile configuration parameter. Currently,
+this is the **ONLY** mechanism available to set the cert file for ``TLS``.
 
-
-Default value: "${::rsyslog::app_pki_dir}/public/${::fqdn}.pub"
+Default value: "${rsyslog::app_pki_dir}/public/${::fqdn}.pub"
 
 ##### `default_net_stream_driver_key_file`
 
 Data type: `Stdlib::Absolutepath`
 
+When ``TLS`` is enabled (client and/or server), used to set the global
+used to set the global DefaultNetStreamDriverKeyFile configuration
+parameter. Currently, this is the **ONLY** mechanism available to set the
+key file for ``TLS``.
 
-
-Default value: "${::rsyslog::app_pki_dir}/private/${::fqdn}.pem"
+Default value: "${rsyslog::app_pki_dir}/private/${::fqdn}.pem"
 
 ##### `action_send_stream_driver_mode`
 
 Data type: `Enum['1','0']`
 
+* When ``$rsyslog::tls_tcp_server = true``, used for imtcp module
+  StreamDriver.Mode
 
+* For Rsyslog 7, when ``$rsyslog::enable_tls_logging = true``, used to set
+  the deprecated, global rsyslog configuration, ActionSendStreamDriverMode.
+  This setting and the corresponding send stream driver setting in
+  ``rsyslog::rule::remote`` are **BOTH** required for sending TLS-encrypted
+  logs with Rsyslog 7.
 
 Default value: (
 
@@ -676,17 +685,24 @@ Default value: (
 
 Data type: `Optional[String]`
 
+* When ``$rsyslog::tls_tcp_server = true``, used for imtcp module
+  StreamDriver.AuthMode.  If undefined, this value is set based on
+  ``$action_send_stream_driver_mode``.
 
+* Otherwise deprecated. Send stream driver authentication mode is
+  configured for individual send streams via ``rsyslog::rule::remote``.
 
 Default value: `undef`
 
 ##### `action_send_stream_driver_permitted_peers`
 
-Data type: `Array[String]`
+Data type: `Optional[Array[String]]`
 
+Deprecated and will be removed in a later version.  Send stream driver
+permitted peers are configured for individual send streams via
+``rsyslog::rule::remote``.
 
-
-Default value: $::rsyslog::log_servers
+Default value: `undef`
 
 ##### `ulimit_max_open_files`
 
@@ -703,6 +719,7 @@ Default value: 'unlimited'
 
 Data type: `Array[String]`
 
+This option is only valid in rsyslog versions < 8.6.0
 Hosts that should be logged with their simple hostname
 
 * See the ``-l`` option in ``rsyslogd(8)`` for more information
@@ -713,6 +730,7 @@ Default value: []
 
 Data type: `Array[String]`
 
+This option is only valid in rsyslog versions < 8.6.0
 Array of domains that should be stripped off before logging
 
 * See the ``-s`` option in ``rsyslogd(8)`` for more information
@@ -753,7 +771,7 @@ Data type: `Boolean`
 
 Enable the forwarding of the ``systemd`` journal to syslog
 
-Default value: $::rsyslog::read_journald
+Default value: $rsyslog::read_journald
 
 ##### `include_rsyslog_d`
 
@@ -778,28 +796,244 @@ Default value: 'unit.conf'
 
 **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 
-Default log rotation for RSyslog
-
 The list that is managed here matches the list of default files that are
 managed on the system by this module.
+
+Parameters map to their counterparts in the ``logrotate::rule`` defined type.
 
 #### Parameters
 
 The following parameters are available in the `rsyslog::config::logrotate` class.
 
+##### `rotate_compress`
+
+Data type: `Optional[Boolean]`
+
+
+
+Default value: `undef`
+
+##### `rotate_compresscmd`
+
+Data type: `Optional[String[1]]`
+
+
+
+Default value: `undef`
+
+##### `rotate_uncompresscmd`
+
+Data type: `Optional[String[1]]`
+
+
+
+Default value: `undef`
+
+##### `rotate_compressext`
+
+Data type: `Optional[String[1]]`
+
+
+
+Default value: `undef`
+
+##### `rotate_compressoptions`
+
+Data type: `Optional[String[1]]`
+
+
+
+Default value: `undef`
+
+##### `rotate_copy`
+
+Data type: `Boolean`
+
+
+
+Default value: `false`
+
+##### `rotate_copytruncate`
+
+Data type: `Boolean`
+
+
+
+Default value: `false`
+
+##### `rotate_create`
+
+Data type: `Pattern['\d{4} .+ .+']`
+
+
+
+Default value: '0640 root root'
+
 ##### `rotate_period`
 
 Data type: `Enum['daily','weekly','monthly','yearly']`
 
-How often to rotate the logs
+
 
 Default value: 'daily'
+
+##### `rotate_dateext`
+
+Data type: `Optional[Boolean]`
+
+
+
+Default value: `undef`
+
+##### `rotate_dateformat`
+
+Data type: `String[1]`
+
+
+
+Default value: '-%Y%m%d.%s'
+
+##### `rotate_dateyesterday`
+
+Data type: `Optional[Boolean]`
+
+
+
+Default value: `undef`
+
+##### `rotate_delaycompress`
+
+Data type: `Optional[Boolean]`
+
+
+
+Default value: `undef`
+
+##### `rotate_extension`
+
+Data type: `Optional[String[1]]`
+
+
+
+Default value: `undef`
+
+##### `rotate_ifempty`
+
+Data type: `Boolean`
+
+
+
+Default value: `false`
+
+##### `rotate_ext_include`
+
+Data type: `Optional[Array[String[1]]]`
+
+
+
+Default value: `undef`
+
+##### `rotate_mail`
+
+Data type: `Optional[Simplib::EmailAddress]`
+
+
+
+Default value: `undef`
+
+##### `rotate_maillast`
+
+Data type: `Boolean`
+
+
+
+Default value: `true`
+
+##### `rotate_maxage`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### `rotate_minsize`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### `rotate_missingok`
+
+Data type: `Boolean`
+
+
+
+Default value: `true`
+
+##### `rotate_olddir`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+
+
+Default value: `undef`
+
+##### `rotate_postrotate`
+
+Data type: `Optional[String[1]]`
+
+
+
+Default value: `undef`
+
+##### `rotate_prerotate`
+
+Data type: `Optional[String[1]]`
+
+
+
+Default value: `undef`
+
+##### `rotate_firstaction`
+
+Data type: `Optional[String[1]]`
+
+
+
+Default value: `undef`
+
+##### `rotate_lastaction`
+
+Data type: `Optional[String[1]]`
+
+
+
+Default value: `undef`
+
+##### `rotate_lastaction_restart_logger`
+
+Data type: `Boolean`
+
+
+
+Default value: `true`
+
+##### `rotate_logger_service`
+
+Data type: `Optional[String[1]]`
+
+
+
+Default value: simplib::lookup('logrotate::logger_service', {'default_value' => 'rsyslog'})
 
 ##### `rotate_preserve`
 
 Data type: `Integer[0]`
 
-How many rotated logs to keep
+
 
 Default value: 7
 
@@ -807,17 +1041,77 @@ Default value: 7
 
 Data type: `Optional[Integer[0]]`
 
-The maximum size of a log file
 
-* ``$rotate_period`` will be ignored if this is specified
+
+Default value: `undef`
+
+##### `rotate_sharedscripts`
+
+Data type: `Boolean`
+
+
+
+Default value: `true`
+
+##### `rotate_shred`
+
+Data type: `Optional[Boolean]`
+
+
+
+Default value: `undef`
+
+##### `rotate_shredcycles`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### `rotate_su`
+
+Data type: `Boolean`
+
+
+
+Default value: `false`
+
+##### `rotate_su_user`
+
+Data type: `Optional[String[1]]`
+
+
+
+Default value: `undef`
+
+##### `rotate_su_group`
+
+Data type: `Optional[String[1]]`
+
+
+
+Default value: `undef`
+
+##### `rotate_start`
+
+Data type: `Integer[0]`
+
+
+
+Default value: 1
+
+##### `rotate_tabooext`
+
+Data type: `Optional[Array[String[1]]]`
+
+
 
 Default value: `undef`
 
 ### rsyslog::install
 
 **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
-
-Installs the packages necessary for use of RSyslog
 
 #### Parameters
 
@@ -832,43 +1126,9 @@ How to install the packages
 * Accepts the same values as the ``Package`` resource's ``ensure``
   parameter
 
-Default value: 'latest'
-
-### rsyslog::params
-
-A list of the parameters and their default values for RSyslog.
-
-#### Parameters
-
-The following parameters are available in the `rsyslog::params` class.
-
-##### `service_name`
-
-Data type: `String`
-
-The name of the rsyslog service
-
-##### `package_name`
-
-Data type: `String`
-
-The name of the rsyslog package
-
-##### `tls_package_name`
-
-Data type: `String`
-
-The name of the rsyslog package providing GNUTLS support
-
-##### `read_journald`
-
-Data type: `Boolean`
-
-Tie in the reading of ``journald`` if available
+Default value: simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })
 
 ### rsyslog::server
-
-Sets up the RSyslog server
 
 This class is designed to configure the externally facing interfaces for a
 RSyslog system. If you do not need external connectivity, you should just use
@@ -906,16 +1166,12 @@ Default value: simplib::lookup('simp_options::tcpwrappers', { 'default_value' =>
 
 **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 
-Sets up the firewall rules for RSyslog with IPTables
-
 In ports will be openened for all systems inside of the
-``$::rsyslog::trusted_nets`` Array.
+``$rsyslog::trusted_nets`` Array.
 
 ### rsyslog::server::selinux
 
 **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
-
-Sets up SELinux for RSyslog
 
 Switches on the ``nis_enabled`` SELinux Boolean since this is required for
 successful RSyslog connections.
@@ -926,8 +1182,6 @@ successful RSyslog connections.
 
 **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 
-Sets up TCPWrappers for RSyslog both plain TCP and TCP over TLS as necessary
-
 **NOTE:** This actually **opens** the TCPWrappers rules for RSyslog since
 testing has shown that it was prone to some odd connectivity errors. Both
 IPTables and an internal allow list protect RSyslog connections.
@@ -935,8 +1189,6 @@ IPTables and an internal allow list protect RSyslog connections.
 ### rsyslog::service
 
 **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
-
-Manage the RSyslog service
 
 #### Parameters
 
@@ -953,8 +1205,6 @@ Default value: `true`
 ## Defined types
 
 ### rsyslog::rule
-
-Adds a rule
 
 This is used by the various ``rsyslog::rule::*`` Defined Types to apply rules
 to the system.
@@ -1017,8 +1267,6 @@ The **exact content** of the rule to place in the target file
 
 ### rsyslog::rule::console
 
-Add a rule for writing logs to the console
-
 These rules first in priority. In general, the order will be:
 
   * Data Source Rules
@@ -1070,8 +1318,6 @@ Data type: `Array[String]`
 Users to which to send the console messages
 
 ### rsyslog::rule::data_source
-
-Add a rule for collecting logs from files on the system
 
 In general, the order will be:
 
@@ -1128,8 +1374,6 @@ The Rsyslog ``EXPRESSION`` to filter on
 
 ### rsyslog::rule::drop
 
-Add a rule to drop content
-
 In general, the order will be:
 
   * Data Source Rules
@@ -1177,8 +1421,6 @@ The Rsyslog ``EXPRESSION`` to filter on
 
 ### rsyslog::rule::local
 
-Add a rule targeting writing local system logs
-
 **NOTE:** Any option that is not explicitly documented here matches the
 ``ruleset`` options in the Rsyslog documentation.
 
@@ -1190,6 +1432,20 @@ In general, the order will be:
   * Remote Rules
   * Other/Miscellaneous Rules
   * Local Rules
+
+NOTE: Since many of the parameters here may need to be modified on a
+case-by-base basis, this defined type uses capabilities presented by the
+``simplib::dlookup`` function to allow for either global overrides or
+instance-specific overrides.
+
+Global overrides work the same way as classes
+(``rsyslog::rule::local::file_create_mode: '0644'``) but will affect **all**
+instances of the defined type that are not specifically overridden as shown
+below.
+
+Instance specific overrides preclude the need for a resource collector in
+that you can place the follwing in Hiera to affect a single instance named
+``my_rule``: ``Rsyslog::Rule::Local[my_rule]::file_create_mode: '0600'``
 
 * **See also**
 https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/s1-basic_configuration_of_rsyslog.html
@@ -1223,7 +1479,7 @@ The filename that you will be dropping into place
 
 ##### `rule`
 
-Data type: `Optional[String]`
+Data type: `Optional[String[1]]`
 
 The Rsyslog ``EXPRESSION`` to filter on
 
@@ -1255,7 +1511,7 @@ Default value: `false`
 
 ##### `dyna_file`
 
-Data type: `Optional[String]`
+Data type: `Optional[String[1]]`
 
 Set a ``dynamic`` filename using the property replacer rules
 
@@ -1271,7 +1527,7 @@ Default value: `undef`
 
 ##### `template`
 
-Data type: `Optional[String]`
+Data type: `Optional[String[1]]`
 
 
 
@@ -1335,7 +1591,7 @@ Default value: `undef`
 
 ##### `dir_owner`
 
-Data type: `Optional[String]`
+Data type: `Optional[String[1]]`
 
 
 
@@ -1351,7 +1607,7 @@ Default value: `undef`
 
 ##### `dir_group`
 
-Data type: `Optional[String]`
+Data type: `Optional[String[1]]`
 
 
 
@@ -1367,7 +1623,7 @@ Default value: `undef`
 
 ##### `file_owner`
 
-Data type: `Optional[String]`
+Data type: `Optional[String[1]]`
 
 
 
@@ -1383,7 +1639,7 @@ Default value: `undef`
 
 ##### `file_group`
 
-Data type: `Optional[String]`
+Data type: `Optional[String[1]]`
 
 
 
@@ -1399,19 +1655,19 @@ Default value: `undef`
 
 ##### `file_create_mode`
 
-Data type: `String`
+Data type: `Stdlib::Filemode`
 
 
 
-Default value: '0644'
+Default value: simplib::dlookup('rsyslog::rule::local', 'file_create_mode', $name, { 'default_value' => '0640' })
 
 ##### `dir_create_mode`
 
-Data type: `String`
+Data type: `Stdlib::Filemode`
 
 
 
-Default value: '0700'
+Default value: simplib::dlookup('rsyslog::rule::local', 'dir_create_mode', $name, { 'default_value' => '0750' })
 
 ##### `fail_on_chown_failure`
 
@@ -1439,7 +1695,7 @@ Default value: `false`
 
 ##### `sig_provider`
 
-Data type: `Optional[String]`
+Data type: `Optional[String[1]]`
 
 
 
@@ -1447,7 +1703,7 @@ Default value: `undef`
 
 ##### `cry_provider`
 
-Data type: `Optional[String]`
+Data type: `Optional[String[1]]`
 
 
 
@@ -1559,7 +1815,7 @@ Default value: `false`
 
 ##### `queue_type`
 
-Data type: `Enum['FixedArray','LinkedList','Direct','Disk']`
+Data type: `Rsyslog::QueueType`
 
 
 
@@ -1615,11 +1871,11 @@ Default value: 100
 
 ##### `queue_max_file_size`
 
-Data type: `String`
+Data type: `String[1]`
 
 
 
-Default value: '1m'
+Default value: simplib::dlookup('rsyslog::rule::local', 'queue_max_file_size', $name, { 'default_value' => '1m' })
 
 ##### `queue_save_on_shutdown`
 
@@ -1655,7 +1911,7 @@ Default value: `undef`
 
 ##### `content`
 
-Data type: `Optional[String]`
+Data type: `Optional[String[1]]`
 
 the **entire* content of the rsyslog::rule
 
@@ -1666,8 +1922,6 @@ the **entire* content of the rsyslog::rule
 Default value: `undef`
 
 ### rsyslog::rule::other
-
-Adds an arbitrary rule
 
 The main reason to use this is to ensure proper ordering in the stack. If you
 want to insert a rule anywhere, use the ``$rsyslog::rule`` Defined Type
@@ -1721,7 +1975,9 @@ The Rsyslog ``EXPRESSION`` to filter on
 
 ### rsyslog::rule::remote
 
-Adds a rule to send messages to a remote system
+The rule will include a forwarding ('omfwd') action for each
+primary and failover syslog server specified via ``$dest`` and
+``$failover_log_servers``, respectively.
 
 In general, the order will be:
 
@@ -1732,9 +1988,19 @@ In general, the order will be:
   * Other/Miscellaneous Rules
   * Local Rules
 
-If you wish to use TLS for forward RSyslog messages, you **MUST** configure it
-via ``rsyslog::config``. Current EL versions of RSyslog 7 do not properly
-support individual TLS settings via rulesets.
+In general, individual send stream driver settings are properly supported
+with the Rsyslog 8 EL versions available for CentOS 7 and the Rsyslog 7
+EL versions available for CentOS 6. However, for TLS support, you must
+also configure global Rsyslog parameters as follows:
+
+* TLS sending and/or receiving requires the global DefaultNetStreamDriver,
+  DefaultNetStreamDriverCAFile, DefaultNetStreamDriverCertFile, and
+  DefaultNetStreamDriverKeyFile parameters to be configure via
+  ``rsyslog::config``.
+
+* TLS sending for Rsyslog 7 EL versions requires the global
+  ActionSendStreamDriverMode configuration parameter to be configured via
+  ``rsyslog::config`` **IN ADDITION TO** the ``$stream_driver_mode``.
 
 ------------------------------------------------------------------------
 
@@ -1759,6 +2025,7 @@ http://www.rsyslog.com/doc/expression.html
 Expressions in Rsyslog
 http://www.rsyslog.com/doc/rainerscript.html
 RainerScript Documentation
+https://simp.readthedocs.io/en/master/user_guide/HOWTO/Central_Log_Collection.html
 
 #### Examples
 
@@ -1766,8 +2033,8 @@ RainerScript Documentation
 
 ```puppet
 rsyslog::rule::remote { 'send_local0_away':
-  rule        => "prifilt('local0.*')",
-  log_servers => ['1.2.3.4']
+  rule => "prifilt('local0.*')",
+  dest => ['1.2.3.4']
 }
 ```
 
@@ -1783,7 +2050,7 @@ The filename that you will be dropping into place
 
 ##### `rule`
 
-Data type: `Optional[String]`
+Data type: `Optional[String[1]]`
 
 The Rsyslog ``EXPRESSION`` to filter on
 
@@ -1806,7 +2073,7 @@ Default value: `false`
 
 ##### `template`
 
-Data type: `Optional[String]`
+Data type: `Optional[String[1]]`
 
 The template that should be used to format the content
 
@@ -1829,7 +2096,8 @@ Data type: `Enum['tcp','udp','relp']`
 The destination type for all entries in ``$dest``
 
 * At this time, if you wish to have different types per destination, you
-  will need to craft your own ruleset and leave ``$dest`` empty.
+  will need to either create a ``rsyslog::rule::remote`` for each destnation
+  or craft your own ruleset and leave ``$dest`` empty.
 
 Default value: 'tcp'
 
@@ -1910,12 +2178,14 @@ Default value: -
 
 ##### `stream_driver`
 
-Data type: `Optional[String]`
+Data type: `Optional[String[1]]`
 
-This is overridden by the ``rsyslog::config::default_net_stream_driver``
+* This is only used to set the StreamDriver directive in the forwarding
+  actions for remote servers if TLS is enabled and ``$dest_type`` is
+  not UDP.
 
-* EL versions of Rsyslog 7 do not support this properly in rulesets but it
-  may be specified
+* Overridden by 'DefaultNetstreamDriver' global stream configuration
+  specified by ``rsyslog::config::default_net_stream_driver``.
 
 Default value: `undef`
 
@@ -1923,10 +2193,13 @@ Default value: `undef`
 
 Data type: `Integer[0]`
 
-This is overridden by the ``rsyslog::config::action_send_stream_driver_mode``
+* This is only used to set the StreamDriverMode directive in the
+  forwarding actions for remote servers if TLS is enabled and
+  ``$dest_type`` is not UDP.
 
-* EL versions of Rsyslog 7 do not support this properly in rulesets but it
-  may be specified
+* For Rsyslog 7,  the stream driver mode must be **ALSO** be set by
+  the 'ActionSendStreamDriverMode' global stream configuration via
+``rsyslog::config::action_send_stream_driver_mode``.
 
 Default value: 1
 
@@ -1934,23 +2207,45 @@ Default value: 1
 
 Data type: `String`
 
-This is overridden by the ``rsyslog::config::action_send_stream_driver_auth_mode``
-
-* EL versions of Rsyslog 7 partially support this in rulesets and it may
-  have some effect
+This is only used to set the StreamDriverAuthMode directive in the
+forwarding actions for remote servers if TLS is enabled and
+``$dest_type`` is not UDP.
 
 Default value: 'x509/name'
 
 ##### `stream_driver_permitted_peers`
 
-Data type: `String`
+Data type: `Optional[String[1]]`
 
-This is overridden by the ``rsyslog::config::action_send_stream_driver_permitted_peers``
+* This is only used to set the StreamDriverPermittedPeers directive
+  in the forwarding actions for remote servers if TLS is enabled and
+  ``$dest_type`` is not UDP.
 
-* EL versions of Rsyslog 7 partially support this in rulesets and it may
-  have some effect
+* If this is set, the value will be used for all forwarding actions
+  for the remote servers in ``$dest`` and ``$failover_log_servers``.
 
-Default value: "*.${::domain}"
+* If this is undefined,
+
+  - If *ALL* of the remote servers in ``$dest`` and
+    ``$failover_log_servers`` are specified as a hostname variants, the
+    StreamDriverPermittedPeers directive for the forwarding action for
+    each server will be set to that server's hostname.
+
+  - If *ANY* and of the remote servers in ``$dest`` and
+    ``$failover_log_servers`` is specified as an IP address variant, the
+    StreamDriverPermittedPeers directive for the forwarding action for
+    each server will be set to the domain of the Puppet client.
+    This behavior provides backward compatibility with earlier
+    versions of this module.
+
+* rsyslog expects StreamDriverPermittedPeers to be a comma-separated
+  list of fingerprints (SHA1) and/or names of remote peers, which it
+  will use to match against the certificate presented from the remote
+  server.
+
+* @see https://media.readthedocs.org/pdf/rsyslog/stable/rsyslog.pdf
+
+Default value: `undef`
 
 ##### `resend_last_msg_on_reconnect`
 
@@ -1970,7 +2265,7 @@ Default value: `false`
 
 ##### `queue_filename`
 
-Data type: `Optional[String]`
+Data type: `Optional[String[1]]`
 
 
 
@@ -2130,7 +2425,7 @@ Default value: 100
 
 ##### `queue_max_file_size`
 
-Data type: `String`
+Data type: `String[1]`
 
 
 
@@ -2170,7 +2465,7 @@ Default value: `undef`
 
 ##### `content`
 
-Data type: `Optional[String]`
+Data type: `Optional[String[1]]`
 
 the **entire* content of the rsyslog::rule
 
@@ -2181,8 +2476,6 @@ the **entire* content of the rsyslog::rule
 Default value: `undef`
 
 ### rsyslog::template::list
-
-Add a template list to the rsyslog configuration file.
 
 RSyslog list templates can contain properties and constants. In order to
 capture this functionality, we have opted for making a hash of these. The
@@ -2228,8 +2521,6 @@ The rsyslog list content that you wish to add to the system, as a Hash
 
 ### rsyslog::template::plugin
 
-Add template plugins to the rsyslog configuration file.
-
 **NOTE:** Plugins are **as-is**. This means that you will only supply the
 plugin name and assume that the plugin has already been loaded by RSyslog.
 
@@ -2266,8 +2557,6 @@ The rsyslog plugin content that you wish to add to the system
 * This is provided, without formatting, directly into the target file
 
 ### rsyslog::template::string
-
-Add template strings to the rsyslog configuration
 
 You'll need to write the entire template line due to the complexity of the
 rsyslog configuration parameters.
@@ -2307,8 +2596,6 @@ The rsyslog template string that you wish to add to the system
 * This is fed, without formatting, directly into the target file
 
 ### rsyslog::template::subtree
-
-Add template subtrees to the rsyslog configuration
 
 You'll need to write the entire subtree line due to the complexity of the
 rsyslog configuration parameters.
@@ -2355,4 +2642,12 @@ Data type: `Array[String]`
 Variables to be set **prior** to the template being created
 
 Default value: []
+
+## Data types
+
+### Rsyslog::QueueType
+
+Rsyslog Queue Types
+
+Alias of `Enum['FixedArray', 'LinkedList', 'Direct', 'Disk']`
 

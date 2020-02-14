@@ -1,4 +1,4 @@
-# Add a rule targeting writing local system logs
+# @summary Add a rule targeting writing local system logs
 #
 # **NOTE:** Any option that is not explicitly documented here matches the
 # ``ruleset`` options in the Rsyslog documentation.

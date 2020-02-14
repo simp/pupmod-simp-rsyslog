@@ -1,6 +1,6 @@
 # **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 #
-# Sets up SELinux for RSyslog
+# @summary Sets up SELinux for RSyslog
 #
 # Switches on the ``nis_enabled`` SELinux Boolean since this is required for
 # successful RSyslog connections.

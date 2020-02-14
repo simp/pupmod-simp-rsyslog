@@ -1,4 +1,5 @@
-# Adds a rule to send messages to one or more remote system.
+# @summary Adds a rule to send messages to one or more remote system
+#
 # The rule will include a forwarding ('omfwd') action for each
 # primary and failover syslog server specified via ``$dest`` and
 # ``$failover_log_servers``, respectively.

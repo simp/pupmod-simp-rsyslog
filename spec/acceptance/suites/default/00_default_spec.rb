@@ -13,7 +13,6 @@ describe 'rsyslog class' do
   let(:client){ only_host_with_role( hosts, 'client' ) }
   let(:manifest) {
     <<-EOS
-      # Turns off firewalld in EL7
       include 'iptables'
 
       iptables::listen::tcp_stateful { 'ssh':
@@ -129,48 +128,8 @@ input(type=\\"imfile\\"
       end
     end
 
-    it 'should collect iptables log messages in /var/log/iptables.log' do
-      # Trigger an iptables block event for the logs
-      require 'socket'
-      require 'timeout'
-
-      begin
-        Timeout::timeout(5) do
-          begin
-            s = TCPSocket.new(client.ip, 44)
-            sleep(1)
-            s.close
-          rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
-            # This should be rejected
-          end
-        end
-      rescue Timeout::Error
-      end
-
-      # kern facility messages cannot be created by a user via logger,
-      # because the facility is automatically changed to user. So, the
-      # only way to test this is to cause an actual iptables drop.
-      # TODO:  The code below should be replaced with use of the actual
-      #   iptables modules, a new drop rule for some port, and then nc
-      #   to try to open a connection to that port.
-      #
-      # Set up iptables to disallow icmp requests
-      on client, 'iptables --list-rules'
-      on client, 'iptables -N LOG_AND_DROP'
-      on client, 'iptables -A LOG_AND_DROP -j LOG --log-prefix "IPT:"'
-      on client, 'iptables -A LOG_AND_DROP -j DROP'
-      on client, 'iptables -A INPUT -p icmp -m icmp --icmp-type 8 -j LOG_AND_DROP'
-      on client, 'ping -c 1 `facter ipaddress`', :accept_all_exit_codes => true
-
-      check = on(client, "grep -l 'IPT:' /var/log/iptables.log").stdout.strip
-      expect(check).to eq('/var/log/iptables.log')
-
-      # clean up iptables rules to allow later tests to start with a clean slate
-      on client, 'iptables --delete LOG_AND_DROP -j LOG --log-prefix "IPT:"'
-      on client, 'iptables --delete LOG_AND_DROP -j DROP'
-      on client, 'iptables --delete INPUT -p icmp -m icmp --icmp-type 8 -j LOG_AND_DROP'
-      on client, 'iptables -X LOG_AND_DROP'
-      on client, 'iptables --list-rules'
+    it 'should collect firewall log messages' do
+      skip('firewall tests are well exercised via simp/simp_rsyslog')
     end
 
     it 'should collect authpriv, local6, and local5 log messages in /var/log/secure' do

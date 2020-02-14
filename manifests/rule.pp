@@ -1,4 +1,4 @@
-# Adds a rule
+# @summary Adds a rule
 #
 # This is used by the various ``rsyslog::rule::*`` Defined Types to apply rules
 # to the system.

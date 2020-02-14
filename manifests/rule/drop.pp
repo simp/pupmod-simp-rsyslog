@@ -1,4 +1,4 @@
-# Add a rule to drop content
+# @summary Add a rule to drop content
 #
 # In general, the order will be:
 #

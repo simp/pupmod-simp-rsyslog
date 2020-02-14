@@ -1,4 +1,4 @@
-# Add template subtrees to the rsyslog configuration
+# @summary Add template subtrees to the rsyslog configuration
 #
 # You'll need to write the entire subtree line due to the complexity of the
 # rsyslog configuration parameters.

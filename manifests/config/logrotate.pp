@@ -1,20 +1,49 @@
 # **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 #
-# Default log rotation for RSyslog
+# @summary Default log rotation for RSyslog
 #
 # The list that is managed here matches the list of default files that are
 # managed on the system by this module.
 #
+# Parameters map to their counterparts in the ``logrotate::rule`` defined type.
+# @param rotate_compress
+# @param rotate_compresscmd
+# @param rotate_uncompresscmd
+# @param rotate_compressext
+# @param rotate_compressoptions
+# @param rotate_copy
+# @param rotate_copytruncate
+# @param rotate_create
 # @param rotate_period
-#   How often to rotate the logs
-#
+# @param rotate_dateext
+# @param rotate_dateformat
+# @param rotate_dateyesterday
+# @param rotate_delaycompress
+# @param rotate_extension
+# @param rotate_ifempty
+# @param rotate_ext_include
+# @param rotate_mail
+# @param rotate_maillast
+# @param rotate_maxage
+# @param rotate_minsize
+# @param rotate_missingok
+# @param rotate_olddir
+# @param rotate_postrotate
+# @param rotate_prerotate
+# @param rotate_firstaction
+# @param rotate_lastaction
+# @param rotate_lastaction_restart_logger
+# @param rotate_logger_service
 # @param rotate_preserve
-#   How many rotated logs to keep
-#
 # @param rotate_size
-#   The maximum size of a log file
-#
-#   * ``$rotate_period`` will be ignored if this is specified
+# @param rotate_sharedscripts
+# @param rotate_shred
+# @param rotate_shredcycles
+# @param rotate_su
+# @param rotate_su_user
+# @param rotate_su_group
+# @param rotate_start
+# @param rotate_tabooext
 #
 class rsyslog::config::logrotate (
   Optional[Boolean]                         $rotate_compress                  = undef,
@@ -58,13 +87,16 @@ class rsyslog::config::logrotate (
 ){
   assert_private()
 
-  include '::logrotate'
+  simplib::assert_optional_dependency($module_name, 'simp/logrotate')
+
+  include 'logrotate'
 
   logrotate::rule { 'syslog':
     log_files                 => [
       '/var/log/boot.log',
       '/var/log/cron',
       '/var/log/iptables.log',
+      '/var/log/firewall.log',
       '/var/log/maillog',
       '/var/log/messages',
       '/var/log/puppet*.log',

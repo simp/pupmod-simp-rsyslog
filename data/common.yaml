@@ -1,0 +1,4 @@
+---
+rsyslog::service_name: 'rsyslog'
+rsyslog::package_name: 'rsyslog'
+rsyslog::read_journald: true

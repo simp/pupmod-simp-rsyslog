@@ -1,4 +1,4 @@
-# Adds an arbitrary rule
+# @summary Adds an arbitrary rule
 #
 # The main reason to use this is to ensure proper ordering in the stack. If you
 # want to insert a rule anywhere, use the ``$rsyslog::rule`` Defined Type

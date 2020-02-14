@@ -1,4 +1,4 @@
-# Set up Rsyslog 7/8
+# @summary Set up Rsyslog 7/8
 #
 # The configuration is particularly slanted toward the issues present in the
 # versions of rsyslog included with Enterprise Linux systems. It should still
@@ -112,9 +112,10 @@
 # @author https://github.com/simp/pupmod-simp-rsyslog/graphs/contributors
 #
 class rsyslog (
-  String                        $service_name            = $::rsyslog::params::service_name,
-  String                        $package_name            = $::rsyslog::params::package_name,
-  String                        $tls_package_name        = $::rsyslog::params::tls_package_name,
+  String                        $service_name, # In module data
+  String                        $package_name, # In module data
+  Boolean                       $read_journald, # In module data
+  String                        $tls_package_name        = "${package_name}-gnutls",
   Simplib::Netlist              $trusted_nets            = simplib::lookup('simp_options::trusted_nets', {'default_value'                  => ['127.0.0.1/32'] }),
   Boolean                       $enable_tls_logging      = false,
   Simplib::Netlist              $log_servers             = simplib::lookup('simp_options::syslog::log_servers', { 'default_value'          => [] }),
@@ -128,16 +129,15 @@ class rsyslog (
   Boolean                       $udp_server              = false,
   String                        $udp_listen_address      = '127.0.0.1',
   Simplib::Port                 $udp_listen_port         = 514,
-  Boolean                       $read_journald           = $::rsyslog::params::read_journald,
   Boolean                       $logrotate               = simplib::lookup('simp_options::logrotate', {'default_value'                     => false}),
   Variant[Boolean,Enum['simp']] $pki                     = simplib::lookup('simp_options::pki', {'default_value'                           => false}),
   String                        $app_pki_external_source = simplib::lookup('simp_options::pki::source', {'default_value'                   => '/etc/pki/simp/x509'}),
   Stdlib::Absolutepath          $app_pki_dir             = '/etc/pki/simp_apps/rsyslog/x509'
-) inherits ::rsyslog::params {
+) {
 
-  contain '::rsyslog::install'
-  contain '::rsyslog::config'
-  contain '::rsyslog::service'
+  contain 'rsyslog::install'
+  contain 'rsyslog::config'
+  contain 'rsyslog::service'
 
   # lint:ignore:arrow_on_right_operand_line
   Class['rsyslog::install'] ->
@@ -146,7 +146,7 @@ class rsyslog (
   # lint:endignore
 
   if $logrotate {
-    contain '::rsyslog::config::logrotate'
+    contain 'rsyslog::config::logrotate'
     Class['rsyslog::service'] -> Class['rsyslog::config::logrotate']
   }
 }

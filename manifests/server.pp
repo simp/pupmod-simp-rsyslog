@@ -1,4 +1,4 @@
-# Sets up the RSyslog server
+# @summary Sets up the RSyslog server
 #
 # This class is designed to configure the externally facing interfaces for a
 # RSyslog system. If you do not need external connectivity, you should just use
@@ -21,7 +21,7 @@ class rsyslog::server (
   include '::rsyslog'
 
   if $enable_firewall {
-    contain '::rsyslog::server::firewall'
+    contain 'rsyslog::server::firewall'
 
     Class['rsyslog::service'] -> Class['rsyslog::server::firewall']
   }
