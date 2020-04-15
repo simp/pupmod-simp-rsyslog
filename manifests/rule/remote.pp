@@ -212,26 +212,26 @@ define rsyslog::rule::remote (
   Optional[String[1]]                              $queue_filename                       = undef,
   Optional[Stdlib::Absolutepath]                   $queue_spool_directory                = undef,
   Optional[Integer[0]]                             $queue_size                           = undef,
-  Integer[0]                                       $queue_dequeue_batch_size             = 16,
+  Optional[Integer[0]]                             $queue_dequeue_batch_size             = undef,
   Optional[Integer[0]]                             $queue_max_disk_space                 = undef,
   Optional[Integer[0]]                             $queue_high_watermark                 = undef,
-  Integer[0]                                       $queue_low_watermark                  = 2000,
+  Optional[Integer[0]]                             $queue_low_watermark                  = undef,
   Optional[Integer[0]]                             $queue_full_delay_mark                = undef,
   Optional[Integer[0]]                             $queue_light_delay_mark               = undef,
-  Integer[0]                                       $queue_discard_mark                   = 9750,
-  Integer[0]                                       $queue_discard_severity               = 8,
+  Optional[Integer[0]]                             $queue_discard_mark                   = undef,
+  Optional[Integer[0]]                             $queue_discard_severity               = undef,
   Optional[Integer[0]]                             $queue_checkpoint_interval            = undef,
   Boolean                                          $queue_sync_queue_files               = false,
   Enum['LinkedList','FixedArray','Direct','Disk']  $queue_type                           = 'LinkedList',
-  Integer[0]                                       $queue_worker_threads                 = 1,
-  Integer[0]                                       $queue_timeout_shutdown               = 0,
-  Integer[0]                                       $queue_timeout_action_completion      = 1000,
-  Integer[0]                                       $queue_timeout_enqueue                = 2000,
-  Integer[0]                                       $queue_timeout_worker_thread_shutdown = 60000,
-  Integer[0]                                       $queue_worker_thread_minimum_messages = 100,
-  String[1]                                        $queue_max_file_size                  = '1m',
+  Optional[Integer[0]]                             $queue_worker_threads                 = undef,
+  Optional[Integer[0]]                             $queue_timeout_shutdown               = undef,
+  Optional[Integer[0]]                             $queue_timeout_action_completion      = undef,
+  Optional[Integer[0]]                             $queue_timeout_enqueue                = undef,
+  Optional[Integer[0]]                             $queue_timeout_worker_thread_shutdown = undef,
+  Optional[Integer[0]]                             $queue_worker_thread_minimum_messages = undef,
+  Optional[String[1]]                              $queue_max_file_size                  = undef,
   Boolean                                          $queue_save_on_shutdown               = true,
-  Integer[0]                                       $queue_dequeue_slowdown               = 0,
+  Optional[Integer[0]]                             $queue_dequeue_slowdown               = undef,
   Optional[Integer[0]]                             $queue_dequeue_time_begin             = undef,
   Optional[Integer[0]]                             $queue_dequeue_time_end               = undef,
   Optional[String[1]]                              $content                              = undef
@@ -305,6 +305,51 @@ define rsyslog::rule::remote (
             message  => ("rsyslog::rule::remote ${_notify_msg}"),
             loglevel => 'warning'
           }
+        }
+      }
+    }
+
+    # Basic validation for the action queue parameters
+    if $queue_size {
+      # First check the queue size, which should not be less than 100 per the docs
+      if $queue_size < 100 {
+        # Warn the user about an errant configuration, but don't fail as RSyslog will still run when setup this way
+        notify { "Invalid queue_size specified for ${name}":
+          message  => "Action queue size for ${name}: ${queue_size} is less than 100 and can have adverse effects on RSyslog",
+          loglevel => 'warning',
+        }
+      }
+
+      # Check to ensure the low watermark is not defined higher than the queue size
+      if $queue_low_watermark {
+        if ($queue_low_watermark >= $queue_size) {
+          # Warn the user about an errant configuration, but don't fail as RSyslog will still run when setup this way
+          notify { "Invalid low_watermark specified for ${name}":
+            message  => "Action queue low watermark for ${name}: ${queue_low_watermark} cannot be higher than the queue size: ${queue_size}",
+            loglevel => 'warning',
+          }
+        }
+      }
+
+      # Check to ensure the high watermark is not defined higher than the queue size
+      if $queue_high_watermark {
+        if ($queue_high_watermark >= $queue_size) {
+          # Warn the user about an errant configuration, but don't fail as RSyslog will still run when setup this way
+          notify { "Invalid high_watermark specified for ${name}":
+            message  => "Action queue high watermark for ${name}: ${queue_high_watermark} cannot be higher than the queue size: ${queue_size}",
+            loglevel => 'warning',
+          }
+        }
+      }
+    }
+
+    # Make sure that the lower watermark is not defined greater than the high watermark
+    if $queue_low_watermark and $queue_high_watermark {
+      if ($queue_low_watermark >= $queue_high_watermark) {
+        # Warn the user about an errant configuration, but don't fail as RSyslog will still run when setup this way
+        notify { "Invalid high and low watermark relationship for ${name}":
+          message  => "Action queue low watermark for ${name} is invalid: ${queue_low_watermark} must be lower than ${queue_high_watermark}",
+          loglevel => 'warning',
         }
       }
     }

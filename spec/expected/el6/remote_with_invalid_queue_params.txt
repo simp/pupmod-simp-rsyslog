@@ -1,9 +1,5 @@
 ruleset(
   name="ruleset_test_name"
-  queue.filename="test_name_disk_queue"
-  queue.syncqueuefiles="off"
-  queue.type="LinkedList"
-  queue.saveonshutdown="on"
 ) {
   action(
     type="omfwd"
@@ -12,9 +8,6 @@ ruleset(
     port="514"
     TCP_Framing="traditional"
     ZipLevel="0"
-    maxErrorMessages="5"
-    compression.mode="none"
-    compression.stream.flushOnTXEnd="on"
     ResendLastMSGOnReconnect="on"
   )
   action(
@@ -24,9 +17,6 @@ ruleset(
     port="5678"
     TCP_Framing="traditional"
     ZipLevel="0"
-    maxErrorMessages="5"
-    compression.mode="none"
-    compression.stream.flushOnTXEnd="on"
     ResendLastMSGOnReconnect="on"
   )
 }
