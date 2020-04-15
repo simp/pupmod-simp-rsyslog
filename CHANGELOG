@@ -1,3 +1,7 @@
+* Wed Apr 15 2020 Kendall Moore <kendall.moore@onyxpoint.com> - 7.6.0-0
+- Change remote rule defined type to use package defaults for action
+  queues
+
 * Mon Feb 03 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.6.0-0
 - Add a default rule to log packets dropped by firewalld to
   /var/log/firewall.log
