@@ -1,0 +1,24 @@
+ruleset(
+  name="ruleset_test_name"
+) {
+  action(
+    type="omfwd"
+    protocol="tcp"
+    target="1.2.3.4"
+    port="514"
+    TCP_Framing="traditional"
+    ZipLevel="0"
+    ResendLastMSGOnReconnect="on"
+  )
+  action(
+    type="omfwd"
+    protocol="tcp"
+    target="5.6.7.8"
+    port="5678"
+    TCP_Framing="traditional"
+    ZipLevel="0"
+    ResendLastMSGOnReconnect="on"
+  )
+}
+
+if (test_rule) then call ruleset_test_name

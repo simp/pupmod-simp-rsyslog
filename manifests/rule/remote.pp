@@ -309,6 +309,51 @@ define rsyslog::rule::remote (
       }
     }
 
+    # Basic validation for the action queue parameters
+    if $queue_size {
+      # First check the queue size, which should not be less than 100 per the docs
+      if $queue_size < 100 {
+        # Warn the user about an errant configuration, but don't fail as RSyslog will still run when setup this way
+        notify { "Invalid queue_size specified for ${name}":
+          message  => "Action queue size for ${name}: ${queue_size} is less than 100 and can have adverse effects on RSyslog",
+          loglevel => 'warning',
+        }
+      }
+
+      # Check to ensure the low watermark is not defined higher than the queue size
+      if $queue_low_watermark {
+        if ($queue_low_watermark >= $queue_size) {
+          # Warn the user about an errant configuration, but don't fail as RSyslog will still run when setup this way
+          notify { "Invalid low_watermark specified for ${name}":
+            message  => "Action queue low watermark for ${name}: ${queue_low_watermark} cannot be higher than the queue size: ${queue_size}",
+            loglevel => 'warning',
+          }
+        }
+      }
+
+      # Check to ensure the high watermark is not defined higher than the queue size
+      if $queue_high_watermark {
+        if ($queue_high_watermark >= $queue_size) {
+          # Warn the user about an errant configuration, but don't fail as RSyslog will still run when setup this way
+          notify { "Invalid high_watermark specified for ${name}":
+            message  => "Action queue high watermark for ${name}: ${queue_high_watermark} cannot be higher than the queue size: ${queue_size}",
+            loglevel => 'warning',
+          }
+        }
+      }
+    }
+
+    # Make sure that the lower watermark is not defined greater than the high watermark
+    if $queue_low_watermark and $queue_high_watermark {
+      if ($queue_low_watermark >= $queue_high_watermark) {
+        # Warn the user about an errant configuration, but don't fail as RSyslog will still run when setup this way
+        notify { "Invalid high and low watermark relationship for ${name}":
+          message  => "Action queue low watermark for ${name} is invalid: ${queue_low_watermark} must be lower than ${queue_high_watermark}",
+          loglevel => 'warning',
+        }
+      }
+    }
+
     $_content = template("${module_name}/rule/remote.erb")
   }
 
