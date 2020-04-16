@@ -323,34 +323,25 @@ define rsyslog::rule::remote (
       # Check to ensure the low watermark is not defined higher than the queue size
       if $queue_low_watermark {
         if ($queue_low_watermark >= $queue_size) {
-          # Warn the user about an errant configuration, but don't fail as RSyslog will still run when setup this way
-          notify { "Invalid low_watermark specified for ${name}":
-            message  => "Action queue low watermark for ${name}: ${queue_low_watermark} cannot be higher than the queue size: ${queue_size}",
-            loglevel => 'warning',
-          }
+          # Fail as the low watermark can't be higher than the actual queue size
+          fail("Action queue low watermark for ${name}: ${queue_low_watermark} cannot be higher than the queue size: ${queue_size}")
         }
       }
 
       # Check to ensure the high watermark is not defined higher than the queue size
       if $queue_high_watermark {
+        # Fail as the high watermark can't be higher than the actual queue size
         if ($queue_high_watermark >= $queue_size) {
-          # Warn the user about an errant configuration, but don't fail as RSyslog will still run when setup this way
-          notify { "Invalid high_watermark specified for ${name}":
-            message  => "Action queue high watermark for ${name}: ${queue_high_watermark} cannot be higher than the queue size: ${queue_size}",
-            loglevel => 'warning',
-          }
+          fail("Action queue high watermark for ${name}: ${queue_high_watermark} cannot be higher than the queue size: ${queue_size}")
         }
       }
     }
 
     # Make sure that the lower watermark is not defined greater than the high watermark
     if $queue_low_watermark and $queue_high_watermark {
+      # Fail as the low watermark can't be higher than the high watermark
       if ($queue_low_watermark >= $queue_high_watermark) {
-        # Warn the user about an errant configuration, but don't fail as RSyslog will still run when setup this way
-        notify { "Invalid high and low watermark relationship for ${name}":
-          message  => "Action queue low watermark for ${name} is invalid: ${queue_low_watermark} must be lower than ${queue_high_watermark}",
-          loglevel => 'warning',
-        }
+        fail("Action queue low watermark for ${name} is invalid: ${queue_low_watermark} must be lower than ${queue_high_watermark}")
       }
     }
 
