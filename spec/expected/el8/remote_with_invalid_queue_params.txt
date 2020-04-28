@@ -2,8 +2,6 @@ ruleset(
   name="ruleset_test_name"
   queue.filename="test_name_disk_queue"
   queue.size="10"
-  queue.highwatermark="1300"
-  queue.lowwatermark="1400"
   queue.syncqueuefiles="off"
   queue.type="LinkedList"
   queue.saveonshutdown="on"
