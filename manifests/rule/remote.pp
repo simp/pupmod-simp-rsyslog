@@ -148,6 +148,7 @@
 #
 # @param resend_last_msg_on_reconnect
 # @param udp_send_to_all
+# @param queue_validation_log_level
 # @param queue_filename
 # @param queue_spool_directory
 # @param queue_size
@@ -209,6 +210,7 @@ define rsyslog::rule::remote (
   Optional[String[1]]                              $stream_driver_permitted_peers        = undef,
   Boolean                                          $resend_last_msg_on_reconnect         = true,
   Boolean                                          $udp_send_to_all                      = false,
+  Simplib::PuppetLogLevel                          $queue_validation_log_level           = simplib::dlookup('rsyslog::rule::remote', 'queue_validation_log_level', $name, { 'default_value' => 'warning' }),
   Optional[String[1]]                              $queue_filename                       = undef,
   Optional[Stdlib::Absolutepath]                   $queue_spool_directory                = undef,
   Optional[Integer[0]]                             $queue_size                           = undef,
@@ -303,7 +305,7 @@ define rsyslog::rule::remote (
           $_stream_driver_permitted_peers = "*.${facts['domain']}"
           notify { "TLS StreamDriverPermittedPeers ${name}":
             message  => ("rsyslog::rule::remote ${_notify_msg}"),
-            loglevel => 'warning'
+            loglevel => $queue_validation_log_level,
           }
         }
       }
