@@ -1,6 +1,7 @@
 ruleset(
   name="ruleset_test_name"
   queue.filename="test_name_disk_queue"
+  queue.size="10"
   queue.syncqueuefiles="off"
   queue.type="LinkedList"
   queue.saveonshutdown="on"
@@ -8,31 +9,25 @@ ruleset(
   action(
     type="omfwd"
     protocol="tcp"
-    target="logserver.my.domain"
-    port="6514"
+    target="1.2.3.4"
+    port="514"
     TCP_Framing="traditional"
     ZipLevel="0"
     maxErrorMessages="5"
     compression.mode="none"
     compression.stream.flushOnTXEnd="on"
-    StreamDriverMode="1"
-    StreamDriverAuthMode="x509/name"
-    StreamDriverPermittedPeers="logserver.my.domain"
     ResendLastMSGOnReconnect="on"
   )
   action(
     type="omfwd"
     protocol="tcp"
-    target="logserver2.other.place"
-    port="4444"
+    target="5.6.7.8"
+    port="5678"
     TCP_Framing="traditional"
     ZipLevel="0"
     maxErrorMessages="5"
     compression.mode="none"
     compression.stream.flushOnTXEnd="on"
-    StreamDriverMode="1"
-    StreamDriverAuthMode="x509/name"
-    StreamDriverPermittedPeers="logserver2.other.place"
     ResendLastMSGOnReconnect="on"
   )
 }

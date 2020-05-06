@@ -33,7 +33,62 @@ describe 'rsyslog::rule::remote' do
           let(:expected) { File.read("spec/expected/el#{os_facts[:operatingsystemmajrelease]}/remote_defaults.txt") }
 
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
+          it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected) }
+        end
+
+        context 'with queue size less than 100' do
+          let(:params) do
+            {
+              :rule                 => 'test_rule',
+              :dest                 => ['1.2.3.4','5.6.7.8:5678'],
+              :queue_size           => 10,
+            }
+          end
+          let(:expected) { File.read("spec/expected/el#{os_facts[:operatingsystemmajrelease]}/remote_with_invalid_queue_params.txt") }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected) }
+          it { is_expected.to contain_notify('Invalid queue_size specified for test_name').with_loglevel('warning') }
+        end
+
+        context 'with high watermark higher than queue size' do
+          let(:params) do
+            {
+              :rule                 => 'test_rule',
+              :dest                 => ['1.2.3.4','5.6.7.8:5678'],
+              :queue_size           => 1200,
+              :queue_high_watermark => 1300,
+            }
+          end
+
+          it { is_expected.to raise_error(Puppet::PreformattedError) }
+        end
+
+        context 'with low watermark higher than queue size' do
+          let(:params) do
+            {
+              :rule                => 'test_rule',
+              :dest                => ['1.2.3.4','5.6.7.8:5678'],
+              :queue_size          => 1200,
+              :queue_low_watermark => 1300,
+            }
+          end
+
+          it { is_expected.to raise_error(Puppet::PreformattedError) }
+        end
+
+        context 'with low watermark higher than high watermark' do
+          let(:params) do
+            {
+              :rule                 => 'test_rule',
+              :dest                 => ['1.2.3.4','5.6.7.8:5678'],
+              :queue_size           => 1200,
+              :queue_low_watermark  => 1400,
+              :queue_high_watermark => 1300,
+            }
+          end
+
+          it { is_expected.to raise_error(Puppet::PreformattedError) }
         end
 
         context 'with rule and all optional non-TLS params specified' do
