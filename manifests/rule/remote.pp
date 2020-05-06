@@ -317,7 +317,7 @@ define rsyslog::rule::remote (
       if $queue_size < 100 {
         # Warn the user about an errant configuration, but don't fail as RSyslog will still run when setup this way
         notify { "Invalid queue_size specified for ${name}":
-          message  => "Action queue size for ${name}: ${queue_size} is less than 100 and can have adverse effects on RSyslog",
+          message  => "Action queue size for ${name}: ${queue_size} is less than 100 and can have adverse effects on RSyslog. To disable this message set rsyslog::rule::remote::queue_validation_log_level to 'debug' in Hiera or your ENC",
           loglevel => $queue_validation_log_level,
         }
       }
