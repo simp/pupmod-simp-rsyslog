@@ -175,7 +175,7 @@ define rsyslog::rule::local (
   Optional[Integer[0]]           $queue_timeout_enqueue                = undef,
   Optional[Integer[0]]           $queue_timeout_worker_thread_shutdown = undef,
   Optional[Integer[0]]           $queue_worker_thread_minimum_messages = undef,
-  Optional[String[1]]            $queue_max_file_size                  = undef,
+  Optional[String[1]]            $queue_max_file_size                  = simplib::dlookup('rsyslog::rule::local', 'queue_max_file_size', $name, { 'default_value' => undef }),
   Boolean                        $queue_save_on_shutdown               = false,
   Optional[Integer[0]]           $queue_dequeue_slowdown               = undef,
   Optional[Integer[0]]           $queue_dequeue_time_begin             = undef,
