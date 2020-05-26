@@ -36,21 +36,9 @@ if (test_rule) then {
     dirCreateMode="0750"
     failOnChownFailure="on"
     createDirs="on"
-    queue.dequeuebatchsize="16"
-    queue.lowwatermark="2000"
-    queue.discardmark="9750"
-    queue.discardseverity="8"
     queue.syncqueuefiles="off"
     queue.type="Direct"
-    queue.workerthreads="1"
-    queue.timeoutshutdown="0"
-    queue.timeoutactioncompletion="1000"
-    queue.timeoutenqueue="2000"
-    queue.timeoutworkerthreadshutdown="60000"
-    queue.workerthreadminimummessages="100"
-    queue.maxfilesize="1m"
     queue.saveonshutdown="off"
-    queue.dequeueslowdown="0"
   )
 }
 EOM
