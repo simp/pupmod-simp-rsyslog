@@ -105,36 +105,60 @@ if (<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %>) then {
 <% if @queue_size -%>
     queue.size="<%= @queue_size %>"
 <% end -%>
+<% if @queue_dequeue_batch_size -%>
     queue.dequeuebatchsize="<%= @queue_dequeue_batch_size %>"
+<% end -%>
 <% if @queue_max_disk_space -%>
     queue.maxdiskspace="<%= @queue_max_disk_space %>"
 <% end -%>
 <% if @queue_high_watermark -%>
     queue.highwatermark="<%= @queue_high_watermark %>"
 <% end -%>
+<% if @queue_low_watermark -%>
     queue.lowwatermark="<%= @queue_low_watermark %>"
+<% end -%>
 <% if @queue_full_delay_mark -%>
     queue.fulldelaymark="<%= @queue_full_delay_mark %>"
 <% end -%>
 <% if @queue_light_delay_mark -%>
     queue.lightdelaymark="<%= @queue_light_delay_mark %>"
 <% end -%>
+<% if @queue_discard_mark -%>
     queue.discardmark="<%= @queue_discard_mark %>"
+<% end -%>
+<% if @queue_discard_severity -%>
     queue.discardseverity="<%= @queue_discard_severity %>"
+<% end -%>
 <% if @queue_checkpoint_interval -%>
     queue.checkpointinterval="<%= @queue_checkpoint_interval %>"
 <% end -%>
     queue.syncqueuefiles="<%= _bool_xlat[@queue_sync_queue_files] %>"
     queue.type="<%= @queue_type %>"
+<% if @queue_worker_threads -%>
     queue.workerthreads="<%= @queue_worker_threads %>"
+<% end -%>
+<% if @queue_timeout_shutdown -%>
     queue.timeoutshutdown="<%= @queue_timeout_shutdown %>"
+<% end -%>
+<% if @queue_timeout_action_completion -%>
     queue.timeoutactioncompletion="<%= @queue_timeout_action_completion %>"
+<% end -%>
+<% if @queue_timeout_enqueue -%>
     queue.timeoutenqueue="<%= @queue_timeout_enqueue %>"
+<% end -%>
+<% if @queue_timeout_worker_thread_shutdown -%>
     queue.timeoutworkerthreadshutdown="<%= @queue_timeout_worker_thread_shutdown %>"
+<% end -%>
+<% if @queue_worker_thread_minimum_messages -%>
     queue.workerthreadminimummessages="<%= @queue_worker_thread_minimum_messages %>"
+<% end -%>
+<% if @queue_max_file_size -%>
     queue.maxfilesize="<%= @queue_max_file_size %>"
+<% end -%>
     queue.saveonshutdown="<%= _bool_xlat[@queue_save_on_shutdown] %>"
+<% if @queue_dequeue_slowdown -%>
     queue.dequeueslowdown="<%= @queue_dequeue_slowdown %>"
+<% end -%>
 <% if @queue_dequeue_time_begin -%>
     queue.dequeuetimebegin="<%= @queue_dequeue_time_begin %>"
 <% end -%>
