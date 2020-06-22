@@ -92,6 +92,10 @@
 # @param compression_mode
 # @param compression_stream_flush_on_tx_end
 # @param rebind_interval
+# @param keep_alive
+# @param keep_alive_probes
+# @param keep_alive_interval
+# @param keep_alive_time
 # @param action_resume_interval
 # @param action_resume_retry_count
 #
@@ -202,6 +206,10 @@ define rsyslog::rule::remote (
   Enum['none','single','stream:always']            $compression_mode                     = 'none',
   Boolean                                          $compression_stream_flush_on_tx_end   = true,
   Optional[Integer[0]]                             $rebind_interval                      = undef,
+  Optional[Boolean]                                $keep_alive                           = undef,
+  Optional[Integer[0]]                             $keep_alive_probes                    = undef,
+  Optional[Integer[0]]                             $keep_alive_interval                  = undef,
+  Optional[Integer[0]]                             $keep_alive_time                      = undef,
   Integer[0]                                       $action_resume_interval               = 30,
   Integer[-1]                                      $action_resume_retry_count            = -1,
   Optional[String[1]]                              $stream_driver                        = undef,
