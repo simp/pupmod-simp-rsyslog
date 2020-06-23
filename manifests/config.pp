@@ -134,6 +134,10 @@
 #   A *wildcard-capable* Array of domains that should be allowed to talk to the
 #   server over ``TLS``
 #
+# @param keep_alive
+# @param keep_alive_probes
+# @param keep_alive_time
+#
 # @param default_net_stream_driver
 #   When ``TLS`` is enabled (client and/or server), used to set the global
 #   DefaultNetStreamDriver configuration parameter.
@@ -267,6 +271,9 @@ class rsyslog::config (
   Integer[0]                            $interval                                           = 0,
   Integer[0]                            $tls_tcp_max_sessions                               = 200,
   Array[String]                         $tls_input_tcp_server_stream_driver_permitted_peers = ["*.${facts['domain']}"],
+  Optional[Boolean]                     $keep_alive                                         = undef,
+  Optional[Integer[0]]                  $keep_alive_probes                                  = undef,
+  Optional[Integer[0]]                  $keep_alive_time                                    = undef,
 
   Enum['gtls','ptcp']                   $default_net_stream_driver                          = 'gtls',
   Stdlib::Absolutepath                  $default_net_stream_driver_ca_file                  = "${rsyslog::app_pki_dir}/cacerts/cacerts.pem",

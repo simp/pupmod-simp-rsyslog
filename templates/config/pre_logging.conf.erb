@@ -126,6 +126,15 @@ module(load="imtcp"
   StreamDriver.AuthMode="<%= @_action_send_stream_driver_auth_mode %>"
   PermittedPeer=[<%= @tls_input_tcp_server_stream_driver_permitted_peers.map{|x| %Q{"#{x}"}}.join(',') %>]
   MaxSessions="<%= @tls_tcp_max_sessions %>"
+<%   if @keep_alive -%>
+  KeepAlive="<%= t_bool_xlat[@keep_alive] %>"
+<%     if @keep_alive_probes -%>
+  KeepAliveProbes="<%= @keep_alive_probes %>"
+<%     end -%>
+<%     if @keep_alive_time -%>
+  KeepAliveTime="<%= @keep_alive_time %>"
+<%     end -%>
+<%   end -%>
 )
 input(type="imtcp" port="<%= @_tls_tcp_listen_port %>")
 <% elsif @_tcp_server -%>

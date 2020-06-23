@@ -113,6 +113,18 @@ ruleset(
     compression.mode="<%= @compression_mode %>"
 <%       end -%>
     compression.stream.flushOnTXEnd="<%= _bool_xlat[@compression_stream_flush_on_tx_end] %>"
+<%       if @keep_alive -%>
+    KeepAlive="<%= _bool_xlat[@keep_alive] %>"
+<%         if @keep_alive_probes -%>
+    KeepAlive.Probes="<%= @keep_alive_probes %>"
+<%         end -%>
+<%         if @keep_alive_interval -%>
+    KeepAlive.Interval="<%= @keep_alive_interval %>"
+<%         end -%>
+<%         if @keep_alive_time -%>
+    KeepAlive.Time="<%= @keep_alive_time %>"
+<%         end -%>
+<%       end -%>
 <%     end -%>
 <%   end -%>
 <%   if @rebind_interval -%>
@@ -245,6 +257,18 @@ ruleset(
     compression.mode="<%= @compression_mode %>"
 <%         end -%>
     compression.stream.flushOnTXEnd="<%= _bool_xlat[@compression_stream_flush_on_tx_end] %>"
+<%         if @keep_alive -%>
+    KeepAlive="<%= _bool_xlat[@keep_alive] %>"
+<%           if @keep_alive_probes -%>
+    KeepAlive.Probes="<%= @keep_alive_probes %>"
+<%           end -%>
+<%           if @keep_alive_interval -%>
+    KeepAlive.Interval="<%= @keep_alive_interval %>"
+<%           end -%>
+<%           if @keep_alive_time -%>
+    KeepAlive.Time="<%= @keep_alive_time %>"
+<%           end -%>
+<%         end -%>
 <%       end -%>
 <%     end -%>
 <%     if @rebind_interval -%>
