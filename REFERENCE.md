@@ -626,6 +626,30 @@ server over ``TLS``
 
 Default value: ["*.${facts['domain']}"]
 
+##### `keep_alive`
+
+Data type: `Optional[Boolean]`
+
+
+
+Default value: `undef`
+
+##### `keep_alive_probes`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### `keep_alive_time`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
 ##### `default_net_stream_driver`
 
 Data type: `Enum['gtls','ptcp']`
@@ -1735,11 +1759,11 @@ Default value: `undef`
 
 ##### `queue_dequeue_batch_size`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: 16
+Default value: `undef`
 
 ##### `queue_max_disk_space`
 
@@ -1759,11 +1783,11 @@ Default value: `undef`
 
 ##### `queue_low_watermark`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: 2000
+Default value: `undef`
 
 ##### `queue_full_delay_mark`
 
@@ -1783,19 +1807,19 @@ Default value: `undef`
 
 ##### `queue_discard_mark`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: 9750
+Default value: `undef`
 
 ##### `queue_discard_severity`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: 8
+Default value: `undef`
 
 ##### `queue_checkpoint_interval`
 
@@ -1823,59 +1847,59 @@ Default value: 'Direct'
 
 ##### `queue_worker_threads`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: 1
+Default value: `undef`
 
 ##### `queue_timeout_shutdown`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: 0
+Default value: `undef`
 
 ##### `queue_timeout_action_completion`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: 1000
+Default value: `undef`
 
 ##### `queue_timeout_enqueue`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: 2000
+Default value: `undef`
 
 ##### `queue_timeout_worker_thread_shutdown`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: 60000
+Default value: `undef`
 
 ##### `queue_worker_thread_minimum_messages`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: 100
+Default value: `undef`
 
 ##### `queue_max_file_size`
 
-Data type: `String[1]`
+Data type: `Optional[String[1]]`
 
 
 
-Default value: simplib::dlookup('rsyslog::rule::local', 'queue_max_file_size', $name, { 'default_value' => '1m' })
+Default value: simplib::dlookup('rsyslog::rule::local', 'queue_max_file_size', $name, { 'default_value' => undef })
 
 ##### `queue_save_on_shutdown`
 
@@ -1887,11 +1911,11 @@ Default value: `false`
 
 ##### `queue_dequeue_slowdown`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: 0
+Default value: `undef`
 
 ##### `queue_dequeue_time_begin`
 
@@ -1920,6 +1944,14 @@ the **entire* content of the rsyslog::rule
 * If you do specify this, ``$rule`` will be ignored
 
 Default value: `undef`
+
+##### `queue_validation_log_level`
+
+Data type: `Simplib::PuppetLogLevel`
+
+
+
+Default value: simplib::dlookup('rsyslog::rule::local', 'queue_validation_log_level', $name, { 'default_value' => 'warning' })
 
 ### rsyslog::rule::other
 
@@ -2160,6 +2192,38 @@ Data type: `Optional[Integer[0]]`
 
 Default value: `undef`
 
+##### `keep_alive`
+
+Data type: `Optional[Boolean]`
+
+
+
+Default value: `undef`
+
+##### `keep_alive_probes`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### `keep_alive_interval`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### `keep_alive_time`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
 ##### `action_resume_interval`
 
 Data type: `Integer[0]`
@@ -2263,6 +2327,14 @@ Data type: `Boolean`
 
 Default value: `false`
 
+##### `queue_validation_log_level`
+
+Data type: `Simplib::PuppetLogLevel`
+
+
+
+Default value: simplib::dlookup('rsyslog::rule::remote', 'queue_validation_log_level', $name, { 'default_value' => 'warning' })
+
 ##### `queue_filename`
 
 Data type: `Optional[String[1]]`
@@ -2289,11 +2361,11 @@ Default value: `undef`
 
 ##### `queue_dequeue_batch_size`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: 16
+Default value: `undef`
 
 ##### `queue_max_disk_space`
 
@@ -2313,11 +2385,11 @@ Default value: `undef`
 
 ##### `queue_low_watermark`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: 2000
+Default value: `undef`
 
 ##### `queue_full_delay_mark`
 
@@ -2337,19 +2409,19 @@ Default value: `undef`
 
 ##### `queue_discard_mark`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: 9750
+Default value: `undef`
 
 ##### `queue_discard_severity`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: 8
+Default value: `undef`
 
 ##### `queue_checkpoint_interval`
 
@@ -2377,59 +2449,59 @@ Default value: 'LinkedList'
 
 ##### `queue_worker_threads`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: 1
+Default value: `undef`
 
 ##### `queue_timeout_shutdown`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: 0
+Default value: `undef`
 
 ##### `queue_timeout_action_completion`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: 1000
+Default value: `undef`
 
 ##### `queue_timeout_enqueue`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: 2000
+Default value: `undef`
 
 ##### `queue_timeout_worker_thread_shutdown`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: 60000
+Default value: `undef`
 
 ##### `queue_worker_thread_minimum_messages`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: 100
+Default value: `undef`
 
 ##### `queue_max_file_size`
 
-Data type: `String[1]`
+Data type: `Optional[String[1]]`
 
 
 
-Default value: '1m'
+Default value: `undef`
 
 ##### `queue_save_on_shutdown`
 
@@ -2441,11 +2513,11 @@ Default value: `true`
 
 ##### `queue_dequeue_slowdown`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: 0
+Default value: `undef`
 
 ##### `queue_dequeue_time_begin`
 
