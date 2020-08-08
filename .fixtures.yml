@@ -17,6 +17,7 @@ fixtures:
     pki: https://github.com/simp/pupmod-simp-pki
     selinux_core: https://github.com/puppetlabs/puppetlabs-selinux_core
     simp_options: https://github.com/simp/pupmod-simp-simp_options
+    simp_firewalld: https://github.com/simp/pupmod-simp-simp_firewalld
     simplib: https://github.com/simp/pupmod-simp-simplib
     stdlib: https://github.com/simp/puppetlabs-stdlib
     stunnel: https://github.com/simp/pupmod-simp-stunnel
