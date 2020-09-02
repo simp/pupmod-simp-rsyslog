@@ -1,6 +1,6 @@
 {
   "name": "simp-rsyslog",
-  "version": "7.6.2",
+  "version": "7.6.3",
   "author": "SIMP Team",
   "summary": "A puppet module to support RSyslog versions 7 and higher using new style RainerScript.",
   "license": "Apache-2.0",
