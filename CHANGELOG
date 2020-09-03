@@ -1,3 +1,6 @@
+* Tue Jun 30 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.6.3-0
+- Update REFERENCE.md
+
 * Mon Jun 22 2020 Kendall Moore <kendall.moore@onyxpoint.com> - 7.6.2-0
 - Add support for KeepAlive variables for imtcp and omfwd actions
 
