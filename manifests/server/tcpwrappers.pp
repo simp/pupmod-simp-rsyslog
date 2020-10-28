@@ -4,7 +4,7 @@
 #
 # **NOTE:** This actually **opens** the TCPWrappers rules for RSyslog since
 # testing has shown that it was prone to some odd connectivity errors. Both
-# IPTables and an internal allow list protect RSyslog connections.
+# the host firewall and an internal allow list protect RSyslog connections.
 #
 class rsyslog::server::tcpwrappers {
   assert_private()

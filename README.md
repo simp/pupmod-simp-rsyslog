@@ -9,18 +9,27 @@
 
 #### Table of Contents
 
-1. [Overview](#overview)
-2. [Module Description - A Puppet module for managing RSyslog version 7 or
-later](#module-description)
-3. [Setup - The basics of getting started with pupmod-simp-rsyslog](#setup)
-    * [What pupmod-simp-rsyslog affects](#what-pupmod-simp-rsyslog-affects)
-    * [Setup requirements](#setup-requirements)
-    * [Beginning with pupmod-simp-rsyslog](#beginning-with-pupmod-simp-rsyslog)
-4. [Usage - Configuration options and additional functionality](#usage)
-5. [Reference - An under-the-hood peek at what the module is doing and
-how](#reference)
-5. [Limitations - OS compatibility, etc.](#limitations)
-6. [Development - Guide for contributing to the module](#development)
+<!-- vim-markdown-toc GFM -->
+
+* [Overview](#overview)
+* [This is a SIMP module](#this-is-a-simp-module)
+* [Module Description](#module-description)
+* [Setup](#setup)
+  * [What pupmod-simp-rsyslog affects](#what-pupmod-simp-rsyslog-affects)
+  * [Setup Requirements](#setup-requirements)
+  * [Beginning with pupmod-simp-rsyslog](#beginning-with-pupmod-simp-rsyslog)
+* [Usage](#usage)
+  * [I want standard remote logging on a client](#i-want-standard-remote-logging-on-a-client)
+  * [I want to send everything to rsyslog from a client](#i-want-to-send-everything-to-rsyslog-from-a-client)
+  * [I want to disable TLS/PKI/Logrotate](#i-want-to-disable-tlspkilogrotate)
+  * [I want to set up an RSyslog Server](#i-want-to-set-up-an-rsyslog-server)
+  * [I want to set up an Rsyslog Server without logrotate/pki/firewall/tcpwrappers](#i-want-to-set-up-an-rsyslog-server-without-logrotatepkifirewalltcpwrappers)
+  * [Central Log Forwarding](#central-log-forwarding)
+* [Reference](#reference)
+* [Limitations](#limitations)
+* [Development](#development)
+
+<!-- vim-markdown-toc -->
 
 ## Overview
 
@@ -86,7 +95,9 @@ Services and operations managed or affected by
 [pupmod-simp-rsyslog](https://github.com/simp/pupmod-simp-rsyslog):
 * rsyslogd
 * auditd (configurable)
-* iptables (configurable)
+* firewall (configurable)
+  * NOTE: If firewall management is enabled, and you are using iptables (not
+    firewalld), then you MUST set ``iptables::precise_match: true`` in Hiera.
 * TCPWrappers (configurable)
 * SELinux (configurable)
 * Logrotate (configurable)
@@ -115,14 +126,14 @@ Including rsyslog will install, configure, and start the rsyslog daemon on a
 client:
 
 ```puppet
-  include ::rsyslog
+  include rsyslog
 ```
 
 Including rsyslog::server will additionally configure the system as an Rsyslog
 server.
 
 ```puppet
-  include ::rsyslog::server
+  include rsyslog::server
 ```
 
 ## Usage
@@ -162,7 +173,7 @@ failover_log_servers:
 ```
 
 ```puppet
-  include ::rsyslog
+  include rsyslog
 ```
 
 ### I want to send everything to rsyslog from a client
@@ -211,7 +222,7 @@ class my_rsyslog_server {
     failover_log_servers => ['first.log.server','second.log.server'],
   }
 
-  include '::rsyslog::server'
+  include rsyslog::server
 
   rsyslog::template::string { 'store_the_logs':
     string => '/var/log/hosts/%HOSTNAME%/everything.log'
@@ -230,14 +241,15 @@ profile will setup templates and a large set of default rules to help organize
 and send logs where possible. Included would also be a comprehensive set of
 security relevant logs to help filter important information.
 
-### I want to set up an Rsyslog Server without logrotate/pki/firewall
+### I want to set up an Rsyslog Server without logrotate/pki/firewall/tcpwrappers
 
-```puppet
-  class {'rsyslog::server':
-    use_iptables       => false,
-    enable_selinux     => false,
-    enable_tcpwrappers => false,
-  }
+Add the following to Hiera:
+
+```yaml
+  rsyslog::logrotate: false
+  rsyslog::server::enable_firewall: false
+  rsyslog::server::enable_selinux: false
+  rsyslog::server::enable_tcpwrappers: false
 ```
 
 ### Central Log Forwarding

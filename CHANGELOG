@@ -1,3 +1,10 @@
+* Wed Oct 28 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.6.4-0
+- Fixed the default security collection string for firewalld rules
+- Removed the `filter_` rules that were present for an old (and broken) version
+  of the simp_firewalld module.
+- Fixed the README and replaced 'iptables' references with 'firewall' where
+  appropriate
+
 * Tue Jun 30 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.6.3-0
 - Update REFERENCE.md
 
