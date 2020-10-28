@@ -1734,6 +1734,14 @@ Data type: `Optional[String[1]]`
 
 Default value: ``undef``
 
+##### `queue_validation_log_level`
+
+Data type: `Simplib::PuppetLogLevel`
+
+
+
+Default value: `simplib::dlookup('rsyslog::rule::local', 'queue_validation_log_level', $name, { 'default_value' => 'warning' })`
+
 ##### `queue_filename`
 
 Data type: `Optional[Stdlib::Absolutepath]`
@@ -1945,14 +1953,6 @@ the **entire* content of the rsyslog::rule
 * If you do specify this, ``$rule`` will be ignored
 
 Default value: ``undef``
-
-##### `queue_validation_log_level`
-
-Data type: `Simplib::PuppetLogLevel`
-
-
-
-Default value: `simplib::dlookup('rsyslog::rule::local', 'queue_validation_log_level', $name, { 'default_value' => 'warning' })`
 
 ### `rsyslog::rule::other`
 

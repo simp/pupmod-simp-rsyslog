@@ -87,7 +87,7 @@
 # @param sync
 # @param sig_provider
 # @param cry_provider
-# @queue_validation_log_level
+# @param queue_validation_log_level
 # @param queue_filename
 # @param queue_spool_directory
 # @param queue_size
