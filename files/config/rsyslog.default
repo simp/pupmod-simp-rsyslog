@@ -3,7 +3,7 @@ if $syslogfacility-text == 'kern' and (($msg startswith ' IPT:') or ($msg starts
   stop
 }
 
-if $syslogfacility-text == 'kern' and (($msg startswith ' filter_IN_99_simp_DROP:') or ($msg startswith 'filter_IN_99_simp_DROP:')) then {
+if $syslogfacility-text == 'kern' and (($msg startswith ' IN_99_simp_DROP:') or ($msg startswith 'IN_99_simp_DROP:')) then {
   action(type="omfile" file="/var/log/firewall.log")
   stop
 }

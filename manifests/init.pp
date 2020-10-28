@@ -17,7 +17,7 @@
 # @param trusted_nets
 #   A whitelist of subnets (in CIDR notation) permitted access
 #
-#   * This will be used in conjunction with IPTables (if enabled)
+#   * This will be used in conjunction with ``simp\iptables`` (if enabled)
 #     to allow connections from within the given subnets.
 #
 # @param enable_tls_logging

@@ -212,7 +212,7 @@
 #   * See the ``-x`` option in ``rsyslogd(8)`` for more information
 #
 # @param enable_default_rules
-#   Enables default rules for logging common services (e.g., iptables, puppet, slapd_auditd)
+#   Enables default rules for logging common services (e.g., firewall, puppet, slapd_auditd)
 #
 # @param read_journald
 #   Enable the forwarding of the ``systemd`` journal to syslog
