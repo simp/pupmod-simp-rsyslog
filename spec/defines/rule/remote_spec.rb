@@ -14,10 +14,6 @@ describe 'rsyslog::rule::remote' do
           }
         }
 
-        if os_facts[:operatingsystemmajrelease] == '6'
-          rsyslog_facts[:rsyslogd]['version'] = '5.2.1'
-        end
-
         os_facts.merge(rsyslog_facts)
       end
 

@@ -1,4 +1,4 @@
-# @summary Set up Rsyslog 7/8
+# @summary Set up Rsyslog 8
 #
 # The configuration is particularly slanted toward the issues present in the
 # versions of rsyslog included with Enterprise Linux systems. It should still

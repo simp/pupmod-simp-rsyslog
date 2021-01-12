@@ -14,18 +14,15 @@
 #   * Local Rules
 #
 # In general, individual send stream driver settings are properly supported
-# with the Rsyslog 8 EL versions available for CentOS 7 and the Rsyslog 7
-# EL versions available for CentOS 6. However, for TLS support, you must
-# also configure global Rsyslog parameters as follows:
+# with the Rsyslog 8 EL versions available for CentOS 7.
+#
+# However, for TLS support, you must also configure global Rsyslog parameters
+# as follows:
 #
 # * TLS sending and/or receiving requires the global DefaultNetStreamDriver,
 #   DefaultNetStreamDriverCAFile, DefaultNetStreamDriverCertFile, and
 #   DefaultNetStreamDriverKeyFile parameters to be configure via
 #   ``rsyslog::config``.
-#
-# * TLS sending for Rsyslog 7 EL versions requires the global
-#   ActionSendStreamDriverMode configuration parameter to be configured via
-#   ``rsyslog::config`` **IN ADDITION TO** the ``$stream_driver_mode``.
 #
 # ------------------------------------------------------------------------
 #
@@ -111,10 +108,6 @@
 #   * This is only used to set the StreamDriverMode directive in the
 #     forwarding actions for remote servers if TLS is enabled and
 #     ``$dest_type`` is not UDP.
-#
-#   * For Rsyslog 7,  the stream driver mode must be **ALSO** be set by
-#     the 'ActionSendStreamDriverMode' global stream configuration via
-#   ``rsyslog::config::action_send_stream_driver_mode``.
 #
 # @param stream_driver_auth_mode
 #   This is only used to set the StreamDriverAuthMode directive in the
