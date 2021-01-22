@@ -40,7 +40,6 @@ rsyslog::server::enable_firewall : true
 
   let(:server_manifest) {
     <<-EOS
-      # Turns off firewalld in EL7.  Presumably this would already be done.
       include 'iptables'
       iptables::listen::tcp_stateful { 'ssh':
         dports       => 22,
@@ -100,7 +99,6 @@ rsyslog::server::enable_firewall : true
 
   let(:nextserver_manifest) {
     <<-EOS
-      # Turns off firewalld in EL7.  Presumably this would already be done.
       include 'iptables'
       iptables::listen::tcp_stateful { 'ssh':
         dports       => 22,
@@ -146,9 +144,6 @@ rsyslog::server::enable_firewall : true
     it 'should configure first server without errors' do
       set_hieradata_on(server, hieradata)
       apply_manifest_on(server, server_manifest, :catch_failures => true)
-
-      # requires 2 runs to be idempotent on centos6
-      apply_manifest_on(server, server_manifest, :catch_failures => true)
     end
 
     it 'should configure first server idempotently' do
@@ -158,9 +153,6 @@ rsyslog::server::enable_firewall : true
     it 'should configure next server without errors' do
       set_hieradata_on(nextserver, hieradata)
       apply_manifest_on(nextserver, nextserver_manifest, :catch_failures => true)
-
-      # requires 2 runs to be idempotent on centos6
-      apply_manifest_on(nextserver, nextserver_manifest, :catch_failures => true)
     end
 
     it 'should configure next server idempotently' do
@@ -168,9 +160,6 @@ rsyslog::server::enable_firewall : true
     end
 
     it 'should configure client without errors' do
-      apply_manifest_on(client, client_manifest, :catch_failures => true)
-
-      # requires 2 runs to be idempotent on centos6
       apply_manifest_on(client, client_manifest, :catch_failures => true)
     end
 

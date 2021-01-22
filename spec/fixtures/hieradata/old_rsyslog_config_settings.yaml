@@ -1,8 +1,11 @@
 ---
 rsyslog::config::host_list:
-  - 'my.host.com'
+  - 'my.host1.com'
+  - 'my.host2.com'
 
 rsyslog::config::domain_list:
   - 'foo.bar'
+  - 'foo.baz'
 
 rsyslog::config::disable_remote_dns: true
+rsyslog::config::suppress_noauth_warn: true

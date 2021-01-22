@@ -1,0 +1,12 @@
+---
+# these are NOT real settings...just set for unit testing
+rsyslog::config::main_msg_queue_size: 100
+rsyslog::config::main_msg_queue_high_watermark: 90
+rsyslog::config::main_msg_queue_low_watermark: 30
+rsyslog::config::main_msg_queue_discardmark: 95
+rsyslog::config::main_msg_queue_worker_thread_minimum_messages: 90
+rsyslog::config::main_msg_queue_worker_threads: 5
+rsyslog::config::main_msg_queue_max_disk_space: 200
+rsyslog::config::extra_main_queue_params:
+  queue.spoolDirectory: "/my/rsyslog/queue/spool/directory"
+  queue.checkpointinterval: 10

@@ -1,5 +1,3 @@
-# **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
-#
 # @summary Default log rotation for RSyslog
 #
 # The list that is managed here matches the list of default files that are
@@ -44,6 +42,8 @@
 # @param rotate_su_group
 # @param rotate_start
 # @param rotate_tabooext
+#
+# @api private
 #
 class rsyslog::config::logrotate (
   Optional[Boolean]                         $rotate_compress                  = undef,

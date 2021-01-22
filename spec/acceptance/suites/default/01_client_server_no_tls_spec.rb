@@ -33,7 +33,6 @@ rsyslog::server::enable_firewall : true
   }
   let(:server_manifest) {
     <<-EOS
-      # Turns off firewalld in EL7.  Presumably this would already be done.
       include 'iptables'
 
       iptables::listen::tcp_stateful { 'ssh':
@@ -73,9 +72,6 @@ rsyslog::server::enable_firewall : true
   context 'client -> 1 server without TLS' do
     it 'should configure server without errors' do
       set_hieradata_on(server, hieradata)
-      apply_manifest_on(server, server_manifest, :catch_failures => true)
-
-      # requires 2 runs to be idempotent on centos6
       apply_manifest_on(server, server_manifest, :catch_failures => true)
     end
 

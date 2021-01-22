@@ -85,8 +85,7 @@ describe 'rsyslog class' do
   }
   let(:server_manifest) {
     <<-EOS
-      # Turns off firewalld in EL7.  Presumably this would already be done.
-      include '::iptables'
+      include 'iptables'
       iptables::listen::tcp_stateful { 'ssh':
         dports       => 22,
         trusted_nets => ['any']
@@ -115,9 +114,6 @@ describe 'rsyslog class' do
       (servers + failover_servers).each do |server|
         set_hieradata_on(server, server_manifest_hieradata)
         apply_manifest_on(server, server_manifest, :hiera_config => client.puppet['hiera_config'], :catch_failures => true)
-
-        # requires 2 runs to be idempotent on centos6
-        apply_manifest_on(server, server_manifest, :catch_failures => true)
       end
     end
 
@@ -130,9 +126,6 @@ describe 'rsyslog class' do
     it 'should configure the client without errors' do
       set_hieradata_on(client, client_manifest_hieradata)
       apply_manifest_on(client, client_manifest, :hiera_config => client.puppet['hiera_config'], :catch_failures => true)
-
-      # requires 2 runs to be idempotent on centos6
-      apply_manifest_on(client, client_manifest, :catch_failures => true)
     end
 
     it 'should configure client idempotently' do

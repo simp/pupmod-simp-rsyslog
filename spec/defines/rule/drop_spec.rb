@@ -2,14 +2,14 @@ require 'spec_helper'
 
 describe 'rsyslog::rule::drop' do
   context 'supported operating systems' do
-    on_supported_os.each do |os, facts|
+    on_supported_os.each do |os, os_facts|
       context "on #{os}" do
         let(:title) do
           'test_name'
         end
 
         let(:facts) do
-          facts
+          os_facts
         end
 
         let(:params) do

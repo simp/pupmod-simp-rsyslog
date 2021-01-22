@@ -2,14 +2,14 @@ require 'spec_helper'
 
 describe 'rsyslog::rule' do
   context 'supported operating systems' do
-    on_supported_os.each do |os, facts|
+    on_supported_os.each do |os, os_facts|
       context "on #{os}" do
         let(:title) do
           'some_path/test_name.conf'
         end
 
         let(:facts) do
-          facts
+          os_facts
         end
 
         let(:params) do

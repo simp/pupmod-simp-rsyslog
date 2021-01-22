@@ -34,15 +34,9 @@
 ## Overview
 
 [pupmod-simp-rsyslog](https://github.com/simp/pupmod-simp-rsyslog) configures
-and manages RSyslog versions 7 and newer as built into either
+and manages RSyslog version 8 as built into either
 [RHEL](http://www.redhat.com/en) or [CentOS](https://www.centos.org/) versions
-6 and 7. It is designed to work with [Puppet](https://puppetlabs.com/) version
-3.4 or newer.
-
-*NOTE:* This version of
-(pupmod-simp-rsyslog)[https://github.com/simp/pupmod-simp-rsyslog]
-is a complete re-write of the previous version, and as such there are no
-guarantees made about backwards compatibility.
+7 and 8.
 
 ## This is a SIMP module
 
@@ -62,17 +56,13 @@ firewall rules, logging, SELinux, and TCPWrappers. All of these items are
 configurable and can be turned on or off as needed for each user environment.
 
 [pupmod-simp-rsyslog](https://github.com/simp/pupmod-simp-rsyslog) was designed
-to be as compatible with RSyslog v7-stable as possible, though the version that
-comes stock with RHEL or CentOS is slightly dated and as such legacy code still
-exists. Where possible, all legacy code is documented with the new
-configuration commented out to show how any updates going forward will look.
+to be as compatible with RSyslog v8-stable as possible, though the version that
+comes stock with RHEL or CentOS is slightly dated.
 
 It is possible to use
 [pupmod-simp-rsyslog](https://github.com/simp/pupmod-simp-rsyslog) on its own
 and configure all rules and settings as you like, but it is recommended that
-the
-[SIMP Rsyslog
-Profile](https://github.com/simp/pupmod-simp-simp/tree/master/manifests/rsyslog)
+the [SIMP Rsyslog Profile](https://github.com/simp/pupmod-simp-simp_rsyslog)
 be used if possible. By default, this profile will setup security relevant
 logging rules and manage server/client configurations.
 
@@ -109,15 +99,10 @@ Packages installed by
 
 ### Setup Requirements
 
-*NOTE:* This version of
-[pupmod-simp-rsyslog](https://github.com/simp/pupmod-simp-rsyslog)
-is a complete re-write of the previous version, and as such there are no
-guarantees made about backwards compatibility.
-
 It is *strongly* recommended that the logging infrastructure be set up in a
 resilient manner. Failover in RSyslog is tricky and choosing the wrong kind of
 queuing with failover could mean losing logs. This module attempts to protect
-you from that but will allow you to change the queuing mechanism to meet your
+you from that, but will allow you to change the queuing mechanism to meet your
 local requirements.
 
 ### Beginning with pupmod-simp-rsyslog
@@ -140,14 +125,14 @@ include rsyslog::server
 
 ## Usage
 
-*WARNING:* The version of rsyslog that is included with EL6 and EL7 systems is
+*WARNING:* The version of rsyslog that is included with EL7 and EL8 systems is
 *not* the final stable upstream release. In particular, TLS may only be enabled
 or disabled *globally*, not per ruleset or action!
 
 pupmod-simp-rsyslog is meant to be extremely customizable, and as such there is
 no single best way to use it. For the SIMP specific recommendations on how to
 use RSyslog (and other modules as well), check out the
-[SIMP profile](https://github.com/simp/pupmod-simp-simp).
+[SIMP profile](https://github.com/simp/pupmod-simp-simp_rsyslog).
 
 ### I want standard remote logging on a client
 
@@ -177,7 +162,7 @@ include rsyslog
 ``if/then`` Rainerscript Expression.
 
 For example, if you wanted to filter on the standard priority ``kern.err``, you
-would put ``prifilt('kern.err')`` in your ``rule`` paramter.
+would put ``prifilt('kern.err')`` in your ``rule`` parameter.
 
 This does **not** hold for a call to ``rsyslog::rule`` since that is the
 generic processor for all rules.

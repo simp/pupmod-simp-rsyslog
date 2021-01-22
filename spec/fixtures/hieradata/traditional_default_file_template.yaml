@@ -1,0 +1,2 @@
+---
+rsyslog::config::default_file_template: traditional

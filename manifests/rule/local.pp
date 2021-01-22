@@ -43,12 +43,12 @@
 #       * Correct:   ``rule => "prifilt('*.*')"
 #       * Incorrect: ``rule => "if prifilt('*.*') then"``
 #
-#   * This **must** be set if ``$content`` is left empty
+#   * This **must** be set if ``$content`` is undefined
 #
 # @param target_log_file
 #   The target log file that omfile will be writing to
 #
-#   * This **must** be set if ``$dyna_file`` is left empty
+#   * This **must** be set if ``$dyna_file`` is undefined
 #
 # @param stop_processing
 #   Do not forward logs to any further ``ruleset``s after processing this ``ruleset``
@@ -121,11 +121,11 @@
 #
 #   * If you do specify this, ``$rule`` will be ignored
 #
-# @see https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/s1-basic_configuration_of_rsyslog.html Red Hat Basic Rsyslog Configuration
+# @see https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system_administrators_guide/ch-viewing_and_managing_log_files#s1-basic_configuration_of_rsyslog.html Red Hat Basic Rsyslog Configuration
 #
-# @see http://www.rsyslog.com/doc/expression.html Expressions in Rsyslog
+# @see https://www.rsyslog.com/doc/v8-stable/rainerscript/expressions.html Expressions in Rsyslog
 #
-# @see http://www.rsyslog.com/doc/rainerscript.html RainerScript Documentation
+# @see https://www.rsyslog.com/doc/v8-stable/rainerscript/index.html RainerScript Documentation
 #
 define rsyslog::rule::local (
   Optional[String[1]]            $rule                                 = undef,

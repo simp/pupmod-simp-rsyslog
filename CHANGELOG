@@ -1,3 +1,57 @@
+* Fri Jan 29 2021 Liz Nemsick <lnemsick.simp@gmail.com> - 8.0.0
+- Removed support for Rsyslog < 8.24.0.
+  - Rsyslog >= 8.24.0 is used for EL7.4 and later.
+  - simp/rsyslog 7.6.4 should be used to manage earlier Rsyslog versions.
+- Removed support for CentOS 6.
+- Added ability to set the default template used for forwarding
+  - `rsyslog::config::default_forward_template`
+- Added parameters to allow additional configuration of the rsyslog modules
+  and main queue already managed by this Puppet module:
+  - `rsyslog::config::extra_global_params`
+  - `rsyslog::config::extra_legacy_globals`
+  - `rsyslog::config::extra_imjournal_mod_params`
+  - `rsyslog::config::extra_imklog_mod_params`
+  - `rsyslog::config::extra_imptcp_mod_params`
+  - `rsyslog::config::extra_imtcp_mod_params`
+  - `rsyslog::config::extra_imudp_mod_params`
+  - `rsyslog::config::extra_imuxsock_mod_params`
+  - `rsyslog::config::extra_main_queue_params`
+- Added 'Direct' and 'Disk' to allowed main message queue types.
+- Removed a deprecated/unused parameters
+  - `rsyslog::config::action_send_stream_driver_permitted_peers`
+  - `rsyslog::config::interval`
+  - `rsyslog::config::main_msg_queue_worker_timeout_thread_shutdown`
+- Removed parameters only relevant to Rsyslog < 8.6.0
+  - `rsyslog::config::host_list`
+  - `rsyslog::config::domain_list`
+- Deprecated parameters that corresponded to obsolete legacy globals
+  and provided more appropriately-named replacements.
+  - Use of old parameters will result in a compilation warning messages.
+  - The replacement parameter is listed in each warning message.
+  - Affected parameters:
+    - `rsyslog::config::action_send_stream_driver_mode` => `rsyslog::config::imtcp_stream_driver_mode`
+    - `rsyslog::config::action_send_stream_driver_auth_mode` => `rsyslog::config::imtcp_stream_driver_auth_mode`
+    - `rsyslog::config::disable_remote_dns` => `rsyslog::config::net_enable_dns`
+    - `rsyslog::config::suppress_noauth_warn` => `rsyslog::config::net_permit_acl_warning`
+- Deprecated `rsyslog::config::default_template` and provided a more
+  appropriately named replacement, `rsyslog::config::default_file_template`
+  - Use of old parameter will result in a compilation warning message.
+- Fixed a bug in which the rsyslog service would start without any errors but
+  fail to log when `rsyslog::config::default_template` was set to 'traditional'.
+  That value did not map to a valid Rsyslog built-in template.
+- Fixed a bug where the `net.permitACLWarning` global was set incorrectly.
+- Removed non-functioning, unused Rsyslog::Template['defaultTemplate'] resource.
+- Internally, updated some of the legacy Rsyslog configuration to Rainer script
+  format.
+  - Load the imjournal module and set its state file using `load()`.
+  - Set the `omfile`'s default template in its `load()` statement.
+  - Use the `global()` configuration object for the following:
+    - localHostname
+    - defaultNetstreamDriverCertFile
+    - defaultNetstreamDriver
+    - defaultNetstreamDriverCAFile
+    - defaultNetstreamDriverKeyFile
+
 * Wed Oct 28 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.6.4-0
 - Fixed the default security collection string for firewalld rules
 - Removed the `filter_` rules that were present for an old (and broken) version

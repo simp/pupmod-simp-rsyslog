@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe 'rsyslog::rule::remote' do
+  let(:exp_dir) { File.join(__dir__, 'expected') }
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
       let(:title) do
@@ -8,16 +9,7 @@ describe 'rsyslog::rule::remote' do
       end
 
       let(:facts) do
-        rsyslog_facts = {
-          :rsyslogd => {
-            'version' => '8.0.0'
-          }
-        }
-
-        if os_facts[:operatingsystemmajrelease] == '6'
-          rsyslog_facts[:rsyslogd]['version'] = '5.2.1'
-        end
-
+        rsyslog_facts = { :rsyslogd => { 'version' => '8.24.0' } }
         os_facts.merge(rsyslog_facts)
       end
 
@@ -30,7 +22,8 @@ describe 'rsyslog::rule::remote' do
               :dest => ['1.2.3.4','5.6.7.8:5678']
             }
           end
-          let(:expected) { File.read("spec/expected/el#{os_facts[:operatingsystemmajrelease]}/remote_defaults.txt") }
+
+          let(:expected) { File.read("#{exp_dir}/el#{os_facts[:operatingsystemmajrelease]}/remote_defaults.txt") }
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected) }
@@ -44,7 +37,8 @@ describe 'rsyslog::rule::remote' do
               :queue_size           => 10,
             }
           end
-          let(:expected) { File.read("spec/expected/el#{os_facts[:operatingsystemmajrelease]}/remote_with_invalid_queue_params.txt") }
+
+          let(:expected) { File.read("#{exp_dir}/el#{os_facts[:operatingsystemmajrelease]}/remote_with_invalid_queue_params.txt") }
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected) }
@@ -141,7 +135,8 @@ describe 'rsyslog::rule::remote' do
               :queue_dequeue_time_end               => 2
             }
           end
-          let(:expected) { File.read("spec/expected/el#{os_facts[:operatingsystemmajrelease]}/remote_with_settings.txt") }
+
+          let(:expected) { File.read("#{exp_dir}/el#{os_facts[:operatingsystemmajrelease]}/remote_with_settings.txt") }
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
@@ -158,7 +153,8 @@ describe 'rsyslog::rule::remote' do
               :dest => ['logserver.my.domain', 'logserver2.other.place:4444']
             }
           end
-          let(:expected) { File.read("spec/expected/el#{os_facts[:operatingsystemmajrelease]}/remote_tls_with_peers_undef_hostname_for_logserver.txt") }
+
+          let(:expected) { File.read("#{exp_dir}/el#{os_facts[:operatingsystemmajrelease]}/remote_tls_with_peers_undef_hostname_for_logserver.txt") }
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
@@ -172,7 +168,8 @@ describe 'rsyslog::rule::remote' do
               :failover_log_servers  => ['failover.my.domain', 'failover.other.place:4444']
             }
           end
-          let(:expected) { File.read("spec/expected/el#{os_facts[:operatingsystemmajrelease]}/remote_tls_with_peers_undef_hostname_for_remotes.txt") }
+
+          let(:expected) { File.read("#{exp_dir}/el#{os_facts[:operatingsystemmajrelease]}/remote_tls_with_peers_undef_hostname_for_remotes.txt") }
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
@@ -191,7 +188,7 @@ describe 'rsyslog::rule::remote' do
             }
           end
 
-          let(:expected) { File.read("spec/expected/el#{os_facts[:operatingsystemmajrelease]}/remote_tls_with_stream_driver_settings.txt") }
+          let(:expected) { File.read("#{exp_dir}/el#{os_facts[:operatingsystemmajrelease]}/remote_tls_with_stream_driver_settings.txt") }
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
@@ -206,7 +203,7 @@ describe 'rsyslog::rule::remote' do
             }
           end
 
-          let(:expected) { File.read("spec/expected/el#{os_facts[:operatingsystemmajrelease]}/remote_tls_with_peers_undef_ip_for_logserver.txt") }
+          let(:expected) { File.read("#{exp_dir}/el#{os_facts[:operatingsystemmajrelease]}/remote_tls_with_peers_undef_ip_for_logserver.txt") }
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}
@@ -222,7 +219,7 @@ describe 'rsyslog::rule::remote' do
             }
           end
 
-          let(:expected) { File.read("spec/expected/el#{os_facts[:operatingsystemmajrelease]}/remote_tls_with_peers_undef_ip_for_failover.txt") }
+          let(:expected) { File.read("#{exp_dir}/el#{os_facts[:operatingsystemmajrelease]}/remote_tls_with_peers_undef_ip_for_failover.txt") }
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_rsyslog__rule('10_simp_remote/test_name.conf').with_content(expected)}

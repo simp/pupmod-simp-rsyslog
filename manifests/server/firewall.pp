@@ -1,9 +1,9 @@
-# **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
-#
 # @summary Sets up the firewall rules for RSyslog with management by ``simp/iptables``
 #
 # In ports will be openened for all systems inside of the
 # ``$rsyslog::trusted_nets`` Array.
+#
+# @api private
 #
 class rsyslog::server::firewall {
   assert_private()

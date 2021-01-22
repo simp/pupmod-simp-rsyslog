@@ -28,11 +28,11 @@
 # @param rule
 #   The Rsyslog ``EXPRESSION`` to filter on
 #
-# @see https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/s1-basic_configuration_of_rsyslog.html Red Hat Basic Rsyslog Configuration
+# @see https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system_administrators_guide/ch-viewing_and_managing_log_files#s1-basic_configuration_of_rsyslog.html Red Hat Basic Rsyslog Configuration
 #
-# @see http://www.rsyslog.com/doc/expression.html Expressions in Rsyslog
+# @see https://www.rsyslog.com/doc/v8-stable/rainerscript/expressions.html Expressions in Rsyslog
 #
-# @see http://www.rsyslog.com/doc/rainerscript.html RainerScript Documentation
+# @see https://www.rsyslog.com/doc/v8-stable/rainerscript/index.html RainerScript Documentation
 #
 #   The filename that you will be dropping into place.
 #

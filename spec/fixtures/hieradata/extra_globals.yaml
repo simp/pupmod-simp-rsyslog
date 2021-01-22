@@ -1,0 +1,9 @@
+---
+rsyslog::config::extra_global_params:
+  janitorInterval: 1000
+  net.aclAddHostnameOnFail: "on"
+
+rsyslog::config::extra_legacy_globals:
+  FailOnChownFailure: "on"
+  AbortOnUncleanConfig: "on"
+

@@ -1,0 +1,73 @@
+$UMASK 0027
+$EscapeControlCharactersOnReceive on
+$ControlCharacterEscapePrefix #
+$RepeatedMsgReduction on
+
+global(
+  preserveFQDN="on"
+  dropMsgsWithMaliciousDnsPTRRecords="off"
+  workDirectory="/var/spool/rsyslog"
+  net.permitACLWarning="on"
+  net.enableDNS="on"
+)
+
+global(localHostname="foo.example.com")
+global(
+  defaultNetstreamDriverCertFile="/etc/pki/simp_apps/rsyslog/x509/public/foo.example.com.pub"
+  defaultNetstreamDriver="gtls"
+  defaultNetstreamDriverCAFile="/etc/pki/simp_apps/rsyslog/x509/cacerts/cacerts.pem"
+  defaultNetstreamDriverKeyFile="/etc/pki/simp_apps/rsyslog/x509/private/foo.example.com.pem"
+)
+
+module(load="builtin:omfile" template="RSYSLOG_FileFormat")
+module(load="builtin:omfwd" template="RSYSLOG_ForwardFormat")
+
+module(load="imklog")
+
+module(load="imuxsock"
+  SysSock.IgnoreTimestamp="on"
+  SysSock.IgnoreOwnMessages="on"
+  SysSock.Use="on"
+  SysSock.FlowControl="off"
+  SysSock.UsePIDFromSystem="off"
+  SysSock.RateLimit.Interval="0"
+  SysSock.RateLimit.Burst="1000"
+  SysSock.RateLimit.Severity="5"
+  SysSock.UseSysTimeStamp="on"
+  SysSock.Annotate="off"
+  SysSock.ParseTrusted="off"
+  SysSock.Unlink="on"
+)
+
+module(load="imjournal"
+  StateFile="imjournal.state"
+)
+
+module(load="imfile")
+
+module(load="imptcp")
+input(type="imptcp" port="514")
+
+module(load="imtcp"
+  StreamDriver.Mode="1"
+  StreamDriver.AuthMode="x509/name"
+  PermittedPeer=["*.example.com"]
+  MaxSessions="200"
+)
+input(type="imtcp" port="6514")
+
+main_queue(
+  queue.type="LinkedList"
+  queue.filename="main_msg_queue"
+  queue.maxfilesize="5M"
+  queue.size="5242"
+  queue.highwatermark="4718"
+  queue.lowwatermark="3669"
+  queue.discardmark="5137"
+  queue.workerthreadminimummessages="436"
+  queue.workerthreads="3"
+  queue.timeoutenqueue="100"
+  queue.dequeueslowdown="0"
+  queue.saveonshutdown="on"
+  queue.maxdiskspace="5M"
+)
