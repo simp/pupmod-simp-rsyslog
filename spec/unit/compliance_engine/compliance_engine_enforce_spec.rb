@@ -30,6 +30,10 @@ describe 'compliance_markup', type: :class do
   }
 
   on_supported_os.each do |os, os_facts|
+    # FIXME: This is required until EL6 is removed from the module because
+    # of dependent modules that no longer support EL6.
+    next if os_facts[:operatingsystemmajrelease] == '6'
+
     context "on #{os}" do
       compliance_profiles.each do |target_profile|
         context "with compliance profile '#{target_profile}'" do

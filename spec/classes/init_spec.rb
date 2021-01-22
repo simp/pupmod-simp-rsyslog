@@ -35,6 +35,10 @@ EOM
           }
         }
 
+        if os_facts[:operatingsystemmajrelease] == '6'
+          rsyslog_facts[:rsyslogd]['version'] = '5.2.1'
+        end
+
         os_facts.merge(rsyslog_facts)
       end
 
@@ -42,6 +46,10 @@ EOM
 
       context 'default parameters' do
         rsyslog_package_name = 'rsyslog'
+
+        if os_facts[:operatingsystemmajrelease] == '6'
+          rsyslog_package_name = 'rsyslog7'
+        end
 
         let(:params) {{ }}
         it_behaves_like 'a structured module'
@@ -52,14 +60,25 @@ EOM
         it { is_expected.to contain_package("#{rsyslog_package_name}.x86_64").with_ensure('installed') }
         it { is_expected.to contain_package("#{rsyslog_package_name}.i386").with_ensure('absent') }
 
-        it {
-          is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
-            .with_content(/ModLoad imjournal/)
-        }
-        it {
-          is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
-            .with_content(/queue.type=\"LinkedList\"\n  queue.filename=\"main_msg_queue\"\n  queue.maxfilesize=\"[\d]*M\"\n  queue.size=\"[\d]*\"\n  queue.highwatermark=\"[\d]*\"\n  queue.lowwatermark=\"[\d]*\"\n  queue.discardmark=\"[\d]*\"\n  queue.workerthreadminimummessages=\"[\d]*\"\n  queue.workerthreads=\"[\d]*\"\n  queue.timeoutenqueue=\"100\"\n  queue.dequeueslowdown=\"0\"\n  queue.saveonshutdown=\"on\"\n  queue.maxdiskspace=\"[\d]*M\"/)
-        }
+        if os_facts[:operatingsystemmajrelease] == '6'
+          it {
+            is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
+              .without_content(/ModLoad imjournal/)
+          }
+          it {
+            is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
+              .with_content(/[$]?MainMsgQueueType LinkedList\n[$]?MainMsgQueueFilename main_msg_queue\n[$]?MainMsgQueueMaxFileSize [\d]*M\n[$]?MainMsgQueueSize [\d]*\n[$]?MainMsgQueueHighWatermark [\d]*\n[$]?MainMsgQueueLowWatermark [\d]*\n[$]?MainMsgQueueDiscardMark [\d]*\n[$]?MainMsgQueueWorkerThreadMinimumMessages [\d]*\n[$]?MainMsgQueueWorkerThreads [\d]*\n[$]?MainMsgQueueTimeoutEnqueue 100\n[$]?MainMsgQueueDequeueSlowdown 0\n[$]?MainMsgQueueSaveOnShutdown on\n[$]?MainMsgQueueMaxDiskSpace [\d]*M/)
+          }
+        else
+          it {
+            is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
+              .with_content(/ModLoad imjournal/)
+          }
+          it {
+            is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
+              .with_content(/queue.type=\"LinkedList\"\n  queue.filename=\"main_msg_queue\"\n  queue.maxfilesize=\"[\d]*M\"\n  queue.size=\"[\d]*\"\n  queue.highwatermark=\"[\d]*\"\n  queue.lowwatermark=\"[\d]*\"\n  queue.discardmark=\"[\d]*\"\n  queue.workerthreadminimummessages=\"[\d]*\"\n  queue.workerthreads=\"[\d]*\"\n  queue.timeoutenqueue=\"100\"\n  queue.dequeueslowdown=\"0\"\n  queue.saveonshutdown=\"on\"\n  queue.maxdiskspace=\"[\d]*M\"/)
+          }
+        end
 
         if os_facts[:init_systems].include?('systemd')
           it do
@@ -157,7 +176,9 @@ EOM
           .with_content(%r{^\$DefaultNetstreamDriverKeyFile /etc/pki/simp_apps/rsyslog/x509/private/foo.example.com.pem})
         }
 
-        it { is_expected.to contain_file(global_conf_file).with_content(%r{^\$ActionSendStreamDriverMode 1}) }
+        if os_facts[:operatingsystemmajrelease] == '6'
+          it { is_expected.to contain_file(global_conf_file).with_content(%r{^\$ActionSendStreamDriverMode 1}) }
+        end
       end
 
       context 'rsyslog server with TLS enabled' do
@@ -205,8 +226,9 @@ EOM
         let(:hieradata) { 'include_rsyslog_d' }
         it {
           is_expected.to contain_rsyslog__rule('15_include_default_rsyslog/include_default_rsyslog.conf')
-            .with_content("$IncludeConfig /etc/rsyslog.d/*.conf\n")
-        }
+            .with_content('$IncludeConfig /etc/rsyslog.d/*.conf
+')
+	}
       end
     end
 
@@ -217,18 +239,30 @@ EOM
             'version' => '8.6.0'
           }
         }
-        rsyslog_facts[:rsyslogd]['version'] = '7.4.10'
+        if os_facts[:operatingsystemmajrelease] == '6'
+           rsyslog_facts[:rsyslogd]['version'] = '7.4.10'
+        end
         os_facts.merge(rsyslog_facts)
       end
       let(:hieradata) { 'rsyslog_config_settings' }
 
-      it {
-        is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
-          .with_content(/net.permitACLWarning=\"off\"\n  net.enableDNS="off"\n/)
-      }
-      it {
-        is_expected.to contain_file('/etc/sysconfig/rsyslog').with_content(/SYSLOGD_OPTIONS=\"\"$/)
-      }
+      if os_facts[:operatingsystemmajrelease] == '6'
+        it {
+          is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
+            .without_content(/net.permitACLWarning=\"off\"\n  net.enableDNS="off"\n/)
+        }
+        it {
+          is_expected.to contain_file('/etc/sysconfig/rsyslog').with_content(/SYSLOGD_OPTIONS=\" -l my.host.com -s foo.bar -x\"$/)
+        }
+      else
+        it {
+          is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf')
+            .with_content(/net.permitACLWarning=\"off\"\n  net.enableDNS="off"\n/)
+        }
+        it {
+          is_expected.to contain_file('/etc/sysconfig/rsyslog').with_content(/SYSLOGD_OPTIONS=\"\"$/)
+        }
+      end
     end
   end
 end

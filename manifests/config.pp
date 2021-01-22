@@ -163,6 +163,12 @@
 #   * When ``$rsyslog::tls_tcp_server = true``, used for imtcp module
 #     StreamDriver.Mode
 #
+#   * For Rsyslog 7, when ``$rsyslog::enable_tls_logging = true``, used to set
+#     the deprecated, global rsyslog configuration, ActionSendStreamDriverMode.
+#     This setting and the corresponding send stream driver setting in
+#     ``rsyslog::rule::remote`` are **BOTH** required for sending TLS-encrypted
+#     logs with Rsyslog 7.
+#
 # @param action_send_stream_driver_auth_mode
 #
 #   * When ``$rsyslog::tls_tcp_server = true``, used for imtcp module
