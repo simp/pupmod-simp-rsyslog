@@ -15,33 +15,33 @@ describe 'rsyslog::rule::local' do
         context 'when only rule and target_log_file specified' do
           let(:params) do
             {
-              :rule      => 'test_rule',
+              :rule            => 'test_rule',
               :target_log_file => '/var/log/test_file'
             }
           end
 
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to contain_rsyslog__rule('99_simp_local/test_name.conf').with_content( <<EOM
+          it { is_expected.to contain_rsyslog__rule('99_simp_local/test_name.conf').with_content( <<~EOM
 
-if (test_rule) then {
-  action(
-    type="omfile"
-    file="/var/log/test_file"
-    dynaFileCacheSize="10"
-    zipLevel="0"
-    veryRobustZip="on"
-    flushInterval="0"
-    flushOnTXEnd="on"
-    fileCreateMode="0640"
-    dirCreateMode="0750"
-    failOnChownFailure="on"
-    createDirs="on"
-    queue.syncqueuefiles="off"
-    queue.type="Direct"
-    queue.saveonshutdown="off"
-  )
-}
-EOM
+              if (test_rule) then {
+                action(
+                  type="omfile"
+                  file="/var/log/test_file"
+                  dynaFileCacheSize="10"
+                  zipLevel="0"
+                  veryRobustZip="on"
+                  flushInterval="0"
+                  flushOnTXEnd="on"
+                  fileCreateMode="0640"
+                  dirCreateMode="0750"
+                  failOnChownFailure="on"
+                  createDirs="on"
+                  queue.syncqueuefiles="off"
+                  queue.type="Direct"
+                  queue.saveonshutdown="off"
+                )
+              }
+            EOM
           ) }
         end
 
@@ -103,60 +103,60 @@ EOM
           end
 
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to contain_rsyslog__rule('99_simp_local/test_name.conf').with_content(<<EOM
+          it { is_expected.to contain_rsyslog__rule('99_simp_local/test_name.conf').with_content(<<~EOM
 
-if (test_rule) then {
-  action(
-    type="omfile"
-    file="/var/log/test_file"
-    template="my_template"
-    dynaFileCacheSize="20"
-    zipLevel="1"
-    flushInterval="1"
-    asyncWriting="on"
-    ioBufferSize="10"
-    dirOwner="rsyslog_dir_user"
-    dirOwnerNum="100"
-    dirGroup="rsyslog_dir_group"
-    dirGroupNum="200"
-    fileOwner="rsyslog_file_user"
-    fileOwnerNum="300"
-    fileGroup="rsyslog_file_group"
-    fileGroupNum="400"
-    fileCreateMode="0644"
-    dirCreateMode="0750"
-    sync="on"
-    sig.provider="sig_provider"
-    cry.provider="cry_provider"
-    queue.filename="/var/syslog/queue"
-    queue.spoolDirectory="/var/syslog/spool"
-    queue.size="1000"
-    queue.dequeuebatchsize="100"
-    queue.maxdiskspace="100000"
-    queue.highwatermark="900"
-    queue.lowwatermark="200"
-    queue.fulldelaymark="940"
-    queue.lightdelaymark="300"
-    queue.discardmark="975"
-    queue.discardseverity="7"
-    queue.checkpointinterval="2"
-    queue.syncqueuefiles="on"
-    queue.type="LinkedList"
-    queue.workerthreads="2"
-    queue.timeoutshutdown="1"
-    queue.timeoutactioncompletion="100"
-    queue.timeoutenqueue="200"
-    queue.timeoutworkerthreadshutdown="6000"
-    queue.workerthreadminimummessages="10"
-    queue.maxfilesize="2m"
-    queue.saveonshutdown="on"
-    queue.dequeueslowdown="0"
-    queue.dequeuetimebegin="1"
-    queue.dequeuetimeend="2"
-  )
-  stop
-}
-EOM
+              if (test_rule) then {
+                action(
+                  type="omfile"
+                  file="/var/log/test_file"
+                  template="my_template"
+                  dynaFileCacheSize="20"
+                  zipLevel="1"
+                  flushInterval="1"
+                  asyncWriting="on"
+                  ioBufferSize="10"
+                  dirOwner="rsyslog_dir_user"
+                  dirOwnerNum="100"
+                  dirGroup="rsyslog_dir_group"
+                  dirGroupNum="200"
+                  fileOwner="rsyslog_file_user"
+                  fileOwnerNum="300"
+                  fileGroup="rsyslog_file_group"
+                  fileGroupNum="400"
+                  fileCreateMode="0644"
+                  dirCreateMode="0750"
+                  sync="on"
+                  sig.provider="sig_provider"
+                  cry.provider="cry_provider"
+                  queue.filename="/var/syslog/queue"
+                  queue.spoolDirectory="/var/syslog/spool"
+                  queue.size="1000"
+                  queue.dequeuebatchsize="100"
+                  queue.maxdiskspace="100000"
+                  queue.highwatermark="900"
+                  queue.lowwatermark="200"
+                  queue.fulldelaymark="940"
+                  queue.lightdelaymark="300"
+                  queue.discardmark="975"
+                  queue.discardseverity="7"
+                  queue.checkpointinterval="2"
+                  queue.syncqueuefiles="on"
+                  queue.type="LinkedList"
+                  queue.workerthreads="2"
+                  queue.timeoutshutdown="1"
+                  queue.timeoutactioncompletion="100"
+                  queue.timeoutenqueue="200"
+                  queue.timeoutworkerthreadshutdown="6000"
+                  queue.workerthreadminimummessages="10"
+                  queue.maxfilesize="2m"
+                  queue.saveonshutdown="on"
+                  queue.dequeueslowdown="0"
+                  queue.dequeuetimebegin="1"
+                  queue.dequeuetimeend="2"
+                )
+                stop
+              }
+            EOM
           ) }
         end
 

@@ -1,0 +1,12 @@
+---
+rsyslog::config::extra_imptcp_mod_params:
+  Threads: 4
+  ProcessOnPoller: "off"
+
+rsyslog::config::imtcp_stream_driver_auth_mode: "x509/certvalid"
+rsyslog::config::keep_alive: true
+rsyslog::config::keep_alive_probes: 4
+rsyslog::config::keep_alive_time: 5
+rsyslog::config::extra_imtcp_mod_params:
+  NotifyOnConnectionClose: "on"
+  MaxListeners: 25

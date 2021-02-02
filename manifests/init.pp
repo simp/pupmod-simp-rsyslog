@@ -1,9 +1,11 @@
-# @summary Set up Rsyslog 7/8
+# @summary Set up Rsyslog 8
 #
 # The configuration is particularly slanted toward the issues present in the
 # versions of rsyslog included with Enterprise Linux systems. It should still
 # work on other systems but they may have different/other bugs that have not
 # been addressed.
+#
+# See ``rsyslog::config`` for additional, detailed configuration.
 #
 # @param service_name
 #   The name of the Rsyslog service; typically ``rsyslog``
@@ -15,7 +17,7 @@
 #   The name of the Rsyslog package to install TLS utilities; typically ``rsyslog-gnutls``
 #
 # @param trusted_nets
-#   A whitelist of subnets (in CIDR notation) permitted access
+#   A list of subnets (in CIDR notation) permitted access
 #
 #   * This will be used in conjunction with ``simp\iptables`` (if enabled)
 #     to allow connections from within the given subnets.
@@ -25,8 +27,8 @@
 #
 #   * If enabled, clients will encrypt all log data being sent to the given log
 #     servers.  Also, all log servers specified to use TLS (see
-#     ``rsyslog::server::tls_tcp_server``) will load the ``imtcp`` libraries
-#     and set the necessary global ``NetStreamDriver`` information.
+#     ``rsyslog::server::tls_tcp_server``) will load the ``imtcp`` module and
+#     configure it for TLS.
 #
 # @param log_servers
 #   A list of primary Rsyslog servers
@@ -50,8 +52,9 @@
 # @param tcp_server
 #   Make this host listen for ``TCP`` connections
 #
-#   * Ideally, all connections would be ``TLS`` enabled. Only enable this if
-#     necessary.
+#   * Ideally, all connections would be ``TLS`` enabled via ``$tls_tcp_server``
+#     instead.
+#   * Only enable this if necessary.
 #
 # @param tcp_listen_port
 #   The port upon which to listen for regular ``TCP`` connections
@@ -63,7 +66,7 @@
 #   The port upon which to listen for ``TLS`` enabled ``TCP`` connections
 #
 # @param udp_server
-#   Make this host listend for ``UDP`` connections
+#   Make this host listen for ``UDP`` connections
 #
 #   * This really should not be enabled unless you have devices that cannot
 #     speak ``TLS``
@@ -112,9 +115,9 @@
 # @author https://github.com/simp/pupmod-simp-rsyslog/graphs/contributors
 #
 class rsyslog (
-  String                        $service_name, # In module data
-  String                        $package_name, # In module data
-  Boolean                       $read_journald, # In module data
+  String                        $service_name            = 'rsyslog',
+  String                        $package_name            = 'rsyslog',
+  Boolean                       $read_journald           = true,
   String                        $tls_package_name        = "${package_name}-gnutls",
   Simplib::Netlist              $trusted_nets            = simplib::lookup('simp_options::trusted_nets', {'default_value'                  => ['127.0.0.1/32'] }),
   Boolean                       $enable_tls_logging      = false,
@@ -134,6 +137,10 @@ class rsyslog (
   String                        $app_pki_external_source = simplib::lookup('simp_options::pki::source', {'default_value'                   => '/etc/pki/simp/x509'}),
   Stdlib::Absolutepath          $app_pki_dir             = '/etc/pki/simp_apps/rsyslog/x509'
 ) {
+
+  if $facts['rsyslogd'] and versioncmp($facts['rsyslogd']['version'], '8.24.0') < 0  {
+    warning("${module_name}: Rsyslog version ${facts['rsyslogd']} not supported. Use ${module_name} version 7.6.4 instead")
+  }
 
   contain 'rsyslog::install'
   contain 'rsyslog::config'

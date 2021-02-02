@@ -112,10 +112,6 @@
 #     forwarding actions for remote servers if TLS is enabled and
 #     ``$dest_type`` is not UDP.
 #
-#   * For Rsyslog 7,  the stream driver mode must be **ALSO** be set by
-#     the 'ActionSendStreamDriverMode' global stream configuration via
-#   ``rsyslog::config::action_send_stream_driver_mode``.
-#
 # @param stream_driver_auth_mode
 #   This is only used to set the StreamDriverAuthMode directive in the
 #   forwarding actions for remote servers if TLS is enabled and
@@ -147,8 +143,6 @@
 #     list of fingerprints (SHA1) and/or names of remote peers, which it
 #     will use to match against the certificate presented from the remote
 #     server.
-#
-#   * @see https://media.readthedocs.org/pdf/rsyslog/stable/rsyslog.pdf
 #
 # @param resend_last_msg_on_reconnect
 # @param udp_send_to_all
@@ -186,67 +180,67 @@
 #
 #   * If you do specify this, ``$rule`` will be ignored
 #
-# @see https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/s1-basic_configuration_of_rsyslog.html Red Hat Basic Rsyslog Configuration
+# @see https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system_administrators_guide/ch-viewing_and_managing_log_files#s1-basic_configuration_of_rsyslog.html Red Hat Basic Rsyslog Configuration
 #
-# @see http://www.rsyslog.com/doc/expression.html Expressions in Rsyslog
+# @see https://www.rsyslog.com/doc/v8-stable/rainerscript/expressions.html Expressions in Rsyslog
 #
-# @see http://www.rsyslog.com/doc/rainerscript.html RainerScript Documentation
+# @see https://www.rsyslog.com/doc/v8-stable/rainerscript/index.html RainerScript Documentation
 #
-# @see https://simp.readthedocs.io/en/master/user_guide/HOWTO/Central_Log_Collection.html
+# @see https://simp.readthedocs.io/en/stable/user_guide/HOWTO/Central_Log_Collection.html
 define rsyslog::rule::remote (
-  Optional[String[1]]                              $rule                                 = undef,
-  Boolean                                          $stop_processing                      = false,
-  Optional[String[1]]                              $template                             = undef,
-  Simplib::Netlist                                 $dest                                 = [],
-  Enum['tcp','udp','relp']                         $dest_type                            = 'tcp',
-  Simplib::Netlist                                 $failover_log_servers                 = [],
-  Enum['traditional','octet-counted']              $tcp_framing                          = 'traditional',
-  Integer[0,9]                                     $zip_level                            = 0,
-  Integer[0]                                       $max_error_messages                   = 5,
-  Enum['none','single','stream:always']            $compression_mode                     = 'none',
-  Boolean                                          $compression_stream_flush_on_tx_end   = true,
-  Optional[Integer[0]]                             $rebind_interval                      = undef,
-  Optional[Boolean]                                $keep_alive                           = undef,
-  Optional[Integer[0]]                             $keep_alive_probes                    = undef,
-  Optional[Integer[0]]                             $keep_alive_interval                  = undef,
-  Optional[Integer[0]]                             $keep_alive_time                      = undef,
-  Integer[0]                                       $action_resume_interval               = 30,
-  Integer[-1]                                      $action_resume_retry_count            = -1,
-  Optional[String[1]]                              $stream_driver                        = undef,
-  Integer[0]                                       $stream_driver_mode                   = 1,
-  String                                           $stream_driver_auth_mode              = 'x509/name',
-  Optional[String[1]]                              $stream_driver_permitted_peers        = undef,
-  Boolean                                          $resend_last_msg_on_reconnect         = true,
-  Boolean                                          $udp_send_to_all                      = false,
-  Simplib::PuppetLogLevel                          $queue_validation_log_level           = simplib::dlookup('rsyslog::rule::remote', 'queue_validation_log_level', $name, { 'default_value' => 'warning' }),
-  Optional[String[1]]                              $queue_filename                       = undef,
-  Optional[Stdlib::Absolutepath]                   $queue_spool_directory                = undef,
-  Optional[Integer[0]]                             $queue_size                           = undef,
-  Optional[Integer[0]]                             $queue_dequeue_batch_size             = undef,
-  Optional[Integer[0]]                             $queue_max_disk_space                 = undef,
-  Optional[Integer[0]]                             $queue_high_watermark                 = undef,
-  Optional[Integer[0]]                             $queue_low_watermark                  = undef,
-  Optional[Integer[0]]                             $queue_full_delay_mark                = undef,
-  Optional[Integer[0]]                             $queue_light_delay_mark               = undef,
-  Optional[Integer[0]]                             $queue_discard_mark                   = undef,
-  Optional[Integer[0]]                             $queue_discard_severity               = undef,
-  Optional[Integer[0]]                             $queue_checkpoint_interval            = undef,
-  Boolean                                          $queue_sync_queue_files               = false,
-  Enum['LinkedList','FixedArray','Direct','Disk']  $queue_type                           = 'LinkedList',
-  Optional[Integer[0]]                             $queue_worker_threads                 = undef,
-  Optional[Integer[0]]                             $queue_timeout_shutdown               = undef,
-  Optional[Integer[0]]                             $queue_timeout_action_completion      = undef,
-  Optional[Integer[0]]                             $queue_timeout_enqueue                = undef,
-  Optional[Integer[0]]                             $queue_timeout_worker_thread_shutdown = undef,
-  Optional[Integer[0]]                             $queue_worker_thread_minimum_messages = undef,
-  Optional[String[1]]                              $queue_max_file_size                  = undef,
-  Boolean                                          $queue_save_on_shutdown               = true,
-  Optional[Integer[0]]                             $queue_dequeue_slowdown               = undef,
-  Optional[Integer[0]]                             $queue_dequeue_time_begin             = undef,
-  Optional[Integer[0]]                             $queue_dequeue_time_end               = undef,
-  Optional[String[1]]                              $content                              = undef
+  Optional[String[1]]                   $rule                                 = undef,
+  Boolean                               $stop_processing                      = false,
+  Optional[String[1]]                   $template                             = undef,
+  Simplib::Netlist                      $dest                                 = [],
+  Enum['tcp','udp','relp']              $dest_type                            = 'tcp',
+  Simplib::Netlist                      $failover_log_servers                 = [],
+  Enum['traditional','octet-counted']   $tcp_framing                          = 'traditional',
+  Integer[0,9]                          $zip_level                            = 0,
+  Integer[0]                            $max_error_messages                   = 5,
+  Enum['none','single','stream:always'] $compression_mode                     = 'none',
+  Boolean                               $compression_stream_flush_on_tx_end   = true,
+  Optional[Integer[0]]                  $rebind_interval                      = undef,
+  Optional[Boolean]                     $keep_alive                           = undef,
+  Optional[Integer[0]]                  $keep_alive_probes                    = undef,
+  Optional[Integer[0]]                  $keep_alive_interval                  = undef,
+  Optional[Integer[0]]                  $keep_alive_time                      = undef,
+  Integer[0]                            $action_resume_interval               = 30,
+  Integer[-1]                           $action_resume_retry_count            = -1,
+  Optional[String[1]]                   $stream_driver                        = undef,
+  Integer[0]                            $stream_driver_mode                   = 1,
+  String                                $stream_driver_auth_mode              = 'x509/name',
+  Optional[String[1]]                   $stream_driver_permitted_peers        = undef,
+  Boolean                               $resend_last_msg_on_reconnect         = true,
+  Boolean                               $udp_send_to_all                      = false,
+  Simplib::PuppetLogLevel               $queue_validation_log_level           = simplib::dlookup('rsyslog::rule::remote', 'queue_validation_log_level', $name, { 'default_value' => 'warning' }),
+  Optional[String[1]]                   $queue_filename                       = undef,
+  Optional[Stdlib::Absolutepath]        $queue_spool_directory                = undef,
+  Optional[Integer[0]]                  $queue_size                           = undef,
+  Optional[Integer[0]]                  $queue_dequeue_batch_size             = undef,
+  Optional[Integer[0]]                  $queue_max_disk_space                 = undef,
+  Optional[Integer[0]]                  $queue_high_watermark                 = undef,
+  Optional[Integer[0]]                  $queue_low_watermark                  = undef,
+  Optional[Integer[0]]                  $queue_full_delay_mark                = undef,
+  Optional[Integer[0]]                  $queue_light_delay_mark               = undef,
+  Optional[Integer[0]]                  $queue_discard_mark                   = undef,
+  Optional[Integer[0]]                  $queue_discard_severity               = undef,
+  Optional[Integer[0]]                  $queue_checkpoint_interval            = undef,
+  Boolean                               $queue_sync_queue_files               = false,
+  Rsyslog::QueueType                    $queue_type                           = 'LinkedList',
+  Optional[Integer[0]]                  $queue_worker_threads                 = undef,
+  Optional[Integer[0]]                  $queue_timeout_shutdown               = undef,
+  Optional[Integer[0]]                  $queue_timeout_action_completion      = undef,
+  Optional[Integer[0]]                  $queue_timeout_enqueue                = undef,
+  Optional[Integer[0]]                  $queue_timeout_worker_thread_shutdown = undef,
+  Optional[Integer[0]]                  $queue_worker_thread_minimum_messages = undef,
+  Optional[String[1]]                   $queue_max_file_size                  = undef,
+  Boolean                               $queue_save_on_shutdown               = true,
+  Optional[Integer[0]]                  $queue_dequeue_slowdown               = undef,
+  Optional[Integer[0]]                  $queue_dequeue_time_begin             = undef,
+  Optional[Integer[0]]                  $queue_dequeue_time_end               = undef,
+  Optional[String[1]]                   $content                              = undef
 ) {
-  include '::rsyslog'
+  include 'rsyslog'
 
   $_notify_msg = 'TLS is being used and stream_driver_permitted_peers is undefined. In this case, rsyslog::remote::rule uses the name supplied in the dest and/or failover_log_server field for the action. If IP Addresses are being used, this will probably not match the CN or fingerprint of the certificate being presented from the log server and the connection will be denied.  The StreamDriverPermittedPeers directive was defaulted to "*.${facts["domain"]}".  The rule being defined should be reviewed to ensure this is valid. It is recommended to use FQDN in the dest and failover_log_server parameters if TLS is being used or specifically set the stream_driver_permitted_peers parameter' # lint:ignore:single_quote_string_with_variables
 
@@ -261,7 +255,7 @@ define rsyslog::rule::remote (
   }
   else {
     if empty($dest) {
-      $_dest = $::rsyslog::log_servers
+      $_dest = $rsyslog::log_servers
     }
     else {
       $_dest = $dest
@@ -280,13 +274,13 @@ define rsyslog::rule::remote (
       $_queue_spool_directory = $queue_spool_directory
     }
     else {
-      $_queue_spool_directory = $::rsyslog::queue_spool_directory
+      $_queue_spool_directory = $rsyslog::queue_spool_directory
     }
 
-    $_use_tls = ( $::rsyslog::enable_tls_logging and $dest_type != 'udp' )
+    $_use_tls = ( $rsyslog::enable_tls_logging and $dest_type != 'udp' )
 
     if empty($failover_log_servers) {
-      $_failover_servers = $::rsyslog::failover_log_servers
+      $_failover_servers = $rsyslog::failover_log_servers
     }
     else {
       $_failover_servers = $failover_log_servers

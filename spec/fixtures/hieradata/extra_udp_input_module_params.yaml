@@ -1,0 +1,4 @@
+---
+rsyslog::config::extra_imudp_mod_params:
+  batchSize: 64
+  PreserveCase: "on"

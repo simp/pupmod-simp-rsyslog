@@ -5,11 +5,6 @@ test_name 'rsyslog class'
 
 describe 'rsyslog class' do
 
-  package_name = 'rsyslog'
-  if fact('osfamily') == 'RedHat' && fact('operatingsystemmajrelease') == '6'
-    package_name = 'rsyslog7'
-  end
-
   let(:client){ only_host_with_role( hosts, 'client' ) }
   let(:manifest) {
     <<-EOS
@@ -82,35 +77,38 @@ input(type=\\"imfile\\"
     EOS
   }
 
+  context 'fix static host name' do
+    hosts.each do |host|
+      it "should ensure static host name matches FQDN fact on #{host}" do
+        fqdn = fact_on(host, 'fqdn')
+        on(host, "hostnamectl set-hostname --static #{fqdn}")
+      end
+    end
+  end
+
   context 'default parameters (no pki)' do
-    # Using puppet_apply as a helper
     it 'should work with no errors' do
       apply_manifest_on(client, manifest, :catch_failures => true)
-
-      # requires 2 runs to be idempotent on centos6
-      apply_manifest_on(client, manifest, :catch_failures => true)
-      # reboot to apply auditd changes
-      # shell( 'shutdown -r now', { :expect_connection_failure => true } )
     end
 
     it 'should be idempotent' do
       apply_manifest_on(client, manifest, {:catch_changes => true})
     end
 
-    describe package(package_name) do
-      it { is_expected.to be_installed }
+    it 'should have rsyslog package installed' do
+      result = on(client, 'puppet resource package rsyslog').stdout
+      expect(result).not_to match(/ensure\s*=>\s*'purged'/)
     end
 
-    describe service('rsyslog') do
-      it { is_expected.to be_enabled }
-      it { is_expected.to be_running }
+    it 'should have rsyslog service running and enabled' do
+      result = on(client, 'puppet resource service rsyslog').stdout
+      expect(result).to match(/ensure\s*=>\s*'running'/)
+      expect(result).to match(/enable\s*=>\s*'true'/)
     end
-
 
     it 'should ensure rsyslog.service starts after network.target and network-online.target' do
-      facts = JSON.load(on(client, 'puppet facts').stdout)
-      if facts['values']['systemd']
-        # client uses systemd
+      rsyslogd_version = pfact_on(client, 'rsyslogd.version')
+      if rsyslogd_version == '8.24.0'
         # following 3 lines for debug
         on client, 'rpm -q rsyslog'
         on client, 'cat /usr/lib/systemd/system/rsyslog.service'
@@ -124,7 +122,7 @@ input(type=\\"imfile\\"
           expect(result).to match(/network-online.target/)
         end
       else
-        puts "Skipping test on #{client.name}, which does not use systemd"
+        puts "Skipping test on #{client.name}: systemd override file not needed"
       end
     end
 
@@ -198,12 +196,10 @@ input(type=\\"imfile\\"
       on client, 'test ! -d /etc/rsyslog.simp.d/10_simp_remote'
     end
 
-    if fact('operatingsystemmajrelease') > '6'
-      it 'should see entries from the journal in /var/log/messages' do
-        on client, "echo someeasytosearchforstring | systemd-cat -p notice -t acceptance"
+    it 'should see entries from the journal in /var/log/messages' do
+      on client, "echo someeasytosearchforstring | systemd-cat -p notice -t acceptance"
 
-        retry_on client, "grep someeasytosearchforstring /var/log/messages"
-      end
+      retry_on client, "grep someeasytosearchforstring /var/log/messages"
     end
 
   end

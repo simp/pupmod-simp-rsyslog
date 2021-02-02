@@ -30,10 +30,6 @@ describe 'compliance_markup', type: :class do
   }
 
   on_supported_os.each do |os, os_facts|
-    # FIXME: This is required until EL6 is removed from the module because
-    # of dependent modules that no longer support EL6.
-    next if os_facts[:operatingsystemmajrelease] == '6'
-
     context "on #{os}" do
       compliance_profiles.each do |target_profile|
         context "with compliance profile '#{target_profile}'" do
@@ -44,6 +40,24 @@ describe 'compliance_markup', type: :class do
           }
 
           let(:pre_condition) {%(
+            # Had to disable simplib::assert_optional_dependency because of a
+            # chicken and the egg problem with an optional dependency in the
+            # module dependency tree generated when compliance is enforced.
+            # Specifically, when simp/rsyslog has a major version bump that is
+            # not yet allowed by an optional dependency (e.g., simp/auditd),
+            # compilation will fail in this test. So, either we need to
+            # (1) redefine the function in a way that disables the check or
+            # (2) pre-emptively increase the allowed simp/rsyslog range of all
+            # modules that depend upon simp/rsyslog. Chose option 1 because
+            # it is self-contained.
+            #
+            function simplib::assert_optional_dependency(
+              String[1]           $source_module,
+              Optional[String[1]] $target_module   = undef,
+              Optional[String[1]] $dependency_tree = undef
+            )
+            {}
+
             #{expected_classes.map{|c| %{include #{c}}}.join("\n")}
           )}
 

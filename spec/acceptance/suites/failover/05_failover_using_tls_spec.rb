@@ -97,8 +97,7 @@ describe 'rsyslog class' do
   }
   let(:server_manifest) {
     <<-EOS
-      # Turns off firewalld in EL7.  Presumably this would already be done.
-      include '::iptables'
+      include 'iptables'
       iptables::listen::tcp_stateful { 'ssh':
         dports       => 22,
         trusted_nets => ['any']

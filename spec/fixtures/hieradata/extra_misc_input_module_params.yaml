@@ -1,0 +1,17 @@
+---
+rsyslog::config::extra_imfile_mod_params:
+  mode: "inotify"
+  PollingInterval: 8
+
+rsyslog::config::extra_imklog_mod_params:
+  ParseKernelTimestamp: "on"
+  RateLimitInterval: 5
+
+rsyslog::config::extra_imjournal_mod_params:
+  ratelimit.interval: "800"
+  IgnorePreviousMessages: "on"
+
+rsyslog::config::syssock_name: "/dev/mylog"
+rsyslog::config::extra_imuxsock_mod_params:
+  SysSock.UseSpecialParser: "off"
+  SysSock.parseHostname: "on"

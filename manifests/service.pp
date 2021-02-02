@@ -1,9 +1,9 @@
-# **NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
-#
 # @summary Manage the RSyslog service
 #
 # @param enable
 #   Enable the rsyslog service
+#
+# @api private
 #
 class rsyslog::service(
   Boolean $enable = true
