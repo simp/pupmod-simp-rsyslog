@@ -21,12 +21,20 @@ Facter.add("rsyslogd") do
 
       rsyslogd_info.each do |info_line|
         if info_line =~ /\s+(.+):\s+(.+)$/
-          if $1 && $2
+          # Have to check for empty stripped $2 because regex will actually
+          # match a value string that has multiple whitespace characters.
+          # In that case $2 will contain a single whitespace character.
+          if $1 && $2 && !$2.strip.empty?
             key = $1.strip
             value = $2.strip
 
-            value = (value == 'Yes' ? true : false)
-            value = value.to_i if (value =~ /^\d+$/)
+            if value =~ /^yes$/i
+              value = true
+            elsif value =~ /^no$/i
+              value = false
+            elsif (value =~ /^\d+$/)
+              value = value.to_i
+            end
 
             response['features'][key] = value
           end
