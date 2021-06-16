@@ -1,3 +1,7 @@
+* Wed Jun 16 2021 Chris Tessmer <chris.tessmer@onyxpoint.com> - 8.1.0
+- Removed support for Puppet 5
+- Ensured support for Puppet 7 in requirements and stdlib
+
 * Fri Jan 29 2021 Liz Nemsick <lnemsick.simp@gmail.com> - 8.0.0
 - Removed support for Rsyslog < 8.24.0.
   - Rsyslog >= 8.24.0 is used for EL7.4 and later.

@@ -1,29 +1,29 @@
 ---
 fixtures:
   repositories:
-    auditd: https://github.com/simp/pupmod-simp-auditd
+    auditd: https://github.com/simp/pupmod-simp-auditd.git
     augeas_core:
       repo: https://github.com/simp/pupmod-puppetlabs-augeas_core.git
       puppet_version: ">= 6.0.0"
-    augeasproviders_core: https://github.com/hercules-team/augeasproviders_core
-    augeasproviders_grub: https://github.com/hercules-team/augeasproviders_grub
-    compliance_markup: https://github.com/simp/pupmod-simp-compliance_markup
-    concat: https://github.com/simp/puppetlabs-concat
-    firewalld: https://github.com/simp/pupmod-voxpupuli-firewalld
-    iptables: https://github.com/simp/pupmod-simp-iptables
-    logrotate: https://github.com/simp/pupmod-simp-logrotate
-    pki: https://github.com/simp/pupmod-simp-pki
-    selinux_core: https://github.com/puppetlabs/puppetlabs-selinux_core
-    simp_options: https://github.com/simp/pupmod-simp-simp_options
-    simp_firewalld: https://github.com/simp/pupmod-simp-simp_firewalld
-    simplib: https://github.com/simp/pupmod-simp-simplib
-    stdlib: https://github.com/simp/puppetlabs-stdlib
-    stunnel: https://github.com/simp/pupmod-simp-stunnel
-    systemd: https://github.com/simp/puppet-systemd
-    tcpwrappers: https://github.com/simp/pupmod-simp-tcpwrappers
+    augeasproviders_core: https://github.com/hercules-team/augeasproviders_core.git
+    augeasproviders_grub: https://github.com/hercules-team/augeasproviders_grub.git
+    compliance_markup: https://github.com/simp/pupmod-simp-compliance_markup.git
+    concat: https://github.com/simp/puppetlabs-concat.git
+    firewalld: https://github.com/simp/pupmod-voxpupuli-firewalld.git
+    iptables: https://github.com/simp/pupmod-simp-iptables.git
+    logrotate: https://github.com/simp/pupmod-simp-logrotate.git
+    pki: https://github.com/simp/pupmod-simp-pki.git
+    selinux_core: https://github.com/puppetlabs/puppetlabs-selinux_core.git
+    simp_options: https://github.com/simp/pupmod-simp-simp_options.git
+    simp_firewalld: https://github.com/simp/pupmod-simp-simp_firewalld.git
+    simplib: https://github.com/simp/pupmod-simp-simplib.git
+    stdlib: https://github.com/simp/puppetlabs-stdlib.git
+    stunnel: https://github.com/simp/pupmod-simp-stunnel.git
+    systemd: https://github.com/simp/puppet-systemd.git
+    tcpwrappers: https://github.com/simp/pupmod-simp-tcpwrappers.git
     disa_stig-el7-baseline:
-      repo: https://github.com/simp/inspec-profile-disa_stig-el7
-      branch:  master
+      repo: https://github.com/simp/inspec-profile-disa_stig-el7.git
+      branch: master
       target: spec/fixtures/inspec_deps/inspec_profiles/profiles
   symlinks:
     rsyslog: "#{source_dir}"
