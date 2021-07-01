@@ -337,8 +337,8 @@ pup7.x-unit:
 # Manually, we can see that failover is working, but all the messages
 # don't make it to the failover server in a timely fashion, even if
 # we force the rsyslog queues to be small.
-#pup5.pe-failover:
-#  <<: *pup_5_pe
+#pup6.pe-failover:
+#  <<: *pup_6_pe
 #  <<: *acceptance_base
 #  <<: *with_SIMP_ACCEPTANCE_MATRIX_LEVEL_3
 #  script:
@@ -408,3 +408,17 @@ pup6.pe-oel-fips:
   <<: *with_SIMP_ACCEPTANCE_MATRIX_LEVEL_3
   script:
     - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,oel]'
+
+pup7.x:
+  <<: *pup_7_x
+  <<: *acceptance_base
+  script:
+    - 'bundle exec rake beaker:suites[default,default]'
+
+pup7.x-doubleforward:
+  <<: *pup_7_x
+  <<: *acceptance_base
+  <<: *with_SIMP_ACCEPTANCE_MATRIX_LEVEL_3
+  script:
+    - 'bundle exec rake beaker:suites[doubleforward,default]'
+

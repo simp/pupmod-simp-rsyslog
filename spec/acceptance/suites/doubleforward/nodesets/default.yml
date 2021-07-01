@@ -12,19 +12,19 @@ HOSTS:
       - master
       - client
     platform:   el-8-x86_64
-    box:        centos/8
+    box:        generic/centos8
     hypervisor: <%= hypervisor %>
   server-1:
     roles:
       - server
     platform:   el-8-x86_64
-    box:        centos/8
+    box:        generic/centos8
     hypervisor: <%= hypervisor %>
   server-2:
     roles:
       - nextserver
     platform:   el-8-x86_64
-    box:        centos/8
+    box:        generic/centos8
     hypervisor: <%= hypervisor %>
 CONFIG:
   log_level:       verbose
