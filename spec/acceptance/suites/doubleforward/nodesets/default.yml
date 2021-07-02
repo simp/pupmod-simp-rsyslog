@@ -30,6 +30,10 @@ CONFIG:
   log_level:       verbose
   type:            aio
   vagrant_memsize: 256
+  ssh:
+    keepalive: true
+    keepalive_interval: 10
+    keepalive_maxcount: 60
 <% if ENV['BEAKER_PUPPET_ENVIRONMENT'] -%>
   puppet_environment: <%= ENV['BEAKER_PUPPET_ENVIRONMENT'] %>
 <% end -%>
