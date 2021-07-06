@@ -54,6 +54,10 @@ RSpec.configure do |c|
   # ensure that environment OS is ready on each host
   fix_errata_on hosts
 
+  # Detect cases in which no examples are executed (e.g., nodeset does not
+  # have hosts with required roles)
+  c.fail_if_no_examples = true
+
   # Readable test descriptions
   c.formatter = :documentation
 
