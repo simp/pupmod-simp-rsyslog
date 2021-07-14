@@ -421,4 +421,3 @@ pup7.x-doubleforward:
   <<: *with_SIMP_ACCEPTANCE_MATRIX_LEVEL_3
   script:
     - 'bundle exec rake beaker:suites[doubleforward,default]'
-
