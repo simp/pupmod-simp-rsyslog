@@ -29,7 +29,7 @@ HOSTS:
 CONFIG:
   log_level:       verbose
   type:            aio
-  vagrant_memsize: 256
+  vagrant_memsize: 512
   ssh:
     keepalive: true
     keepalive_interval: 10
