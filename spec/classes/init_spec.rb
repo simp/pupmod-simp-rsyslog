@@ -129,11 +129,8 @@ describe 'rsyslog' do
             is_expected.to contain_systemd__dropin_file('unit.conf')
               .with( {
                 :unit => 'rsyslog.service',
-                :content => expected
-              } )
-
-            is_expected.to contain_class('systemd::systemctl::daemon_reload')
-              .that_comes_before('Class[rsyslog::service]')
+                :content => expected,
+              } ).that_comes_before('Class[rsyslog::service]')
           end
         end
 

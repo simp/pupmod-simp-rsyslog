@@ -602,9 +602,6 @@ class rsyslog::config (
     systemd::dropin_file { $systemd_override_file:
       unit    => 'rsyslog.service',
       content => $_override
-    }
-
-    # make sure service gets restarted after systemctl daemon-reload
-    Class['systemd::systemctl::daemon_reload'] ~> Class['rsyslog::service']
+    } ~> Class['rsyslog::service']
   }
 }
