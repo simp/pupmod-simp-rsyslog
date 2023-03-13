@@ -1,57 +1,59 @@
-<%
-  if ENV['BEAKER_HYPERVISOR']
-    hypervisor = ENV['BEAKER_HYPERVISOR']
-  else
-    hypervisor = 'vagrant'
-  end
--%>
+---
 HOSTS:
   client:
     roles:
-      - default
-      - master
-      - client
+    - default
+    - master
+    - client
     platform: el-7-x86_64
     box: centos/7
-    hypervisor: <%= hypervisor %>
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
     yum_repos:
       chef-current:
-        baseurl: 'https://packages.chef.io/repos/yum/current/el/7/$basearch'
+        baseurl: https://packages.chef.io/repos/yum/current/el/7/$basearch
         gpgkeys:
-          - https://packages.chef.io/chef.asc
+        - https://packages.chef.io/chef.asc
+    family: centos-cloud/centos-7
+    gce_machine_type: n1-standard-2
   server-1:
     roles:
-      - server
+    - server
     platform: el-7-x86_64
     box: centos/7
-    hypervisor: <%= hypervisor %>
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
     yum_repos:
       chef-current:
-        baseurl: 'https://packages.chef.io/repos/yum/current/el/7/$basearch'
+        baseurl: https://packages.chef.io/repos/yum/current/el/7/$basearch
         gpgkeys:
-          - https://packages.chef.io/chef.asc
+        - https://packages.chef.io/chef.asc
+    family: centos-cloud/centos-7
+    gce_machine_type: n1-standard-2
   server-2:
     roles:
-      - server
+    - server
     platform: el-8-x86_64
     box: generic/centos8
-    hypervisor: <%= hypervisor %>
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
     yum_repos:
       chef-current:
-        baseurl: 'https://packages.chef.io/repos/yum/current/el/8/$basearch'
+        baseurl: https://packages.chef.io/repos/yum/current/el/8/$basearch
         gpgkeys:
-          - https://packages.chef.io/chef.asc
+        - https://packages.chef.io/chef.asc
+    family: centos-cloud/centos-stream-8
+    gce_machine_type: n1-standard-2
   server-3:
     roles:
-      - failover_server
+    - failover_server
     platform: el-7-x86_64
     box: centos/7
-    hypervisor: <%= hypervisor %>
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
     yum_repos:
       chef-current:
-        baseurl: 'https://packages.chef.io/repos/yum/current/el/7/$basearch'
+        baseurl: https://packages.chef.io/repos/yum/current/el/7/$basearch
         gpgkeys:
-          - https://packages.chef.io/chef.asc
+        - https://packages.chef.io/chef.asc
+    family: centos-cloud/centos-7
+    gce_machine_type: n1-standard-2
 CONFIG:
   log_level: verbose
   type: aio
@@ -60,6 +62,4 @@ CONFIG:
     keepalive: true
     keepalive_interval: 10
     keepalive_maxcount: 60
-<% if ENV['BEAKER_PUPPET_COLLECTION'] -%>
-  puppet_collection: <%= ENV['BEAKER_PUPPET_COLLECTION'] %>
-<% end -%>
+  puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'puppet7') %>"
