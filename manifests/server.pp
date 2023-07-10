@@ -15,7 +15,7 @@
 #
 class rsyslog::server (
   Boolean           $enable_firewall    = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
-  Optional[Boolean] $enable_selinux     = $facts['selinux_enforced'],
+  Optional[Boolean] $enable_selinux     = $facts['os']['selinux']['enforced'],
   Boolean           $enable_tcpwrappers = simplib::lookup('simp_options::tcpwrappers', { 'default_value' => false })
 ) {
   include 'rsyslog'

@@ -13,7 +13,7 @@ class rsyslog::install (
 ) {
   assert_private()
 
-  $_full_rsyslog_package = "${rsyslog::package_name}.${facts['hardwaremodel']}"
+  $_full_rsyslog_package = "${rsyslog::package_name}.${facts['os']['hardware']}"
 
   package { $_full_rsyslog_package:
     ensure => $ensure
@@ -21,7 +21,7 @@ class rsyslog::install (
 
   # Some hackery to remove the i386 version of rsyslog if you're on a x86_64
   # system.
-  if $facts['hardwaremodel'] == 'x86_64' {
+  if $facts['os']['hardware'] == 'x86_64' {
     package { "${rsyslog::package_name}.i386":
       ensure => 'absent',
       before => Package[$_full_rsyslog_package]

@@ -347,7 +347,7 @@
 # @api private
 class rsyslog::config (
   Simplib::Umask                        $umask                                              = '0027',
-  String                                $localhostname                                      = $facts['fqdn'],
+  String                                $localhostname                                      = $facts['networking']['fqdn'],
   Rsyslog::Boolean                      $preserve_fqdn                                      = true,
   String[1,1]                           $control_character_escape_prefix                    = '#',
   Rsyslog::Boolean                      $drop_msgs_with_malicious_dns_ptr_records           = false,
@@ -389,15 +389,15 @@ class rsyslog::config (
   Rsyslog::Boolean                      $repeated_msg_reduction                             = true,
   Stdlib::Absolutepath                  $work_directory                                     = '/var/spool/rsyslog',
   Integer[0]                            $tls_tcp_max_sessions                               = 200,
-  Array[String[1]]                      $tls_input_tcp_server_stream_driver_permitted_peers = ["*.${facts['domain']}"],
+  Array[String[1]]                      $tls_input_tcp_server_stream_driver_permitted_peers = ["*.${facts['networking']['domain']}"],
   Optional[Rsyslog::Boolean]            $keep_alive                                         = undef,
   Optional[Integer[0]]                  $keep_alive_probes                                  = undef,
   Optional[Integer[0]]                  $keep_alive_time                                    = undef,
 
   Enum['gtls','ptcp']                   $default_net_stream_driver                          = 'gtls',
   Stdlib::Absolutepath                  $default_net_stream_driver_ca_file                  = "${rsyslog::app_pki_dir}/cacerts/cacerts.pem",
-  Stdlib::Absolutepath                  $default_net_stream_driver_cert_file                = "${rsyslog::app_pki_dir}/public/${facts['fqdn']}.pub",
-  Stdlib::Absolutepath                  $default_net_stream_driver_key_file                 = "${rsyslog::app_pki_dir}/private/${facts['fqdn']}.pem",
+  Stdlib::Absolutepath                  $default_net_stream_driver_cert_file                = "${rsyslog::app_pki_dir}/public/${facts['networking']['fqdn']}.pub",
+  Stdlib::Absolutepath                  $default_net_stream_driver_key_file                 = "${rsyslog::app_pki_dir}/private/${facts['networking']['fqdn']}.pem",
 
   Optional[Enum['1','0']]               $action_send_stream_driver_mode                     = undef,
   Enum['1','0']                         $imtcp_stream_driver_mode                     = ($rsyslog::pki or $rsyslog::tls_tcp_server or $rsyslog::enable_tls_logging) ? { true => '1', default => '0' },

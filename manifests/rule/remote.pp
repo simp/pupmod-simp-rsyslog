@@ -304,7 +304,7 @@ define rsyslog::rule::remote (
         } else {
           # At least 1 IP address variant found, so, for backwards
           # compatibility, use the client's domain as a best-effort guess
-          $_stream_driver_permitted_peers = "*.${facts['domain']}"
+          $_stream_driver_permitted_peers = "*.${facts['networking']['domain']}"
           notify { "TLS StreamDriverPermittedPeers ${name}":
             message  => ("rsyslog::rule::remote ${_notify_msg}"),
             loglevel => 'warning',
