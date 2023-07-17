@@ -9,7 +9,7 @@
 class rsyslog::server::selinux {
   assert_private()
 
-  if $facts['selinux_current_mode'] and $facts['selinux_current_mode'] != 'disabled' {
+  if $facts['os']['selinux']['current_mode'] and $facts['os']['selinux']['current_mode'] != 'disabled' {
     selboolean { 'nis_enabled':
       persistent => true,
       value      => 'on'

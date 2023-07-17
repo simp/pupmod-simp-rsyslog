@@ -1,6 +1,24 @@
 require 'spec_helper'
 
 describe 'rsyslog::server' do
+  def mock_selinux_false_facts(os_facts)
+    os_facts[:selinux] = false
+    os_facts[:os][:selinux][:config_mode] = 'disabled'
+    os_facts[:os][:selinux][:current_mode] = 'disabled'
+    os_facts[:os][:selinux][:enabled] = false
+    os_facts[:os][:selinux][:enforced] = false
+    os_facts
+  end
+
+  def mock_selinux_enforcing_facts(os_facts)
+    os_facts[:selinux] = true
+    os_facts[:os][:selinux][:config_mode] = 'enforcing'
+    os_facts[:os][:selinux][:config_policy] = 'targeted'
+    os_facts[:os][:selinux][:current_mode] = 'enforcing'
+    os_facts[:os][:selinux][:enabled] = true
+    os_facts[:os][:selinux][:enforced] = true
+    os_facts
+  end
   shared_examples_for 'a structured module' do
     it { is_expected.to compile.with_all_deps }
     it { is_expected.to contain_class('rsyslog') }
@@ -12,8 +30,7 @@ describe 'rsyslog::server' do
     context "on #{os}" do
       let(:facts) do
         facts = os_facts.dup
-        facts[:selinux_current_mode] = 'disabled'
-        facts[:selinux_enforced] = false
+        facts = mock_selinux_false_facts(facts)
         facts
       end
 
@@ -104,8 +121,7 @@ describe 'rsyslog::server' do
       context 'rsyslog::server class with SELinux enabled' do
         let(:facts) do
           facts = os_facts.dup
-          facts[:selinux_current_mode] = 'enforcing'
-          facts[:selinux_enforced] = true
+          facts = mock_selinux_enforcing_facts(facts)
           facts
         end
 
@@ -118,8 +134,12 @@ describe 'rsyslog::server' do
         }) }
       end
 
-      context 'with selinux_enforcing fact unset' do
-        let(:facts) {os_facts.merge({ :selinux_enforced => nil })}
+      context 'with fact os.selinux.enforced unset' do
+        let(:facts) do
+          facts = os_facts.dup
+          facts[:os][:selinux][:enforced] = nil
+          facts
+        end
 
         it_behaves_like 'a structured module'
         it { is_expected.to contain_class('rsyslog::server') }
