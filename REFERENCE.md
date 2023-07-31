@@ -9,7 +9,7 @@
 #### Public Classes
 
 * [`rsyslog`](#rsyslog): Set up Rsyslog 8
-* [`rsyslog::server`](#rsyslogserver): Sets up the RSyslog server
+* [`rsyslog::server`](#rsyslog--server): Sets up the RSyslog server
 
 #### Private Classes
 
@@ -23,23 +23,23 @@
 
 ### Defined types
 
-* [`rsyslog::rule`](#rsyslogrule): Adds a rule
-* [`rsyslog::rule::console`](#rsyslogruleconsole): Add a rule for writing logs to the console
-* [`rsyslog::rule::data_source`](#rsyslogruledata_source): Add a rule for collecting logs from files on the system
-* [`rsyslog::rule::drop`](#rsyslogruledrop): Add a rule to drop content
-* [`rsyslog::rule::local`](#rsyslogrulelocal): Add a rule targeting writing local system logs
-* [`rsyslog::rule::other`](#rsyslogruleother): Adds an arbitrary rule
-* [`rsyslog::rule::remote`](#rsyslogruleremote): Adds a rule to send messages to one or more remote system
-* [`rsyslog::template::list`](#rsyslogtemplatelist): Add a template list to the rsyslog configuration file
-* [`rsyslog::template::plugin`](#rsyslogtemplateplugin): Add template plugins to the rsyslog configuration file.
-* [`rsyslog::template::string`](#rsyslogtemplatestring): Add template strings to the rsyslog configuration
-* [`rsyslog::template::subtree`](#rsyslogtemplatesubtree): Add template subtrees to the rsyslog configuration
+* [`rsyslog::rule`](#rsyslog--rule): Adds a rule
+* [`rsyslog::rule::console`](#rsyslog--rule--console): Add a rule for writing logs to the console
+* [`rsyslog::rule::data_source`](#rsyslog--rule--data_source): Add a rule for collecting logs from files on the system
+* [`rsyslog::rule::drop`](#rsyslog--rule--drop): Add a rule to drop content
+* [`rsyslog::rule::local`](#rsyslog--rule--local): Add a rule targeting writing local system logs
+* [`rsyslog::rule::other`](#rsyslog--rule--other): Adds an arbitrary rule
+* [`rsyslog::rule::remote`](#rsyslog--rule--remote): Adds a rule to send messages to one or more remote system
+* [`rsyslog::template::list`](#rsyslog--template--list): Add a template list to the rsyslog configuration file
+* [`rsyslog::template::plugin`](#rsyslog--template--plugin): Add template plugins to the rsyslog configuration file.
+* [`rsyslog::template::string`](#rsyslog--template--string): Add template strings to the rsyslog configuration
+* [`rsyslog::template::subtree`](#rsyslog--template--subtree): Add template subtrees to the rsyslog configuration
 
 ### Data types
 
-* [`Rsyslog::Boolean`](#rsyslogboolean): Representation of boolean values that are translated to 'on' and 'off' in Rsyslog configuration
-* [`Rsyslog::Options`](#rsyslogoptions): Hash of options to be used for Rsyslog global, legacy global or module configuration
-* [`Rsyslog::QueueType`](#rsyslogqueuetype): Rsyslog Queue Types
+* [`Rsyslog::Boolean`](#Rsyslog--Boolean): Representation of boolean values that are translated to 'on' and 'off' in Rsyslog configuration
+* [`Rsyslog::Options`](#Rsyslog--Options): Hash of options to be used for Rsyslog global, legacy global or module configuration
+* [`Rsyslog::QueueType`](#Rsyslog--QueueType): Rsyslog Queue Types
 
 ## Classes
 
@@ -56,29 +56,29 @@ See ``rsyslog::config`` for additional, detailed configuration.
 
 The following parameters are available in the `rsyslog` class:
 
-* [`service_name`](#service_name)
-* [`package_name`](#package_name)
-* [`tls_package_name`](#tls_package_name)
-* [`trusted_nets`](#trusted_nets)
-* [`enable_tls_logging`](#enable_tls_logging)
-* [`log_servers`](#log_servers)
-* [`failover_log_servers`](#failover_log_servers)
-* [`queue_spool_directory`](#queue_spool_directory)
-* [`rule_dir`](#rule_dir)
-* [`tcp_server`](#tcp_server)
-* [`tcp_listen_port`](#tcp_listen_port)
-* [`tls_tcp_server`](#tls_tcp_server)
-* [`tls_tcp_listen_port`](#tls_tcp_listen_port)
-* [`udp_server`](#udp_server)
-* [`udp_listen_address`](#udp_listen_address)
-* [`udp_listen_port`](#udp_listen_port)
-* [`read_journald`](#read_journald)
-* [`logrotate`](#logrotate)
-* [`pki`](#pki)
-* [`app_pki_external_source`](#app_pki_external_source)
-* [`app_pki_dir`](#app_pki_dir)
+* [`service_name`](#-rsyslog--service_name)
+* [`package_name`](#-rsyslog--package_name)
+* [`tls_package_name`](#-rsyslog--tls_package_name)
+* [`trusted_nets`](#-rsyslog--trusted_nets)
+* [`enable_tls_logging`](#-rsyslog--enable_tls_logging)
+* [`log_servers`](#-rsyslog--log_servers)
+* [`failover_log_servers`](#-rsyslog--failover_log_servers)
+* [`queue_spool_directory`](#-rsyslog--queue_spool_directory)
+* [`rule_dir`](#-rsyslog--rule_dir)
+* [`tcp_server`](#-rsyslog--tcp_server)
+* [`tcp_listen_port`](#-rsyslog--tcp_listen_port)
+* [`tls_tcp_server`](#-rsyslog--tls_tcp_server)
+* [`tls_tcp_listen_port`](#-rsyslog--tls_tcp_listen_port)
+* [`udp_server`](#-rsyslog--udp_server)
+* [`udp_listen_address`](#-rsyslog--udp_listen_address)
+* [`udp_listen_port`](#-rsyslog--udp_listen_port)
+* [`read_journald`](#-rsyslog--read_journald)
+* [`logrotate`](#-rsyslog--logrotate)
+* [`pki`](#-rsyslog--pki)
+* [`app_pki_external_source`](#-rsyslog--app_pki_external_source)
+* [`app_pki_dir`](#-rsyslog--app_pki_dir)
 
-##### <a name="service_name"></a>`service_name`
+##### <a name="-rsyslog--service_name"></a>`service_name`
 
 Data type: `String`
 
@@ -86,7 +86,7 @@ The name of the Rsyslog service; typically ``rsyslog``
 
 Default value: `'rsyslog'`
 
-##### <a name="package_name"></a>`package_name`
+##### <a name="-rsyslog--package_name"></a>`package_name`
 
 Data type: `String`
 
@@ -94,7 +94,7 @@ The name of the Rsyslog package to install; typically ``rsyslog``
 
 Default value: `'rsyslog'`
 
-##### <a name="tls_package_name"></a>`tls_package_name`
+##### <a name="-rsyslog--tls_package_name"></a>`tls_package_name`
 
 Data type: `String`
 
@@ -102,7 +102,7 @@ The name of the Rsyslog package to install TLS utilities; typically ``rsyslog-gn
 
 Default value: `"${package_name}-gnutls"`
 
-##### <a name="trusted_nets"></a>`trusted_nets`
+##### <a name="-rsyslog--trusted_nets"></a>`trusted_nets`
 
 Data type: `Simplib::Netlist`
 
@@ -113,7 +113,7 @@ A list of subnets (in CIDR notation) permitted access
 
 Default value: `simplib::lookup('simp_options::trusted_nets', {'default_value'                  => ['127.0.0.1/32'] })`
 
-##### <a name="enable_tls_logging"></a>`enable_tls_logging`
+##### <a name="-rsyslog--enable_tls_logging"></a>`enable_tls_logging`
 
 Data type: `Boolean`
 
@@ -124,9 +124,9 @@ Enable the TLS libraries where applicable
   ``rsyslog::server::tls_tcp_server``) will load the ``imtcp`` module and
   configure it for TLS.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="log_servers"></a>`log_servers`
+##### <a name="-rsyslog--log_servers"></a>`log_servers`
 
 Data type: `Simplib::Netlist`
 
@@ -137,7 +137,7 @@ A list of primary Rsyslog servers
 
 Default value: `simplib::lookup('simp_options::syslog::log_servers', { 'default_value'          => [] })`
 
-##### <a name="failover_log_servers"></a>`failover_log_servers`
+##### <a name="-rsyslog--failover_log_servers"></a>`failover_log_servers`
 
 Data type: `Simplib::Netlist`
 
@@ -149,7 +149,7 @@ A list of the failover Rsyslog servers
 
 Default value: `simplib::lookup('simp_options::syslog::failover_log_servers', { 'default_value' => [] })`
 
-##### <a name="queue_spool_directory"></a>`queue_spool_directory`
+##### <a name="-rsyslog--queue_spool_directory"></a>`queue_spool_directory`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -157,7 +157,7 @@ The path to the directory where Rsyslog should store disk message queues
 
 Default value: `'/var/spool/rsyslog'`
 
-##### <a name="rule_dir"></a>`rule_dir`
+##### <a name="-rsyslog--rule_dir"></a>`rule_dir`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -165,7 +165,7 @@ The path at which all managed rules will begin
 
 Default value: `'/etc/rsyslog.simp.d'`
 
-##### <a name="tcp_server"></a>`tcp_server`
+##### <a name="-rsyslog--tcp_server"></a>`tcp_server`
 
 Data type: `Boolean`
 
@@ -175,9 +175,9 @@ Make this host listen for ``TCP`` connections
   instead.
 * Only enable this if necessary.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="tcp_listen_port"></a>`tcp_listen_port`
+##### <a name="-rsyslog--tcp_listen_port"></a>`tcp_listen_port`
 
 Data type: `Simplib::Port`
 
@@ -185,15 +185,15 @@ The port upon which to listen for regular ``TCP`` connections
 
 Default value: `514`
 
-##### <a name="tls_tcp_server"></a>`tls_tcp_server`
+##### <a name="-rsyslog--tls_tcp_server"></a>`tls_tcp_server`
 
 Data type: `Boolean`
 
 Make this host listen for ``TLS`` enabled ``TCP`` connections
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="tls_tcp_listen_port"></a>`tls_tcp_listen_port`
+##### <a name="-rsyslog--tls_tcp_listen_port"></a>`tls_tcp_listen_port`
 
 Data type: `Simplib::Port`
 
@@ -201,7 +201,7 @@ The port upon which to listen for ``TLS`` enabled ``TCP`` connections
 
 Default value: `6514`
 
-##### <a name="udp_server"></a>`udp_server`
+##### <a name="-rsyslog--udp_server"></a>`udp_server`
 
 Data type: `Boolean`
 
@@ -210,9 +210,9 @@ Make this host listen for ``UDP`` connections
 * This really should not be enabled unless you have devices that cannot
   speak ``TLS``
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="udp_listen_address"></a>`udp_listen_address`
+##### <a name="-rsyslog--udp_listen_address"></a>`udp_listen_address`
 
 Data type: `String`
 
@@ -223,7 +223,7 @@ The address upon which to listen for ``UDP`` connections
 
 Default value: `'127.0.0.1'`
 
-##### <a name="udp_listen_port"></a>`udp_listen_port`
+##### <a name="-rsyslog--udp_listen_port"></a>`udp_listen_port`
 
 Data type: `Simplib::Port`
 
@@ -231,15 +231,15 @@ The port upon which to listen for ``UDP`` connections
 
 Default value: `514`
 
-##### <a name="read_journald"></a>`read_journald`
+##### <a name="-rsyslog--read_journald"></a>`read_journald`
 
 Data type: `Boolean`
 
 Enable the processing of ``journald`` messages natively in Rsyslog
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="logrotate"></a>`logrotate`
+##### <a name="-rsyslog--logrotate"></a>`logrotate`
 
 Data type: `Boolean`
 
@@ -250,7 +250,7 @@ Ensure that ``logrotate`` is enabled on this system
 
 Default value: `simplib::lookup('simp_options::logrotate', {'default_value'                     => false})`
 
-##### <a name="pki"></a>`pki`
+##### <a name="-rsyslog--pki"></a>`pki`
 
 Data type: `Variant[Boolean,Enum['simp']]`
 
@@ -268,7 +268,7 @@ Data type: `Variant[Boolean,Enum['simp']]`
 
 Default value: `simplib::lookup('simp_options::pki', {'default_value'                           => false})`
 
-##### <a name="app_pki_external_source"></a>`app_pki_external_source`
+##### <a name="-rsyslog--app_pki_external_source"></a>`app_pki_external_source`
 
 Data type: `String`
 
@@ -279,7 +279,7 @@ Data type: `String`
 
 Default value: `simplib::lookup('simp_options::pki::source', {'default_value'                   => '/etc/pki/simp/x509'})`
 
-##### <a name="app_pki_dir"></a>`app_pki_dir`
+##### <a name="-rsyslog--app_pki_dir"></a>`app_pki_dir`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -288,7 +288,7 @@ and $default_net_stream_driver_key_file
 
 Default value: `'/etc/pki/simp_apps/rsyslog/x509'`
 
-### <a name="rsyslogserver"></a>`rsyslog::server`
+### <a name="rsyslog--server"></a>`rsyslog::server`
 
 This class is designed to configure the externally facing interfaces for a
 RSyslog system. If you do not need external connectivity, you should just use
@@ -298,11 +298,11 @@ the stock ``rsyslog`` Class.
 
 The following parameters are available in the `rsyslog::server` class:
 
-* [`enable_firewall`](#enable_firewall)
-* [`enable_selinux`](#enable_selinux)
-* [`enable_tcpwrappers`](#enable_tcpwrappers)
+* [`enable_firewall`](#-rsyslog--server--enable_firewall)
+* [`enable_selinux`](#-rsyslog--server--enable_selinux)
+* [`enable_tcpwrappers`](#-rsyslog--server--enable_tcpwrappers)
 
-##### <a name="enable_firewall"></a>`enable_firewall`
+##### <a name="-rsyslog--server--enable_firewall"></a>`enable_firewall`
 
 Data type: `Boolean`
 
@@ -310,15 +310,15 @@ Enable the SIMP firewall rules for RSyslog
 
 Default value: `simplib::lookup('simp_options::firewall', { 'default_value' => false })`
 
-##### <a name="enable_selinux"></a>`enable_selinux`
+##### <a name="-rsyslog--server--enable_selinux"></a>`enable_selinux`
 
 Data type: `Optional[Boolean]`
 
 Enable the SIMP SELinux rules for RSyslog
 
-Default value: `$facts['selinux_enforced']`
+Default value: `$facts['os']['selinux']['enforced']`
 
-##### <a name="enable_tcpwrappers"></a>`enable_tcpwrappers`
+##### <a name="-rsyslog--server--enable_tcpwrappers"></a>`enable_tcpwrappers`
 
 Data type: `Boolean`
 
@@ -328,7 +328,7 @@ Default value: `simplib::lookup('simp_options::tcpwrappers', { 'default_value' =
 
 ## Defined types
 
-### <a name="rsyslogrule"></a>`rsyslog::rule`
+### <a name="rsyslog--rule"></a>`rsyslog::rule`
 
 This is used by the various ``rsyslog::rule::*`` Defined Types to apply rules
 to the system.
@@ -375,10 +375,10 @@ rsyslog::rule::other { '98_discard_info.conf':
 
 The following parameters are available in the `rsyslog::rule` defined type:
 
-* [`name`](#name)
-* [`content`](#content)
+* [`name`](#-rsyslog--rule--name)
+* [`content`](#-rsyslog--rule--content)
 
-##### <a name="name"></a>`name`
+##### <a name="-rsyslog--rule--name"></a>`name`
 
 Data type: `Pattern['^[^/]\S+/\S+\.conf$']`
 
@@ -386,13 +386,13 @@ The filename that you will be dropping into place
 
 * **WARNING:** This must **NOT** be an absolute path!
 
-##### <a name="content"></a>`content`
+##### <a name="-rsyslog--rule--content"></a>`content`
 
 Data type: `String`
 
 The **exact content** of the rule to place in the target file
 
-### <a name="rsyslogruleconsole"></a>`rsyslog::rule::console`
+### <a name="rsyslog--rule--console"></a>`rsyslog::rule::console`
 
 These rules first in priority. In general, the order will be:
 
@@ -426,29 +426,29 @@ rsyslog::rule::console { 'emergency_rule':
 
 The following parameters are available in the `rsyslog::rule::console` defined type:
 
-* [`name`](#name)
-* [`rule`](#rule)
-* [`users`](#users)
+* [`name`](#-rsyslog--rule--console--name)
+* [`rule`](#-rsyslog--rule--console--rule)
+* [`users`](#-rsyslog--rule--console--users)
 
-##### <a name="name"></a>`name`
+##### <a name="-rsyslog--rule--console--name"></a>`name`
 
 Data type: `String`
 
 The filename that you will be dropping into place
 
-##### <a name="rule"></a>`rule`
+##### <a name="-rsyslog--rule--console--rule"></a>`rule`
 
 Data type: `String`
 
 The Rsyslog ``EXPRESSION`` to filter on
 
-##### <a name="users"></a>`users`
+##### <a name="-rsyslog--rule--console--users"></a>`users`
 
 Data type: `Array[String]`
 
 Users to which to send the console messages
 
-### <a name="rsyslogruledata_source"></a>`rsyslog::rule::data_source`
+### <a name="rsyslog--rule--data_source"></a>`rsyslog::rule::data_source`
 
 In general, the order will be:
 
@@ -491,22 +491,22 @@ rsyslog::rule::data_source { 'new_input':
 
 The following parameters are available in the `rsyslog::rule::data_source` defined type:
 
-* [`name`](#name)
-* [`rule`](#rule)
+* [`name`](#-rsyslog--rule--data_source--name)
+* [`rule`](#-rsyslog--rule--data_source--rule)
 
-##### <a name="name"></a>`name`
+##### <a name="-rsyslog--rule--data_source--name"></a>`name`
 
 Data type: `String`
 
 The filename that you will be dropping into place
 
-##### <a name="rule"></a>`rule`
+##### <a name="-rsyslog--rule--data_source--rule"></a>`rule`
 
 Data type: `String`
 
 The Rsyslog ``EXPRESSION`` to filter on
 
-### <a name="rsyslogruledrop"></a>`rsyslog::rule::drop`
+### <a name="rsyslog--rule--drop"></a>`rsyslog::rule::drop`
 
 In general, the order will be:
 
@@ -541,22 +541,22 @@ rsyslog::rule::drop { 'drop_bad_stuff':
 
 The following parameters are available in the `rsyslog::rule::drop` defined type:
 
-* [`name`](#name)
-* [`rule`](#rule)
+* [`name`](#-rsyslog--rule--drop--name)
+* [`rule`](#-rsyslog--rule--drop--rule)
 
-##### <a name="name"></a>`name`
+##### <a name="-rsyslog--rule--drop--name"></a>`name`
 
 Data type: `String`
 
 The filename that you will be dropping into place
 
-##### <a name="rule"></a>`rule`
+##### <a name="-rsyslog--rule--drop--rule"></a>`rule`
 
 Data type: `String`
 
 The Rsyslog ``EXPRESSION`` to filter on
 
-### <a name="rsyslogrulelocal"></a>`rsyslog::rule::local`
+### <a name="rsyslog--rule--local"></a>`rsyslog::rule::local`
 
 **NOTE:** Any option that is not explicitly documented here matches the
 ``ruleset`` options in the Rsyslog documentation.
@@ -608,69 +608,69 @@ rsyslog::rule::local { 'collect_openldap':
 
 The following parameters are available in the `rsyslog::rule::local` defined type:
 
-* [`name`](#name)
-* [`rule`](#rule)
-* [`target_log_file`](#target_log_file)
-* [`stop_processing`](#stop_processing)
-* [`dyna_file`](#dyna_file)
-* [`template`](#template)
-* [`dyna_file_cache_size`](#dyna_file_cache_size)
-* [`zip_level`](#zip_level)
-* [`very_robust_zip`](#very_robust_zip)
-* [`flush_interval`](#flush_interval)
-* [`async_writing`](#async_writing)
-* [`flush_on_tx_end`](#flush_on_tx_end)
-* [`io_buffer_size`](#io_buffer_size)
-* [`dir_owner`](#dir_owner)
-* [`dir_owner_num`](#dir_owner_num)
-* [`dir_group`](#dir_group)
-* [`dir_group_num`](#dir_group_num)
-* [`file_owner`](#file_owner)
-* [`file_owner_num`](#file_owner_num)
-* [`file_group`](#file_group)
-* [`file_group_num`](#file_group_num)
-* [`file_create_mode`](#file_create_mode)
-* [`dir_create_mode`](#dir_create_mode)
-* [`fail_on_chown_failure`](#fail_on_chown_failure)
-* [`create_dirs`](#create_dirs)
-* [`sync`](#sync)
-* [`sig_provider`](#sig_provider)
-* [`cry_provider`](#cry_provider)
-* [`queue_validation_log_level`](#queue_validation_log_level)
-* [`queue_filename`](#queue_filename)
-* [`queue_spool_directory`](#queue_spool_directory)
-* [`queue_size`](#queue_size)
-* [`queue_dequeue_batch_size`](#queue_dequeue_batch_size)
-* [`queue_max_disk_space`](#queue_max_disk_space)
-* [`queue_high_watermark`](#queue_high_watermark)
-* [`queue_low_watermark`](#queue_low_watermark)
-* [`queue_full_delay_mark`](#queue_full_delay_mark)
-* [`queue_light_delay_mark`](#queue_light_delay_mark)
-* [`queue_discard_mark`](#queue_discard_mark)
-* [`queue_discard_severity`](#queue_discard_severity)
-* [`queue_checkpoint_interval`](#queue_checkpoint_interval)
-* [`queue_sync_queue_files`](#queue_sync_queue_files)
-* [`queue_type`](#queue_type)
-* [`queue_worker_threads`](#queue_worker_threads)
-* [`queue_timeout_shutdown`](#queue_timeout_shutdown)
-* [`queue_timeout_action_completion`](#queue_timeout_action_completion)
-* [`queue_timeout_enqueue`](#queue_timeout_enqueue)
-* [`queue_timeout_worker_thread_shutdown`](#queue_timeout_worker_thread_shutdown)
-* [`queue_worker_thread_minimum_messages`](#queue_worker_thread_minimum_messages)
-* [`queue_max_file_size`](#queue_max_file_size)
-* [`queue_save_on_shutdown`](#queue_save_on_shutdown)
-* [`queue_dequeue_slowdown`](#queue_dequeue_slowdown)
-* [`queue_dequeue_time_begin`](#queue_dequeue_time_begin)
-* [`queue_dequeue_time_end`](#queue_dequeue_time_end)
-* [`content`](#content)
+* [`name`](#-rsyslog--rule--local--name)
+* [`rule`](#-rsyslog--rule--local--rule)
+* [`target_log_file`](#-rsyslog--rule--local--target_log_file)
+* [`stop_processing`](#-rsyslog--rule--local--stop_processing)
+* [`dyna_file`](#-rsyslog--rule--local--dyna_file)
+* [`template`](#-rsyslog--rule--local--template)
+* [`dyna_file_cache_size`](#-rsyslog--rule--local--dyna_file_cache_size)
+* [`zip_level`](#-rsyslog--rule--local--zip_level)
+* [`very_robust_zip`](#-rsyslog--rule--local--very_robust_zip)
+* [`flush_interval`](#-rsyslog--rule--local--flush_interval)
+* [`async_writing`](#-rsyslog--rule--local--async_writing)
+* [`flush_on_tx_end`](#-rsyslog--rule--local--flush_on_tx_end)
+* [`io_buffer_size`](#-rsyslog--rule--local--io_buffer_size)
+* [`dir_owner`](#-rsyslog--rule--local--dir_owner)
+* [`dir_owner_num`](#-rsyslog--rule--local--dir_owner_num)
+* [`dir_group`](#-rsyslog--rule--local--dir_group)
+* [`dir_group_num`](#-rsyslog--rule--local--dir_group_num)
+* [`file_owner`](#-rsyslog--rule--local--file_owner)
+* [`file_owner_num`](#-rsyslog--rule--local--file_owner_num)
+* [`file_group`](#-rsyslog--rule--local--file_group)
+* [`file_group_num`](#-rsyslog--rule--local--file_group_num)
+* [`file_create_mode`](#-rsyslog--rule--local--file_create_mode)
+* [`dir_create_mode`](#-rsyslog--rule--local--dir_create_mode)
+* [`fail_on_chown_failure`](#-rsyslog--rule--local--fail_on_chown_failure)
+* [`create_dirs`](#-rsyslog--rule--local--create_dirs)
+* [`sync`](#-rsyslog--rule--local--sync)
+* [`sig_provider`](#-rsyslog--rule--local--sig_provider)
+* [`cry_provider`](#-rsyslog--rule--local--cry_provider)
+* [`queue_validation_log_level`](#-rsyslog--rule--local--queue_validation_log_level)
+* [`queue_filename`](#-rsyslog--rule--local--queue_filename)
+* [`queue_spool_directory`](#-rsyslog--rule--local--queue_spool_directory)
+* [`queue_size`](#-rsyslog--rule--local--queue_size)
+* [`queue_dequeue_batch_size`](#-rsyslog--rule--local--queue_dequeue_batch_size)
+* [`queue_max_disk_space`](#-rsyslog--rule--local--queue_max_disk_space)
+* [`queue_high_watermark`](#-rsyslog--rule--local--queue_high_watermark)
+* [`queue_low_watermark`](#-rsyslog--rule--local--queue_low_watermark)
+* [`queue_full_delay_mark`](#-rsyslog--rule--local--queue_full_delay_mark)
+* [`queue_light_delay_mark`](#-rsyslog--rule--local--queue_light_delay_mark)
+* [`queue_discard_mark`](#-rsyslog--rule--local--queue_discard_mark)
+* [`queue_discard_severity`](#-rsyslog--rule--local--queue_discard_severity)
+* [`queue_checkpoint_interval`](#-rsyslog--rule--local--queue_checkpoint_interval)
+* [`queue_sync_queue_files`](#-rsyslog--rule--local--queue_sync_queue_files)
+* [`queue_type`](#-rsyslog--rule--local--queue_type)
+* [`queue_worker_threads`](#-rsyslog--rule--local--queue_worker_threads)
+* [`queue_timeout_shutdown`](#-rsyslog--rule--local--queue_timeout_shutdown)
+* [`queue_timeout_action_completion`](#-rsyslog--rule--local--queue_timeout_action_completion)
+* [`queue_timeout_enqueue`](#-rsyslog--rule--local--queue_timeout_enqueue)
+* [`queue_timeout_worker_thread_shutdown`](#-rsyslog--rule--local--queue_timeout_worker_thread_shutdown)
+* [`queue_worker_thread_minimum_messages`](#-rsyslog--rule--local--queue_worker_thread_minimum_messages)
+* [`queue_max_file_size`](#-rsyslog--rule--local--queue_max_file_size)
+* [`queue_save_on_shutdown`](#-rsyslog--rule--local--queue_save_on_shutdown)
+* [`queue_dequeue_slowdown`](#-rsyslog--rule--local--queue_dequeue_slowdown)
+* [`queue_dequeue_time_begin`](#-rsyslog--rule--local--queue_dequeue_time_begin)
+* [`queue_dequeue_time_end`](#-rsyslog--rule--local--queue_dequeue_time_end)
+* [`content`](#-rsyslog--rule--local--content)
 
-##### <a name="name"></a>`name`
+##### <a name="-rsyslog--rule--local--name"></a>`name`
 
 Data type: `String`
 
 The filename that you will be dropping into place
 
-##### <a name="rule"></a>`rule`
+##### <a name="-rsyslog--rule--local--rule"></a>`rule`
 
 Data type: `Optional[String[1]]`
 
@@ -682,9 +682,9 @@ The Rsyslog ``EXPRESSION`` to filter on
 
 * This **must** be set if ``$content`` is undefined
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="target_log_file"></a>`target_log_file`
+##### <a name="-rsyslog--rule--local--target_log_file"></a>`target_log_file`
 
 Data type: `Optional[Stdlib::Absolutepath]`
 
@@ -692,17 +692,17 @@ The target log file that omfile will be writing to
 
 * This **must** be set if ``$dyna_file`` is undefined
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="stop_processing"></a>`stop_processing`
+##### <a name="-rsyslog--rule--local--stop_processing"></a>`stop_processing`
 
 Data type: `Boolean`
 
 Do not forward logs to any further ``ruleset``s after processing this ``ruleset``
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="dyna_file"></a>`dyna_file`
+##### <a name="-rsyslog--rule--local--dyna_file"></a>`dyna_file`
 
 Data type: `Optional[String[1]]`
 
@@ -716,17 +716,17 @@ Set a ``dynamic`` filename using the property replacer rules
 * Rsyslog templates can be created using the ``rsyslog::template::*``
   defined types
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="template"></a>`template`
+##### <a name="-rsyslog--rule--local--template"></a>`template`
 
 Data type: `Optional[String[1]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="dyna_file_cache_size"></a>`dyna_file_cache_size`
+##### <a name="-rsyslog--rule--local--dyna_file_cache_size"></a>`dyna_file_cache_size`
 
 Data type: `Integer[0]`
 
@@ -734,7 +734,7 @@ Data type: `Integer[0]`
 
 Default value: `10`
 
-##### <a name="zip_level"></a>`zip_level`
+##### <a name="-rsyslog--rule--local--zip_level"></a>`zip_level`
 
 Data type: `Integer[0,9]`
 
@@ -742,15 +742,15 @@ Data type: `Integer[0,9]`
 
 Default value: `0`
 
-##### <a name="very_robust_zip"></a>`very_robust_zip`
+##### <a name="-rsyslog--rule--local--very_robust_zip"></a>`very_robust_zip`
 
 Data type: `Boolean`
 
 
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="flush_interval"></a>`flush_interval`
+##### <a name="-rsyslog--rule--local--flush_interval"></a>`flush_interval`
 
 Data type: `Integer[0]`
 
@@ -758,95 +758,95 @@ Data type: `Integer[0]`
 
 Default value: `0`
 
-##### <a name="async_writing"></a>`async_writing`
+##### <a name="-rsyslog--rule--local--async_writing"></a>`async_writing`
 
 Data type: `Boolean`
 
 
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="flush_on_tx_end"></a>`flush_on_tx_end`
+##### <a name="-rsyslog--rule--local--flush_on_tx_end"></a>`flush_on_tx_end`
 
 Data type: `Boolean`
 
 
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="io_buffer_size"></a>`io_buffer_size`
+##### <a name="-rsyslog--rule--local--io_buffer_size"></a>`io_buffer_size`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="dir_owner"></a>`dir_owner`
+##### <a name="-rsyslog--rule--local--dir_owner"></a>`dir_owner`
 
 Data type: `Optional[String[1]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="dir_owner_num"></a>`dir_owner_num`
+##### <a name="-rsyslog--rule--local--dir_owner_num"></a>`dir_owner_num`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="dir_group"></a>`dir_group`
+##### <a name="-rsyslog--rule--local--dir_group"></a>`dir_group`
 
 Data type: `Optional[String[1]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="dir_group_num"></a>`dir_group_num`
+##### <a name="-rsyslog--rule--local--dir_group_num"></a>`dir_group_num`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="file_owner"></a>`file_owner`
+##### <a name="-rsyslog--rule--local--file_owner"></a>`file_owner`
 
 Data type: `Optional[String[1]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="file_owner_num"></a>`file_owner_num`
+##### <a name="-rsyslog--rule--local--file_owner_num"></a>`file_owner_num`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="file_group"></a>`file_group`
+##### <a name="-rsyslog--rule--local--file_group"></a>`file_group`
 
 Data type: `Optional[String[1]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="file_group_num"></a>`file_group_num`
+##### <a name="-rsyslog--rule--local--file_group_num"></a>`file_group_num`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="file_create_mode"></a>`file_create_mode`
+##### <a name="-rsyslog--rule--local--file_create_mode"></a>`file_create_mode`
 
 Data type: `Stdlib::Filemode`
 
@@ -854,7 +854,7 @@ Data type: `Stdlib::Filemode`
 
 Default value: `simplib::dlookup('rsyslog::rule::local', 'file_create_mode', $name, { 'default_value' => '0640' })`
 
-##### <a name="dir_create_mode"></a>`dir_create_mode`
+##### <a name="-rsyslog--rule--local--dir_create_mode"></a>`dir_create_mode`
 
 Data type: `Stdlib::Filemode`
 
@@ -862,47 +862,47 @@ Data type: `Stdlib::Filemode`
 
 Default value: `simplib::dlookup('rsyslog::rule::local', 'dir_create_mode', $name, { 'default_value' => '0750' })`
 
-##### <a name="fail_on_chown_failure"></a>`fail_on_chown_failure`
+##### <a name="-rsyslog--rule--local--fail_on_chown_failure"></a>`fail_on_chown_failure`
 
 Data type: `Boolean`
 
 
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="create_dirs"></a>`create_dirs`
-
-Data type: `Boolean`
-
-
-
-Default value: ``true``
-
-##### <a name="sync"></a>`sync`
+##### <a name="-rsyslog--rule--local--create_dirs"></a>`create_dirs`
 
 Data type: `Boolean`
 
 
 
-Default value: ``false``
+Default value: `true`
 
-##### <a name="sig_provider"></a>`sig_provider`
+##### <a name="-rsyslog--rule--local--sync"></a>`sync`
+
+Data type: `Boolean`
+
+
+
+Default value: `false`
+
+##### <a name="-rsyslog--rule--local--sig_provider"></a>`sig_provider`
 
 Data type: `Optional[String[1]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="cry_provider"></a>`cry_provider`
+##### <a name="-rsyslog--rule--local--cry_provider"></a>`cry_provider`
 
 Data type: `Optional[String[1]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_validation_log_level"></a>`queue_validation_log_level`
+##### <a name="-rsyslog--rule--local--queue_validation_log_level"></a>`queue_validation_log_level`
 
 Data type: `Simplib::PuppetLogLevel`
 
@@ -910,111 +910,111 @@ Data type: `Simplib::PuppetLogLevel`
 
 Default value: `simplib::dlookup('rsyslog::rule::local', 'queue_validation_log_level', $name, { 'default_value' => 'warning' })`
 
-##### <a name="queue_filename"></a>`queue_filename`
+##### <a name="-rsyslog--rule--local--queue_filename"></a>`queue_filename`
 
 Data type: `Optional[Stdlib::Absolutepath]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_spool_directory"></a>`queue_spool_directory`
+##### <a name="-rsyslog--rule--local--queue_spool_directory"></a>`queue_spool_directory`
 
 Data type: `Optional[Stdlib::Absolutepath]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_size"></a>`queue_size`
-
-Data type: `Optional[Integer[0]]`
-
-
-
-Default value: ``undef``
-
-##### <a name="queue_dequeue_batch_size"></a>`queue_dequeue_batch_size`
+##### <a name="-rsyslog--rule--local--queue_size"></a>`queue_size`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_max_disk_space"></a>`queue_max_disk_space`
-
-Data type: `Optional[Integer[0]]`
-
-
-
-Default value: ``undef``
-
-##### <a name="queue_high_watermark"></a>`queue_high_watermark`
+##### <a name="-rsyslog--rule--local--queue_dequeue_batch_size"></a>`queue_dequeue_batch_size`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_low_watermark"></a>`queue_low_watermark`
-
-Data type: `Optional[Integer[0]]`
-
-
-
-Default value: ``undef``
-
-##### <a name="queue_full_delay_mark"></a>`queue_full_delay_mark`
+##### <a name="-rsyslog--rule--local--queue_max_disk_space"></a>`queue_max_disk_space`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_light_delay_mark"></a>`queue_light_delay_mark`
-
-Data type: `Optional[Integer[0]]`
-
-
-
-Default value: ``undef``
-
-##### <a name="queue_discard_mark"></a>`queue_discard_mark`
+##### <a name="-rsyslog--rule--local--queue_high_watermark"></a>`queue_high_watermark`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_discard_severity"></a>`queue_discard_severity`
-
-Data type: `Optional[Integer[0]]`
-
-
-
-Default value: ``undef``
-
-##### <a name="queue_checkpoint_interval"></a>`queue_checkpoint_interval`
+##### <a name="-rsyslog--rule--local--queue_low_watermark"></a>`queue_low_watermark`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_sync_queue_files"></a>`queue_sync_queue_files`
+##### <a name="-rsyslog--rule--local--queue_full_delay_mark"></a>`queue_full_delay_mark`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### <a name="-rsyslog--rule--local--queue_light_delay_mark"></a>`queue_light_delay_mark`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### <a name="-rsyslog--rule--local--queue_discard_mark"></a>`queue_discard_mark`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### <a name="-rsyslog--rule--local--queue_discard_severity"></a>`queue_discard_severity`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### <a name="-rsyslog--rule--local--queue_checkpoint_interval"></a>`queue_checkpoint_interval`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### <a name="-rsyslog--rule--local--queue_sync_queue_files"></a>`queue_sync_queue_files`
 
 Data type: `Boolean`
 
 
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="queue_type"></a>`queue_type`
+##### <a name="-rsyslog--rule--local--queue_type"></a>`queue_type`
 
 Data type: `Rsyslog::QueueType`
 
@@ -1022,55 +1022,55 @@ Data type: `Rsyslog::QueueType`
 
 Default value: `'Direct'`
 
-##### <a name="queue_worker_threads"></a>`queue_worker_threads`
+##### <a name="-rsyslog--rule--local--queue_worker_threads"></a>`queue_worker_threads`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_timeout_shutdown"></a>`queue_timeout_shutdown`
-
-Data type: `Optional[Integer[0]]`
-
-
-
-Default value: ``undef``
-
-##### <a name="queue_timeout_action_completion"></a>`queue_timeout_action_completion`
+##### <a name="-rsyslog--rule--local--queue_timeout_shutdown"></a>`queue_timeout_shutdown`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_timeout_enqueue"></a>`queue_timeout_enqueue`
-
-Data type: `Optional[Integer[0]]`
-
-
-
-Default value: ``undef``
-
-##### <a name="queue_timeout_worker_thread_shutdown"></a>`queue_timeout_worker_thread_shutdown`
+##### <a name="-rsyslog--rule--local--queue_timeout_action_completion"></a>`queue_timeout_action_completion`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_worker_thread_minimum_messages"></a>`queue_worker_thread_minimum_messages`
+##### <a name="-rsyslog--rule--local--queue_timeout_enqueue"></a>`queue_timeout_enqueue`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_max_file_size"></a>`queue_max_file_size`
+##### <a name="-rsyslog--rule--local--queue_timeout_worker_thread_shutdown"></a>`queue_timeout_worker_thread_shutdown`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### <a name="-rsyslog--rule--local--queue_worker_thread_minimum_messages"></a>`queue_worker_thread_minimum_messages`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### <a name="-rsyslog--rule--local--queue_max_file_size"></a>`queue_max_file_size`
 
 Data type: `Optional[String[1]]`
 
@@ -1078,39 +1078,39 @@ Data type: `Optional[String[1]]`
 
 Default value: `simplib::dlookup('rsyslog::rule::local', 'queue_max_file_size', $name, { 'default_value' => undef })`
 
-##### <a name="queue_save_on_shutdown"></a>`queue_save_on_shutdown`
+##### <a name="-rsyslog--rule--local--queue_save_on_shutdown"></a>`queue_save_on_shutdown`
 
 Data type: `Boolean`
 
 
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="queue_dequeue_slowdown"></a>`queue_dequeue_slowdown`
-
-Data type: `Optional[Integer[0]]`
-
-
-
-Default value: ``undef``
-
-##### <a name="queue_dequeue_time_begin"></a>`queue_dequeue_time_begin`
+##### <a name="-rsyslog--rule--local--queue_dequeue_slowdown"></a>`queue_dequeue_slowdown`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_dequeue_time_end"></a>`queue_dequeue_time_end`
+##### <a name="-rsyslog--rule--local--queue_dequeue_time_begin"></a>`queue_dequeue_time_begin`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="content"></a>`content`
+##### <a name="-rsyslog--rule--local--queue_dequeue_time_end"></a>`queue_dequeue_time_end`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### <a name="-rsyslog--rule--local--content"></a>`content`
 
 Data type: `Optional[String[1]]`
 
@@ -1120,9 +1120,9 @@ the **entire* content of the rsyslog::rule
 
 * If you do specify this, ``$rule`` will be ignored
 
-Default value: ``undef``
+Default value: `undef`
 
-### <a name="rsyslogruleother"></a>`rsyslog::rule::other`
+### <a name="rsyslog--rule--other"></a>`rsyslog::rule::other`
 
 The main reason to use this is to ensure proper ordering in the stack. If you
 want to insert a rule anywhere, use the ``$rsyslog::rule`` Defined Type
@@ -1162,22 +1162,22 @@ rsyslog::rule::other { 'send_local0_away':
 
 The following parameters are available in the `rsyslog::rule::other` defined type:
 
-* [`name`](#name)
-* [`rule`](#rule)
+* [`name`](#-rsyslog--rule--other--name)
+* [`rule`](#-rsyslog--rule--other--rule)
 
-##### <a name="name"></a>`name`
+##### <a name="-rsyslog--rule--other--name"></a>`name`
 
 Data type: `String`
 
 The filename that you will be dropping into place
 
-##### <a name="rule"></a>`rule`
+##### <a name="-rsyslog--rule--other--rule"></a>`rule`
 
 Data type: `String`
 
 The Rsyslog ``EXPRESSION`` to filter on
 
-### <a name="rsyslogruleremote"></a>`rsyslog::rule::remote`
+### <a name="rsyslog--rule--remote"></a>`rsyslog::rule::remote`
 
 The rule will include a forwarding ('omfwd') action for each
 primary and failover syslog server specified via ``$dest`` and
@@ -1246,66 +1246,66 @@ rsyslog::rule::remote { 'send_local0_away':
 
 The following parameters are available in the `rsyslog::rule::remote` defined type:
 
-* [`name`](#name)
-* [`rule`](#rule)
-* [`stop_processing`](#stop_processing)
-* [`template`](#template)
-* [`dest`](#dest)
-* [`dest_type`](#dest_type)
-* [`failover_log_servers`](#failover_log_servers)
-* [`tcp_framing`](#tcp_framing)
-* [`zip_level`](#zip_level)
-* [`max_error_messages`](#max_error_messages)
-* [`compression_mode`](#compression_mode)
-* [`compression_stream_flush_on_tx_end`](#compression_stream_flush_on_tx_end)
-* [`rebind_interval`](#rebind_interval)
-* [`keep_alive`](#keep_alive)
-* [`keep_alive_probes`](#keep_alive_probes)
-* [`keep_alive_interval`](#keep_alive_interval)
-* [`keep_alive_time`](#keep_alive_time)
-* [`action_resume_interval`](#action_resume_interval)
-* [`action_resume_retry_count`](#action_resume_retry_count)
-* [`stream_driver`](#stream_driver)
-* [`stream_driver_mode`](#stream_driver_mode)
-* [`stream_driver_auth_mode`](#stream_driver_auth_mode)
-* [`stream_driver_permitted_peers`](#stream_driver_permitted_peers)
-* [`resend_last_msg_on_reconnect`](#resend_last_msg_on_reconnect)
-* [`udp_send_to_all`](#udp_send_to_all)
-* [`queue_validation_log_level`](#queue_validation_log_level)
-* [`queue_filename`](#queue_filename)
-* [`queue_spool_directory`](#queue_spool_directory)
-* [`queue_size`](#queue_size)
-* [`queue_dequeue_batch_size`](#queue_dequeue_batch_size)
-* [`queue_max_disk_space`](#queue_max_disk_space)
-* [`queue_high_watermark`](#queue_high_watermark)
-* [`queue_low_watermark`](#queue_low_watermark)
-* [`queue_full_delay_mark`](#queue_full_delay_mark)
-* [`queue_light_delay_mark`](#queue_light_delay_mark)
-* [`queue_discard_mark`](#queue_discard_mark)
-* [`queue_discard_severity`](#queue_discard_severity)
-* [`queue_checkpoint_interval`](#queue_checkpoint_interval)
-* [`queue_sync_queue_files`](#queue_sync_queue_files)
-* [`queue_type`](#queue_type)
-* [`queue_worker_threads`](#queue_worker_threads)
-* [`queue_timeout_shutdown`](#queue_timeout_shutdown)
-* [`queue_timeout_action_completion`](#queue_timeout_action_completion)
-* [`queue_timeout_enqueue`](#queue_timeout_enqueue)
-* [`queue_timeout_worker_thread_shutdown`](#queue_timeout_worker_thread_shutdown)
-* [`queue_worker_thread_minimum_messages`](#queue_worker_thread_minimum_messages)
-* [`queue_max_file_size`](#queue_max_file_size)
-* [`queue_save_on_shutdown`](#queue_save_on_shutdown)
-* [`queue_dequeue_slowdown`](#queue_dequeue_slowdown)
-* [`queue_dequeue_time_begin`](#queue_dequeue_time_begin)
-* [`queue_dequeue_time_end`](#queue_dequeue_time_end)
-* [`content`](#content)
+* [`name`](#-rsyslog--rule--remote--name)
+* [`rule`](#-rsyslog--rule--remote--rule)
+* [`stop_processing`](#-rsyslog--rule--remote--stop_processing)
+* [`template`](#-rsyslog--rule--remote--template)
+* [`dest`](#-rsyslog--rule--remote--dest)
+* [`dest_type`](#-rsyslog--rule--remote--dest_type)
+* [`failover_log_servers`](#-rsyslog--rule--remote--failover_log_servers)
+* [`tcp_framing`](#-rsyslog--rule--remote--tcp_framing)
+* [`zip_level`](#-rsyslog--rule--remote--zip_level)
+* [`max_error_messages`](#-rsyslog--rule--remote--max_error_messages)
+* [`compression_mode`](#-rsyslog--rule--remote--compression_mode)
+* [`compression_stream_flush_on_tx_end`](#-rsyslog--rule--remote--compression_stream_flush_on_tx_end)
+* [`rebind_interval`](#-rsyslog--rule--remote--rebind_interval)
+* [`keep_alive`](#-rsyslog--rule--remote--keep_alive)
+* [`keep_alive_probes`](#-rsyslog--rule--remote--keep_alive_probes)
+* [`keep_alive_interval`](#-rsyslog--rule--remote--keep_alive_interval)
+* [`keep_alive_time`](#-rsyslog--rule--remote--keep_alive_time)
+* [`action_resume_interval`](#-rsyslog--rule--remote--action_resume_interval)
+* [`action_resume_retry_count`](#-rsyslog--rule--remote--action_resume_retry_count)
+* [`stream_driver`](#-rsyslog--rule--remote--stream_driver)
+* [`stream_driver_mode`](#-rsyslog--rule--remote--stream_driver_mode)
+* [`stream_driver_auth_mode`](#-rsyslog--rule--remote--stream_driver_auth_mode)
+* [`stream_driver_permitted_peers`](#-rsyslog--rule--remote--stream_driver_permitted_peers)
+* [`resend_last_msg_on_reconnect`](#-rsyslog--rule--remote--resend_last_msg_on_reconnect)
+* [`udp_send_to_all`](#-rsyslog--rule--remote--udp_send_to_all)
+* [`queue_validation_log_level`](#-rsyslog--rule--remote--queue_validation_log_level)
+* [`queue_filename`](#-rsyslog--rule--remote--queue_filename)
+* [`queue_spool_directory`](#-rsyslog--rule--remote--queue_spool_directory)
+* [`queue_size`](#-rsyslog--rule--remote--queue_size)
+* [`queue_dequeue_batch_size`](#-rsyslog--rule--remote--queue_dequeue_batch_size)
+* [`queue_max_disk_space`](#-rsyslog--rule--remote--queue_max_disk_space)
+* [`queue_high_watermark`](#-rsyslog--rule--remote--queue_high_watermark)
+* [`queue_low_watermark`](#-rsyslog--rule--remote--queue_low_watermark)
+* [`queue_full_delay_mark`](#-rsyslog--rule--remote--queue_full_delay_mark)
+* [`queue_light_delay_mark`](#-rsyslog--rule--remote--queue_light_delay_mark)
+* [`queue_discard_mark`](#-rsyslog--rule--remote--queue_discard_mark)
+* [`queue_discard_severity`](#-rsyslog--rule--remote--queue_discard_severity)
+* [`queue_checkpoint_interval`](#-rsyslog--rule--remote--queue_checkpoint_interval)
+* [`queue_sync_queue_files`](#-rsyslog--rule--remote--queue_sync_queue_files)
+* [`queue_type`](#-rsyslog--rule--remote--queue_type)
+* [`queue_worker_threads`](#-rsyslog--rule--remote--queue_worker_threads)
+* [`queue_timeout_shutdown`](#-rsyslog--rule--remote--queue_timeout_shutdown)
+* [`queue_timeout_action_completion`](#-rsyslog--rule--remote--queue_timeout_action_completion)
+* [`queue_timeout_enqueue`](#-rsyslog--rule--remote--queue_timeout_enqueue)
+* [`queue_timeout_worker_thread_shutdown`](#-rsyslog--rule--remote--queue_timeout_worker_thread_shutdown)
+* [`queue_worker_thread_minimum_messages`](#-rsyslog--rule--remote--queue_worker_thread_minimum_messages)
+* [`queue_max_file_size`](#-rsyslog--rule--remote--queue_max_file_size)
+* [`queue_save_on_shutdown`](#-rsyslog--rule--remote--queue_save_on_shutdown)
+* [`queue_dequeue_slowdown`](#-rsyslog--rule--remote--queue_dequeue_slowdown)
+* [`queue_dequeue_time_begin`](#-rsyslog--rule--remote--queue_dequeue_time_begin)
+* [`queue_dequeue_time_end`](#-rsyslog--rule--remote--queue_dequeue_time_end)
+* [`content`](#-rsyslog--rule--remote--content)
 
-##### <a name="name"></a>`name`
+##### <a name="-rsyslog--rule--remote--name"></a>`name`
 
 Data type: `String`
 
 The filename that you will be dropping into place
 
-##### <a name="rule"></a>`rule`
+##### <a name="-rsyslog--rule--remote--rule"></a>`rule`
 
 Data type: `Optional[String[1]]`
 
@@ -1318,25 +1318,25 @@ The Rsyslog ``EXPRESSION`` to filter on
     * Correct:   ``rule => "prifilt('*.*')"
     * Incorrect: ``rule => "if prifilt('*.*') then"``
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="stop_processing"></a>`stop_processing`
+##### <a name="-rsyslog--rule--remote--stop_processing"></a>`stop_processing`
 
 Data type: `Boolean`
 
 Do not forward logs to any further ``ruleset``s after processing this ``ruleset``
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="template"></a>`template`
+##### <a name="-rsyslog--rule--remote--template"></a>`template`
 
 Data type: `Optional[String[1]]`
 
 The template that should be used to format the content
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="dest"></a>`dest`
+##### <a name="-rsyslog--rule--remote--dest"></a>`dest`
 
 Data type: `Simplib::Netlist`
 
@@ -1346,7 +1346,7 @@ If filled, logs matching ``$rule`` will be sent to **all hosts** in this Array.
 
 Default value: `[]`
 
-##### <a name="dest_type"></a>`dest_type`
+##### <a name="-rsyslog--rule--remote--dest_type"></a>`dest_type`
 
 Data type: `Enum['tcp','udp','relp']`
 
@@ -1358,7 +1358,7 @@ The destination type for all entries in ``$dest``
 
 Default value: `'tcp'`
 
-##### <a name="failover_log_servers"></a>`failover_log_servers`
+##### <a name="-rsyslog--rule--remote--failover_log_servers"></a>`failover_log_servers`
 
 Data type: `Simplib::Netlist`
 
@@ -1369,7 +1369,7 @@ this ``rule``
 
 Default value: `[]`
 
-##### <a name="tcp_framing"></a>`tcp_framing`
+##### <a name="-rsyslog--rule--remote--tcp_framing"></a>`tcp_framing`
 
 Data type: `Enum['traditional','octet-counted']`
 
@@ -1377,7 +1377,7 @@ Data type: `Enum['traditional','octet-counted']`
 
 Default value: `'traditional'`
 
-##### <a name="zip_level"></a>`zip_level`
+##### <a name="-rsyslog--rule--remote--zip_level"></a>`zip_level`
 
 Data type: `Integer[0,9]`
 
@@ -1385,7 +1385,7 @@ Data type: `Integer[0,9]`
 
 Default value: `0`
 
-##### <a name="max_error_messages"></a>`max_error_messages`
+##### <a name="-rsyslog--rule--remote--max_error_messages"></a>`max_error_messages`
 
 Data type: `Integer[0]`
 
@@ -1393,7 +1393,7 @@ Data type: `Integer[0]`
 
 Default value: `5`
 
-##### <a name="compression_mode"></a>`compression_mode`
+##### <a name="-rsyslog--rule--remote--compression_mode"></a>`compression_mode`
 
 Data type: `Enum['none','single','stream:always']`
 
@@ -1401,55 +1401,55 @@ Data type: `Enum['none','single','stream:always']`
 
 Default value: `'none'`
 
-##### <a name="compression_stream_flush_on_tx_end"></a>`compression_stream_flush_on_tx_end`
+##### <a name="-rsyslog--rule--remote--compression_stream_flush_on_tx_end"></a>`compression_stream_flush_on_tx_end`
 
 Data type: `Boolean`
 
 
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="rebind_interval"></a>`rebind_interval`
+##### <a name="-rsyslog--rule--remote--rebind_interval"></a>`rebind_interval`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="keep_alive"></a>`keep_alive`
+##### <a name="-rsyslog--rule--remote--keep_alive"></a>`keep_alive`
 
 Data type: `Optional[Boolean]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="keep_alive_probes"></a>`keep_alive_probes`
-
-Data type: `Optional[Integer[0]]`
-
-
-
-Default value: ``undef``
-
-##### <a name="keep_alive_interval"></a>`keep_alive_interval`
+##### <a name="-rsyslog--rule--remote--keep_alive_probes"></a>`keep_alive_probes`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="keep_alive_time"></a>`keep_alive_time`
+##### <a name="-rsyslog--rule--remote--keep_alive_interval"></a>`keep_alive_interval`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="action_resume_interval"></a>`action_resume_interval`
+##### <a name="-rsyslog--rule--remote--keep_alive_time"></a>`keep_alive_time`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### <a name="-rsyslog--rule--remote--action_resume_interval"></a>`action_resume_interval`
 
 Data type: `Integer[0]`
 
@@ -1457,15 +1457,15 @@ Data type: `Integer[0]`
 
 Default value: `30`
 
-##### <a name="action_resume_retry_count"></a>`action_resume_retry_count`
+##### <a name="-rsyslog--rule--remote--action_resume_retry_count"></a>`action_resume_retry_count`
 
 Data type: `Integer[-1]`
 
 
 
-Default value: `-`
+Default value: `-1`
 
-##### <a name="stream_driver"></a>`stream_driver`
+##### <a name="-rsyslog--rule--remote--stream_driver"></a>`stream_driver`
 
 Data type: `Optional[String[1]]`
 
@@ -1476,9 +1476,9 @@ Data type: `Optional[String[1]]`
 * Overridden by 'DefaultNetstreamDriver' global stream configuration
   specified by ``rsyslog::config::default_net_stream_driver``.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="stream_driver_mode"></a>`stream_driver_mode`
+##### <a name="-rsyslog--rule--remote--stream_driver_mode"></a>`stream_driver_mode`
 
 Data type: `Integer[0]`
 
@@ -1488,7 +1488,7 @@ Data type: `Integer[0]`
 
 Default value: `1`
 
-##### <a name="stream_driver_auth_mode"></a>`stream_driver_auth_mode`
+##### <a name="-rsyslog--rule--remote--stream_driver_auth_mode"></a>`stream_driver_auth_mode`
 
 Data type: `String`
 
@@ -1498,7 +1498,7 @@ forwarding actions for remote servers if TLS is enabled and
 
 Default value: `'x509/name'`
 
-##### <a name="stream_driver_permitted_peers"></a>`stream_driver_permitted_peers`
+##### <a name="-rsyslog--rule--remote--stream_driver_permitted_peers"></a>`stream_driver_permitted_peers`
 
 Data type: `Optional[String[1]]`
 
@@ -1528,25 +1528,25 @@ Data type: `Optional[String[1]]`
   will use to match against the certificate presented from the remote
   server.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="resend_last_msg_on_reconnect"></a>`resend_last_msg_on_reconnect`
-
-Data type: `Boolean`
-
-
-
-Default value: ``true``
-
-##### <a name="udp_send_to_all"></a>`udp_send_to_all`
+##### <a name="-rsyslog--rule--remote--resend_last_msg_on_reconnect"></a>`resend_last_msg_on_reconnect`
 
 Data type: `Boolean`
 
 
 
-Default value: ``false``
+Default value: `true`
 
-##### <a name="queue_validation_log_level"></a>`queue_validation_log_level`
+##### <a name="-rsyslog--rule--remote--udp_send_to_all"></a>`udp_send_to_all`
+
+Data type: `Boolean`
+
+
+
+Default value: `false`
+
+##### <a name="-rsyslog--rule--remote--queue_validation_log_level"></a>`queue_validation_log_level`
 
 Data type: `Simplib::PuppetLogLevel`
 
@@ -1554,111 +1554,111 @@ Data type: `Simplib::PuppetLogLevel`
 
 Default value: `simplib::dlookup('rsyslog::rule::remote', 'queue_validation_log_level', $name, { 'default_value' => 'warning' })`
 
-##### <a name="queue_filename"></a>`queue_filename`
+##### <a name="-rsyslog--rule--remote--queue_filename"></a>`queue_filename`
 
 Data type: `Optional[String[1]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_spool_directory"></a>`queue_spool_directory`
+##### <a name="-rsyslog--rule--remote--queue_spool_directory"></a>`queue_spool_directory`
 
 Data type: `Optional[Stdlib::Absolutepath]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_size"></a>`queue_size`
-
-Data type: `Optional[Integer[0]]`
-
-
-
-Default value: ``undef``
-
-##### <a name="queue_dequeue_batch_size"></a>`queue_dequeue_batch_size`
+##### <a name="-rsyslog--rule--remote--queue_size"></a>`queue_size`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_max_disk_space"></a>`queue_max_disk_space`
-
-Data type: `Optional[Integer[0]]`
-
-
-
-Default value: ``undef``
-
-##### <a name="queue_high_watermark"></a>`queue_high_watermark`
+##### <a name="-rsyslog--rule--remote--queue_dequeue_batch_size"></a>`queue_dequeue_batch_size`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_low_watermark"></a>`queue_low_watermark`
-
-Data type: `Optional[Integer[0]]`
-
-
-
-Default value: ``undef``
-
-##### <a name="queue_full_delay_mark"></a>`queue_full_delay_mark`
+##### <a name="-rsyslog--rule--remote--queue_max_disk_space"></a>`queue_max_disk_space`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_light_delay_mark"></a>`queue_light_delay_mark`
-
-Data type: `Optional[Integer[0]]`
-
-
-
-Default value: ``undef``
-
-##### <a name="queue_discard_mark"></a>`queue_discard_mark`
+##### <a name="-rsyslog--rule--remote--queue_high_watermark"></a>`queue_high_watermark`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_discard_severity"></a>`queue_discard_severity`
-
-Data type: `Optional[Integer[0]]`
-
-
-
-Default value: ``undef``
-
-##### <a name="queue_checkpoint_interval"></a>`queue_checkpoint_interval`
+##### <a name="-rsyslog--rule--remote--queue_low_watermark"></a>`queue_low_watermark`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_sync_queue_files"></a>`queue_sync_queue_files`
+##### <a name="-rsyslog--rule--remote--queue_full_delay_mark"></a>`queue_full_delay_mark`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### <a name="-rsyslog--rule--remote--queue_light_delay_mark"></a>`queue_light_delay_mark`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### <a name="-rsyslog--rule--remote--queue_discard_mark"></a>`queue_discard_mark`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### <a name="-rsyslog--rule--remote--queue_discard_severity"></a>`queue_discard_severity`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### <a name="-rsyslog--rule--remote--queue_checkpoint_interval"></a>`queue_checkpoint_interval`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### <a name="-rsyslog--rule--remote--queue_sync_queue_files"></a>`queue_sync_queue_files`
 
 Data type: `Boolean`
 
 
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="queue_type"></a>`queue_type`
+##### <a name="-rsyslog--rule--remote--queue_type"></a>`queue_type`
 
 Data type: `Rsyslog::QueueType`
 
@@ -1666,95 +1666,95 @@ Data type: `Rsyslog::QueueType`
 
 Default value: `'LinkedList'`
 
-##### <a name="queue_worker_threads"></a>`queue_worker_threads`
+##### <a name="-rsyslog--rule--remote--queue_worker_threads"></a>`queue_worker_threads`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_timeout_shutdown"></a>`queue_timeout_shutdown`
-
-Data type: `Optional[Integer[0]]`
-
-
-
-Default value: ``undef``
-
-##### <a name="queue_timeout_action_completion"></a>`queue_timeout_action_completion`
+##### <a name="-rsyslog--rule--remote--queue_timeout_shutdown"></a>`queue_timeout_shutdown`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_timeout_enqueue"></a>`queue_timeout_enqueue`
-
-Data type: `Optional[Integer[0]]`
-
-
-
-Default value: ``undef``
-
-##### <a name="queue_timeout_worker_thread_shutdown"></a>`queue_timeout_worker_thread_shutdown`
+##### <a name="-rsyslog--rule--remote--queue_timeout_action_completion"></a>`queue_timeout_action_completion`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_worker_thread_minimum_messages"></a>`queue_worker_thread_minimum_messages`
+##### <a name="-rsyslog--rule--remote--queue_timeout_enqueue"></a>`queue_timeout_enqueue`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_max_file_size"></a>`queue_max_file_size`
+##### <a name="-rsyslog--rule--remote--queue_timeout_worker_thread_shutdown"></a>`queue_timeout_worker_thread_shutdown`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### <a name="-rsyslog--rule--remote--queue_worker_thread_minimum_messages"></a>`queue_worker_thread_minimum_messages`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### <a name="-rsyslog--rule--remote--queue_max_file_size"></a>`queue_max_file_size`
 
 Data type: `Optional[String[1]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_save_on_shutdown"></a>`queue_save_on_shutdown`
+##### <a name="-rsyslog--rule--remote--queue_save_on_shutdown"></a>`queue_save_on_shutdown`
 
 Data type: `Boolean`
 
 
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="queue_dequeue_slowdown"></a>`queue_dequeue_slowdown`
-
-Data type: `Optional[Integer[0]]`
-
-
-
-Default value: ``undef``
-
-##### <a name="queue_dequeue_time_begin"></a>`queue_dequeue_time_begin`
+##### <a name="-rsyslog--rule--remote--queue_dequeue_slowdown"></a>`queue_dequeue_slowdown`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="queue_dequeue_time_end"></a>`queue_dequeue_time_end`
+##### <a name="-rsyslog--rule--remote--queue_dequeue_time_begin"></a>`queue_dequeue_time_begin`
 
 Data type: `Optional[Integer[0]]`
 
 
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="content"></a>`content`
+##### <a name="-rsyslog--rule--remote--queue_dequeue_time_end"></a>`queue_dequeue_time_end`
+
+Data type: `Optional[Integer[0]]`
+
+
+
+Default value: `undef`
+
+##### <a name="-rsyslog--rule--remote--content"></a>`content`
 
 Data type: `Optional[String[1]]`
 
@@ -1764,9 +1764,9 @@ the **entire* content of the rsyslog::rule
 
 * If you do specify this, ``$rule`` will be ignored
 
-Default value: ``undef``
+Default value: `undef`
 
-### <a name="rsyslogtemplatelist"></a>`rsyslog::template::list`
+### <a name="rsyslog--template--list"></a>`rsyslog::template::list`
 
 RSyslog list templates can contain properties and constants. In order to
 capture this functionality, we have opted for making a hash of these. The
@@ -1798,22 +1798,22 @@ template(name="example_list" type="list") {
 
 The following parameters are available in the `rsyslog::template::list` defined type:
 
-* [`name`](#name)
-* [`content`](#content)
+* [`name`](#-rsyslog--template--list--name)
+* [`content`](#-rsyslog--template--list--content)
 
-##### <a name="name"></a>`name`
+##### <a name="-rsyslog--template--list--name"></a>`name`
 
 Data type: `String`
 
 The literal name (not path) of the ``file`` that will be written
 
-##### <a name="content"></a>`content`
+##### <a name="-rsyslog--template--list--content"></a>`content`
 
 Data type: `Hash[String,String,1]`
 
 The rsyslog list content that you wish to add to the system, as a Hash
 
-### <a name="rsyslogtemplateplugin"></a>`rsyslog::template::plugin`
+### <a name="rsyslog--template--plugin"></a>`rsyslog::template::plugin`
 
 **NOTE:** Plugins are **as-is**. This means that you will only supply the
 plugin name and assume that the plugin has already been loaded by RSyslog.
@@ -1836,16 +1836,16 @@ template(name="example_plugin" type="plugin" plugin="my_plugin")
 
 The following parameters are available in the `rsyslog::template::plugin` defined type:
 
-* [`name`](#name)
-* [`plugin`](#plugin)
+* [`name`](#-rsyslog--template--plugin--name)
+* [`plugin`](#-rsyslog--template--plugin--plugin)
 
-##### <a name="name"></a>`name`
+##### <a name="-rsyslog--template--plugin--name"></a>`name`
 
 Data type: `String`
 
 The literal name of the ``file`` (not the full path) that will be used
 
-##### <a name="plugin"></a>`plugin`
+##### <a name="-rsyslog--template--plugin--plugin"></a>`plugin`
 
 Data type: `String`
 
@@ -1853,7 +1853,7 @@ The rsyslog plugin content that you wish to add to the system
 
 * This is provided, without formatting, directly into the target file
 
-### <a name="rsyslogtemplatestring"></a>`rsyslog::template::string`
+### <a name="rsyslog--template--string"></a>`rsyslog::template::string`
 
 You'll need to write the entire template line due to the complexity of the
 rsyslog configuration parameters.
@@ -1878,16 +1878,16 @@ template(name="example" type="string" string="/var/log/hosts/%HOSTNAME%/example.
 
 The following parameters are available in the `rsyslog::template::string` defined type:
 
-* [`name`](#name)
-* [`string`](#string)
+* [`name`](#-rsyslog--template--string--name)
+* [`string`](#-rsyslog--template--string--string)
 
-##### <a name="name"></a>`name`
+##### <a name="-rsyslog--template--string--name"></a>`name`
 
 Data type: `String`
 
 The literal name of the ``file`` (not file path) that will be used
 
-##### <a name="string"></a>`string`
+##### <a name="-rsyslog--template--string--string"></a>`string`
 
 Data type: `String`
 
@@ -1895,7 +1895,7 @@ The rsyslog template string that you wish to add to the system
 
 * This is fed, without formatting, directly into the target file
 
-### <a name="rsyslogtemplatesubtree"></a>`rsyslog::template::subtree`
+### <a name="rsyslog--template--subtree"></a>`rsyslog::template::subtree`
 
 You'll need to write the entire subtree line due to the complexity of the
 rsyslog configuration parameters.
@@ -1921,17 +1921,17 @@ template(name="example" type="subtree" subtree="$!usr!tp12")
 
 The following parameters are available in the `rsyslog::template::subtree` defined type:
 
-* [`name`](#name)
-* [`subtree`](#subtree)
-* [`variables`](#variables)
+* [`name`](#-rsyslog--template--subtree--name)
+* [`subtree`](#-rsyslog--template--subtree--subtree)
+* [`variables`](#-rsyslog--template--subtree--variables)
 
-##### <a name="name"></a>`name`
+##### <a name="-rsyslog--template--subtree--name"></a>`name`
 
 Data type: `String`
 
 The literal name of the ``file`` (not a path) that will be used
 
-##### <a name="subtree"></a>`subtree`
+##### <a name="-rsyslog--template--subtree--subtree"></a>`subtree`
 
 Data type: `String`
 
@@ -1939,7 +1939,7 @@ The rsyslog subtree content that you wish to add to the system
 
 * This is fed, without formatting, directly into the subtree parameter
 
-##### <a name="variables"></a>`variables`
+##### <a name="-rsyslog--template--subtree--variables"></a>`variables`
 
 Data type: `Array[String]`
 
@@ -1949,34 +1949,22 @@ Default value: `[]`
 
 ## Data types
 
-### <a name="rsyslogboolean"></a>`Rsyslog::Boolean`
+### <a name="Rsyslog--Boolean"></a>`Rsyslog::Boolean`
 
 Representation of boolean values that are translated to 'on' and 'off'
 in Rsyslog configuration
 
-Alias of
+Alias of `Variant[Enum['on','off'], Boolean]`
 
-```puppet
-Variant[Enum['on','off'], Boolean]
-```
-
-### <a name="rsyslogoptions"></a>`Rsyslog::Options`
+### <a name="Rsyslog--Options"></a>`Rsyslog::Options`
 
 Hash of options to be used for Rsyslog global, legacy global or module configuration
 
-Alias of
+Alias of `Hash[String, Variant[Numeric,String]]`
 
-```puppet
-Hash[String, Variant[Numeric,String]]
-```
-
-### <a name="rsyslogqueuetype"></a>`Rsyslog::QueueType`
+### <a name="Rsyslog--QueueType"></a>`Rsyslog::QueueType`
 
 Rsyslog Queue Types
 
-Alias of
-
-```puppet
-Enum['FixedArray', 'LinkedList', 'Direct', 'Disk']
-```
+Alias of `Enum['FixedArray', 'LinkedList', 'Direct', 'Disk']`
 
