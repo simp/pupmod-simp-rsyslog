@@ -117,6 +117,7 @@ jobs:
             puppet_version: '~> 8.0'
             ruby_version: 3.1
             experimental: true
+      fail-fast: false
     env:
       PUPPET_VERSION: ${{matrix.puppet.puppet_version}}
     steps:
