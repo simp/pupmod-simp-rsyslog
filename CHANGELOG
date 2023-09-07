@@ -1,3 +1,6 @@
+* Thu Sep 07 2023 Steven Pritchard <steve@sicura.us> - 8.4.0
+- Add AlmaLinux 8 support
+
 * Mon Jun 12 2023 Chris Tessmer <chris.tessmer@onyxpoint.com> - 8.3.0
 - Add RockyLinux 8 support
 
