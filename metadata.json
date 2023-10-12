@@ -1,6 +1,6 @@
 {
   "name": "simp-rsyslog",
-  "version": "8.4.0",
+  "version": "8.5.0",
   "author": "SIMP Team",
   "summary": "A puppet module to support RSyslog version 8.",
   "license": "Apache-2.0",
@@ -16,34 +16,34 @@
   "dependencies": [
     {
       "name": "puppet/systemd",
-      "version_requirement": ">= 4.0.2 < 6.0.0"
+      "version_requirement": ">= 4.0.2 < 7.0.0"
     },
     {
       "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 8.0.0 < 9.0.0"
+      "version_requirement": ">= 8.0.0 < 10.0.0"
     },
     {
       "name": "simp/simplib",
-      "version_requirement": ">= 3.12.0 < 5.0.0"
+      "version_requirement": ">= 4.9.0 < 5.0.0"
     }
   ],
   "simp": {
     "optional_dependencies": [
       {
         "name": "simp/iptables",
-        "version_requirement": ">= 6.0.0 < 7.0.0"
+        "version_requirement": ">= 6.5.3 < 7.0.0"
       },
       {
         "name": "simp/logrotate",
-        "version_requirement": ">= 6.3.0 < 7.0.0"
+        "version_requirement": ">= 6.5.0 < 7.0.0"
       },
       {
         "name": "simp/pki",
-        "version_requirement": ">= 6.0.0 < 7.0.0"
+        "version_requirement": ">= 6.2.0 < 7.0.0"
       },
       {
         "name": "simp/tcpwrappers",
-        "version_requirement": ">= 6.0.0 < 7.0.0"
+        "version_requirement": ">= 6.2.0 < 7.0.0"
       }
     ]
   },
@@ -85,7 +85,7 @@
   "requirements": [
     {
       "name": "puppet",
-      "version_requirement": ">= 6.22.1 < 8.0.0"
+      "version_requirement": ">= 7.0.0 < 9.0.0"
     }
   ]
 }
