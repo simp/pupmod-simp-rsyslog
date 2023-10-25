@@ -87,7 +87,7 @@ describe 'rsyslog' do
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
       let(:facts) do
-        if os_facts[:operatingsystemmajrelease] < '8'
+        if os_facts[:os][:release][:major].to_i < 8
           version = '8.24.0'   # CentOS 7: 7.4 and later
         else
           version = '8.1911.0' # CentOS 8: 8.2 and later
@@ -115,7 +115,7 @@ describe 'rsyslog' do
         it { is_expected.to contain_file(global_conf_file).with_content(global_expected) }
 
 
-        if os_facts[:operatingsystemmajrelease] < '8'
+        if os_facts[:os][:release][:major].to_i < 8
           it do
             expected = <<~EOM
               # This file is managed by Puppet.
