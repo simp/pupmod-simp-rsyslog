@@ -14,7 +14,7 @@ describe 'run inspec against the appropriate fixtures' do
           profile_path = File.join(
                 fixtures_path,
                 'inspec_profiles',
-                "#{fact_on(host, 'operatingsystem')}-#{fact_on(host, 'operatingsystemmajrelease')}-#{profile}"
+                "#{fact_on(host, 'operatingsystem')}-#{fact_on(host, 'os.release.major')}-#{profile}"
               )
 
           unless File.exist?(profile_path)
