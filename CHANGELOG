@@ -1,3 +1,6 @@
+* Tue Feb 27 2024 Mike Riddle <mike@sicura.us> - 8.7.0
+- Added a parameter that allows users to define rsyslog rules via hieradata
+
 * Mon Oct 23 2023 Steven Pritchard <steve@sicura.us> - 8.6.0
 - Add EL9 support
 

@@ -1,6 +1,6 @@
 {
   "name": "simp-rsyslog",
-  "version": "8.6.0",
+  "version": "8.7.0",
   "author": "SIMP Team",
   "summary": "A puppet module to support RSyslog version 8.",
   "license": "Apache-2.0",

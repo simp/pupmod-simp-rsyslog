@@ -319,6 +319,18 @@ describe 'rsyslog' do
         it { is_expected.to contain_file(global_conf_file).with_content(global_expected) }
       end
 
+      context 'with a rules hash defined' do
+        let(:params) {{
+          :rules => {
+            '99_collect_kernel_errors.conf' => {
+              :rule => "if prifilt('kern.err') then /var/log/kernel_errors.log"
+            }
+          }
+        }}
+
+        it {is_expected.to contain_rsyslog__rule('99_collect_kernel_errors.conf').with_rule("if prifilt('kern.err') then /var/log/kernel_errors.log")}
+      end
+
     end # end `context "on #{os}"...`
   end  # end `on_supported_os.each...`
 end
