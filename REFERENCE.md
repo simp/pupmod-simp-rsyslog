@@ -52,6 +52,18 @@ been addressed.
 
 See ``rsyslog::config`` for additional, detailed configuration.
 
+#### Examples
+
+##### Create rules via hieradata:
+
+```puppet
+rsyslog::rules:
+  'some_path/99_collect_kernel_errors.conf':
+    content: "if prifilt('kern.err') then /var/log/kernel_errors.log"
+  'some_path/98_discard_info.conf':
+    content: "if prifilt('*.info') then stop"
+```
+
 #### Parameters
 
 The following parameters are available in the `rsyslog` class:
@@ -77,6 +89,7 @@ The following parameters are available in the `rsyslog` class:
 * [`pki`](#-rsyslog--pki)
 * [`app_pki_external_source`](#-rsyslog--app_pki_external_source)
 * [`app_pki_dir`](#-rsyslog--app_pki_dir)
+* [`rules`](#-rsyslog--rules)
 
 ##### <a name="-rsyslog--service_name"></a>`service_name`
 
@@ -288,6 +301,14 @@ and $default_net_stream_driver_key_file
 
 Default value: `'/etc/pki/simp_apps/rsyslog/x509'`
 
+##### <a name="-rsyslog--rules"></a>`rules`
+
+Data type: `Hash`
+
+A hash of rsyslog rules, this parameter will enable you to create rules via hieradata
+
+Default value: `{}`
+
 ### <a name="rsyslog--server"></a>`rsyslog::server`
 
 This class is designed to configure the externally facing interfaces for a
@@ -333,6 +354,8 @@ Default value: `simplib::lookup('simp_options::tcpwrappers', { 'default_value' =
 This is used by the various ``rsyslog::rule::*`` Defined Types to apply rules
 to the system.
 
+The naming convention for the rule must be ``some_directory/rule_name.conf``
+
 Feel free to use this Defined Type to add your own rules but remember that
 **order matters**!
 
@@ -358,8 +381,8 @@ In general, the order will be:
 ##### Collect All ``kern.err`` Messages
 
 ```puppet
-rsyslog::rule { '99_collect_kernel_errors.conf':
-  rule =>  "if prifilt('kern.err') then /var/log/kernel_errors.log"
+rsyslog::rule { '99_simp_local/99_collect_kernel_errors.conf':
+  content =>  "if prifilt('kern.err') then /var/log/kernel_errors.log"
 }
 ```
 

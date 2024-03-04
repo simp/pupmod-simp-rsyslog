@@ -112,6 +112,16 @@
 #   Basepath of $default_net_stream_driver_ca_file, default_net_stream_driver_cert_file,
 #   and $default_net_stream_driver_key_file
 #
+# @param rules
+#   A hash of rsyslog rules, this parameter will enable you to create rules via hieradata
+#
+# @example Create rules via hieradata:
+#   rsyslog::rules:
+#     'some_path/99_collect_kernel_errors.conf':
+#       content: "if prifilt('kern.err') then /var/log/kernel_errors.log"
+#     'some_path/98_discard_info.conf':
+#       content: "if prifilt('*.info') then stop"
+#
 # @author https://github.com/simp/pupmod-simp-rsyslog/graphs/contributors
 #
 class rsyslog (
@@ -135,9 +145,9 @@ class rsyslog (
   Boolean                       $logrotate               = simplib::lookup('simp_options::logrotate', {'default_value'                     => false}),
   Variant[Boolean,Enum['simp']] $pki                     = simplib::lookup('simp_options::pki', {'default_value'                           => false}),
   String                        $app_pki_external_source = simplib::lookup('simp_options::pki::source', {'default_value'                   => '/etc/pki/simp/x509'}),
-  Stdlib::Absolutepath          $app_pki_dir             = '/etc/pki/simp_apps/rsyslog/x509'
+  Stdlib::Absolutepath          $app_pki_dir             = '/etc/pki/simp_apps/rsyslog/x509',
+  Hash                          $rules                   = {},
 ) {
-
   if $facts['rsyslogd'] and versioncmp($facts['rsyslogd']['version'], '8.24.0') < 0  {
     warning("${module_name}: Rsyslog version ${facts['rsyslogd']} not supported. Use ${module_name} version 7.6.4 instead")
   }
@@ -155,5 +165,11 @@ class rsyslog (
   if $logrotate {
     contain 'rsyslog::config::logrotate'
     Class['rsyslog::service'] -> Class['rsyslog::config::logrotate']
+  }
+
+  $rules.each |$key, $value| {
+    rsyslog::rule { $key:
+      * => $value,
+    }
   }
 }
