@@ -1,8 +1,0 @@
----
-lookup_options:
-  rsyslog::rules:
-    merge:
-      strategy: deep
-      knockout_prefix: '--'
-
-rsyslog::rules: {}
