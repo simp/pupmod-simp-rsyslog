@@ -322,13 +322,13 @@ describe 'rsyslog' do
       context 'with a rules hash defined' do
         let(:params) {{
           :rules => {
-            '99_collect_kernel_errors.conf' => {
-              :rule => "if prifilt('kern.err') then /var/log/kernel_errors.log"
+            'some_path/99_collect_kernel_errors.conf' => {
+              :content => "if prifilt('kern.err') then /var/log/kernel_errors.log"
             }
           }
         }}
 
-        it {is_expected.to contain_rsyslog__rule('99_collect_kernel_errors.conf').with_rule("if prifilt('kern.err') then /var/log/kernel_errors.log")}
+        it {is_expected.to contain_rsyslog__rule('some_path/99_collect_kernel_errors.conf').with_content("if prifilt('kern.err') then /var/log/kernel_errors.log")}
       end
 
     end # end `context "on #{os}"...`

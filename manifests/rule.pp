@@ -3,6 +3,8 @@
 # This is used by the various ``rsyslog::rule::*`` Defined Types to apply rules
 # to the system.
 #
+# The naming convention for the rule must be ``some_directory/rule_name.conf``
+#
 # Feel free to use this Defined Type to add your own rules but remember that
 # **order matters**!
 #
@@ -16,8 +18,8 @@
 #   * 99 - Local Rules
 #
 # @example Collect All ``kern.err`` Messages
-#   rsyslog::rule { '99_collect_kernel_errors.conf':
-#     rule =>  "if prifilt('kern.err') then /var/log/kernel_errors.log"
+#   rsyslog::rule { '99_simp_local/99_collect_kernel_errors.conf':
+#     content =>  "if prifilt('kern.err') then /var/log/kernel_errors.log"
 #   }
 #
 # @example Discard All ``info`` Messages

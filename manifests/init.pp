@@ -117,10 +117,10 @@
 #
 # @example Create rules via hieradata:
 #   rsyslog::rules:
-#     '99_collect_kernel_errors.conf':
-#       rule: "if prifilt('kern.err') then /var/log/kernel_errors.log"
-#     '98_discard_info.conf':
-#       rule: "if prifilt('*.info') then stop"
+#     'some_path/99_collect_kernel_errors.conf':
+#       content: "if prifilt('kern.err') then /var/log/kernel_errors.log"
+#     'some_path/98_discard_info.conf':
+#       content: "if prifilt('*.info') then stop"
 #
 # @author https://github.com/simp/pupmod-simp-rsyslog/graphs/contributors
 #
