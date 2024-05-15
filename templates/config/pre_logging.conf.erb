@@ -62,8 +62,6 @@
 #   want it.
 -%>
 $UMASK <%= @umask %>
-$EscapeControlCharactersOnReceive <%= t_bool_xlat[@escape_control_characters_on_receive] %>
-$ControlCharacterEscapePrefix <%= @control_character_escape_prefix %>
 $RepeatedMsgReduction <%= t_bool_xlat[@repeated_msg_reduction] %>
 <% if @extra_legacy_globals -%>
 <%   @extra_legacy_globals.each do |name,value| -%>
@@ -93,6 +91,8 @@ global(
   workDirectory="<%= @work_directory %>"
   net.permitACLWarning="<%= t_bool_xlat[@net_permit_acl_warning] %>"
   net.enableDNS="<%= t_bool_xlat[@net_enable_dns] %>"
+  parser.escapeControlCharactersOnReceive="<%= t_bool_xlat[@escape_control_characters_on_receive] %>"
+  parser.controlCharacterEscapePrefix="<%= @control_character_escape_prefix %>"
 )
 
 global(localHostname="<%= @localhostname %>")
