@@ -1,6 +1,4 @@
 $UMASK 0027
-$EscapeControlCharactersOnReceive on
-$ControlCharacterEscapePrefix #
 $RepeatedMsgReduction on
 
 global(
@@ -9,6 +7,8 @@ global(
   workDirectory="/var/spool/rsyslog"
   net.permitACLWarning="on"
   net.enableDNS="on"
+  parser.escapeControlCharactersOnReceive="on"
+  parser.controlCharacterEscapePrefix="#"
 )
 
 global(localHostname="foo.example.com")
