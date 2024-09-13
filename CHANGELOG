@@ -1,3 +1,6 @@
+* Fri Sep 13 2024 Steven Pritchard <steve@sicura.us> - 8.9.0
+- [puppetsync] Update module dependencies to support simp-iptables 7.x
+
 * Wed May 15 2024 Mike Riddle <mike@sicura.us> - 8.8.0
 - Moved legacy control character parms into global params
 
