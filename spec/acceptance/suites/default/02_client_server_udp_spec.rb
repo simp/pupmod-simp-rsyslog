@@ -3,26 +3,25 @@ require 'spec_helper_acceptance'
 test_name 'client -> server using UDP'
 
 describe 'rsyslog class' do
-
-  before(:all) do
+  let(:msg_uuid) do
     # Ensure that our test doesn't match messages from other tests
     sleep(1)
-    @msg_uuid = Time.now.to_f.to_s.gsub('.','_') + '_UDP'
+    Time.now.to_f.to_s.tr('.', '_') + '_UDP'
   end
 
-  let(:client){ only_host_with_role( hosts, 'client' ) }
-  let(:client_fqdn){ fact_on( client, 'fqdn' ) }
-  let(:server){ hosts_with_role( hosts, 'server' ).first }
+  let(:client) { only_host_with_role(hosts, 'client') }
+  let(:client_fqdn) { fact_on(client, 'networking.fqdn') }
+  let(:server) { hosts_with_role(hosts, 'server').first }
 
-  let(:client_manifest_hieradata) {
+  let(:client_manifest_hieradata) do
     {
       'rsyslog::log_servers'        => ['server-1'],
       'rsyslog::logrotate'          => true,
       'rsyslog::enable_tls_logging' => false,
-      'rsyslog::pki'                => false
+      'rsyslog::pki'                => false,
     }
-  }
-  let(:client_manifest) {
+  end
+  let(:client_manifest) do
     <<-EOS
       include 'rsyslog'
 
@@ -31,9 +30,9 @@ describe 'rsyslog class' do
         rule => 'prifilt(\\'*.*\\')'
       }
     EOS
-  }
+  end
 
-  let(:server_manifest_hieradata) {
+  let(:server_manifest_hieradata) do
     {
       'iptables::disable'                   => false,
       'rsyslog::udp_server'                 => true,
@@ -44,10 +43,10 @@ describe 'rsyslog class' do
       'rsyslog::server::enable_selinux'     => true,
       # If you enable this, you need to make sure to add a tcpwrappers rule
       # for sshd
-      'rsyslog::server::enable_tcpwrappers' => false
+      'rsyslog::server::enable_tcpwrappers' => false,
     }
-  }
-  let(:server_manifest) {
+  end
+  let(:server_manifest) do
     <<-EOS
       include 'iptables'
       iptables::listen::tcp_stateful { 'ssh':
@@ -71,33 +70,33 @@ describe 'rsyslog class' do
         dyna_file => 'log_everything_by_host'
       }
     EOS
-  }
+  end
 
   context 'client -> server over UDP' do
-    it 'should configure the server without errors' do
+    it 'configures the server without errors' do
       set_hieradata_on(server, server_manifest_hieradata)
-      apply_manifest_on(server, server_manifest, :catch_failures => true)
+      apply_manifest_on(server, server_manifest, catch_failures: true)
     end
 
-    it 'should configure the server idempotently' do
-      apply_manifest_on(server, server_manifest, :catch_changes => true)
+    it 'configures the server idempotently' do
+      apply_manifest_on(server, server_manifest, catch_changes: true)
     end
 
-    it 'should configure the client without errors' do
+    it 'configures the client without errors' do
       set_hieradata_on(client, client_manifest_hieradata)
-      apply_manifest_on(client, client_manifest, :catch_failures => true)
+      apply_manifest_on(client, client_manifest, catch_failures: true)
     end
 
-    it 'should configure client idempotently' do
-      apply_manifest_on(client, client_manifest, :catch_failures => true)
+    it 'configures client idempotently' do
+      apply_manifest_on(client, client_manifest, catch_failures: true)
     end
 
-    it 'should successfully send log messages to the server over UDP' do
+    it 'successfullies send log messages to the server over UDP' do
       remote_log = "/var/log/hosts/#{client_fqdn}/everything.log"
-      on client, "logger -t FOO TEST-1-#{@msg_uuid}-MSG"
+      on client, "logger -t FOO TEST-1-#{msg_uuid}-MSG"
 
       on server, "test -f #{remote_log}"
-      on server, "grep TEST-1-#{@msg_uuid}-MSG #{remote_log}"
+      on server, "grep TEST-1-#{msg_uuid}-MSG #{remote_log}"
     end
   end
 end
