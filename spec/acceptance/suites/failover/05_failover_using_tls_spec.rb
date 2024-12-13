@@ -7,31 +7,30 @@ require 'spec_helper_acceptance'
 test_name 'client -> 2 server with TLS'
 
 describe 'rsyslog class' do
-
-  before(:all) do
+  let(:msg_uuid) do
     # Ensure that our test doesn't match messages from other tests
     sleep(1)
-    @msg_uuid = Time.now.to_f.to_s.gsub('.','_') + '_WITH_TLS'
+    Time.now.to_f.to_s.tr('.', '_') + '_WITH_TLS'
   end
 
-  let(:client){ only_host_with_role( hosts, 'client' ) }
-  let(:client_fqdn){ fact_on( client, 'fqdn' ) }
-  let(:servers){ hosts_with_role( hosts, 'server' ) }
-  let(:server1_fqdn){ fact_on( servers[0], 'fqdn' ) }
-  let(:server2_fqdn){ fact_on( servers[1], 'fqdn' ) }
-  let(:failover_servers){ hosts_with_role( hosts, 'failover_server' ) }
-  let(:failover_server_fqdn){ fact_on( failover_servers.first, 'fqdn' ) }
+  let(:client) { only_host_with_role(hosts, 'client') }
+  let(:client_fqdn) { fact_on(client, 'networking.fqdn') }
+  let(:servers) { hosts_with_role(hosts, 'server') }
+  let(:server1_fqdn) { fact_on(servers[0], 'networking.fqdn') }
+  let(:server2_fqdn) { fact_on(servers[1], 'networking.fqdn') }
+  let(:failover_servers) { hosts_with_role(hosts, 'failover_server') }
+  let(:failover_server_fqdn) { fact_on(failover_servers.first, 'networking.fqdn') }
 
-  let(:client_manifest_hieradata) {
+  let(:client_manifest_hieradata) do
     {
       'rsyslog::log_servers'        => [server1_fqdn, server2_fqdn],
       'rsyslog::logrotate'          => true,
       'rsyslog::enable_tls_logging' => true,
       'rsyslog::pki'                => false,
-      'rsyslog::app_pki_dir'        => '/etc/pki/simp-testing/pki'
+      'rsyslog::app_pki_dir'        => '/etc/pki/simp-testing/pki',
     }
-  }
-  let(:client_manifest) {
+  end
+  let(:client_manifest) do
     <<-EOS
       include 'rsyslog'
 
@@ -39,20 +38,20 @@ describe 'rsyslog class' do
         rule => 'prifilt(\\'*.*\\')'
       }
     EOS
-  }
+  end
 
-  let(:client_failover_hieradata) {
+  let(:client_failover_hieradata) do
     {
       'rsyslog::log_servers'          => [server1_fqdn, server2_fqdn],
       'rsyslog::failover_log_servers' => [failover_server_fqdn],
       'rsyslog::logrotate'            => true,
       'rsyslog::enable_tls_logging'   => true,
       'rsyslog::pki'                  => false,
-      'rsyslog::app_pki_dir'          => '/etc/pki/simp-testing/pki'
+      'rsyslog::app_pki_dir'          => '/etc/pki/simp-testing/pki',
     }
-  }
+  end
 
-  let(:client_failover_small_queue_hieradata) {
+  let(:client_failover_small_queue_hieradata) do
     {
       'rsyslog::log_servers'                           => [server1_fqdn, server2_fqdn],
       'rsyslog::failover_log_servers'                  => [failover_server_fqdn],
@@ -61,12 +60,12 @@ describe 'rsyslog class' do
       'rsyslog::pki'                                   => false,
       'rsyslog::app_pki_dir'                           => '/etc/pki/simp-testing/pki',
       'rsyslog::config::main_msg_queue_high_watermark' => 2,
-      'rsyslog::config::main_msg_queue_low_watermark'  => 1
+      'rsyslog::config::main_msg_queue_low_watermark'  => 1,
     }
-  }
+  end
 
   # This is used for testing the failover queueing
-  let(:client_failover_manifest_small_queue) {
+  let(:client_failover_manifest_small_queue) do
     <<-EOS
       include 'rsyslog'
 
@@ -77,9 +76,9 @@ describe 'rsyslog class' do
         queue_low_watermark  => 1
       }
     EOS
-  }
+  end
 
-  let(:server_manifest_hieradata) {
+  let(:server_manifest_hieradata) do
     {
       'iptables::disable'                   => false,
       'rsyslog::tcp_server'                 => true,
@@ -92,10 +91,10 @@ describe 'rsyslog class' do
       'rsyslog::server::enable_selinux'     => true,
       # If you enable this, you need to make sure to add a tcpwrappers rule
       # for sshd
-      'rsyslog::server::enable_tcpwrappers' => false
+      'rsyslog::server::enable_tcpwrappers' => false,
     }
-  }
-  let(:server_manifest) {
+  end
+  let(:server_manifest) do
     <<-EOS
       include 'iptables'
       iptables::listen::tcp_stateful { 'ssh':
@@ -119,60 +118,60 @@ describe 'rsyslog class' do
         dyna_file => 'log_everything_by_host'
       }
     EOS
-  }
+  end
 
   context 'client -> 2 server without TLS' do
-    it 'should configure the servers without errors' do
+    it 'configures the servers without errors' do
       (servers + failover_servers).each do |server|
         set_hieradata_on(server, server_manifest_hieradata)
-        apply_manifest_on(server, server_manifest, :hiera_config => client.puppet['hiera_config'], :catch_failures => true)
+        apply_manifest_on(server, server_manifest, hiera_config: client.puppet['hiera_config'], catch_failures: true)
       end
     end
 
-    it 'should configure the servers idempotently' do
+    it 'configures the servers idempotently' do
       servers.each do |server|
-        apply_manifest_on(server, server_manifest, :hiera_config => client.puppet['hiera_config'], :catch_changes => true)
+        apply_manifest_on(server, server_manifest, hiera_config: client.puppet['hiera_config'], catch_changes: true)
       end
     end
 
-    it 'should configure the client without errors' do
+    it 'configures the client without errors' do
       set_hieradata_on(client, client_manifest_hieradata)
-      apply_manifest_on(client, client_manifest, :hiera_config => client.puppet['hiera_config'], :catch_failures => true)
+      apply_manifest_on(client, client_manifest, hiera_config: client.puppet['hiera_config'], catch_failures: true)
     end
 
-    it 'should configure client idempotently' do
-      apply_manifest_on(client, client_manifest, :hiera_config => client.puppet['hiera_config'], :catch_failures => true)
+    it 'configures client idempotently' do
+      apply_manifest_on(client, client_manifest, hiera_config: client.puppet['hiera_config'], catch_failures: true)
     end
 
     # Default scenario, everything goes to both primary servers
-    it 'should successfully send log messages to the primary servers but not the failover server' do
+    it 'successfullies send log messages to the primary servers but not the failover server' do
       remote_log = "/var/log/hosts/#{client_fqdn}/everything.log"
-      on client, "logger -t FOO TEST-1-#{@msg_uuid}-MSG"
+      on client, "logger -t FOO TEST-1-#{msg_uuid}-MSG"
 
       servers.each do |server|
         on server, "test -f #{remote_log}"
-        on server, "grep TEST-1-#{@msg_uuid}-MSG #{remote_log}"
+        on server, "grep TEST-1-#{msg_uuid}-MSG #{remote_log}"
       end
 
       failover_servers.each do |server|
-        on server, "! grep TEST-1-#{@msg_uuid}-MSG #{remote_log}"
+        on server, "! grep TEST-1-#{msg_uuid}-MSG #{remote_log}"
       end
     end
 
-    it 'should be able to enable failover on the client' do
+    it 'is able to enable failover on the client' do
       set_hieradata_on(client, client_failover_hieradata)
-      apply_manifest_on(client, client_manifest, :hiera_config => client.puppet['hiera_config'], :catch_failures => true)
+      apply_manifest_on(client, client_manifest, hiera_config: client.puppet['hiera_config'], catch_failures: true)
     end
 
-    it 'should successfully failover' do
+    it 'successfullies failover' do
       failover_server = failover_servers.first
       remote_log = "/var/log/hosts/#{client_fqdn}/everything.log"
 
       # Make sure both primary servers are still working properly.
-      on client, "logger -t FOO TEST-10-#{@msg_uuid}-MSG"
+      on client, "logger -t FOO TEST-10-#{msg_uuid}-MSG"
 
       servers.each do |server|
-        wait_for_log_message(server, remote_log, "TEST-10-#{@msg_uuid}-MSG")
+        wait_for_log_message(server, remote_log, "TEST-10-#{msg_uuid}-MSG")
       end
 
       # Force Failover
@@ -185,37 +184,37 @@ describe 'rsyslog class' do
 
       # Log test messages
       (11..20).each do |msg|
-        on client, "logger -t FOO TEST-#{msg}-#{@msg_uuid}-MSG"
+        on client, "logger -t FOO TEST-#{msg}-#{msg_uuid}-MSG"
       end
 
       # Validate Failover
-      wait_for_log_message(failover_server, remote_log, "TEST-11-#{@msg_uuid}-MSG")
-      wait_for_log_message(failover_server, remote_log, "TEST-19-#{@msg_uuid}-MSG")
+      wait_for_log_message(failover_server, remote_log, "TEST-11-#{msg_uuid}-MSG")
+      wait_for_log_message(failover_server, remote_log, "TEST-19-#{msg_uuid}-MSG")
 
       # Should not log to inactive servers
       servers.each do |server|
-        on server, "grep TEST-11-#{@msg_uuid}-MSG #{remote_log}", :acceptable_exit_codes => [1,2]
-        on server, "grep TEST-19-#{@msg_uuid}-MSG #{remote_log}", :acceptable_exit_codes => [1,2]
+        on server, "grep TEST-11-#{msg_uuid}-MSG #{remote_log}", acceptable_exit_codes: [1, 2]
+        on server, "grep TEST-19-#{msg_uuid}-MSG #{remote_log}", acceptable_exit_codes: [1, 2]
       end
     end
   end
 
   context 'rsyslog queues when all remote servers fail' do
-    it 'should queue when no remote systems are available' do
+    it 'queues when no remote systems are available' do
       failover_server = failover_servers.first
       remote_log = "/var/log/hosts/#{client_fqdn}/everything.log"
 
       set_hieradata_on(client, client_failover_small_queue_hieradata)
-      apply_manifest_on(client, client_failover_manifest_small_queue, :hiera_config => client.puppet['hiera_config'], :catch_failures => true)
+      apply_manifest_on(client, client_failover_manifest_small_queue, hiera_config: client.puppet['hiera_config'], catch_failures: true)
 
       # Make sure logs are still hitting the failover server
       (21..30).each do |msg|
-        on client, "logger -t FOO TEST-#{msg}-#{@msg_uuid}-MSG"
+        on client, "logger -t FOO TEST-#{msg}-#{msg_uuid}-MSG"
       end
 
       # Validate Failover
-      on failover_server, "grep TEST-21-#{@msg_uuid}-MSG #{remote_log}"
-      on failover_server, "grep TEST-29-#{@msg_uuid}-MSG #{remote_log}"
+      on failover_server, "grep TEST-21-#{msg_uuid}-MSG #{remote_log}"
+      on failover_server, "grep TEST-29-#{msg_uuid}-MSG #{remote_log}"
 
       # Make sure that *all* remote logging is stopped
       (failover_servers + servers).each do |server|
@@ -226,13 +225,13 @@ describe 'rsyslog class' do
 
       # Write some new logs and make sure that they don't hit the remote systems
       (31..40).each do |msg|
-        on client, "logger -t FOO TEST-#{msg}-#{@msg_uuid}-MSG"
+        on client, "logger -t FOO TEST-#{msg}-#{msg_uuid}-MSG"
       end
 
       # Should not log to inactive servers
       (failover_servers + servers).each do |server|
-        on server, "grep TEST-31-#{@msg_uuid}-MSG #{remote_log}", :acceptable_exit_codes => [1,2]
-        on server, "grep TEST-39-#{@msg_uuid}-MSG #{remote_log}", :acceptable_exit_codes => [1,2]
+        on server, "grep TEST-31-#{msg_uuid}-MSG #{remote_log}", acceptable_exit_codes: [1, 2]
+        on server, "grep TEST-39-#{msg_uuid}-MSG #{remote_log}", acceptable_exit_codes: [1, 2]
       end
 
       # Check to see if we now have a queue on disk
@@ -245,13 +244,13 @@ describe 'rsyslog class' do
   # that the failover system has to come back online before anything will
   # flush.
   context 'rsyslog handles failover recovery' do
-    it 'should flush the queue when the last failover server recovers' do
+    it 'flushes the queue when the last failover server recovers' do
       failover_server = failover_servers.last
       remote_log = "/var/log/hosts/#{client_fqdn}/everything.log"
 
       # Let Puppet restart everything properly on the failover server and give
       # it a couple of seconds to recover.
-      apply_manifest_on(failover_server, server_manifest, :hiera_config => client.puppet['hiera_config'], :catch_failures => true)
+      apply_manifest_on(failover_server, server_manifest, hiera_config: client.puppet['hiera_config'], catch_failures: true)
       sleep(2)
 
       # See if the queue has flushed properly
@@ -262,35 +261,35 @@ describe 'rsyslog class' do
       # Messages should exist on the failover server
       # Sometimes this can take quite a while...
       # Between 20 and 30 Seconds seems to be about the norm for a full flush
-      wait_for_log_message(failover_server, remote_log, "TEST-31-#{@msg_uuid}-MSG")
-      wait_for_log_message(failover_server, remote_log, "TEST-39-#{@msg_uuid}-MSG")
+      wait_for_log_message(failover_server, remote_log, "TEST-31-#{msg_uuid}-MSG")
+      wait_for_log_message(failover_server, remote_log, "TEST-39-#{msg_uuid}-MSG")
     end
   end
 
   context 'rsyslog handles primary server recovery' do
-    it 'should log to the primary servers when they recover' do
+    it 'logs to the primary servers when they recover' do
       remote_log = "/var/log/hosts/#{client_fqdn}/everything.log"
 
       servers.each do |server|
-        apply_manifest_on(server, server_manifest, :hiera_config => client.puppet['hiera_config'], :catch_failures => true)
+        apply_manifest_on(server, server_manifest, hiera_config: client.puppet['hiera_config'], catch_failures: true)
       end
       # Let the logs start flowing again
       sleep(2)
 
       (41..50).each do |msg|
-        on client, "logger -t FOO TEST-#{msg}-#{@msg_uuid}-MSG"
+        on client, "logger -t FOO TEST-#{msg}-#{msg_uuid}-MSG"
       end
 
       # Sometimes this can take a while to flush
       servers.each do |server|
-        wait_for_log_message(server, remote_log, "TEST-41-#{@msg_uuid}-MSG")
-        wait_for_log_message(server, remote_log, "TEST-50-#{@msg_uuid}-MSG")
+        wait_for_log_message(server, remote_log, "TEST-41-#{msg_uuid}-MSG")
+        wait_for_log_message(server, remote_log, "TEST-50-#{msg_uuid}-MSG")
       end
 
       # Should not log to inactive failover servers
       failover_servers.each do |server|
-        on server, "grep TEST-41-#{@msg_uuid}-MSG #{remote_log}", :acceptable_exit_codes => [1,2]
-        on server, "grep TEST-49-#{@msg_uuid}-MSG #{remote_log}", :acceptable_exit_codes => [1,2]
+        on server, "grep TEST-41-#{msg_uuid}-MSG #{remote_log}", acceptable_exit_codes: [1, 2]
+        on server, "grep TEST-49-#{msg_uuid}-MSG #{remote_log}", acceptable_exit_codes: [1, 2]
       end
     end
   end

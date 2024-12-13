@@ -8,7 +8,8 @@ describe 'custom fact rsyslogd' do
   end
 
   context 'with version info in expected format' do
-    let (:rsyslogd_info) { <<~EOM
+    let(:rsyslogd_info) do
+      <<~EOM
         rsyslogd  8.1911.0-6.el8 (aka 2019.11) compiled with:
         \tPLATFORM:\t\t\t\tx86_64-redhat-linux-gnu
         \tPLATFORM (lsb_release -d):\t\t
@@ -27,29 +28,31 @@ describe 'custom fact rsyslogd' do
 
         See https://www.rsyslog.com for more information.
       EOM
-    }
+    end
 
-    let (:expected_fact) {{
-      'version'                                 => '8.1911.0',
-      'features'                                => {
-        'PLATFORM'                                => 'x86_64-redhat-linux-gnu',
-       # 'PLATFORM (lsb_release -d)' is omitted because it does not have a value
-        'FEATURE_REGEXP'                          => true,
-        'GSSAPI Kerberos 5 support'               => true,
-        'FEATURE_DEBUG (debug build, slow code)'  => false,
-        '32bit Atomic operations supported'       => true,
-        '64bit Atomic operations supported'       => true,
-        'memory allocator'                        => 'system default',
-        'Runtime Instrumentation (slow code)'     => false,
-        'uuid support'                            => true,
-        'systemd support'                         => true,
-        'Config file'                             => '/etc/rsyslog.conf',
-        'PID file'                                => '/var/run/rsyslogd.pid',
-        'Number of Bits in RainerScript integers' =>  64
+    let(:expected_fact) do
+      {
+        'version' => '8.1911.0',
+        'features' => {
+          'PLATFORM'                                => 'x86_64-redhat-linux-gnu',
+          # 'PLATFORM (lsb_release -d)' is omitted because it does not have a value
+          'FEATURE_REGEXP'                          => true,
+          'GSSAPI Kerberos 5 support'               => true,
+          'FEATURE_DEBUG (debug build, slow code)'  => false,
+          '32bit Atomic operations supported'       => true,
+          '64bit Atomic operations supported'       => true,
+          'memory allocator'                        => 'system default',
+          'Runtime Instrumentation (slow code)'     => false,
+          'uuid support'                            => true,
+          'systemd support'                         => true,
+          'Config file'                             => '/etc/rsyslog.conf',
+          'PID file'                                => '/var/run/rsyslogd.pid',
+          'Number of Bits in RainerScript integers' => 64,
+        },
       }
-    }}
+    end
 
-    it 'should return hash with populated version and features' do
+    it 'returns hash with populated version and features' do
       expect(Facter::Core::Execution).to receive(:exec).with('/usr/sbin/rsyslogd -v').and_return(rsyslogd_info)
       expect(Facter.fact('rsyslogd').value).to eq(expected_fact)
     end
@@ -59,7 +62,8 @@ describe 'custom fact rsyslogd' do
     # non-standard version line ('rsyslogd version x.y.z' instead of
     # 'rsyslogd x.y.z') and non-standard feature lines ('=' separator instead
     # of ':" separator)
-    let (:rsyslogd_info) { <<~EOM
+    let(:rsyslogd_info) do
+      <<~EOM
         rsyslogd version 8.1911.0-6.el8 (aka 2019.11) compiled with:
           PLATFORM = x86_64-redhat-linux-gnu
           PLATFORM (lsb_release -d) =
@@ -78,11 +82,11 @@ describe 'custom fact rsyslogd' do
 
         See https://www.rsyslog.com for more information.
       EOM
-    }
+    end
 
-    let (:expected_fact) { { 'version' => nil, 'features' => {} } }
+    let(:expected_fact) { { 'version' => nil, 'features' => {} } }
 
-    it 'should return hash with nil version and empty features' do
+    it 'returns hash with nil version and empty features' do
       expect(Facter::Core::Execution).to receive(:exec).with('/usr/sbin/rsyslogd -v').and_return(rsyslogd_info)
       expect(Facter.fact('rsyslogd').value).to eq(expected_fact)
     end

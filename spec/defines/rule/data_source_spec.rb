@@ -14,12 +14,12 @@ describe 'rsyslog::rule::data_source' do
 
         let(:params) do
           {
-            :rule  => 'test_rule'
+            rule: 'test_rule',
           }
         end
 
         it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_rsyslog__rule('05_simp_data_sources/test_name.conf').with_content(/test_rule/) }
+        it { is_expected.to contain_rsyslog__rule('05_simp_data_sources/test_name.conf').with_content(%r{test_rule}) }
       end
     end
   end

@@ -14,21 +14,23 @@ describe 'rsyslog::rule' do
 
         let(:params) do
           {
-            :content => 'random junk'
+            content: 'random junk',
           }
         end
 
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path').with_ensure('directory') }
         it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path').with_notify('Class[Rsyslog::Service]') }
-        it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path.conf').with_content(
-          %r(\$IncludeConfig\s+/etc/rsyslog.simp.d/some_path/\*\.conf)
-        )}
+        it {
+          is_expected.to contain_file('/etc/rsyslog.simp.d/some_path.conf').with_content(
+          %r{\$IncludeConfig\s+/etc/rsyslog.simp.d/some_path/\*\.conf},
+        )
+        }
 
-        it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path/test_name.conf').with_content(/random junk/) }
+        it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path/test_name.conf').with_content(%r{random junk}) }
         it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path/test_name.conf').that_notifies('Class[rsyslog::service]') }
 
-        context "it should fail when provided with an absolute path name" do
+        context 'it should fail when provided with an absolute path name' do
           let(:title) do
             '/foo/bar'
           end
@@ -36,7 +38,7 @@ describe 'rsyslog::rule' do
           it { is_expected.not_to compile }
         end
 
-        context "it should fail when provided with more than one slash in the name" do
+        context 'it should fail when provided with more than one slash in the name' do
           let(:title) do
             'foo/bar/baz.conf'
           end

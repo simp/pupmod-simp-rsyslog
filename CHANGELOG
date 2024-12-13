@@ -1,3 +1,8 @@
+* Thu Jan 02 2025 Steven Pritchard <steve@sicura.us> - 8.10.0
+- Clean up for rubocop
+- Fix more use of legacy facts
+- Add support for puppet-systemd 8.x
+
 * Fri Sep 13 2024 Steven Pritchard <steve@sicura.us> - 8.9.0
 - [puppetsync] Update module dependencies to support simp-iptables 7.x
 

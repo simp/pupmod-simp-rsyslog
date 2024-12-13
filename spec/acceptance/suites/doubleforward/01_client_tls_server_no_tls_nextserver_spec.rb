@@ -3,16 +3,15 @@ require 'spec_helper_acceptance'
 test_name 'client -> 1 server using TLS -> 1 server using plain TCP'
 
 describe 'rsyslog client -> 1 server using TLS -> 1 server using plain TCP' do
+  let(:client) { only_host_with_role(hosts, 'client') }
+  let(:server) { only_host_with_role(hosts, 'server') }
+  let(:nextserver) { only_host_with_role(hosts, 'nextserver') }
+  let(:client_fqdn) { fact_on(client, 'networking.fqdn') }
+  let(:server_fqdn) { fact_on(server, 'networking.fqdn') }
+  let(:nextserver_fqdn) { fact_on(nextserver, 'networking.fqdn') }
 
-  let(:client){ only_host_with_role( hosts, 'client' ) }
-  let(:server){ only_host_with_role( hosts, 'server' ) }
-  let(:nextserver){ only_host_with_role( hosts, 'nextserver' ) }
-  let(:client_fqdn){ fact_on( client, 'fqdn' ) }
-  let(:server_fqdn){ fact_on( server, 'fqdn' ) }
-  let(:nextserver_fqdn){ fact_on( nextserver, 'fqdn' ) }
-
-  let(:client_manifest) {
-    <<-EOS
+  let(:client_manifest) do
+    <<~EOS
       class { 'rsyslog':
         log_servers        => ["#{server_fqdn}"],
         logrotate          => true,
@@ -25,21 +24,21 @@ describe 'rsyslog client -> 1 server using TLS -> 1 server using plain TCP' do
 
       # Forward TLS-encrypted
       rsyslog::rule::remote { 'send_the_logs_tls':
-        rule => 'prifilt(\\'*.*\\')'
+        rule => 'prifilt(\\'*.*\\')',
       }
     EOS
-  }
+  end
 
-  let(:hieradata) {
-    <<-EOS
----
-iptables::disable : false
-rsyslog::server::enable_firewall : true
+  let(:hieradata) do
+    <<~EOS
+      ---
+      iptables::disable : false
+      rsyslog::server::enable_firewall : true
     EOS
-  }
+  end
 
-  let(:server_manifest) {
-    <<-EOS
+  let(:server_manifest) do
+    <<~EOS
       include 'iptables'
       iptables::listen::tcp_stateful { 'ssh':
         dports       => 22,
@@ -65,7 +64,7 @@ rsyslog::server::enable_firewall : true
         pki                => false,
         app_pki_dir        => '/etc/pki/simp-testing/pki',
 
-        trusted_nets       => ['any']
+        trusted_nets       => ['any'],
       }
 
       class { 'rsyslog::server':
@@ -77,7 +76,7 @@ rsyslog::server::enable_firewall : true
       # Forward plain TCP to our remote log servers
       rsyslog::rule::remote { 'send_the_logs_plain_tcp':
         stream_driver => 'tcp',
-        rule => 'prifilt(\\'*.*\\')'
+        rule => 'prifilt(\\'*.*\\')',
       }
 
       # Also log in a local, host-named directory
@@ -92,13 +91,13 @@ rsyslog::server::enable_firewall : true
       # Log all messages to the dynamic file we just defined ^^
       rsyslog::rule::local { 'all_the_logs_tls':
         rule      => 'prifilt(\\'*.*\\')',
-        dyna_file => 'log_everything_by_host'
+        dyna_file => 'log_everything_by_host',
       }
     EOS
-  }
+  end
 
-  let(:nextserver_manifest) {
-    <<-EOS
+  let(:nextserver_manifest) do
+    <<~EOS
       include 'iptables'
       iptables::listen::tcp_stateful { 'ssh':
         dports       => 22,
@@ -115,7 +114,7 @@ rsyslog::server::enable_firewall : true
         # Not using pki at all
         pki                => false,
 
-        trusted_nets       => ['any']
+        trusted_nets       => ['any'],
       }
 
       class { 'rsyslog::server':
@@ -134,37 +133,36 @@ rsyslog::server::enable_firewall : true
       # Log all messages to the dynamic file we just defined ^^
       rsyslog::rule::local { 'all_the_logs_plain_tcp':
         rule      => 'prifilt(\\'*.*\\')',
-        dyna_file => 'log_everything_by_host'
+        dyna_file => 'log_everything_by_host',
       }
     EOS
-  }
-
+  end
 
   context 'client and server configuration' do
-    it 'should configure first server without errors' do
+    it 'configures first server without errors' do
       set_hieradata_on(server, hieradata)
-      apply_manifest_on(server, server_manifest, :catch_failures => true)
+      apply_manifest_on(server, server_manifest, catch_failures: true)
     end
 
-    it 'should configure first server idempotently' do
-      apply_manifest_on(server, server_manifest, :catch_changes => true)
+    it 'configures first server idempotently' do
+      apply_manifest_on(server, server_manifest, catch_changes: true)
     end
 
-    it 'should configure next server without errors' do
+    it 'configures next server without errors' do
       set_hieradata_on(nextserver, hieradata)
-      apply_manifest_on(nextserver, nextserver_manifest, :catch_failures => true)
+      apply_manifest_on(nextserver, nextserver_manifest, catch_failures: true)
     end
 
-    it 'should configure next server idempotently' do
-      apply_manifest_on(nextserver, nextserver_manifest, :catch_changes => true)
+    it 'configures next server idempotently' do
+      apply_manifest_on(nextserver, nextserver_manifest, catch_changes: true)
     end
 
-    it 'should configure client without errors' do
-      apply_manifest_on(client, client_manifest, :catch_failures => true)
+    it 'configures client without errors' do
+      apply_manifest_on(client, client_manifest, catch_failures: true)
     end
 
-    it 'should configure client idempotently' do
-      apply_manifest_on(client, client_manifest, :catch_changes => true)
+    it 'configures client idempotently' do
+      apply_manifest_on(client, client_manifest, catch_changes: true)
     end
   end
 

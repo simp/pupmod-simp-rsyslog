@@ -14,12 +14,12 @@ describe 'rsyslog::rule::other' do
 
         let(:params) do
           {
-            :rule  => 'test_rule'
+            rule: 'test_rule',
           }
         end
 
         it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_rsyslog__rule('20_simp_other/test_name.conf').with_content(/test_rule/) }
+        it { is_expected.to contain_rsyslog__rule('20_simp_other/test_name.conf').with_content(%r{test_rule}) }
       end
     end
   end

@@ -1,7 +1,7 @@
 <%
   unless @main_msg_queue_size
     # The number of 512 byte messages that can fit into 1% of the total system memory. Or 2 gig max.
-    _main_msg_queue_size = [(([@facts['memorysize_mb'].to_i, 128].max * 1048576 * 0.01)/512).to_i,2097152].min
+    _main_msg_queue_size = [(([@facts['memory']['system']['total_bytes'].to_i >> 20, 128].max * 1048576 * 0.01)/512).to_i, 2097152].min
   else
     _main_msg_queue_size = @main_msg_queue_size
   end
@@ -27,12 +27,12 @@
   _main_msg_queue_worker_thread_minimum_messages = @main_msg_queue_worker_thread_minimum_messages
   unless @main_msg_queue_worker_thread_minimum_messages
     _main_msg_queue_worker_thread_minimum_messages =
-      _main_msg_queue_size / (([@facts['processorcount'].to_i, 2].max - 1)*4)
+      _main_msg_queue_size / (([@facts['processors']['count'].to_i, 2].max - 1)*4)
   end
 
   _main_msg_queue_worker_threads = @main_msg_queue_worker_threads
   unless @main_msg_queue_worker_threads
-    _main_msg_queue_worker_threads = [@facts['processorcount'].to_i - 1, 1].max
+    _main_msg_queue_worker_threads = [@facts['processors']['count'].to_i - 1, 1].max
   end
 
   _main_msg_queue_max_disk_space = @main_msg_queue_max_disk_space

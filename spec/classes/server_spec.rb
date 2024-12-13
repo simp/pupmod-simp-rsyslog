@@ -2,7 +2,6 @@ require 'spec_helper'
 
 describe 'rsyslog::server' do
   def mock_selinux_false_facts(os_facts)
-    os_facts[:selinux] = false
     os_facts[:os][:selinux][:config_mode] = 'disabled'
     os_facts[:os][:selinux][:current_mode] = 'disabled'
     os_facts[:os][:selinux][:enabled] = false
@@ -11,7 +10,6 @@ describe 'rsyslog::server' do
   end
 
   def mock_selinux_enforcing_facts(os_facts)
-    os_facts[:selinux] = true
     os_facts[:os][:selinux][:config_mode] = 'enforcing'
     os_facts[:os][:selinux][:config_policy] = 'targeted'
     os_facts[:os][:selinux][:current_mode] = 'enforcing'
@@ -26,7 +24,6 @@ describe 'rsyslog::server' do
   end
 
   on_supported_os.each do |os, os_facts|
-
     context "on #{os}" do
       let(:facts) do
         facts = os_facts.dup
@@ -35,7 +32,7 @@ describe 'rsyslog::server' do
       end
 
       context 'rsyslog::server class with default parameters and SELinux disabled' do
-        let(:params) {{ }}
+        let(:params) { {} }
 
         it_behaves_like 'a structured module'
         it { is_expected.not_to contain_class('rsyslog::server::firewall') }
@@ -44,7 +41,7 @@ describe 'rsyslog::server' do
       end
 
       context 'rsyslog::server class with firewall enabled' do
-        let(:params) {{ :enable_firewall => true }}
+        let(:params) { { enable_firewall: true } }
 
         it { is_expected.to contain_class('rsyslog::server::firewall') }
 
@@ -53,7 +50,7 @@ describe 'rsyslog::server' do
 
           it {
             is_expected.to create_iptables__listen__tcp_stateful('syslog_tls_tcp')
-                             .with_dports(6514)
+              .with_dports(6514)
           }
 
           context 'and tls_tcp_listen_port = 9999' do
@@ -66,7 +63,7 @@ describe 'rsyslog::server' do
 
             it {
               is_expected.to create_iptables__listen__tcp_stateful('syslog_tls_tcp')
-                               .with_dports(9999)
+                .with_dports(9999)
             }
           end
         end
@@ -76,7 +73,7 @@ describe 'rsyslog::server' do
 
           it {
             is_expected.to create_iptables__listen__tcp_stateful('syslog_tcp')
-                             .with_dports(514)
+              .with_dports(514)
           }
 
           context 'and tcp_listen_port = 9999' do
@@ -86,10 +83,11 @@ describe 'rsyslog::server' do
                  tcp_listen_port => 9999,
               }'
             end
-            let(:params) {{ :enable_firewall => true }}
+            let(:params) { { enable_firewall: true } }
+
             it {
               is_expected.to create_iptables__listen__tcp_stateful('syslog_tcp')
-                               .with_dports(9999)
+                .with_dports(9999)
             }
           end
         end
@@ -99,7 +97,7 @@ describe 'rsyslog::server' do
 
           it {
             is_expected.to create_iptables__listen__udp('syslog_udp')
-                             .with_dports(514)
+              .with_dports(514)
           }
 
           context 'and udp_listen_port = 9999' do
@@ -112,7 +110,7 @@ describe 'rsyslog::server' do
 
             it {
               is_expected.to create_iptables__listen__udp('syslog_udp')
-                               .with_dports(9999)
+                .with_dports(9999)
             }
           end
         end
@@ -128,10 +126,12 @@ describe 'rsyslog::server' do
         it { is_expected.to compile.with_all_deps }
         it_behaves_like 'a structured module'
         it { is_expected.to contain_class('rsyslog::server::selinux') }
-        it { is_expected.to create_selboolean('nis_enabled').with({
-          :persistent => true,
-          :value      => 'on'
-        }) }
+        it do
+          is_expected.to create_selboolean('nis_enabled').with(
+            persistent: true,
+            value: 'on',
+          )
+        end
       end
 
       context 'with fact os.selinux.enforced unset' do
@@ -143,11 +143,11 @@ describe 'rsyslog::server' do
 
         it_behaves_like 'a structured module'
         it { is_expected.to contain_class('rsyslog::server') }
-        it { is_expected.to_not contain_class('rsyslog::server::selinux') }
+        it { is_expected.not_to contain_class('rsyslog::server::selinux') }
       end
 
       context 'rsyslog::server class with TCPWrappers enabled' do
-        let(:params) {{ :enable_tcpwrappers => true }}
+        let(:params) { { enable_tcpwrappers: true } }
 
         it_behaves_like 'a structured module'
         it { is_expected.to contain_class('rsyslog::server::tcpwrappers') }
