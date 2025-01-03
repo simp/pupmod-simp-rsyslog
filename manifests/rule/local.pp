@@ -239,6 +239,6 @@ define rsyslog::rule::local (
   }
 
   rsyslog::rule { "99_simp_local/${_safe_name}.conf":
-    content => $_content
+    content => $_content,
   }
 }

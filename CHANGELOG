@@ -1,3 +1,6 @@
+* Fri Jan 03 2025 Steven Pritchard <steve@sicura.us> - 8.10.1
+- Convert templates from ERB to EPP (#159)
+
 * Thu Jan 02 2025 Steven Pritchard <steve@sicura.us> - 8.10.0
 - Clean up for rubocop
 - Fix more use of legacy facts

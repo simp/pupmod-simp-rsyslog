@@ -353,6 +353,6 @@ define rsyslog::rule::remote (
   }
 
   rsyslog::rule { "10_simp_remote/${_safe_name}.conf":
-    content => $_content
+    content => $_content,
   }
 }
