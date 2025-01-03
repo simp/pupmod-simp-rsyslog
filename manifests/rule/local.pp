@@ -181,15 +181,13 @@ define rsyslog::rule::local (
   Optional[Integer[0]]           $queue_dequeue_slowdown               = undef,
   Optional[Integer[0]]           $queue_dequeue_time_begin             = undef,
   Optional[Integer[0]]           $queue_dequeue_time_end               = undef,
-  Optional[String[1]]            $content                              = undef
+  Optional[String[1]]            $content                              = undef,
 ) {
-
   unless ($rule or $content) {
     fail('You must specify "$rule" if you are not specifying "$content"')
   }
 
   $_safe_name = regsubst($name,'/','__')
-
 
   if $content {
     $_content = $content
@@ -235,10 +233,65 @@ define rsyslog::rule::local (
       }
     }
 
-    $_content = template("${module_name}/rule/local.erb")
+    $_content = epp(
+      "${module_name}/rule/local.epp",
+      'rule'                                 => $rule,
+      'target_log_file'                      => $target_log_file,
+      'stop_processing'                      => $stop_processing,
+      'dyna_file'                            => $dyna_file,
+      'template'                             => $template,
+      'dyna_file_cache_size'                 => $dyna_file_cache_size,
+      'zip_level'                            => $zip_level,
+      'very_robust_zip'                      => $very_robust_zip,
+      'flush_interval'                       => $flush_interval,
+      'async_writing'                        => $async_writing,
+      'flush_on_tx_end'                      => $flush_on_tx_end,
+      'io_buffer_size'                       => $io_buffer_size,
+      'dir_owner'                            => $dir_owner,
+      'dir_owner_num'                        => $dir_owner_num,
+      'dir_group'                            => $dir_group,
+      'dir_group_num'                        => $dir_group_num,
+      'file_owner'                           => $file_owner,
+      'file_owner_num'                       => $file_owner_num,
+      'file_group'                           => $file_group,
+      'file_group_num'                       => $file_group_num,
+      'file_create_mode'                     => $file_create_mode,
+      'dir_create_mode'                      => $dir_create_mode,
+      'fail_on_chown_failure'                => $fail_on_chown_failure,
+      'create_dirs'                          => $create_dirs,
+      'sync'                                 => $sync,
+      'sig_provider'                         => $sig_provider,
+      'cry_provider'                         => $cry_provider,
+      'queue_filename'                       => $queue_filename,
+      'queue_spool_directory'                => $queue_spool_directory,
+      'queue_size'                           => $queue_size,
+      'queue_dequeue_batch_size'             => $queue_dequeue_batch_size,
+      'queue_max_disk_space'                 => $queue_max_disk_space,
+      'queue_high_watermark'                 => $queue_high_watermark,
+      'queue_low_watermark'                  => $queue_low_watermark,
+      'queue_full_delay_mark'                => $queue_full_delay_mark,
+      'queue_light_delay_mark'               => $queue_light_delay_mark,
+      'queue_discard_mark'                   => $queue_discard_mark,
+      'queue_discard_severity'               => $queue_discard_severity,
+      'queue_checkpoint_interval'            => $queue_checkpoint_interval,
+      'queue_sync_queue_files'               => $queue_sync_queue_files,
+      'queue_type'                           => $queue_type,
+      'queue_worker_threads'                 => $queue_worker_threads,
+      'queue_timeout_shutdown'               => $queue_timeout_shutdown,
+      'queue_timeout_action_completion'      => $queue_timeout_action_completion,
+      'queue_timeout_enqueue'                => $queue_timeout_enqueue,
+      'queue_timeout_worker_thread_shutdown' => $queue_timeout_worker_thread_shutdown,
+      'queue_worker_thread_minimum_messages' => $queue_worker_thread_minimum_messages,
+      'queue_max_file_size'                  => $queue_max_file_size,
+      'queue_save_on_shutdown'               => $queue_save_on_shutdown,
+      'queue_dequeue_slowdown'               => $queue_dequeue_slowdown,
+      'queue_dequeue_time_begin'             => $queue_dequeue_time_begin,
+      'queue_dequeue_time_end'               => $queue_dequeue_time_end,
+      'safe_name'                            => $_safe_name,
+    )
   }
 
   rsyslog::rule { "99_simp_local/${_safe_name}.conf":
-    content => $_content
+    content => $_content,
   }
 }

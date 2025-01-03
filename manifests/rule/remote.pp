@@ -238,7 +238,7 @@ define rsyslog::rule::remote (
   Optional[Integer[0]]                  $queue_dequeue_slowdown               = undef,
   Optional[Integer[0]]                  $queue_dequeue_time_begin             = undef,
   Optional[Integer[0]]                  $queue_dequeue_time_end               = undef,
-  Optional[String[1]]                   $content                              = undef
+  Optional[String[1]]                   $content                              = undef,
 ) {
   include 'rsyslog'
 
@@ -275,7 +275,7 @@ define rsyslog::rule::remote (
     }
     else {
       $_queue_spool_directory = $rsyslog::queue_spool_directory
-    }
+    } # FIXME: This appears to be unused
 
     $_use_tls = ( $rsyslog::enable_tls_logging and $dest_type != 'udp' )
 
@@ -287,7 +287,7 @@ define rsyslog::rule::remote (
     }
 
     if $_use_tls {
-      if $stream_driver_permitted_peers  {
+      if $stream_driver_permitted_peers {
         $_stream_driver_permitted_peers = $stream_driver_permitted_peers
       } else {
         # If $stream_driver_permitted_peers is not defined, then determine if
@@ -311,6 +311,8 @@ define rsyslog::rule::remote (
           }
         }
       }
+    } else {
+      $_stream_driver_permitted_peers = undef
     }
 
     # Basic validation for the action queue parameters
@@ -349,10 +351,63 @@ define rsyslog::rule::remote (
       }
     }
 
-    $_content = template("${module_name}/rule/remote.erb")
+    $_content = epp(
+      "${module_name}/rule/remote.epp",
+      'rule'                                 => $rule,
+      'stop_processing'                      => $stop_processing,
+      'template'                             => $template,
+      'dest'                                 => $_dest,
+      'dest_type'                            => $dest_type,
+      'failover_log_servers'                 => $_failover_servers,
+      'tcp_framing'                          => $tcp_framing,
+      'zip_level'                            => $zip_level,
+      'max_error_messages'                   => $max_error_messages,
+      'compression_mode'                     => $compression_mode,
+      'compression_stream_flush_on_tx_end'   => $compression_stream_flush_on_tx_end,
+      'rebind_interval'                      => $rebind_interval,
+      'keep_alive'                           => $keep_alive,
+      'keep_alive_probes'                    => $keep_alive_probes,
+      'keep_alive_interval'                  => $keep_alive_interval,
+      'keep_alive_time'                      => $keep_alive_time,
+      'action_resume_interval'               => $action_resume_interval,
+      'action_resume_retry_count'            => $action_resume_retry_count,
+      'stream_driver'                        => $stream_driver,
+      'stream_driver_mode'                   => $stream_driver_mode,
+      'stream_driver_auth_mode'              => $stream_driver_auth_mode,
+      'stream_driver_permitted_peers'        => $_stream_driver_permitted_peers,
+      'resend_last_msg_on_reconnect'         => $resend_last_msg_on_reconnect,
+      'udp_send_to_all'                      => $udp_send_to_all,
+      'queue_filename'                       => $_queue_filename,
+      'queue_spool_directory'                => $_queue_spool_directory,
+      'queue_size'                           => $queue_size,
+      'queue_dequeue_batch_size'             => $queue_dequeue_batch_size,
+      'queue_max_disk_space'                 => $queue_max_disk_space,
+      'queue_high_watermark'                 => $queue_high_watermark,
+      'queue_low_watermark'                  => $queue_low_watermark,
+      'queue_full_delay_mark'                => $queue_full_delay_mark,
+      'queue_light_delay_mark'               => $queue_light_delay_mark,
+      'queue_discard_mark'                   => $queue_discard_mark,
+      'queue_discard_severity'               => $queue_discard_severity,
+      'queue_checkpoint_interval'            => $queue_checkpoint_interval,
+      'queue_sync_queue_files'               => $queue_sync_queue_files,
+      'queue_type'                           => $queue_type,
+      'queue_worker_threads'                 => $queue_worker_threads,
+      'queue_timeout_shutdown'               => $queue_timeout_shutdown,
+      'queue_timeout_action_completion'      => $queue_timeout_action_completion,
+      'queue_timeout_enqueue'                => $queue_timeout_enqueue,
+      'queue_timeout_worker_thread_shutdown' => $queue_timeout_worker_thread_shutdown,
+      'queue_worker_thread_minimum_messages' => $queue_worker_thread_minimum_messages,
+      'queue_max_file_size'                  => $queue_max_file_size,
+      'queue_save_on_shutdown'               => $queue_save_on_shutdown,
+      'queue_dequeue_slowdown'               => $queue_dequeue_slowdown,
+      'queue_dequeue_time_begin'             => $queue_dequeue_time_begin,
+      'queue_dequeue_time_end'               => $queue_dequeue_time_end,
+      'safe_name'                            => $_safe_name,
+      'use_tls'                              => $_use_tls,
+    )
   }
 
   rsyslog::rule { "10_simp_remote/${_safe_name}.conf":
-    content => $_content
+    content => $_content,
   }
 }

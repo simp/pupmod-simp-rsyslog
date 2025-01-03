@@ -375,16 +375,16 @@ class rsyslog::config (
   Rsyslog::QueueType                    $main_msg_queue_type                                = 'LinkedList',
   String[1]                             $main_msg_queue_filename                            = 'main_msg_queue',
   Integer[0]                            $main_msg_queue_max_file_size                       = 5,
-  Optional[Integer[0]]                  $main_msg_queue_size                                = undef,
-  Optional[Integer[0]]                  $main_msg_queue_high_watermark                      = undef,
-  Optional[Integer[0]]                  $main_msg_queue_low_watermark                       = undef,
-  Optional[Integer[0]]                  $main_msg_queue_discardmark                         = undef,
-  Optional[Integer[0]]                  $main_msg_queue_worker_thread_minimum_messages      = undef,
-  Optional[Integer[0]]                  $main_msg_queue_worker_threads                      = undef,
+  Integer[0]                            $main_msg_queue_size                                = [Integer(([$facts['memory']['system']['total_bytes'] >> 20, 128].max() * 2048) / 100), 2097152].min(),
+  Integer[0]                            $main_msg_queue_high_watermark                      = round($main_msg_queue_size * 0.9),
+  Integer[0]                            $main_msg_queue_low_watermark                       = round($main_msg_queue_size * 0.7),
+  Integer[0]                            $main_msg_queue_discardmark                         = round($main_msg_queue_size * 0.98),
+  Integer[0]                            $main_msg_queue_worker_thread_minimum_messages      = Integer($main_msg_queue_size / (([$facts['processors']['count'], 2].max() - 1) * 4)),
+  Integer[0]                            $main_msg_queue_worker_threads                      = [$facts['processors']['count'] - 1, 1].max(),
   Integer[0]                            $main_msg_queue_timeout_enqueue                     = 100,
   Integer[0]                            $main_msg_queue_dequeue_slowdown                    = 0,
   Rsyslog::Boolean                      $main_msg_queue_save_on_shutdown                    = true,
-  Optional[Integer[0]]                  $main_msg_queue_max_disk_space                      = undef,
+  Variant[Integer[0], String[1]]        $main_msg_queue_max_disk_space                      = "${round($main_msg_queue_size / 1024)}M",
 
   Rsyslog::Boolean                      $repeated_msg_reduction                             = true,
   Stdlib::Absolutepath                  $work_directory                                     = '/var/spool/rsyslog',
@@ -424,7 +424,7 @@ class rsyslog::config (
   Optional[Rsyslog::Options]            $extra_imtcp_mod_params                             = undef,
   Optional[Rsyslog::Options]            $extra_imudp_mod_params                             = undef,
   Optional[Rsyslog::Options]            $extra_imuxsock_mod_params                          = undef,
-  Optional[Rsyslog::Options]            $extra_main_queue_params                            = undef
+  Optional[Rsyslog::Options]            $extra_main_queue_params                            = undef,
 ) {
   assert_private()
 
@@ -536,7 +536,7 @@ class rsyslog::config (
     | RSYSLOG_CONF
 
   file { '/etc/rsyslog.conf':
-    ensure  => 'present',
+    ensure  => file,
     owner   => 'root',
     group   => 'root',
     mode    => '0600',
@@ -557,7 +557,7 @@ class rsyslog::config (
   }
 
   rsyslog::rule { '00_simp_pre_logging/global.conf':
-    content => template("${module_name}/config/pre_logging.conf.erb")
+    content => epp("${module_name}/config/pre_logging.conf.epp"),
   }
 
   rsyslog::rule { '09_failover_hack/failover_hack.conf':

@@ -1,0 +1,227 @@
+<% |
+  Optional[String[1]]            $rule,
+  Optional[Stdlib::Absolutepath] $target_log_file,
+  Boolean                        $stop_processing,
+  Optional[String[1]]            $dyna_file,
+  Optional[String[1]]            $template,
+  Integer[0]                     $dyna_file_cache_size,
+  Integer[0,9]                   $zip_level,
+  Boolean                        $very_robust_zip,
+  Integer[0]                     $flush_interval,
+  Boolean                        $async_writing,
+  Boolean                        $flush_on_tx_end,
+  Optional[Integer[0]]           $io_buffer_size,
+  Optional[String[1]]            $dir_owner,
+  Optional[Integer[0]]           $dir_owner_num,
+  Optional[String[1]]            $dir_group,
+  Optional[Integer[0]]           $dir_group_num,
+  Optional[String[1]]            $file_owner,
+  Optional[Integer[0]]           $file_owner_num,
+  Optional[String[1]]            $file_group,
+  Optional[Integer[0]]           $file_group_num,
+  Stdlib::Filemode               $file_create_mode,
+  Stdlib::Filemode               $dir_create_mode,
+  Boolean                        $fail_on_chown_failure,
+  Boolean                        $create_dirs,
+  Boolean                        $sync,
+  Optional[String[1]]            $sig_provider,
+  Optional[String[1]]            $cry_provider,
+  Optional[Stdlib::Absolutepath] $queue_filename,
+  Optional[Stdlib::Absolutepath] $queue_spool_directory,
+  Optional[Integer[0]]           $queue_size,
+  Optional[Integer[0]]           $queue_dequeue_batch_size,
+  Optional[Integer[0]]           $queue_max_disk_space,
+  Optional[Integer[0]]           $queue_high_watermark,
+  Optional[Integer[0]]           $queue_low_watermark,
+  Optional[Integer[0]]           $queue_full_delay_mark,
+  Optional[Integer[0]]           $queue_light_delay_mark,
+  Optional[Integer[0]]           $queue_discard_mark,
+  Optional[Integer[0]]           $queue_discard_severity,
+  Optional[Integer[0]]           $queue_checkpoint_interval,
+  Boolean                        $queue_sync_queue_files,
+  Rsyslog::QueueType             $queue_type,
+  Optional[Integer[0]]           $queue_worker_threads,
+  Optional[Integer[0]]           $queue_timeout_shutdown,
+  Optional[Integer[0]]           $queue_timeout_action_completion,
+  Optional[Integer[0]]           $queue_timeout_enqueue,
+  Optional[Integer[0]]           $queue_timeout_worker_thread_shutdown,
+  Optional[Integer[0]]           $queue_worker_thread_minimum_messages,
+  Optional[String[1]]            $queue_max_file_size,
+  Boolean                        $queue_save_on_shutdown,
+  Optional[Integer[0]]           $queue_dequeue_slowdown,
+  Optional[Integer[0]]           $queue_dequeue_time_begin,
+  Optional[Integer[0]]           $queue_dequeue_time_end,
+  String[1]                      $safe_name,
+| -%>
+<%
+  $bool_xlat = {
+    true  => 'on',
+    false => 'off'
+  }
+-%>
+<%
+  if $dyna_file {
+    if $dyna_file !~ /^\// {
+      $dynafile = $dyna_file
+    } else {
+      # Assume that we need to create a template!
+      $dynafile = $safe_name
+-%>
+template(name="<%= $safe_name %>" type="string" string="<%= $dyna_file %>")
+<%
+    }
+  }
+-%>
+
+if (<%= $rule.split("\n").map |$x| { $x.lstrip() }.join("\n") %>) then {
+  action(
+    type="omfile"
+<% if $target_log_file { -%>
+    file="<%= $target_log_file %>"
+<% } -%>
+<% if $dyna_file { -%>
+    dynaFile="<%= $dynafile %>"
+<% } -%>
+<% if $template { -%>
+    template="<%= $template %>"
+<% } -%>
+<% if $dyna_file_cache_size { -%>
+    dynaFileCacheSize="<%= $dyna_file_cache_size %>"
+<% } -%>
+<% if $zip_level { -%>
+    zipLevel="<%= $zip_level %>"
+<% } -%>
+<% if $very_robust_zip { -%>
+    veryRobustZip="on"
+<% } -%>
+<% if $flush_interval { -%>
+    flushInterval="<%= $flush_interval %>"
+<% } -%>
+<% if $async_writing { -%>
+    asyncWriting="on"
+<% } -%>
+<% if $flush_on_tx_end { -%>
+    flushOnTXEnd="on"
+<% } -%>
+<% if $io_buffer_size { -%>
+    ioBufferSize="<%= $io_buffer_size %>"
+<% } -%>
+<% if $dir_owner { -%>
+    dirOwner="<%= $dir_owner %>"
+<% } -%>
+<% if $dir_owner_num { -%>
+    dirOwnerNum="<%= $dir_owner_num %>"
+<% } -%>
+<% if $dir_group { -%>
+    dirGroup="<%= $dir_group %>"
+<% } -%>
+<% if $dir_group_num { -%>
+    dirGroupNum="<%= $dir_group_num %>"
+<% } -%>
+<% if $file_owner { -%>
+    fileOwner="<%= $file_owner %>"
+<% } -%>
+<% if $file_owner_num { -%>
+    fileOwnerNum="<%= $file_owner_num %>"
+<% } -%>
+<% if $file_group { -%>
+    fileGroup="<%= $file_group %>"
+<% } -%>
+<% if $file_group_num { -%>
+    fileGroupNum="<%= $file_group_num %>"
+<% } -%>
+<% if $file_create_mode { -%>
+    fileCreateMode="<%= $file_create_mode %>"
+<% } -%>
+<% if $dir_create_mode { -%>
+    dirCreateMode="<%= $dir_create_mode %>"
+<% } -%>
+<% if $fail_on_chown_failure { -%>
+    failOnChownFailure="on"
+<% } -%>
+<% if $create_dirs { -%>
+    createDirs="on"
+<% } -%>
+<% if $sync { -%>
+    sync="on"
+<% } -%>
+<% if $sig_provider { -%>
+    sig.provider="<%= $sig_provider %>"
+<% } -%>
+<% if $cry_provider { -%>
+    cry.provider="<%= $cry_provider %>"
+<% } -%>
+<% if $queue_filename { -%>
+    queue.filename="<%= $queue_filename %>"
+<% } -%>
+<% if $queue_spool_directory { -%>
+    queue.spoolDirectory="<%= $queue_spool_directory %>"
+<% } -%>
+<% if $queue_size { -%>
+    queue.size="<%= $queue_size %>"
+<% } -%>
+<% if $queue_dequeue_batch_size { -%>
+    queue.dequeuebatchsize="<%= $queue_dequeue_batch_size %>"
+<% } -%>
+<% if $queue_max_disk_space { -%>
+    queue.maxdiskspace="<%= $queue_max_disk_space %>"
+<% } -%>
+<% if $queue_high_watermark { -%>
+    queue.highwatermark="<%= $queue_high_watermark %>"
+<% } -%>
+<% if $queue_low_watermark { -%>
+    queue.lowwatermark="<%= $queue_low_watermark %>"
+<% } -%>
+<% if $queue_full_delay_mark { -%>
+    queue.fulldelaymark="<%= $queue_full_delay_mark %>"
+<% } -%>
+<% if $queue_light_delay_mark { -%>
+    queue.lightdelaymark="<%= $queue_light_delay_mark %>"
+<% } -%>
+<% if $queue_discard_mark { -%>
+    queue.discardmark="<%= $queue_discard_mark %>"
+<% } -%>
+<% if $queue_discard_severity { -%>
+    queue.discardseverity="<%= $queue_discard_severity %>"
+<% } -%>
+<% if $queue_checkpoint_interval { -%>
+    queue.checkpointinterval="<%= $queue_checkpoint_interval %>"
+<% } -%>
+    queue.syncqueuefiles="<%= $bool_xlat[$queue_sync_queue_files] %>"
+    queue.type="<%= $queue_type %>"
+<% if $queue_worker_threads { -%>
+    queue.workerthreads="<%= $queue_worker_threads %>"
+<% } -%>
+<% if $queue_timeout_shutdown { -%>
+    queue.timeoutshutdown="<%= $queue_timeout_shutdown %>"
+<% } -%>
+<% if $queue_timeout_action_completion { -%>
+    queue.timeoutactioncompletion="<%= $queue_timeout_action_completion %>"
+<% } -%>
+<% if $queue_timeout_enqueue { -%>
+    queue.timeoutenqueue="<%= $queue_timeout_enqueue %>"
+<% } -%>
+<% if $queue_timeout_worker_thread_shutdown { -%>
+    queue.timeoutworkerthreadshutdown="<%= $queue_timeout_worker_thread_shutdown %>"
+<% } -%>
+<% if $queue_worker_thread_minimum_messages { -%>
+    queue.workerthreadminimummessages="<%= $queue_worker_thread_minimum_messages %>"
+<% } -%>
+<% if $queue_max_file_size { -%>
+    queue.maxfilesize="<%= $queue_max_file_size %>"
+<% } -%>
+    queue.saveonshutdown="<%= $bool_xlat[$queue_save_on_shutdown] %>"
+<% if $queue_dequeue_slowdown { -%>
+    queue.dequeueslowdown="<%= $queue_dequeue_slowdown %>"
+<% } -%>
+<% if $queue_dequeue_time_begin { -%>
+    queue.dequeuetimebegin="<%= $queue_dequeue_time_begin %>"
+<% } -%>
+<% if $queue_dequeue_time_end { -%>
+    queue.dequeuetimeend="<%= $queue_dequeue_time_end %>"
+<% } -%>
+  )
+<% if $stop_processing { -%>
+  stop
+<% } -%>
+}

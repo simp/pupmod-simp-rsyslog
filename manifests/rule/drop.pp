@@ -34,6 +34,6 @@ define rsyslog::rule::drop (
   $_safe_name = regsubst($name,'/','__')
 
   rsyslog::rule { "07_simp_drop_rules/${_safe_name}.conf":
-    content => inline_template('if (<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") + ") then stop\n" %>')
+    content => inline_epp('if (<%= $rule.split("\n").map |$x| { $x.lstrip() }.join("\n") %>) then stop\n" %>')
   }
 }

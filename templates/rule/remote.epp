@@ -1,0 +1,344 @@
+<% |
+  Optional[String[1]]                   $rule,
+  Boolean                               $stop_processing,
+  Optional[String[1]]                   $template,
+  Simplib::Netlist                      $dest,
+  Enum['tcp','udp','relp']              $dest_type,
+  Simplib::Netlist                      $failover_log_servers,
+  Enum['traditional','octet-counted']   $tcp_framing,
+  Integer[0,9]                          $zip_level,
+  Integer[0]                            $max_error_messages,
+  Enum['none','single','stream:always'] $compression_mode,
+  Boolean                               $compression_stream_flush_on_tx_end,
+  Optional[Integer[0]]                  $rebind_interval,
+  Optional[Boolean]                     $keep_alive,
+  Optional[Integer[0]]                  $keep_alive_probes,
+  Optional[Integer[0]]                  $keep_alive_interval,
+  Optional[Integer[0]]                  $keep_alive_time,
+  Integer[0]                            $action_resume_interval, # FIXME: Unused parameter
+  Integer[-1]                           $action_resume_retry_count,
+  Optional[String[1]]                   $stream_driver,
+  Integer[0]                            $stream_driver_mode,
+  String                                $stream_driver_auth_mode,
+  Optional[String[1]]                   $stream_driver_permitted_peers,
+  Boolean                               $resend_last_msg_on_reconnect,
+  Boolean                               $udp_send_to_all, # FIXME: Unused parameter
+  String[1]                             $queue_filename,
+  Optional[Stdlib::Absolutepath]        $queue_spool_directory, # FIXME: Unused parameter
+  Optional[Integer[0]]                  $queue_size,
+  Optional[Integer[0]]                  $queue_dequeue_batch_size,
+  Optional[Integer[0]]                  $queue_max_disk_space,
+  Optional[Integer[0]]                  $queue_high_watermark,
+  Optional[Integer[0]]                  $queue_low_watermark,
+  Optional[Integer[0]]                  $queue_full_delay_mark,
+  Optional[Integer[0]]                  $queue_light_delay_mark,
+  Optional[Integer[0]]                  $queue_discard_mark,
+  Optional[Integer[0]]                  $queue_discard_severity,
+  Optional[Integer[0]]                  $queue_checkpoint_interval,
+  Boolean                               $queue_sync_queue_files,
+  Rsyslog::QueueType                    $queue_type,
+  Optional[Integer[0]]                  $queue_worker_threads,
+  Optional[Integer[0]]                  $queue_timeout_shutdown,
+  Optional[Integer[0]]                  $queue_timeout_action_completion,
+  Optional[Integer[0]]                  $queue_timeout_enqueue,
+  Optional[Integer[0]]                  $queue_timeout_worker_thread_shutdown,
+  Optional[Integer[0]]                  $queue_worker_thread_minimum_messages,
+  Optional[String[1]]                   $queue_max_file_size,
+  Boolean                               $queue_save_on_shutdown,
+  Optional[Integer[0]]                  $queue_dequeue_slowdown,
+  Optional[Integer[0]]                  $queue_dequeue_time_begin,
+  Optional[Integer[0]]                  $queue_dequeue_time_end,
+  String[1]                             $safe_name,
+  Boolean                               $use_tls,
+| -%>
+<%
+  $bool_xlat = {
+    true  => 'on',
+    false => 'off'
+  }
+-%>
+ruleset(
+  name="ruleset_<%= $safe_name %>"
+  queue.filename="<%= $queue_filename %>"
+<% if $queue_size { -%>
+  queue.size="<%= $queue_size %>"
+<% } -%>
+<% if $queue_dequeue_batch_size { -%>
+  queue.dequeuebatchsize="<%= $queue_dequeue_batch_size %>"
+<% } -%>
+<% if $queue_max_disk_space { -%>
+  queue.maxdiskspace="<%= $queue_max_disk_space %>"
+<% } -%>
+<% if $queue_high_watermark { -%>
+  queue.highwatermark="<%= $queue_high_watermark %>"
+<% } -%>
+<% if $queue_low_watermark { -%>
+  queue.lowwatermark="<%= $queue_low_watermark %>"
+<% } -%>
+<% if $queue_full_delay_mark { -%>
+  queue.fulldelaymark="<%= $queue_full_delay_mark %>"
+<% } -%>
+<% if $queue_light_delay_mark { -%>
+  queue.lightdelaymark="<%= $queue_light_delay_mark %>"
+<% } -%>
+<% if $queue_discard_mark { -%>
+  queue.discardmark="<%= $queue_discard_mark %>"
+<% } -%>
+<% if $queue_discard_severity { -%>
+  queue.discardseverity="<%= $queue_discard_severity %>"
+<% } -%>
+<% if $queue_checkpoint_interval { -%>
+  queue.checkpointinterval="<%= $queue_checkpoint_interval %>"
+<% } -%>
+  queue.syncqueuefiles="<%= $bool_xlat[$queue_sync_queue_files] %>"
+  queue.type="<%= $queue_type %>"
+<% if $queue_worker_threads { -%>
+  queue.workerthreads="<%= $queue_worker_threads %>"
+<% } -%>
+<% if $queue_timeout_shutdown { -%>
+  queue.timeoutshutdown="<%= $queue_timeout_shutdown %>"
+<% } -%>
+<% if $queue_timeout_action_completion { -%>
+  queue.timeoutactioncompletion="<%= $queue_timeout_action_completion %>"
+<% } -%>
+<% if $queue_timeout_enqueue { -%>
+  queue.timeoutenqueue="<%= $queue_timeout_enqueue %>"
+<% } -%>
+<% if $queue_timeout_worker_thread_shutdown { -%>
+  queue.timeoutworkerthreadshutdown="<%= $queue_timeout_worker_thread_shutdown %>"
+<% } -%>
+<% if $queue_worker_thread_minimum_messages { -%>
+  queue.workerthreadminimummessages="<%= $queue_worker_thread_minimum_messages %>"
+<% } -%>
+<% if $queue_max_file_size { -%>
+  queue.maxfilesize="<%= $queue_max_file_size %>"
+<% } -%>
+  queue.saveonshutdown="<%= $bool_xlat[$queue_save_on_shutdown] %>"
+<% if $queue_dequeue_slowdown { -%>
+  queue.dequeueslowdown="<%= $queue_dequeue_slowdown %>"
+<% } -%>
+<% if $queue_dequeue_time_begin { -%>
+  queue.dequeuetimebegin="<%= $queue_dequeue_time_begin %>"
+<% } -%>
+<% if $queue_dequeue_time_end { -%>
+  queue.dequeuetimeend="<%= $queue_dequeue_time_end %>"
+<% } -%>
+) {
+<% $dest.each |$dst| {
+     $d = $dst.split(':')
+     $host = $d[0]
+     if $d[1] !~ Undef and $d[1] !~ /^$/ {
+       $port = $d[1]
+     } elsif $use_tls {
+       $port = '6514'
+     } else {
+       $port = '514'
+     }
+-%>
+  action(
+    type="omfwd"
+<%   if $template { -%>
+    template="<%= $template %>"
+<%   } -%>
+    protocol="<%= $dest_type %>"
+    target="<%= $host %>"
+    port="<%= $port %>"
+<%   if $tcp_framing { -%>
+    TCP_Framing="<%= $tcp_framing %>"
+<%   } -%>
+<%   if $zip_level { -%>
+    ZipLevel="<%= $zip_level %>"
+<%   } -%>
+<%   if $max_error_messages { -%>
+    maxErrorMessages="<%= $max_error_messages %>"
+<%   } -%>
+<%   if $compression_mode { -%>
+    compression.mode="<%= $compression_mode %>"
+<%   } -%>
+    compression.stream.flushOnTXEnd="<%= $bool_xlat[$compression_stream_flush_on_tx_end] %>"
+<%   if $keep_alive { -%>
+    KeepAlive="<%= $bool_xlat[$keep_alive] %>"
+<%     if $keep_alive_probes { -%>
+    KeepAlive.Probes="<%= $keep_alive_probes %>"
+<%     } -%>
+<%     if $keep_alive_interval { -%>
+    KeepAlive.Interval="<%= $keep_alive_interval %>"
+<%     } -%>
+<%     if $keep_alive_time { -%>
+    KeepAlive.Time="<%= $keep_alive_time %>"
+<%     } -%>
+<%   } -%>
+<%   if $rebind_interval { -%>
+    RebindInterval="<%= $rebind_interval %>"
+<%   } -%>
+<%   if $use_tls { -%>
+<%     if $stream_driver { -%>
+    StreamDriver="<%= $stream_driver %>"
+<%     } -%>
+<%     if $stream_driver_mode { -%>
+    StreamDriverMode="<%= $stream_driver_mode %>"
+<%     } -%>
+<%     if $stream_driver_auth_mode { -%>
+    StreamDriverAuthMode="<%= $stream_driver_auth_mode %>"
+<%     } -%>
+<%     if $stream_driver_permitted_peers {
+         $permitted_peers = $stream_driver_permitted_peers
+       } else {
+         $permitted_peers = $host
+       }
+-%>
+    StreamDriverPermittedPeers="<%= $permitted_peers %>"
+<%   } -%>
+    ResendLastMSGOnReconnect="<%= $bool_xlat[$resend_last_msg_on_reconnect] %>"
+  )
+<% } -%>
+<%
+   if $failover_log_servers.count() > 0 {
+     $final_host = $failover_log_servers[-1]
+     $failover_log_servers.each |$s_target| {
+       $src = $s_target.split(':')
+       $s_host = $src[0]
+       if $src[1] !~ Undef and $src[1] !~ /^$/ {
+         $s_port = $src[1]
+       } elsif $use_tls {
+         $s_port = '6514'
+       } else {
+         $s_port = '514'
+       }
+-%>
+
+  action(
+    type="omfwd"
+<%     if $template { -%>
+    template="<%= $template %>"
+<%     } -%>
+    protocol="<%= $dest_type %>"
+    target="<%= $s_host %>"
+    port="<%= $s_port %>"
+<%     if $s_target == $final_host { -%>
+# NOTE: This must exist for the last failover host so that we can queue logs to disk when needed.
+    queue.filename="<%= $queue_filename %>_action"
+<%       if $queue_size { -%>
+    queue.size="<%= $queue_size %>"
+<%       } -%>
+<%       if $queue_dequeue_batch_size { -%>
+    queue.dequeuebatchsize="<%= $queue_dequeue_batch_size %>"
+<%       } -%>
+<%       if $queue_max_disk_space { -%>
+    queue.maxdiskspace="<%= $queue_max_disk_space %>"
+<%       } -%>
+<%       if $queue_high_watermark { -%>
+    queue.highwatermark="<%= $queue_high_watermark %>"
+<%       } -%>
+<%       if $queue_low_watermark { -%>
+    queue.lowwatermark="<%= $queue_low_watermark %>"
+<%       } -%>
+<%       if $queue_full_delay_mark { -%>
+    queue.fulldelaymark="<%= $queue_full_delay_mark %>"
+<%       } -%>
+<%       if $queue_light_delay_mark { -%>
+    queue.lightdelaymark="<%= $queue_light_delay_mark %>"
+<%       } -%>
+<%       if $queue_discard_mark { -%>
+    queue.discardmark="<%= $queue_discard_mark %>"
+<%       } -%>
+<%       if $queue_discard_severity { -%>
+    queue.discardseverity="<%= $queue_discard_severity %>"
+<%       } -%>
+<%       if $queue_checkpoint_interval { -%>
+    queue.checkpointinterval="<%= $queue_checkpoint_interval %>"
+<%       } -%>
+    queue.syncqueuefiles="<%= $bool_xlat[$queue_sync_queue_files] %>"
+    queue.type="LinkedList"
+<%       if $queue_worker_threads { -%>
+    queue.workerthreads="<%= $queue_worker_threads %>"
+<%       } -%>
+<%       if $queue_timeout_shutdown { -%>
+    queue.timeoutshutdown="<%= $queue_timeout_shutdown %>"
+<%       } -%>
+<%       if $queue_timeout_action_completion { -%>
+    queue.timeoutactioncompletion="<%= $queue_timeout_action_completion %>"
+<%       } -%>
+<%       if $queue_timeout_enqueue { -%>
+    queue.timeoutenqueue="<%= $queue_timeout_enqueue %>"
+<%       } -%>
+<%       if $queue_timeout_worker_thread_shutdown { -%>
+    queue.timeoutworkerthreadshutdown="<%= $queue_timeout_worker_thread_shutdown %>"
+<%       } -%>
+<%       if $queue_worker_thread_minimum_messages { -%>
+    queue.workerthreadminimummessages="<%= $queue_worker_thread_minimum_messages %>"
+<%       } -%>
+<%       if $queue_max_file_size { -%>
+    queue.maxfilesize="<%= $queue_max_file_size %>"
+<%       } -%>
+    queue.saveonshutdown="<%= $bool_xlat[$queue_save_on_shutdown] %>"
+<%       if $queue_dequeue_slowdown { -%>
+    queue.dequeueslowdown="<%= $queue_dequeue_slowdown %>"
+<%       } -%>
+<%       if $queue_dequeue_time_begin { -%>
+    queue.dequeuetimebegin="<%= $queue_dequeue_time_begin %>"
+<%       } -%>
+<%       if $queue_dequeue_time_end { -%>
+    queue.dequeuetimeend="<%= $queue_dequeue_time_end %>"
+<%       } -%>
+<%     } -%>
+<%     if $tcp_framing { -%>
+    TCP_Framing="<%= $tcp_framing %>"
+<%     } -%>
+<%     if $zip_level { -%>
+    ZipLevel="<%= $zip_level %>"
+<%     } -%>
+<%     if $max_error_messages { -%>
+    maxErrorMessages="<%= $max_error_messages %>"
+<%     } -%>
+<%     if $compression_mode { -%>
+    compression.mode="<%= $compression_mode %>"
+<%     } -%>
+    compression.stream.flushOnTXEnd="<%= $bool_xlat[$compression_stream_flush_on_tx_end] %>"
+<%     if $keep_alive { -%>
+    KeepAlive="<%= $bool_xlat[$keep_alive] %>"
+<%       if $keep_alive_probes { -%>
+    KeepAlive.Probes="<%= $keep_alive_probes %>"
+<%       } -%>
+<%       if $keep_alive_interval { -%>
+    KeepAlive.Interval="<%= $keep_alive_interval %>"
+<%       } -%>
+<%       if $keep_alive_time { -%>
+    KeepAlive.Time="<%= $keep_alive_time %>"
+<%       } -%>
+<%     } -%>
+<%     if $rebind_interval { -%>
+    RebindInterval="<%= $rebind_interval %>"
+<%     } -%>
+<%     if $use_tls { -%>
+<%       if $stream_driver { -%>
+    StreamDriver="<%= $stream_driver %>"
+<%       } -%>
+<%       if $stream_driver_mode { -%>
+    StreamDriverMode="<%= $stream_driver_mode %>"
+<%       } -%>
+<%       if $stream_driver_auth_mode { -%>
+    StreamDriverAuthMode="<%= $stream_driver_auth_mode %>"
+<%       } -%>
+<%       if $stream_driver_permitted_peers {
+           $permitted_peers = $stream_driver_permitted_peers
+         } else {
+           $permitted_peers = $s_host
+         }
+-%>
+    StreamDriverPermittedPeers="<%= $permitted_peers %>"
+<%     } -%>
+    ResendLastMSGOnReconnect="<%= $bool_xlat[$resend_last_msg_on_reconnect] %>"
+    action.resumeRetryCount="<%= $action_resume_retry_count %>"
+    action.execOnlyWhenPreviousIsSuspended="on"
+  )
+<%
+     }
+   }
+-%>
+<% if $stop_processing { -%>
+  stop
+<% } -%>
+}
+
+if (<%= $rule.split("\n").map |$x| { $x.lstrip() }.join("\n") %>) then call ruleset_<%= $safe_name %>

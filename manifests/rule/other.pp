@@ -33,11 +33,11 @@
 #fine: rsyslog::rule::other
 #
 define rsyslog::rule::other (
-  String $rule
+  String $rule,
 ) {
-  $_safe_name = regsubst($name,'/','__')
+  $_safe_name = regsubst($name, '/', '__')
 
   rsyslog::rule { "20_simp_other/${_safe_name}.conf":
-    content => inline_template('<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %>')
+    content => inline_epp('<%= $rule.split("\n").map |$x| { $x.lstrip() }.join("\n") %>'),
   }
 }
