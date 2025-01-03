@@ -36,12 +36,12 @@
 #
 #   The filename that you will be dropping into place.
 #
-define rsyslog::rule::data_source(
-  String $rule
+define rsyslog::rule::data_source (
+  String $rule,
 ) {
-  $_safe_name = regsubst($name,'/','__')
+  $_safe_name = regsubst($name, '/', '__')
 
   rsyslog::rule { "05_simp_data_sources/${_safe_name}.conf":
-    content => inline_template('<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %>')
+    content => inline_epp('<%= $rule.split("\n").map |$x| { $x.lstrip() }.join("\n") %>'),
   }
 }

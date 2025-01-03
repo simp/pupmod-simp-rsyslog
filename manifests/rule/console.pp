@@ -32,13 +32,13 @@
 #
 define rsyslog::rule::console (
   String        $rule,
-  Array[String] $users
+  Array[String] $users,
 ) {
-  $_safe_name = regsubst($name,'/','__')
+  $_safe_name = regsubst($name, '/', '__')
 
   rsyslog::rule { "06_simp_console/${_safe_name}.conf":
-    content => inline_template('if (<%= @rule.split("\n").collect{ |x| x.sub(/^\s+/,"") }.join("\n") %>) then action( type="omusrmsg"
-  <%= @users.sort.map{|x| user = %(Users="#{x}")}.join("\n  ") %>
+    content => inline_epp('if (<%= $rule.split("\n").map |$x| { $x.lstrip() }.join("\n") %>) then action( type="omusrmsg"
+  <%= $users.sort.map |$x| { "Users=\"${x}\"" }.join("\n  ") %>
 )'
     )
   }
