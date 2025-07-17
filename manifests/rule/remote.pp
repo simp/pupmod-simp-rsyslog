@@ -88,7 +88,6 @@
 #
 # @param tcp_framing
 # @param zip_level
-# @param max_error_messages
 # @param compression_mode
 # @param compression_stream_flush_on_tx_end
 # @param rebind_interval
@@ -196,7 +195,6 @@ define rsyslog::rule::remote (
   Simplib::Netlist                      $failover_log_servers                 = [],
   Enum['traditional','octet-counted']   $tcp_framing                          = 'traditional',
   Integer[0,9]                          $zip_level                            = 0,
-  Integer[0]                            $max_error_messages                   = 5,
   Enum['none','single','stream:always'] $compression_mode                     = 'none',
   Boolean                               $compression_stream_flush_on_tx_end   = true,
   Optional[Integer[0]]                  $rebind_interval                      = undef,
@@ -361,7 +359,6 @@ define rsyslog::rule::remote (
       'failover_log_servers'                 => $_failover_servers,
       'tcp_framing'                          => $tcp_framing,
       'zip_level'                            => $zip_level,
-      'max_error_messages'                   => $max_error_messages,
       'compression_mode'                     => $compression_mode,
       'compression_stream_flush_on_tx_end'   => $compression_stream_flush_on_tx_end,
       'rebind_interval'                      => $rebind_interval,
