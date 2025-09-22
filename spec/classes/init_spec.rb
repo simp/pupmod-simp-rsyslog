@@ -86,10 +86,10 @@ describe 'rsyslog' do
   end
 
   shared_examples_for 'a rsyslog manager' do
-    include_examples 'a structured module'
-    include_examples 'rsyslog base install'
-    include_examples 'rsyslog base configuration'
-    include_examples 'rsyslog base service'
+    it_behaves_like 'a structured module'
+    it_behaves_like 'rsyslog base install'
+    it_behaves_like 'rsyslog base configuration'
+    it_behaves_like 'rsyslog base service'
   end
 
   let(:exp_dir) { File.join(__dir__, 'expected') }
