@@ -7,7 +7,6 @@
   Simplib::Netlist                      $failover_log_servers,
   Enum['traditional','octet-counted']   $tcp_framing,
   Integer[0,9]                          $zip_level,
-  Integer[0]                            $max_error_messages,
   Enum['none','single','stream:always'] $compression_mode,
   Boolean                               $compression_stream_flush_on_tx_end,
   Optional[Integer[0]]                  $rebind_interval,
@@ -149,9 +148,6 @@ ruleset(
 <%   if $zip_level { -%>
     ZipLevel="<%= $zip_level %>"
 <%   } -%>
-<%   if $max_error_messages { -%>
-    maxErrorMessages="<%= $max_error_messages %>"
-<%   } -%>
 <%   if $compression_mode { -%>
     compression.mode="<%= $compression_mode %>"
 <%   } -%>
@@ -287,9 +283,6 @@ ruleset(
 <%     } -%>
 <%     if $zip_level { -%>
     ZipLevel="<%= $zip_level %>"
-<%     } -%>
-<%     if $max_error_messages { -%>
-    maxErrorMessages="<%= $max_error_messages %>"
 <%     } -%>
 <%     if $compression_mode { -%>
     compression.mode="<%= $compression_mode %>"
