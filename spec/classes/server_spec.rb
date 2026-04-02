@@ -36,7 +36,6 @@ describe 'rsyslog::server' do
 
         it_behaves_like 'a structured module'
         it { is_expected.not_to contain_class('rsyslog::server::firewall') }
-        it { is_expected.not_to contain_class('rsyslog::server::tcpwrappers') }
         it { is_expected.not_to contain_class('rsyslog::server::selinux') }
       end
 
@@ -146,12 +145,6 @@ describe 'rsyslog::server' do
         it { is_expected.not_to contain_class('rsyslog::server::selinux') }
       end
 
-      context 'rsyslog::server class with TCPWrappers enabled' do
-        let(:params) { { enable_tcpwrappers: true } }
-
-        it_behaves_like 'a structured module'
-        it { is_expected.to contain_class('rsyslog::server::tcpwrappers') }
-      end
     end
   end
 end
