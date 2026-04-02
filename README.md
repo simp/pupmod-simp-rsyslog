@@ -23,7 +23,7 @@
   * [I want to send everything to rsyslog from a client](#i-want-to-send-everything-to-rsyslog-from-a-client)
   * [I want to disable TLS/PKI/Logrotate](#i-want-to-disable-tlspkilogrotate)
   * [I want to set up an RSyslog Server](#i-want-to-set-up-an-rsyslog-server)
-  * [I want to set up an Rsyslog Server without logrotate/pki/firewall/tcpwrappers](#i-want-to-set-up-an-rsyslog-server-without-logrotatepkifirewalltcpwrappers)
+  * [I want to set up an Rsyslog Server without logrotate/pki/firewall](#i-want-to-set-up-an-rsyslog-server-without-logrotatepkifirewall)
   * [Central Log Forwarding](#central-log-forwarding)
 * [Reference](#reference)
 * [Limitations](#limitations)
@@ -239,14 +239,13 @@ profile will setup templates and a large set of default rules to help organize
 and send logs where possible. Included would also be a comprehensive set of
 security relevant logs to help filter important information.
 
-### I want to set up an Rsyslog Server without logrotate/pki/firewall/tcpwrappers
+### I want to set up an Rsyslog Server without logrotate/pki/firewall
 
 **Hiera Config:**
 ```yaml
   rsyslog::logrotate: false
   rsyslog::server::enable_firewall: false
   rsyslog::server::enable_selinux: false
-  rsyslog::server::enable_tcpwrappers: false
 ```
 
 ### Central Log Forwarding

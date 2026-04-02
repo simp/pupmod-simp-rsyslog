@@ -89,9 +89,6 @@ describe 'rsyslog class' do
       'rsyslog::trusted_nets'               => ['any'],
       'rsyslog::server::enable_firewall'    => true,
       'rsyslog::server::enable_selinux'     => true,
-      # If you enable this, you need to make sure to add a tcpwrappers rule
-      # for sshd
-      'rsyslog::server::enable_tcpwrappers' => false,
     }
   end
   let(:server_manifest) do
