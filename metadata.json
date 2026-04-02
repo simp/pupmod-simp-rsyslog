@@ -40,10 +40,6 @@
       {
         "name": "simp/pki",
         "version_requirement": ">= 6.2.0 < 7.0.0"
-      },
-      {
-        "name": "simp/tcpwrappers",
-        "version_requirement": ">= 6.2.0 < 7.0.0"
       }
     ]
   },

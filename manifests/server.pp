@@ -10,13 +10,9 @@
 # @param enable_selinux
 #   Enable the SIMP SELinux rules for RSyslog
 #
-# @param enable_tcpwrappers
-#   Enable the SIMP TCPWrapper rules for RSyslog
-#
 class rsyslog::server (
   Boolean           $enable_firewall    = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
   Optional[Boolean] $enable_selinux     = $facts['os']['selinux']['enforced'],
-  Boolean           $enable_tcpwrappers = simplib::lookup('simp_options::tcpwrappers', { 'default_value' => false })
 ) {
   include 'rsyslog'
 
@@ -30,11 +26,5 @@ class rsyslog::server (
     contain 'rsyslog::server::selinux'
 
     Class['rsyslog::server::selinux'] -> Class['rsyslog::service']
-  }
-
-  if $enable_tcpwrappers {
-    contain 'rsyslog::server::tcpwrappers'
-
-    Class['rsyslog::service'] -> Class['rsyslog::server::tcpwrappers']
   }
 }

@@ -20,7 +20,6 @@ fixtures:
     systemd:
       repo: https://github.com/simp/puppet-systemd.git
       branch: simp-master
-    tcpwrappers: https://github.com/simp/pupmod-simp-tcpwrappers.git
     disa_stig-el7-baseline:
       repo: https://github.com/simp/inspec-profile-disa_stig-el7.git
       branch: master
