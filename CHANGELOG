@@ -1,3 +1,6 @@
+* Mon May 11 2026 Steven Pritchard <steve@sicura.us> - 9.0.0
+- Remove unmaintained Compliance Engine data
+
 * Fri Jan 03 2025 Steven Pritchard <steve@sicura.us> - 8.10.1
 - Convert templates from ERB to EPP (#159)
 
