@@ -121,7 +121,7 @@ describe 'rsyslog class' do
           expect(result).to match(%r{network-online.target})
         end
       else
-        puts "Skipping test on #{client.name}: systemd override file not needed"
+        puts "Skipping test on #{client.name}: systemd override file not needed" # rubocop:disable RSpec/Output
       end
     end
 
