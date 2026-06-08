@@ -16,7 +16,7 @@ group :syntax do
   gem 'rubocop', '~> 1.88.0'
   gem 'rubocop-performance', '~> 1.26.0'
   gem 'rubocop-rake', '~> 0.7.0'
-  gem 'rubocop-rspec', '~> 3.9.0'
+  gem 'rubocop-rspec', '~> 3.10.0'
 end
 
 group :test do
