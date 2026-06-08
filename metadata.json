@@ -6,7 +6,7 @@
   "license": "Apache-2.0",
   "source": "https://github.com/simp/pupmod-simp-rsyslog",
   "project_page": "https://github.com/simp/pupmod-simp-rsyslog",
-  "issues_url": "https://simp-project.atlassian.net",
+  "issues_url": "https://github.com/simp/pupmod-simp-rsyslog/issues",
   "tags": [
     "simp",
     "logging",
@@ -16,7 +16,7 @@
   "dependencies": [
     {
       "name": "puppet/systemd",
-      "version_requirement": ">= 4.0.2 < 9.0.0"
+      "version_requirement": ">= 4.0.2 < 10.0.0"
     },
     {
       "name": "puppetlabs/stdlib",
@@ -24,22 +24,22 @@
     },
     {
       "name": "simp/simplib",
-      "version_requirement": ">= 4.9.0 < 5.0.0"
+      "version_requirement": ">= 4.9.0 < 6.0.0"
     }
   ],
   "simp": {
     "optional_dependencies": [
       {
         "name": "simp/iptables",
-        "version_requirement": ">= 6.5.3 < 8.0.0"
+        "version_requirement": ">= 6.5.3 < 9.0.0"
       },
       {
         "name": "simp/logrotate",
-        "version_requirement": ">= 6.5.0 < 7.0.0"
+        "version_requirement": ">= 6.5.0 < 8.0.0"
       },
       {
         "name": "simp/pki",
-        "version_requirement": ">= 6.2.0 < 7.0.0"
+        "version_requirement": ">= 6.2.0 < 8.0.0"
       },
       {
         "name": "simp/tcpwrappers",
@@ -51,46 +51,47 @@
     {
       "operatingsystem": "CentOS",
       "operatingsystemrelease": [
-        "7",
-        "8",
-        "9"
+        "9",
+        "10"
       ]
     },
     {
       "operatingsystem": "RedHat",
       "operatingsystemrelease": [
-        "7",
         "8",
-        "9"
+        "9",
+        "10"
       ]
     },
     {
       "operatingsystem": "OracleLinux",
       "operatingsystemrelease": [
-        "7",
         "8",
-        "9"
+        "9",
+        "10"
       ]
     },
     {
       "operatingsystem": "Rocky",
       "operatingsystemrelease": [
         "8",
-        "9"
+        "9",
+        "10"
       ]
     },
     {
       "operatingsystem": "AlmaLinux",
       "operatingsystemrelease": [
         "8",
-        "9"
+        "9",
+        "10"
       ]
     }
   ],
   "requirements": [
     {
-      "name": "puppet",
-      "version_requirement": ">= 7.0.0 < 9.0.0"
+      "name": "openvox",
+      "version_requirement": ">= 8.0.0 < 9.0.0"
     }
   ]
 }
