@@ -355,11 +355,7 @@ describe 'rsyslog' do
       end
 
       context 'with custom_conf_content set' do
-        let(:params) do
-          {
-            custom_conf_content: '$WorkDirectory /var/spool/rsyslog',
-          }
-        end
+        let(:hieradata) { 'custom_conf_content' }
 
         it { is_expected.to compile.with_all_deps }
         it {
@@ -374,7 +370,7 @@ describe 'rsyslog' do
       end
 
       context 'with ulimit_max_open_files set to an integer' do
-        let(:params) { { ulimit_max_open_files: 65_536 } }
+        let(:hieradata) { 'ulimit_max_open_files_integer' }
 
         it { is_expected.to compile.with_all_deps }
         it {
@@ -384,7 +380,7 @@ describe 'rsyslog' do
       end
 
       context "with the deprecated ulimit_max_open_files value 'unlimited'" do
-        let(:params) { { ulimit_max_open_files: 'unlimited' } }
+        let(:hieradata) { 'ulimit_max_open_files_unlimited' }
 
         it { is_expected.to compile.with_all_deps }
         it {
