@@ -250,6 +250,19 @@
 #
 #   * ``1024`` is fine for most purposes, but a collection server should bump this
 #     **way** up.
+#   * Applied via a ``systemd`` drop-in file so that the shipped
+#     ``rsyslog.service`` unit is not modified (preserves RPM integrity).
+#   * The legacy value ``'unlimited'`` is accepted for backwards
+#     compatibility and translated to ``'infinity'`` (the systemd
+#     spelling). A deprecation warning is emitted in that case.
+#
+# @param custom_conf_content
+#   Optional content appended verbatim to ``/etc/rsyslog.conf`` after the
+#   managed ``$IncludeConfig`` line.
+#
+#   * Intended for directives that must live in the main ``rsyslog.conf``
+#     file itself (rather than in ``${rsyslog::rule_dir}``).
+#   * No validation of the content is performed.
 #
 # @param enable_default_rules
 #   Enables default rules for logging common services (e.g., firewall, puppet, slapd_auditd)
@@ -404,7 +417,8 @@ class rsyslog::config (
   Optional[String]                      $action_send_stream_driver_auth_mode                = undef,
   Optional[String]                      $imtcp_stream_driver_auth_mode                      = undef,
 
-  Variant[Enum['unlimited'],Integer[0]] $ulimit_max_open_files                              = 'unlimited',
+  Variant[Enum['infinity','unlimited'],Integer[0]] $ulimit_max_open_files                   = 'infinity',
+  Optional[String]                      $custom_conf_content                                = undef,
   Boolean                               $enable_default_rules                               = true,
   Optional[Boolean]                     $suppress_noauth_warn                               = undef,
   Rsyslog::Boolean                      $net_permit_acl_warning                             = true,
@@ -446,6 +460,14 @@ class rsyslog::config (
 
   if $disable_remote_dns !~ Undef {
     warning('rsyslog::config::disable_remote_dns is deprecated. Use rsyslog::config::net_enable_dns instead')
+  }
+
+  if $ulimit_max_open_files == 'unlimited' {
+    warning("rsyslog::config::ulimit_max_open_files value 'unlimited' is deprecated. Use 'infinity' instead.")
+    $_ulimit_max_open_files = 'infinity'
+  }
+  else {
+    $_ulimit_max_open_files = $ulimit_max_open_files
   }
 
   $_tcp_server = $rsyslog::tcp_server
@@ -529,6 +551,12 @@ class rsyslog::config (
     }
   }
 
+  $_custom_conf_content = $custom_conf_content ? {
+    undef   => '',
+    ''      => '',
+    default => "${custom_conf_content}\n",
+  }
+
   $_rsyslog_conf = @("RSYSLOG_CONF"/$)
     # This file is managed by Puppet (simp/rsyslog module).
     # Any changes will be overwritten.
@@ -540,7 +568,7 @@ class rsyslog::config (
     owner   => 'root',
     group   => 'root',
     mode    => '0600',
-    content => $_rsyslog_conf
+    content => "${_rsyslog_conf}${_custom_conf_content}",
   }
 
   $_sysconfig_rsyslog = @(SYSCONFIG_RSYSLOG)
@@ -577,12 +605,20 @@ class rsyslog::config (
     }
   }
 
-  # Set the maximum number of open files in the init script.
-  init_ulimit { 'mod_open_files_rsyslog':
-    target => 'rsyslog',
-    item   => 'max_open_files',
-    value  => $ulimit_max_open_files
-  }
+  # Set the maximum number of open files via a systemd drop-in so that the
+  # shipped /usr/lib/systemd/system/rsyslog.service unit is not modified.
+  # Modifying the shipped unit causes RPM hash mismatches.
+  $_limits_dropin = @("LIMITS"/$)
+    # This file is managed by Puppet (simp/rsyslog module).
+    # Any changes will be overwritten.
+    [Service]
+    LimitNOFILE=${_ulimit_max_open_files}
+    | LIMITS
+
+  systemd::dropin_file { 'simp_limits.conf':
+    unit    => 'rsyslog.service',
+    content => $_limits_dropin,
+  } ~> Class['rsyslog::service']
 
   if $facts['rsyslogd'] and ($facts['rsyslogd']['version'] == '8.24.0') {
     # This systemd override addresses a systemd service file bug present in the
