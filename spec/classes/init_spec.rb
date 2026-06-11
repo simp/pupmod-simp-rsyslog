@@ -66,12 +66,19 @@ describe 'rsyslog' do
     it { is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf') }
     it { is_expected.to contain_rsyslog__rule('09_failover_hack/failover_hack.conf') }
     it {
-      is_expected.to contain_init_ulimit('mod_open_files_rsyslog').with(
-      target: 'rsyslog',
-      item: 'max_open_files',
-      value: 'unlimited',
-    )
+      expected = <<~EOM
+        # This file is managed by Puppet (simp/rsyslog module).
+        # Any changes will be overwritten.
+        [Service]
+        LimitNOFILE=infinity
+      EOM
+
+      is_expected.to contain_systemd__dropin_file('simp_limits.conf').with(
+        unit: 'rsyslog.service',
+        content: expected,
+      ).that_notifies('Class[rsyslog::service]')
     }
+    it { is_expected.not_to contain_init_ulimit('mod_open_files_rsyslog') }
   end
 
   shared_examples_for 'rsyslog base service' do
@@ -345,6 +352,45 @@ describe 'rsyslog' do
 
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to contain_file(global_conf_file).with_content(global_expected) }
+      end
+
+      context 'with custom_conf_content set' do
+        let(:params) do
+          {
+            custom_conf_content: '$WorkDirectory /var/spool/rsyslog',
+          }
+        end
+
+        it { is_expected.to compile.with_all_deps }
+        it {
+          expected = <<~EOM
+            # This file is managed by Puppet (simp/rsyslog module).
+            # Any changes will be overwritten.
+            $IncludeConfig /etc/rsyslog.simp.d/*.conf
+            $WorkDirectory /var/spool/rsyslog
+          EOM
+          is_expected.to contain_file('/etc/rsyslog.conf').with_content(expected)
+        }
+      end
+
+      context 'with ulimit_max_open_files set to an integer' do
+        let(:params) { { ulimit_max_open_files: 65_536 } }
+
+        it { is_expected.to compile.with_all_deps }
+        it {
+          is_expected.to contain_systemd__dropin_file('simp_limits.conf')
+            .with_content(%r{LimitNOFILE=65536})
+        }
+      end
+
+      context "with the deprecated ulimit_max_open_files value 'unlimited'" do
+        let(:params) { { ulimit_max_open_files: 'unlimited' } }
+
+        it { is_expected.to compile.with_all_deps }
+        it {
+          is_expected.to contain_systemd__dropin_file('simp_limits.conf')
+            .with_content(%r{LimitNOFILE=infinity})
+        }
       end
 
       context 'with a rules hash defined' do

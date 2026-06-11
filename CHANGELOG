@@ -1,3 +1,13 @@
+* Thu Jul 16 2026 Nicholas Markowski <nicholas.markowski@onyxpoint.com> - 9.1.0
+- Manage rsyslog's LimitNOFILE via a systemd drop-in file instead of editing
+  the shipped rsyslog.service unit. This preserves RPM file integrity.
+- Default value of `rsyslog::config::ulimit_max_open_files` is now
+  `'infinity'` (the systemd spelling). The legacy value `'unlimited'` is
+  still accepted but emits a deprecation warning.
+- Add `rsyslog::config::custom_conf_content` parameter, allowing arbitrary
+  content to be appended to `/etc/rsyslog.conf` after the managed
+  `$IncludeConfig` line (#147).
+
 * Fri Jul 03 2026 Steven Pritchard <steve@sicura.us> - 9.0.1
 - Match the EL9+ firewalld (nftables backend) denial-log format in the
   default firewall rule: messages are prefixed with the table name
