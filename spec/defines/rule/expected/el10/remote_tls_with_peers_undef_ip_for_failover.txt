@@ -1,0 +1,48 @@
+ruleset(
+  name="ruleset_test_name"
+  queue.filename="test_name_disk_queue"
+  queue.syncqueuefiles="off"
+  queue.type="LinkedList"
+  queue.saveonshutdown="on"
+) {
+  action(
+    type="omfwd"
+    protocol="tcp"
+    target="logserver1.my.domain"
+    port="6514"
+    TCP_Framing="traditional"
+    ZipLevel="0"
+    maxErrorMessages="5"
+    compression.mode="none"
+    compression.stream.flushOnTXEnd="on"
+    StreamDriverMode="1"
+    StreamDriverAuthMode="x509/name"
+    StreamDriverPermittedPeers="*.example.com"
+    ResendLastMSGOnReconnect="on"
+  )
+
+  action(
+    type="omfwd"
+    protocol="tcp"
+    target="1.2.3.4"
+    port="6514"
+# NOTE: This must exist for the last failover host so that we can queue logs to disk when needed.
+    queue.filename="test_name_disk_queue_action"
+    queue.syncqueuefiles="off"
+    queue.type="LinkedList"
+    queue.saveonshutdown="on"
+    TCP_Framing="traditional"
+    ZipLevel="0"
+    maxErrorMessages="5"
+    compression.mode="none"
+    compression.stream.flushOnTXEnd="on"
+    StreamDriverMode="1"
+    StreamDriverAuthMode="x509/name"
+    StreamDriverPermittedPeers="*.example.com"
+    ResendLastMSGOnReconnect="on"
+    action.resumeRetryCount="-1"
+    action.execOnlyWhenPreviousIsSuspended="on"
+  )
+}
+
+if (test_rule) then call ruleset_test_name
