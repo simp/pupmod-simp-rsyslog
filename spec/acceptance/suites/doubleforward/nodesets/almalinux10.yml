@@ -12,8 +12,7 @@ HOSTS:
     vagrant_memsize: 2048
     vagrant_cpus: 2
     # There are not currently any el10 images available on google cloud
-    # family: almalinux-cloud/almalinux-10
-    # gce_machine_type: n1-standard-2
+    # family/gce omitted for el10
   server:
     roles:
     - server
@@ -24,11 +23,10 @@ HOSTS:
     vagrant_memsize: 2048
     vagrant_cpus: 2
     # There are not currently any el10 images available on google cloud
-    # family: almalinux-cloud/almalinux-10
-    # gce_machine_type: n1-standard-2
-  failover-server:
+    # family/gce omitted for el10
+  nextserver:
     roles:
-    - failover_server
+    - nextserver
     - el10
     platform: el-10-x86_64
     box: almalinux/10
@@ -36,9 +34,13 @@ HOSTS:
     vagrant_memsize: 2048
     vagrant_cpus: 2
     # There are not currently any el10 images available on google cloud
-    # family: almalinux-cloud/almalinux-10
-    # gce_machine_type: n1-standard-2
+    # family/gce omitted for el10
 CONFIG:
   log_level: verbose
   type: aio
+  vagrant_memsize: 512
+  ssh:
+    keepalive: true
+    keepalive_interval: 10
+    keepalive_maxcount: 60
   puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>"

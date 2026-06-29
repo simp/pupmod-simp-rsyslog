@@ -119,6 +119,7 @@ jobs:
     strategy:
       matrix:
         node:
+          - almalinux8
           - almalinux9
           - almalinux10
       fail-fast: false

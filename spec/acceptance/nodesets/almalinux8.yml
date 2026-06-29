@@ -1,10 +1,32 @@
 ---
 HOSTS:
-  almalinux8:
+  client:
     roles:
     - default
     - master
+    - client
+    - el8
+    platform: el-8-x86_64
+    box: almalinux/8
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
+    family: almalinux-cloud/almalinux-8
+    gce_machine_type: n1-standard-2
+  server:
+    roles:
     - server
+    - el8
+    platform: el-8-x86_64
+    box: almalinux/8
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
+    family: almalinux-cloud/almalinux-8
+    gce_machine_type: n1-standard-2
+  failover-server:
+    roles:
+    - failover_server
     - el8
     platform: el-8-x86_64
     box: almalinux/8

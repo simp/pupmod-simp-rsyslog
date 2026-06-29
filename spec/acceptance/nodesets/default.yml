@@ -1,10 +1,32 @@
 ---
 HOSTS:
-  almalinux9:
+  client:
     roles:
     - default
     - master
+    - client
+    - el9
+    platform: el-9-x86_64
+    box: almalinux/9
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
+    family: almalinux-cloud/almalinux-9
+    gce_machine_type: n1-standard-2
+  server:
+    roles:
     - server
+    - el9
+    platform: el-9-x86_64
+    box: almalinux/9
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
+    family: almalinux-cloud/almalinux-9
+    gce_machine_type: n1-standard-2
+  failover-server:
+    roles:
+    - failover_server
     - el9
     platform: el-9-x86_64
     box: almalinux/9
