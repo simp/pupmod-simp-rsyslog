@@ -13,7 +13,7 @@ HOSTS:
     vagrant_cpus: 2
     family: almalinux-cloud/almalinux-8
     gce_machine_type: n1-standard-2
-  server:
+  server-1:
     roles:
     - server
     - el8
