@@ -13,10 +13,10 @@ gem_sources.each { |gem_source| source gem_source }
 group :syntax do
   gem 'metadata-json-lint'
   gem 'puppet-lint-trailing_comma-check', require: false
-  gem 'rubocop', '~> 1.88.0'
+  gem 'rubocop', '~> 1.85'
   gem 'rubocop-performance', '~> 1.26.0'
   gem 'rubocop-rake', '~> 0.7.0'
-  gem 'rubocop-rspec', '~> 3.10.0'
+  gem 'rubocop-rspec', '~> 3.9'
 end
 
 group :test do
@@ -30,13 +30,12 @@ group :test do
   ['openvox', 'puppet'].each do |gem_name|
     gem gem_name, binding.local_variable_get("#{gem_name}_version".to_sym)
   end
-  gem 'puppetlabs_spec_helper', '~> 8.0.0'
   gem 'puppet-strings'
   gem 'rake'
   gem 'rspec'
   gem 'rspec-puppet'
   # renovate: datasource=rubygems versioning=ruby
-  gem 'simp-rake-helpers', ENV.fetch('SIMP_RAKE_HELPERS_VERSION', '~> 5.24.0')
+  gem 'simp-rake-helpers', ENV.fetch('SIMP_RAKE_HELPERS_VERSION', '~> 6.0')
   # renovate: datasource=rubygems versioning=ruby
   gem 'simp-rspec-puppet-facts', ENV.fetch('SIMP_RSPEC_PUPPET_FACTS_VERSION', '~> 4.0.0')
   gem 'syslog', require: false
@@ -53,7 +52,7 @@ group :system_tests do
   gem 'beaker'
   gem 'beaker-rspec'
   # renovate: datasource=rubygems versioning=ruby
-  gem 'simp-beaker-helpers', ENV.fetch('SIMP_BEAKER_HELPERS_VERSION', '~> 2.0.0')
+  gem 'simp-beaker-helpers', ENV.fetch('SIMP_BEAKER_HELPERS_VERSION', '~> 3.1')
 end
 
 # Evaluate extra gemfiles if they exist
