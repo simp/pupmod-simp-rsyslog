@@ -1,3 +1,8 @@
+* Fri Jul 03 2026 Steven Pritchard <steve@sicura.us> - 9.0.1
+- Match the EL9+ firewalld (nftables backend) denial-log format in the
+  default firewall rule: messages are prefixed with the table name
+  (`filter_IN_99_simp_DROP:`), which the previous `startswith` match missed
+
 * Mon Jun 08 2026 Steven Pritchard <steven.pritchard@gmail.com> - 9.0.0
 - Switch `requirements` from `puppet` to `openvox` (>= 8 < 9)
 - Point `issues_url` at GitHub Issues
