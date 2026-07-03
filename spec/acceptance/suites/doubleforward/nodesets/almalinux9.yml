@@ -13,7 +13,7 @@ HOSTS:
     vagrant_cpus: 2
     family: almalinux-cloud/almalinux-9
     gce_machine_type: n1-standard-2
-  server-1:
+  server:
     roles:
     - server
     - el9
@@ -24,9 +24,9 @@ HOSTS:
     vagrant_cpus: 2
     family: almalinux-cloud/almalinux-9
     gce_machine_type: n1-standard-2
-  failover-server:
+  nextserver:
     roles:
-    - failover_server
+    - nextserver
     - el9
     platform: el-9-x86_64
     box: almalinux/9
@@ -38,4 +38,9 @@ HOSTS:
 CONFIG:
   log_level: verbose
   type: aio
+  vagrant_memsize: 512
+  ssh:
+    keepalive: true
+    keepalive_interval: 10
+    keepalive_maxcount: 60
   puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>"

@@ -5,9 +5,9 @@
 #
 # @api private
 #
-class rsyslog::service(
+class rsyslog::service (
   Boolean $enable = true
-){
+) {
   assert_private()
 
   if $enable {

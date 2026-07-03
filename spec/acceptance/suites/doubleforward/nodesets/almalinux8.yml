@@ -5,34 +5,35 @@ HOSTS:
     - default
     - master
     - client
+    - el8
     platform: el-8-x86_64
-    box: generic/oracle8
+    box: almalinux/8
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
-    family: sicura-image-build/oracle-linux-8
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
+    family: almalinux-cloud/almalinux-8
     gce_machine_type: n1-standard-2
-  server-1:
+  server:
     roles:
     - server
+    - el8
     platform: el-8-x86_64
-    box: generic/oracle8
+    box: almalinux/8
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
-    family: sicura-image-build/oracle-linux-8
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
+    family: almalinux-cloud/almalinux-8
     gce_machine_type: n1-standard-2
-  server-2:
+  nextserver:
     roles:
-    - server
-    platform: el-7-x86_64
-    box: generic/oracle7
-    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
-    family: sicura-image-build/oracle-linux-7
-    gce_machine_type: n1-standard-2
-  server-3:
-    roles:
-    - failover_server
+    - nextserver
+    - el8
     platform: el-8-x86_64
-    box: generic/oracle8
+    box: almalinux/8
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
-    family: sicura-image-build/oracle-linux-8
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
+    family: almalinux-cloud/almalinux-8
     gce_machine_type: n1-standard-2
 CONFIG:
   log_level: verbose
@@ -42,4 +43,4 @@ CONFIG:
     keepalive: true
     keepalive_interval: 10
     keepalive_maxcount: 60
-  puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'puppet7') %>"
+  puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>"

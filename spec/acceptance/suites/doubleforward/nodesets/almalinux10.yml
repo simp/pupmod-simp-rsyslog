@@ -1,0 +1,46 @@
+---
+HOSTS:
+  client:
+    roles:
+    - default
+    - master
+    - client
+    - el10
+    platform: el-10-x86_64
+    box: almalinux/10
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
+    # There are not currently any el10 images available on google cloud
+    # family/gce omitted for el10
+  server:
+    roles:
+    - server
+    - el10
+    platform: el-10-x86_64
+    box: almalinux/10
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
+    # There are not currently any el10 images available on google cloud
+    # family/gce omitted for el10
+  nextserver:
+    roles:
+    - nextserver
+    - el10
+    platform: el-10-x86_64
+    box: almalinux/10
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
+    # There are not currently any el10 images available on google cloud
+    # family/gce omitted for el10
+CONFIG:
+  log_level: verbose
+  type: aio
+  vagrant_memsize: 512
+  ssh:
+    keepalive: true
+    keepalive_interval: 10
+    keepalive_maxcount: 60
+  puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>"

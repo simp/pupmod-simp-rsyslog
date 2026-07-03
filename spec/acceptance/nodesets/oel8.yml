@@ -1,0 +1,17 @@
+---
+HOSTS:
+  oel8:
+    roles:
+    - default
+    - master
+    - server
+    - el8
+    platform: el-8-x86_64
+    box: generic/oracle8
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
+CONFIG:
+  log_level: verbose
+  type: aio
+  puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>"

@@ -129,7 +129,7 @@ class rsyslog (
   String                        $package_name            = 'rsyslog',
   Boolean                       $read_journald           = true,
   String                        $tls_package_name        = "${package_name}-gnutls",
-  Simplib::Netlist              $trusted_nets            = simplib::lookup('simp_options::trusted_nets', {'default_value'                  => ['127.0.0.1/32'] }),
+  Simplib::Netlist              $trusted_nets            = simplib::lookup('simp_options::trusted_nets', { 'default_value'                  => ['127.0.0.1/32'] }),
   Boolean                       $enable_tls_logging      = false,
   Simplib::Netlist              $log_servers             = simplib::lookup('simp_options::syslog::log_servers', { 'default_value'          => [] }),
   Simplib::Netlist              $failover_log_servers    = simplib::lookup('simp_options::syslog::failover_log_servers', { 'default_value' => [] }),
@@ -142,13 +142,13 @@ class rsyslog (
   Boolean                       $udp_server              = false,
   String                        $udp_listen_address      = '127.0.0.1',
   Simplib::Port                 $udp_listen_port         = 514,
-  Boolean                       $logrotate               = simplib::lookup('simp_options::logrotate', {'default_value'                     => false}),
-  Variant[Boolean,Enum['simp']] $pki                     = simplib::lookup('simp_options::pki', {'default_value'                           => false}),
-  String                        $app_pki_external_source = simplib::lookup('simp_options::pki::source', {'default_value'                   => '/etc/pki/simp/x509'}),
+  Boolean                       $logrotate               = simplib::lookup('simp_options::logrotate', { 'default_value'                     => false }),
+  Variant[Boolean,Enum['simp']] $pki                     = simplib::lookup('simp_options::pki', { 'default_value'                           => false }),
+  String                        $app_pki_external_source = simplib::lookup('simp_options::pki::source', { 'default_value'                   => '/etc/pki/simp/x509' }),
   Stdlib::Absolutepath          $app_pki_dir             = '/etc/pki/simp_apps/rsyslog/x509',
   Hash                          $rules                   = {},
 ) {
-  if $facts['rsyslogd'] and versioncmp($facts['rsyslogd']['version'], '8.24.0') < 0  {
+  if $facts['rsyslogd'] and versioncmp($facts['rsyslogd']['version'], '8.24.0') < 0 {
     warning("${module_name}: Rsyslog version ${facts['rsyslogd']} not supported. Use ${module_name} version 7.6.4 instead")
   }
 

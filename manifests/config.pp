@@ -475,7 +475,6 @@ class rsyslog::config (
     }
   }
 
-
   #TODO drop this mapping, as it doesn't really help the end user
   $_default_file_template = $default_file_template ? {
     'traditional' => 'RSYSLOG_TraditionalFileFormat',
@@ -591,13 +590,13 @@ class rsyslog::config (
     # Including this systemd override for 8.24.0 releases that already have the
     # fix will not cause problems, because the Wants and After lists are de-duped.
     $_override = @(OVERRIDE)
-        # This file is managed by Puppet.
+      # This file is managed by Puppet.
 
-        [Unit]
+      [Unit]
 
-        Wants=network.target network-online.target
-        After=network.target network-online.target
-        | OVERRIDE
+      Wants=network.target network-online.target
+      After=network.target network-online.target
+      | OVERRIDE
 
     systemd::dropin_file { $systemd_override_file:
       unit    => 'rsyslog.service',

@@ -1,0 +1,40 @@
+ruleset(
+  name="ruleset_test_name"
+  queue.filename="test_name_disk_queue"
+  queue.syncqueuefiles="off"
+  queue.type="LinkedList"
+  queue.saveonshutdown="on"
+) {
+  action(
+    type="omfwd"
+    protocol="tcp"
+    target="logserver.my.domain"
+    port="6514"
+    TCP_Framing="traditional"
+    ZipLevel="0"
+    maxErrorMessages="5"
+    compression.mode="none"
+    compression.stream.flushOnTXEnd="on"
+    StreamDriverMode="1"
+    StreamDriverAuthMode="x509/name"
+    StreamDriverPermittedPeers="logserver.my.domain"
+    ResendLastMSGOnReconnect="on"
+  )
+  action(
+    type="omfwd"
+    protocol="tcp"
+    target="logserver2.other.place"
+    port="4444"
+    TCP_Framing="traditional"
+    ZipLevel="0"
+    maxErrorMessages="5"
+    compression.mode="none"
+    compression.stream.flushOnTXEnd="on"
+    StreamDriverMode="1"
+    StreamDriverAuthMode="x509/name"
+    StreamDriverPermittedPeers="logserver2.other.place"
+    ResendLastMSGOnReconnect="on"
+  )
+}
+
+if (test_rule) then call ruleset_test_name
