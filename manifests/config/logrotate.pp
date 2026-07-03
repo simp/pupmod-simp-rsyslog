@@ -73,7 +73,7 @@ class rsyslog::config::logrotate (
   Optional[String[1]]                       $rotate_firstaction               = undef,
   Optional[String[1]]                       $rotate_lastaction                = undef,
   Boolean                                   $rotate_lastaction_restart_logger = true,
-  Optional[String[1]]                       $rotate_logger_service            = simplib::lookup('logrotate::logger_service', {'default_value' => 'rsyslog'}),
+  Optional[String[1]]                       $rotate_logger_service            = simplib::lookup('logrotate::logger_service', { 'default_value' => 'rsyslog' }),
   Integer[0]                                $rotate_preserve                  = 7,
   Optional[Integer[0]]                      $rotate_size                      = undef,
   Boolean                                   $rotate_sharedscripts             = true,
@@ -84,7 +84,7 @@ class rsyslog::config::logrotate (
   Optional[String[1]]                       $rotate_su_group                  = undef,
   Integer[0]                                $rotate_start                     = 1,
   Optional[Array[String[1]]]                $rotate_tabooext                  = undef,
-){
+) {
   assert_private()
 
   simplib::assert_optional_dependency($module_name, 'simp/logrotate')

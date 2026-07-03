@@ -294,8 +294,8 @@ define rsyslog::rule::remote (
         # you should can use the hostname of each server or must fallback
         # to the client's domain.
         $_all_servers = [$_dest, $_failover_servers].flatten
-        $_filtered = $_all_servers.filter |$server|  {
-          $result = assert_type(Variant[Simplib::IP, Simplib::IP::CIDR, Simplib::IP::V4::DDQ], $server) |$expected, $actual| { }
+        $_filtered = $_all_servers.filter |$server| {
+          $result = assert_type(Variant[Simplib::IP, Simplib::IP::CIDR, Simplib::IP::V4::DDQ], $server) |$expected, $actual| {}
           $result != undef
         }
         if $_filtered.empty {
