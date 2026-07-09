@@ -14,10 +14,10 @@ UDP), TLS/PKI for encrypted log transport, optional `logrotate`, and — for a
 server — optional `iptables`, SELinux, and TCPWrappers integration.
 
 The configuration is deliberately slanted toward the quirks of the Rsyslog
-builds shipped with Enterprise Linux (`manifests/init.pp:1-6`). It targets
+builds shipped with Enterprise Linux (`manifests/init.pp`). It targets
 Rsyslog 8-stable and emits a runtime `warning` if the installed `rsyslogd` is
 older than `8.24.0`, pointing the operator at module version `7.6.4` instead
-(`manifests/init.pp:151-153`). The installed version is discovered by a custom
+(`manifests/init.pp`). The installed version is discovered by a custom
 fact (`lib/facter/rsyslogd.rb`) that parses `rsyslogd -v`.
 
 Everything is driven through a rich set of defined types: rules
@@ -32,28 +32,28 @@ managed with `purge => true` — anything not managed by Puppet is removed.
 
 The public entry class is `rsyslog` (`manifests/init.pp`). It `contain`s the
 three private worker classes and pins their ordering
-(`manifests/init.pp:155-163`):
+(`manifests/init.pp`):
 
 ```
 Class['rsyslog::install'] -> Class['rsyslog::config'] ~> Class['rsyslog::service']
 ```
 
-- **`rsyslog` (`manifests/init.pp:127-175`)** — Public class; consumers
+- **`rsyslog` (`manifests/init.pp`)** — Public class; consumers
   `include 'rsyslog'`. Holds the client-facing parameters: package/service
   names, `trusted_nets`, `log_servers` / `failover_log_servers`, the listener
   toggles (`tcp_server`, `tls_tcp_server`, `udp_server`) and their ports,
   `enable_tls_logging`, `pki`, `logrotate`, and a `rules` hash. When
   `$logrotate` is true it additionally `contain`s
   `rsyslog::config::logrotate` after the service
-  (`manifests/init.pp:165-168`). It iterates `$rules` and declares a
+  (`manifests/init.pp`). It iterates `$rules` and declares a
   `rsyslog::rule` per entry via the splat operator
-  (`manifests/init.pp:170-174`), which is how rules can be created purely from
+  (`manifests/init.pp`), which is how rules can be created purely from
   Hiera.
 - **`rsyslog::install` (`manifests/install.pp`)** — `assert_private()`
-  (`install.pp:14`). Installs the core package and, where relevant, the TLS
+  (`install.pp`). Installs the core package and, where relevant, the TLS
   (`rsyslog-gnutls`) package; handles i386-on-x86_64 package removal.
 - **`rsyslog::config` (`manifests/config.pp`)** — `assert_private()`
-  (`config.pp:429`). The heart of the module. Writes `/etc/rsyslog.conf`,
+  (`config.pp`). The heart of the module. Writes `/etc/rsyslog.conf`,
   `/etc/sysconfig/rsyslog`, the managed rule directory, and the base rule
   fragments (`00_simp_pre_logging/global.conf` from
   `templates/config/pre_logging.conf.epp`, a `09_failover_hack` no-op rule
@@ -63,15 +63,15 @@ Class['rsyslog::install'] -> Class['rsyslog::config'] ~> Class['rsyslog::service
   driver settings, `imtcp` keep-alive, DNS/ACL behavior). It also handles the
   PKI branch and an EL7-specific systemd override (see Gotchas).
 - **`rsyslog::service` (`manifests/service.pp`)** — `assert_private()`
-  (`service.pp:11`). Manages the `rsyslog` service state.
+  (`service.pp`). Manages the `rsyslog` service state.
 - **`rsyslog::config::logrotate` (`manifests/config/logrotate.pp`)** —
-  `assert_private()` (`config/logrotate.pp:88`); asserts the optional
-  `simp/logrotate` dependency (`config/logrotate.pp:90`) and proxies its
+  `assert_private()` (`config/logrotate.pp`); asserts the optional
+  `simp/logrotate` dependency (`config/logrotate.pp`) and proxies its
   parameters to a `logrotate::rule` for the syslog logs.
 
 ### Server role
 
-`rsyslog::server` (`manifests/server.pp:16-40`) is the entry point for a host
+`rsyslog::server` (`manifests/server.pp`) is the entry point for a host
 that must **receive** logs. It `include`s `rsyslog` and then conditionally
 `contain`s three private helpers based on `simp_options` toggles:
 
@@ -82,7 +82,7 @@ that must **receive** logs. It `include`s `rsyslog` and then conditionally
 - **`rsyslog::server::selinux`** — `assert_private()`
   (`manifests/server/selinux.pp`). Sets the `nis_enabled` SELinux boolean when
   SELinux is enforcing. Enabled by default from the
-  `os.selinux.enforced` fact (`server.pp:18`); ordered **before** the service.
+  `os.selinux.enforced` fact (`server.pp`); ordered **before** the service.
 - **`rsyslog::server::tcpwrappers`** — `assert_private()`; asserts the optional
   `simp/tcpwrappers` dependency (`manifests/server/tcpwrappers.pp`). Opens the
   `syslog` / `syslog_tls` services. Enabled by `simp_options::tcpwrappers`.
@@ -114,12 +114,12 @@ Templates map to the four Rsyslog template kinds, each written under
 
 - **The managed rule directory is purged.** `$rule_dir`
   (`/etc/rsyslog.simp.d`) is declared with `recurse => true, purge => true,
-  force => true` (`config.pp:488-496`). Any `.conf` not managed by a
+  force => true` (`config.pp`). Any `.conf` not managed by a
   `rsyslog::rule` (directly or via the `rules` Hiera hash) will be deleted on
   the next run. To ship files that SIMP should *not* manage, set
   `rsyslog::config::include_rsyslog_d: true` and drop them in
   `/etc/rsyslog.d` (see the generated `README_SIMP.conf`,
-  `config.pp:505-517`, `config.pp:574-578`).
+  `config.pp`, `config.pp`).
 - **Rule ordering is encoded in directory-number prefixes.** The `NN_simp_*`
   prefixes (`00_simp_pre_logging`, `05_*`, `06_*`, `07_*`, `09_failover_hack`,
   `10_simp_remote`, `20_simp_other`, `99_simp_local`) exist so `$IncludeConfig
@@ -127,40 +127,40 @@ Templates map to the four Rsyslog template kinds, each written under
   adding rule types.
 - **The `09_failover_hack` rule is load-bearing.** Rsyslog will not parse a
   failover action definition unless at least one rule already exists, so the
-  module emits a no-op `continue` rule first (`config.pp:563-572`). Don't
+  module emits a no-op `continue` rule first (`config.pp`). Don't
   remove it.
 - **EL7 (`rsyslogd` 8.24.0) gets a systemd drop-in.** When the installed
   version is exactly `8.24.0`, `rsyslog::config` writes a
   `systemd::dropin_file` adding `network.target`/`network-online.target` to
   the unit's `Wants`/`After` to fix a service-ordering bug in
-  `rsyslog-8.24.0-12.el7` (`config.pp:587-606`). It is harmless on builds that
+  `rsyslog-8.24.0-12.el7` (`config.pp`). It is harmless on builds that
   already have the fix because the lists are de-duplicated.
 - **Versions older than 8.24.0 are unsupported.** `rsyslog::init` warns and
-  points at module `7.6.4` (`init.pp:151-153`). This gate depends on the
+  points at module `7.6.4` (`init.pp`). This gate depends on the
   custom `rsyslogd` fact (`lib/facter/rsyslogd.rb`) being present.
 - **TLS is inferred, not just toggled.** `imtcp_stream_driver_mode` is derived:
   it is `'1'` when any of `$rsyslog::pki`, `$rsyslog::tls_tcp_server`, or
-  `$rsyslog::enable_tls_logging` is set, else `'0'` (`config.pp:403`); the
+  `$rsyslog::enable_tls_logging` is set, else `'0'` (`config.pp`); the
   auth mode then defaults from that (`anon` vs `x509/name`,
-  `config.pp:468-476`). The CA/cert/key paths default under `$app_pki_dir`
+  `config.pp`). The CA/cert/key paths default under `$app_pki_dir`
   (`/etc/pki/simp_apps/rsyslog/x509`) and are the **only** way to set the TLS
-  material (`config.pp:398-400`).
+  material (`config.pp`).
 - **PKI is gated behind an optional dependency.** `rsyslog::config` only pulls
   in PKI when `$rsyslog::pki` is truthy, and asserts `simp/pki` at runtime
-  before calling `pki::copy` (`config.pp:459-466`). `pki` accepts `'simp'`,
+  before calling `pki::copy` (`config.pp`). `pki` accepts `'simp'`,
   `true`, or `false` with distinct meanings (see the `@param pki` docs in
-  `init.pp:92-104`).
+  `init.pp`).
 - **Several parameters are deprecated but still wired.** `rsyslog::config`
   emits `warning`s for `default_template`, `action_send_stream_driver_mode`,
   `action_send_stream_driver_auth_mode`, `suppress_noauth_warn`, and
   `disable_remote_dns`, each pointing at its replacement
-  (`config.pp:431-449`). Prefer the replacements
+  (`config.pp`). Prefer the replacements
   (`default_file_template`, `imtcp_stream_driver_*`, `net_permit_acl_warning`,
   `net_enable_dns`).
 - **Queue sizing is fact-derived math.** The main-message-queue size and its
   high/low/discard watermarks and worker-thread counts are computed from
   `memory.system.total_bytes` and `processors.count`
-  (`config.pp:378-383`); the per-rule `local`/`remote` defines re-validate
+  (`config.pp`); the per-rule `local`/`remote` defines re-validate
   supplied queue parameters against each other.
 - **`simp/simp_options` is NOT a declared dependency** in `metadata.json`, yet
   the manifests consume the `simp_options::*` seam via `simplib::lookup`
@@ -175,14 +175,14 @@ that let one Hiera setting drive many modules. All calls pass an explicit
 
 | Location | Key | `default_value` |
 |----------|-----|-----------------|
-| `init.pp:132` | `simp_options::trusted_nets` | `['127.0.0.1/32']` |
-| `init.pp:134` | `simp_options::syslog::log_servers` | `[]` |
-| `init.pp:135` | `simp_options::syslog::failover_log_servers` | `[]` |
-| `init.pp:145` | `simp_options::logrotate` | `false` |
-| `init.pp:146` | `simp_options::pki` | `false` |
-| `init.pp:147` | `simp_options::pki::source` | `'/etc/pki/simp/x509'` |
-| `server.pp:17` | `simp_options::firewall` | `false` |
-| `server.pp:19` | `simp_options::tcpwrappers` | `false` |
+| `init.pp` | `simp_options::trusted_nets` | `['127.0.0.1/32']` |
+| `init.pp` | `simp_options::syslog::log_servers` | `[]` |
+| `init.pp` | `simp_options::syslog::failover_log_servers` | `[]` |
+| `init.pp` | `simp_options::logrotate` | `false` |
+| `init.pp` | `simp_options::pki` | `false` |
+| `init.pp` | `simp_options::pki::source` | `'/etc/pki/simp/x509'` |
+| `server.pp` | `simp_options::firewall` | `false` |
+| `server.pp` | `simp_options::tcpwrappers` | `false` |
 
 `simp_options::package_ensure` is also consumed elsewhere in the SIMP
 ecosystem; keep routing SIMP feature toggles through
@@ -205,12 +205,12 @@ each is asserted at runtime with `simplib::assert_optional_dependency` only
 when the corresponding feature is enabled, so they are **not** required to be
 installed unless you use that feature:
 
-- `simp/pki` `>= 6.2.0 < 7.0.0` — asserted at `manifests/config.pp:460` when
+- `simp/pki` `>= 6.2.0 < 7.0.0` — asserted at `manifests/config.pp` when
   `$rsyslog::pki`.
 - `simp/tcpwrappers` `>= 6.2.0 < 7.0.0` — asserted in
   `manifests/server/tcpwrappers.pp`.
 - `simp/logrotate` `>= 6.5.0 < 7.0.0` — asserted at
-  `manifests/config/logrotate.pp:90`.
+  `manifests/config/logrotate.pp`.
 - `simp/iptables` `>= 6.5.3 < 8.0.0` — asserted in
   `manifests/server/firewall.pp`.
 
@@ -304,8 +304,8 @@ gem. `spec/spec_helper.rb` requires
   defines — they drive `REFERENCE.md`. Regenerate `REFERENCE.md` after
   changing docs or parameters.
 - Keep private classes/defines `assert_private()`'d
-  (`install.pp:14`, `service.pp:11`, `config.pp:429`,
-  `config/logrotate.pp:88`, and the `server/*` helpers). Consumers enter
+  (`install.pp`, `service.pp`, `config.pp`,
+  `config/logrotate.pp`, and the `server/*` helpers). Consumers enter
   through `rsyslog` or `rsyslog::server`, never the workers.
 - Guard optional integrations (`pki`, `iptables`, `logrotate`, `tcpwrappers`)
   with `simplib::assert_optional_dependency` behind a feature check — don't
