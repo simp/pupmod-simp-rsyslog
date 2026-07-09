@@ -101,7 +101,7 @@ right syntax:
   `imfile`)
 - `rsyslog::rule::drop` → `07_simp_drop_rules` (`if (…) then stop`)
 - `rsyslog::rule::local` → `99_simp_local` (local file destinations; extensive
-  queue-parameter validation, renders `templates/rule/remote.epp`)
+  queue-parameter validation, renders `templates/rule/local.epp`)
 - `rsyslog::rule::other` → `20_simp_other` (arbitrary, unstructured rules)
 - `rsyslog::rule::remote` → `10_simp_remote` (forward to remote servers; TLS,
   compression, disk-assisted queues, IP-vs-hostname peer handling)
@@ -135,7 +135,7 @@ Templates map to the four Rsyslog template kinds, each written under
   the unit's `Wants`/`After` to fix a service-ordering bug in
   `rsyslog-8.24.0-12.el7` (`config.pp`). It is harmless on builds that
   already have the fix because the lists are de-duplicated.
-- **Versions older than 8.24.0 are unsupported.** `rsyslog::init` warns and
+- **Versions older than 8.24.0 are unsupported.** the `rsyslog` class warns and
   points at module `7.6.4` (`init.pp`). This gate depends on the
   custom `rsyslogd` fact (`lib/facter/rsyslogd.rb`) being present.
 - **TLS is inferred, not just toggled.** `imtcp_stream_driver_mode` is derived:
