@@ -124,7 +124,7 @@ A list of subnets (in CIDR notation) permitted access
 * This will be used in conjunction with ``simp\iptables`` (if enabled)
   to allow connections from within the given subnets.
 
-Default value: `simplib::lookup('simp_options::trusted_nets', {'default_value'                  => ['127.0.0.1/32'] })`
+Default value: `simplib::lookup('simp_options::trusted_nets', { 'default_value'                  => ['127.0.0.1/32'] })`
 
 ##### <a name="-rsyslog--enable_tls_logging"></a>`enable_tls_logging`
 
@@ -261,7 +261,7 @@ Ensure that ``logrotate`` is enabled on this system
 * You will need to configure specific logrotate settings via the
 ``logrotate`` module.
 
-Default value: `simplib::lookup('simp_options::logrotate', {'default_value'                     => false})`
+Default value: `simplib::lookup('simp_options::logrotate', { 'default_value'                     => false })`
 
 ##### <a name="-rsyslog--pki"></a>`pki`
 
@@ -279,7 +279,7 @@ Data type: `Variant[Boolean,Enum['simp']]`
   * app_pki_ca
   * app_pki_ca_dir
 
-Default value: `simplib::lookup('simp_options::pki', {'default_value'                           => false})`
+Default value: `simplib::lookup('simp_options::pki', { 'default_value'                           => false })`
 
 ##### <a name="-rsyslog--app_pki_external_source"></a>`app_pki_external_source`
 
@@ -290,7 +290,7 @@ Data type: `String`
 
 * If pki = false, this variable has no effect.
 
-Default value: `simplib::lookup('simp_options::pki::source', {'default_value'                   => '/etc/pki/simp/x509'})`
+Default value: `simplib::lookup('simp_options::pki::source', { 'default_value'                   => '/etc/pki/simp/x509' })`
 
 ##### <a name="-rsyslog--app_pki_dir"></a>`app_pki_dir`
 

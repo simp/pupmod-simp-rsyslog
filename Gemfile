@@ -6,31 +6,23 @@
 # ------------------------------------------------------------------------------
 gem_sources = ENV.fetch('GEM_SERVERS', 'https://rubygems.org').split(%r{[, ]+})
 
-ENV['PDK_DISABLE_ANALYTICS'] ||= 'true'
-
 gem_sources.each { |gem_source| source gem_source }
 
 group :syntax do
   gem 'metadata-json-lint'
   gem 'puppet-lint-trailing_comma-check', require: false
-  gem 'rubocop', '~> 1.85'
+  # rubocop, rubocop-rake, and rubocop-rspec are pulled in and version-pinned by
+  # voxpupuli-test (via simp-rake-helpers); pinning them here conflicts with its
+  # constraints.
   gem 'rubocop-performance', '~> 1.26.0'
-  gem 'rubocop-rake', '~> 0.7.0'
-  gem 'rubocop-rspec', '~> 3.9'
 end
 
 group :test do
   puppet_version = ENV.fetch('PUPPET_VERSION', ['>= 8', '< 9'])
   openvox_version = ENV.fetch('OPENVOX_VERSION', puppet_version)
-  major_puppet_version = Array(puppet_version).first.scan(%r{(\d+)(?:\.|\Z)}).flatten.first.to_i
   gem 'hiera-puppet-helper'
-  # renovate: datasource=rubygems versioning=ruby
-  gem('pdk', ENV.fetch('PDK_VERSION', ['>= 2.0', '< 4.0']), require: false) if major_puppet_version > 5
-  # Temporarily include both openvox and puppet gems until the puppet dependency is removed from other gems
-  ['openvox', 'puppet'].each do |gem_name|
-    gem gem_name, binding.local_variable_get("#{gem_name}_version".to_sym)
-  end
-  gem 'puppet-strings'
+  gem 'openvox', openvox_version
+  gem 'openvox-strings'
   gem 'rake'
   gem 'rspec'
   gem 'rspec-puppet'

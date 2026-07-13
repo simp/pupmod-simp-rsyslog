@@ -62,7 +62,7 @@ jobs:
       - run: bundle exec rake pkg:create_tag_changelog
       - run: bundle exec rake metadata_lint
       - name: "Test that Puppet module can build"
-        run: "bundle exec pdk build --force"
+        run: "bundle exec rake pupmod:build"
 
 
   create-github-release:
@@ -183,7 +183,7 @@ jobs:
           ruby-version: 3.2.11
           bundler-cache: true
       - name: Build Puppet module (PDK)
-        run: bundle exec pdk build --force
+        run: bundle exec rake pupmod:build
       - name: Deploy to Puppet Forge (skipped when prerelease)
         run: |
           curl -X POST --silent --show-error --fail \
