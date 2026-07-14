@@ -82,13 +82,25 @@ describe 'rsyslog class' do
   # by the applies below. A post-convergence noop check is deliberately omitted:
   # `puppet apply --noop --detailed-exitcodes` always exits 0, so it could never
   # fail and would test nothing.
+  #
+  # We noop a bare `include` rather than the suite `manifest` above: that manifest
+  # also declares a troubleshooting `iptables::listen::tcp_stateful` SSH rule,
+  # which under --noop trips a simp_firewalld provider bug on EL8 --
+  # `firewall-offline-cmd --zone 99_simp --list-services` returns 112
+  # (INVALID_ZONE) because the zone a noop-suppressed resource would create does
+  # not exist yet, so the run errors (exit 4). The console previews the module
+  # class itself (firewall default-off), so a bare include is both the
+  # representative subject and free of that unrelated rule.
+  # See simp/pupmod-simp-simp_firewalld#106.
   context 'in noop mode from a clean state' do
+    let(:noop_manifest) { "include 'rsyslog'" }
+
     before(:context) do
       on(hosts, 'puppet resource package rsyslog ensure=absent')
     end
 
     it 'applies without errors in noop mode' do
-      apply_manifest_on(hosts, manifest, catch_failures: true, noop: true)
+      apply_manifest_on(hosts, noop_manifest, catch_failures: true, noop: true)
     end
   end
 
