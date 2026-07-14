@@ -76,6 +76,22 @@ describe 'rsyslog class' do
     EOS
   end
 
+  # Exercise noop from a clean (uninstalled) state: on a fresh node the Sicura
+  # console previews the module with `puppet apply --noop`, which must not error
+  # even though nothing rsyslog manages exists yet. Real idempotence is covered
+  # by the applies below. A post-convergence noop check is deliberately omitted:
+  # `puppet apply --noop --detailed-exitcodes` always exits 0, so it could never
+  # fail and would test nothing.
+  context 'in noop mode from a clean state' do
+    before(:context) do
+      on(hosts, 'puppet resource package rsyslog ensure=absent')
+    end
+
+    it 'applies without errors in noop mode' do
+      apply_manifest_on(hosts, manifest, catch_failures: true, noop: true)
+    end
+  end
+
   context 'fix static host name' do
     hosts.each do |host|
       it "ensures static host name matches FQDN fact on #{host}" do
