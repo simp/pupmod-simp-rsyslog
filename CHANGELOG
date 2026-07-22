@@ -1,6 +1,11 @@
-* Thu Jul 16 2026 Nicholas Markowski <nicholas.markowski@onyxpoint.com> - 9.1.0
+* Wed Jul 22 2026 Nicholas Markowski <nicholas.markowski@onyxpoint.com> - 9.1.0
 - Manage rsyslog's LimitNOFILE via a systemd drop-in file instead of editing
-  the shipped rsyslog.service unit. This preserves RPM file integrity.
+  the shipped rsyslog.service unit. This preserves RPM file integrity (#193).
+- Upgrade note: systems previously managed by this module have a modified
+  `/usr/lib/systemd/system/rsyslog.service`; run `rpm --restore rsyslog`
+  (or reinstall the rsyslog package) once after upgrading to clear the
+  existing RPM hash mismatch. This module does not rewrite the shipped
+  unit file back.
 - Default value of `rsyslog::config::ulimit_max_open_files` is now
   `'infinity'` (the systemd spelling). The legacy value `'unlimited'` is
   still accepted but emits a deprecation warning.

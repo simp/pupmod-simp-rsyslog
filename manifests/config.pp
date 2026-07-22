@@ -418,7 +418,7 @@ class rsyslog::config (
   Optional[String]                      $imtcp_stream_driver_auth_mode                      = undef,
 
   Variant[Enum['infinity','unlimited'],Integer[0]] $ulimit_max_open_files                   = 'infinity',
-  Optional[String]                      $custom_conf_content                                = undef,
+  Optional[String[1]]                   $custom_conf_content                                = undef,
   Boolean                               $enable_default_rules                               = true,
   Optional[Boolean]                     $suppress_noauth_warn                               = undef,
   Rsyslog::Boolean                      $net_permit_acl_warning                             = true,
@@ -552,7 +552,6 @@ class rsyslog::config (
 
   $_custom_conf_content = $custom_conf_content ? {
     undef   => '',
-    ''      => '',
     default => "${custom_conf_content}\n",
   }
 
