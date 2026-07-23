@@ -1,0 +1,2 @@
+---
+rsyslog::config::ulimit_max_open_files: 65536

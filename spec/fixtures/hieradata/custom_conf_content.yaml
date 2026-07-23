@@ -1,0 +1,2 @@
+---
+rsyslog::config::custom_conf_content: '$WorkDirectory /var/spool/rsyslog'
