@@ -25,18 +25,18 @@ if ENV['PUPPET_DEBUG']
 end
 
 default_hiera_config = <<~HIERA_CONFIG
----
-version: 5
-hierarchy:
-  - name: Custom Test Hiera
-    path: "%{custom_hiera}.yaml"
-  - name: "%{module_name}"
-    path: "%{module_name}.yaml"
-  - name: Common
-    path: default.yaml
-defaults:
-  data_hash: yaml_data
-  datadir: "stub"
+  ---
+  version: 5
+  hierarchy:
+    - name: Custom Test Hiera
+      path: "%{custom_hiera}.yaml"
+    - name: "%{module_name}"
+      path: "%{module_name}.yaml"
+    - name: Common
+      path: default.yaml
+  defaults:
+    data_hash: yaml_data
+    datadir: "stub"
 HIERA_CONFIG
 
 # This can be used from inside your spec tests to set the testable environment.
@@ -97,6 +97,7 @@ RSpec.configure do |c|
   c.mock_with :rspec
 
   c.module_path = File.join(fixture_path, 'modules')
+  c.manifest_dir = File.join(fixture_path, 'manifests') if c.respond_to?(:manifest_dir)
 
   c.hiera_config = File.join(fixture_path, 'hieradata', 'hiera.yaml')
 
