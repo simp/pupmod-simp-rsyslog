@@ -10,7 +10,13 @@ describe 'rsyslog::rule::remote' do
       end
 
       let(:facts) do
-        rsyslog_facts = { rsyslogd: { 'version' => '8.24.0' } }
+        rsyslog_facts = {
+          rsyslogd: { 'version' => '8.24.0' },
+          # Pin `custom_hiera` into this example's facts so contexts that
+          # differ only by `let(:hieradata)` compile distinct catalogues
+          # (simp/pupmod-simp-rsyslog#211, simp/puppetsync#90).
+          custom_hiera: defined?(hieradata) ? hieradata.tr(':', '_') : 'rsyslog__rule__remote',
+        }
         os_facts.merge(rsyslog_facts)
       end
 
