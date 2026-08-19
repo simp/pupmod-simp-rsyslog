@@ -116,6 +116,15 @@ describe 'rsyslog' do
         custom[:memory][:system][:total_bytes] = 268_435_456
         custom[:processors][:count] = 4
 
+        # Contexts that differ only by `let(:hieradata)` are otherwise
+        # indistinguishable to rspec-puppet's fact-keyed catalogue cache,
+        # because `custom_hiera` normally only travels through the global
+        # `RSpec.configuration.default_facts` mutation in spec_helper.rb
+        # (simp/pupmod-simp-rsyslog#211, simp/puppetsync#90).  Pin it into
+        # this example's facts so each context compiles its own catalogue
+        # with the correct hiera layer.
+        custom[:custom_hiera] = defined?(hieradata) ? hieradata.tr(':', '_') : 'rsyslog'
+
         custom
       end
 
