@@ -88,6 +88,15 @@
 #
 # @param tcp_framing
 # @param zip_level
+#
+# @param max_error_messages
+#   **Deprecated**: This parameter no longer has any effect and will be
+#   removed in a future major release.
+#
+#   * The corresponding ``maxErrorMessages`` option was removed from
+#     rsyslog's ``omfwd`` module in rsyslog 8.29.0 and is invalid on all
+#     supported operating systems
+#
 # @param compression_mode
 # @param compression_stream_flush_on_tx_end
 # @param rebind_interval
@@ -195,6 +204,7 @@ define rsyslog::rule::remote (
   Simplib::Netlist                      $failover_log_servers                 = [],
   Enum['traditional','octet-counted']   $tcp_framing                          = 'traditional',
   Integer[0,9]                          $zip_level                            = 0,
+  Optional[Integer[0]]                  $max_error_messages                   = undef,
   Enum['none','single','stream:always'] $compression_mode                     = 'none',
   Boolean                               $compression_stream_flush_on_tx_end   = true,
   Optional[Integer[0]]                  $rebind_interval                      = undef,
@@ -239,6 +249,13 @@ define rsyslog::rule::remote (
   Optional[String[1]]                   $content                              = undef,
 ) {
   include 'rsyslog'
+
+  if $max_error_messages =~ NotUndef {
+    # use_strict_setting => false: warn without failing compilation under
+    # --strict=error, since the parameter must keep working until removal
+    deprecation('rsyslog::rule::remote::max_error_messages',
+    "'rsyslog::rule::remote::max_error_messages' is deprecated and has no effect. The 'maxErrorMessages' option was removed from rsyslog's omfwd module in rsyslog 8.29.0", false)
+  }
 
   $_notify_msg = 'TLS is being used and stream_driver_permitted_peers is undefined. In this case, rsyslog::remote::rule uses the name supplied in the dest and/or failover_log_server field for the action. If IP Addresses are being used, this will probably not match the CN or fingerprint of the certificate being presented from the log server and the connection will be denied.  The StreamDriverPermittedPeers directive was defaulted to "*.${facts["domain"]}".  The rule being defined should be reviewed to ensure this is valid. It is recommended to use FQDN in the dest and failover_log_server parameters if TLS is being used or specifically set the stream_driver_permitted_peers parameter' # lint:ignore:single_quote_string_with_variables
 
