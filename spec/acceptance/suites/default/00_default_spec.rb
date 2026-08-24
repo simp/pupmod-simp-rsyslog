@@ -122,6 +122,10 @@ describe 'rsyslog class' do
       apply_manifest_on(client, manifest, { catch_changes: true })
     end
 
+    it 'produces a valid rsyslog configuration' do
+      expect_valid_rsyslog_config(client)
+    end
+
     it 'has rsyslog package installed' do
       result = on(client, 'puppet resource package rsyslog').stdout
       expect(result).not_to match(%r{ensure\s*=>\s*'purged'})

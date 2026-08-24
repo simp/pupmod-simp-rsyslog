@@ -131,6 +131,12 @@ describe 'rsyslog class' do
       apply_manifest_on(client, client_manifest, hiera_config: client.puppet['hiera_config'], catch_failures: true)
     end
 
+    it 'produces a valid rsyslog configuration on all hosts' do
+      (servers + failover_servers + [client]).each do |host|
+        expect_valid_rsyslog_config(host)
+      end
+    end
+
     # Default scenario, everything goes to both primary servers
     it 'successfullies send log messages to the primary servers but not the failover server' do
       remote_log = "/var/log/hosts/#{client_fqdn}/everything.log"
