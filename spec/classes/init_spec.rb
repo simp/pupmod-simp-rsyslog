@@ -35,7 +35,13 @@ describe 'rsyslog' do
         # and place ".conf" files that rsyslog should process independently of
         # SIMP into this directory.
       EOM
-      is_expected.to contain_file('/etc/rsyslog.d/README_SIMP.conf').with_content(expected)
+      is_expected.to contain_file('/etc/rsyslog.d/README_SIMP.conf').with(
+        ensure: 'file',
+        owner: 'root',
+        group: 'root',
+        mode: '0640',
+        content: expected,
+      )
     }
 
     it {
