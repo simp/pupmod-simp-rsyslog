@@ -13,6 +13,29 @@ include Simp::BeakerHelpers
 # @param [Float]  interval_sec Interval in seconds between log checks
 #
 # TODO move to Simp::BeakerHelpers
+# Validate the complete rsyslog configuration on a host with `rsyslogd -N1`.
+#
+# Catches invalid or removed configuration parameters (e.g. #161) that a
+# running rsyslogd only reports as startup errors while otherwise appearing
+# to work.
+#
+# `rsyslogd -N1` exits non-zero for warnings as well as errors, so
+# known-benign warnings are filtered out before failing.
+def expect_valid_rsyslog_config(host)
+  result = on(host, 'rsyslogd -N1', accept_all_exit_codes: true)
+  return if result.exit_code == 0
+
+  issues = result.output.lines.map(&:strip).reject do |line|
+    line.empty? ||
+      line.include?('config validation run') ||
+      # this module always preloads imfile for rsyslog::rule::data_source,
+      # so rsyslog warns when no imfile inputs are configured
+      line.include?('imfile: no files configured to be monitored')
+  end
+
+  expect(issues).to be_empty, "rsyslogd -N1 exited #{result.exit_code}:\n#{result.output}"
+end
+
 require 'timeout'
 def wait_for_log_message(
   host,

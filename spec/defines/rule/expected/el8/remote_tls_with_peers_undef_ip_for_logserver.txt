@@ -12,7 +12,6 @@ ruleset(
     port="6514"
     TCP_Framing="traditional"
     ZipLevel="0"
-    maxErrorMessages="5"
     compression.mode="none"
     compression.stream.flushOnTXEnd="on"
     StreamDriverMode="1"

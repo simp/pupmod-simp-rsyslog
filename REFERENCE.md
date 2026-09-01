@@ -1400,11 +1400,16 @@ Default value: `0`
 
 ##### <a name="-rsyslog--rule--remote--max_error_messages"></a>`max_error_messages`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
+**Deprecated**: This parameter no longer has any effect and will be
+removed in a future major release.
 
+* The corresponding ``maxErrorMessages`` option was removed from
+  rsyslog's ``omfwd`` module in rsyslog 8.29.0 and is invalid on all
+  supported operating systems
 
-Default value: `5`
+Default value: `undef`
 
 ##### <a name="-rsyslog--rule--remote--compression_mode"></a>`compression_mode`
 

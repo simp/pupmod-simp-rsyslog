@@ -102,6 +102,7 @@ describe 'rsyslog::rule::remote' do
               failover_log_servers: ['5.6.7.8:5678', '9.10.11.12'],
               tcp_framing: 'octet-counted',
               zip_level: 1,
+              # deprecated no-op, kept to verify backwards compatibility
               max_error_messages: 6,
               compression_mode: 'single',
               compression_stream_flush_on_tx_end: false,

@@ -6,6 +6,16 @@
   `pupmod-simp-simp_options` 3.0.0, and TCP wrappers does not exist on any
   supported EL release. Sites setting `rsyslog::server::enable_tcpwrappers`
   MUST remove the key
+* Tue Sep 01 2026 Steven Pritchard <steve@sicura.us> - 9.2.0
+- Stop emitting the invalid `maxErrorMessages` option in remote-forwarding
+  rules. The option was removed from rsyslog's omfwd module in rsyslog
+  8.29.0 and is rejected by `rsyslogd -N1` on all supported operating
+  systems (#161). Thanks to dforste for the initial fix (#162).
+- The `rsyslog::rule::remote::max_error_messages` parameter is deprecated:
+  it is still accepted but has no effect and emits a deprecation warning
+  when set. It will be removed in the next major release.
+- Validate the generated rsyslog configuration with `rsyslogd -N1` in
+  acceptance tests.
 
 * Mon Aug 24 2026 Steven Pritchard <steve@sicura.us> - 9.1.1
 - [puppetsync] Update metadata.json dependency ranges from the Forge
