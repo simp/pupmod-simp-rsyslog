@@ -164,6 +164,12 @@ describe 'rsyslog client -> 1 server using TLS -> 1 server using plain TCP' do
     it 'configures client idempotently' do
       apply_manifest_on(client, client_manifest, catch_changes: true)
     end
+
+    it 'produces a valid rsyslog configuration on all hosts' do
+      [server, nextserver, client].each do |host|
+        expect_valid_rsyslog_config(host)
+      end
+    end
   end
 
   context 'log forwarding' do

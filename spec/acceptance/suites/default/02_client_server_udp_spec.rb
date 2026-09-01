@@ -91,6 +91,11 @@ describe 'rsyslog class' do
       apply_manifest_on(client, client_manifest, catch_failures: true)
     end
 
+    it 'produces a valid rsyslog configuration on the server and client' do
+      expect_valid_rsyslog_config(server)
+      expect_valid_rsyslog_config(client)
+    end
+
     it 'successfullies send log messages to the server over UDP' do
       remote_log = "/var/log/hosts/#{client_fqdn}/everything.log"
       on client, "logger -t FOO TEST-1-#{msg_uuid}-MSG"

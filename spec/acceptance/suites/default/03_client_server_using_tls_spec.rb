@@ -100,6 +100,11 @@ describe 'rsyslog client -> 1 server using TLS' do
       apply_manifest_on(client, client_manifest, catch_changes: true)
     end
 
+    it 'produces a valid rsyslog configuration on the server and client' do
+      expect_valid_rsyslog_config(server)
+      expect_valid_rsyslog_config(client)
+    end
+
     it 'successfullies send log messages' do
       on client, 'logger -t FOO TEST-USING-TLS'
       remote_log = "/var/log/hosts/#{client_fqdn}/everything.log"
