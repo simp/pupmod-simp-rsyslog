@@ -11,7 +11,7 @@ directory (`/etc/rsyslog.simp.d`), then populates that directory with numbered
 `.conf` fragments so that rule ordering is deterministic. On top of the base
 client configuration it layers a server role (listeners for TCP, TLS-TCP, and
 UDP), TLS/PKI for encrypted log transport, optional `logrotate`, and — for a
-server — optional `iptables`, SELinux, and TCPWrappers integration.
+server — optional `iptables` and SELinux integration.
 
 The configuration is deliberately slanted toward the quirks of the Rsyslog
 builds shipped with Enterprise Linux (`manifests/init.pp`). It targets
@@ -83,9 +83,6 @@ that must **receive** logs. It `include`s `rsyslog` and then conditionally
   (`manifests/server/selinux.pp`). Sets the `nis_enabled` SELinux boolean when
   SELinux is enforcing. Enabled by default from the
   `os.selinux.enforced` fact (`server.pp`); ordered **before** the service.
-- **`rsyslog::server::tcpwrappers`** — `assert_private()`; asserts the optional
-  `simp/tcpwrappers` dependency (`manifests/server/tcpwrappers.pp`). Opens the
-  `syslog` / `syslog_tls` services. Enabled by `simp_options::tcpwrappers`.
 
 ### Rules and templates (defined types)
 
@@ -182,7 +179,6 @@ that let one Hiera setting drive many modules. All calls pass an explicit
 | `init.pp` | `simp_options::pki` | `false` |
 | `init.pp` | `simp_options::pki::source` | `'/etc/pki/simp/x509'` |
 | `server.pp` | `simp_options::firewall` | `false` |
-| `server.pp` | `simp_options::tcpwrappers` | `false` |
 
 `simp_options::package_ensure` is also consumed elsewhere in the SIMP
 ecosystem; keep routing SIMP feature toggles through
@@ -207,8 +203,6 @@ installed unless you use that feature:
 
 - `simp/pki` `>= 6.2.0 < 7.0.0` — asserted at `manifests/config.pp` when
   `$rsyslog::pki`.
-- `simp/tcpwrappers` `>= 6.2.0 < 7.0.0` — asserted in
-  `manifests/server/tcpwrappers.pp`.
 - `simp/logrotate` `>= 6.5.0 < 7.0.0` — asserted at
   `manifests/config/logrotate.pp`.
 - `simp/iptables` `>= 6.5.3 < 8.0.0` — asserted in
@@ -233,8 +227,7 @@ OracleLinux 7/8/9; Rocky 8/9; AlmaLinux 8/9.
   tunables.
 - `manifests/config/logrotate.pp` — private; optional logrotate integration.
 - `manifests/server.pp` — the `rsyslog::server` role class.
-- `manifests/server/{firewall,selinux,tcpwrappers}.pp` — private server-role
-  helpers.
+- `manifests/server/{firewall,selinux}.pp` — private server-role helpers.
 - `manifests/rule.pp` + `manifests/rule/{console,data_source,drop,local,other,remote}.pp`
   — the rule defined types.
 - `manifests/template/{list,plugin,string,subtree}.pp` — the template defined
@@ -307,7 +300,7 @@ gem. `spec/spec_helper.rb` requires
   (`install.pp`, `service.pp`, `config.pp`,
   `config/logrotate.pp`, and the `server/*` helpers). Consumers enter
   through `rsyslog` or `rsyslog::server`, never the workers.
-- Guard optional integrations (`pki`, `iptables`, `logrotate`, `tcpwrappers`)
+- Guard optional integrations (`pki`, `iptables`, `logrotate`)
   with `simplib::assert_optional_dependency` behind a feature check — don't
   hard-`include` optional modules.
 - Route SIMP feature toggles through `simplib::lookup('simp_options::*', {

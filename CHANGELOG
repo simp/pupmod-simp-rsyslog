@@ -1,3 +1,11 @@
+* Tue Sep 01 2026 Hazel Caballero <hazel@sicura.us> - 10.0.0
+- BREAKING CHANGE: Remove the `rsyslog::server::enable_tcpwrappers` parameter
+  and the private `rsyslog::server::tcpwrappers` class, along with the
+  `simp/tcpwrappers` optional dependency. `pupmod-simp-tcpwrappers` is
+  archived, the `simp_options::tcpwrappers` catalyst was removed in
+  `pupmod-simp-simp_options` 3.0.0, and TCP wrappers does not exist on any
+  supported EL release. Sites setting `rsyslog::server::enable_tcpwrappers`
+  MUST remove the key
 * Tue Sep 01 2026 Steven Pritchard <steve@sicura.us> - 9.2.0
 - Stop emitting the invalid `maxErrorMessages` option in remote-forwarding
   rules. The option was removed from rsyslog's omfwd module in rsyslog

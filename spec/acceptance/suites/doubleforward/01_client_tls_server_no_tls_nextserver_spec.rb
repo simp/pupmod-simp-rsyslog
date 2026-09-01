@@ -70,7 +70,6 @@ describe 'rsyslog client -> 1 server using TLS -> 1 server using plain TCP' do
       class { 'rsyslog::server':
         enable_firewall    => true,
         enable_selinux     => false,
-        enable_tcpwrappers => false,
       }
 
       # Forward plain TCP to our remote log servers
@@ -120,7 +119,6 @@ describe 'rsyslog client -> 1 server using TLS -> 1 server using plain TCP' do
       class { 'rsyslog::server':
         enable_firewall    => true,
         enable_selinux     => false,
-        enable_tcpwrappers => false,
       }
 
       # Define a dynamic file with an rsyslog template
