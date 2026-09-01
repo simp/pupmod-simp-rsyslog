@@ -1,6 +1,6 @@
 {
   "name": "simp-rsyslog",
-  "version": "9.2.1",
+  "version": "10.0.1",
   "author": "SIMP Team",
   "summary": "A puppet module to support RSyslog version 8.",
   "license": "Apache-2.0",
@@ -40,10 +40,6 @@
       {
         "name": "simp/pki",
         "version_requirement": ">= 6.2.0 < 8.0.0"
-      },
-      {
-        "name": "simp/tcpwrappers",
-        "version_requirement": ">= 6.2.0 < 7.0.0"
       }
     ]
   },

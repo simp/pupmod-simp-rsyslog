@@ -18,7 +18,6 @@
 * `rsyslog::install`: Installs the packages necessary for use of RSyslog
 * `rsyslog::server::firewall`: Sets up the firewall rules for RSyslog with management by ``simp/iptables``
 * `rsyslog::server::selinux`: Sets up SELinux for RSyslog
-* `rsyslog::server::tcpwrappers`: Sets up TCPWrappers for RSyslog both plain TCP and TCP over TLS as necessary
 * `rsyslog::service`: Manage the RSyslog service
 
 ### Defined types
@@ -321,7 +320,6 @@ The following parameters are available in the `rsyslog::server` class:
 
 * [`enable_firewall`](#-rsyslog--server--enable_firewall)
 * [`enable_selinux`](#-rsyslog--server--enable_selinux)
-* [`enable_tcpwrappers`](#-rsyslog--server--enable_tcpwrappers)
 
 ##### <a name="-rsyslog--server--enable_firewall"></a>`enable_firewall`
 
@@ -338,14 +336,6 @@ Data type: `Optional[Boolean]`
 Enable the SIMP SELinux rules for RSyslog
 
 Default value: `$facts['os']['selinux']['enforced']`
-
-##### <a name="-rsyslog--server--enable_tcpwrappers"></a>`enable_tcpwrappers`
-
-Data type: `Boolean`
-
-Enable the SIMP TCPWrapper rules for RSyslog
-
-Default value: `simplib::lookup('simp_options::tcpwrappers', { 'default_value' => false })`
 
 ## Defined types
 

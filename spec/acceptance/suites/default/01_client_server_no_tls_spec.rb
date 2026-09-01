@@ -50,7 +50,6 @@ describe 'rsyslog client -> 1 server without TLS' do
       class { 'rsyslog::server':
         enable_firewall    => true,
         enable_selinux     => false,
-        enable_tcpwrappers => false,
       }
 
       # define a dynamic file with an rsyslog template
