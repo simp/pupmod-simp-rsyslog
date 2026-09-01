@@ -533,7 +533,7 @@ class rsyslog::config (
     ensure  => 'file',
     owner   => 'root',
     group   => 'root',
-    mode    => '0644',
+    mode    => '0640',
     content => $_readme
   }
 

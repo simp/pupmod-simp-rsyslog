@@ -1,3 +1,9 @@
+* Tue Sep 01 2026 Hazel Caballero <hazel@sicura.us> - 10.0.1
+- Manage `/etc/rsyslog.d/README_SIMP.conf` with mode `0640` instead of `0644`.
+  Compliance benchmarks that require every rsyslog configuration file to be
+  `0640` or more restrictive were failing on this file, which was the only
+  file the module managed more permissively than `0640` (#134).
+
 * Tue Sep 01 2026 Hazel Caballero <hazel@sicura.us> - 10.0.0
 - BREAKING CHANGE: Remove the `rsyslog::server::enable_tcpwrappers` parameter
   and the private `rsyslog::server::tcpwrappers` class, along with the
