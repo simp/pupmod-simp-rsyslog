@@ -52,7 +52,7 @@ If you find any issues, they can be submitted to our
 This module follows the standard
 [PuppetLabs module style guide](https://puppetlabs.com/guides/style_guide.html)
 with some SIMP-specific configuration items included for managing auditing,
-firewall rules, logging, SELinux, and TCPWrappers. All of these items are
+firewall rules, logging, and SELinux. All of these items are
 configurable and can be turned on or off as needed for each user environment.
 
 [pupmod-simp-rsyslog](https://github.com/simp/pupmod-simp-rsyslog) was designed
@@ -88,7 +88,6 @@ Services and operations managed or affected by
 * firewall (configurable)
   * NOTE: If firewall management is enabled, and you are using iptables (not
     firewalld), then you MUST set ``iptables::precise_match: true`` in Hiera.
-* TCPWrappers (configurable)
 * SELinux (configurable)
 * Logrotate (configurable)
 
