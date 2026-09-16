@@ -60,6 +60,25 @@ rescue Timeout::Error
   raise error_msg
 end
 
+# Block until a client's failover forwarding action is proven to be delivering
+# to the failover server.
+#
+# rsyslog only suspends the omfwd action for a dead TCP peer after at least
+# one send to that peer has already failed (the first write after a peer
+# closes is silently swallowed by the socket), and a failover action
+# (action.execOnlyWhenPreviousIsSuspended) only engages once the preceding
+# action is suspended.  Messages logged inside that detection window are
+# expected to be lost, so tests must not assert on them: this helper burns
+# through the window with sacrificial TRIGGER messages and returns once the
+# last of them arrives on the failover server.
+def wait_for_failover_to_engage(client, failover_server, remote_log, msg_uuid, num_triggers = 5)
+  (1..num_triggers).each do |num|
+    on client, "logger -t FOO TRIGGER-#{num}-#{msg_uuid}-MSG"
+    sleep(1)
+  end
+  wait_for_log_message(failover_server, remote_log, "TRIGGER-#{num_triggers}-#{msg_uuid}-MSG")
+end
+
 unless ENV['BEAKER_provision'] == 'no'
   hosts.each do |host|
     # Install Puppet

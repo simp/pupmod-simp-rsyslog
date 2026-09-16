@@ -172,6 +172,10 @@ describe 'rsyslog class' do
       # Give it a couple of seconds
       sleep(2)
 
+      # Messages sent while rsyslog is still detecting the dead primaries are
+      # lost; only assert on messages sent after failover has engaged.
+      wait_for_failover_to_engage(client, failover_server, remote_log, msg_uuid)
+
       # Log test messages
       (11..20).each do |msg|
         on client, "logger -t FOO TEST-#{msg}-#{msg_uuid}-MSG"
@@ -196,6 +200,10 @@ describe 'rsyslog class' do
 
       set_hieradata_on(client, client_failover_small_queue_hieradata)
       apply_manifest_on(client, client_failover_manifest_small_queue, hiera_config: client.puppet['hiera_config'], catch_failures: true)
+
+      # The client rsyslog restarted with fresh action state, so the failover
+      # detection window applies again.
+      wait_for_failover_to_engage(client, failover_server, remote_log, msg_uuid)
 
       # Make sure logs are still hitting the failover server
       (21..30).each do |msg|
