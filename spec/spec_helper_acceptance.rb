@@ -79,6 +79,23 @@ def wait_for_failover_to_engage(client, failover_server, remote_log, msg_uuid, n
   wait_for_log_message(failover_server, remote_log, "TRIGGER-#{num_triggers}-#{msg_uuid}-MSG")
 end
 
+# Block until a client's forwarding action to a recovered server has resumed.
+#
+# rsyslog retries a suspended action lazily — when a message arrives for it
+# and the (backed-off) resume interval has elapsed.  Messages logged before
+# that retry fires are dropped for the action (failing over instead), so
+# tests must not assert that they reach the recovered server: this helper
+# sends sacrificial RESUME messages until one provably arrives on it.
+def wait_for_forwarding_to_resume(client, server, remote_log, msg_uuid, max_rounds = 30)
+  resumed = (1..max_rounds).any? do |num|
+    on client, "logger -t FOO RESUME-#{num}-#{msg_uuid}-MSG"
+    sleep(3)
+    result = on server, "grep -E 'RESUME-[0-9]+-#{msg_uuid}-MSG' #{remote_log}", accept_all_exit_codes: true
+    result.exit_code == 0
+  end
+  raise "Forwarding from #{client} to #{server} did not resume within #{max_rounds} attempts" unless resumed
+end
+
 unless ENV['BEAKER_provision'] == 'no'
   hosts.each do |host|
     # Install Puppet

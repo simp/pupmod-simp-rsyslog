@@ -15,6 +15,17 @@
   expected to be lost. The failover specs now burn through the window with
   sacrificial messages (`wait_for_failover_to_engage`) before logging the
   messages they assert on
+- Restore the on-disk queue check in the failover specs: modern rsyslog only
+  spills a disk-assisted queue to disk when the in-memory queue is actually
+  full, never at the high watermark alone, so the small-queue manifests now
+  pass `queue_size => 4`. The TLS spec also gets its own queue filename so
+  its check can't pass on the non-TLS spec's leftover queue files
+- De-race the primary-recovery assertions: rsyslog retries a suspended
+  action lazily and with backoff, and messages logged before the retry fires
+  are dropped for that action, so the specs now wait until forwarding to
+  each recovered server has provably resumed
+  (`wait_for_forwarding_to_resume`) before logging the messages they assert
+  on
 
 * Tue Sep 01 2026 Hazel Caballero <hazel@sicura.us> - 10.0.1
 - Manage `/etc/rsyslog.d/README_SIMP.conf` with mode `0640` instead of `0644`.

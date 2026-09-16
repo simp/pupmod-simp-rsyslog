@@ -54,7 +54,11 @@ describe 'rsyslog class' do
     }
   end
 
-  # This is used for testing the failover queueing
+  # This is used for testing the failover queueing.
+  #
+  # queue_size is required for the on-disk queue check: modern rsyslog only
+  # spills a disk-assisted queue to disk when the in-memory queue is
+  # actually full (queue.size), never at the high watermark alone.
   let(:client_failover_manifest_small_queue) do
     <<-EOS
       include 'rsyslog'
@@ -62,6 +66,7 @@ describe 'rsyslog class' do
       rsyslog::rule::remote { 'send_the_logs':
         rule                 => 'prifilt(\\'*.*\\')',
         queue_filename       => 'test_queue',
+        queue_size           => 4,
         queue_high_watermark => 2,
         queue_low_watermark  => 1
       }
@@ -273,6 +278,14 @@ describe 'rsyslog class' do
       end
       # Let the logs start flowing again
       sleep(2)
+
+      # rsyslog retries a suspended action lazily and with backoff, and
+      # messages logged before the retry fires are dropped for that action;
+      # wait until forwarding to every recovered primary has provably
+      # resumed before logging the messages we assert on.
+      servers.each do |server|
+        wait_for_forwarding_to_resume(client, server, remote_log, msg_uuid)
+      end
 
       (41..50).each do |msg|
         on client, "logger -t FOO TEST-#{msg}-#{msg_uuid}-MSG"
