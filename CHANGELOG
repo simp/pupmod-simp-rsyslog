@@ -1,36 +1,10 @@
 * Wed Sep 16 2026 Hazel Caballero <hazel@sicura.us> - 10.0.2
-- Run the failover acceptance tests in CI by moving them back into the
-  default suite, completing the multi-host nodeset restoration from the
-  9.0.0 cleanup: restore the second `server`-role host (`server-2`) and
-  point the failover hieradata at the `failover-server` host that exists
-  (#204)
-- Fix a stale `server-2` hostname in the doubleforward suite's server
-  manifest (forward to the `nextserver` host's FQDN)
-- De-race the failover specs' positive log assertions with
-  `wait_for_log_message` — rsyslog failover is not instantaneous, so bare
-  `grep`s raced message delivery
-- Stop asserting on the first messages logged after a primary-server outage:
-  rsyslog only suspends the omfwd action for a dead TCP peer after a send to
-  it has already failed, so messages logged inside that detection window are
-  expected to be lost. The failover specs now burn through the window with
-  sacrificial messages (`wait_for_failover_to_engage`) before logging the
-  messages they assert on
-- Restore the on-disk queue check in the failover specs: modern rsyslog only
-  spills a disk-assisted queue to disk when the in-memory queue is actually
-  full, never at the high watermark alone, so the small-queue manifests now
-  pass `queue_size => 4`. The TLS spec also gets its own queue filename so
-  its check can't pass on the non-TLS spec's leftover queue files
-- De-race the primary-recovery assertions: rsyslog retries a suspended
-  action lazily and with backoff, and messages logged before the retry fires
-  are dropped for that action, so the specs now wait until forwarding to
-  each recovered server has provably resumed
-  (`wait_for_forwarding_to_resume`) before logging the messages they assert
-  on
-- Restore the once-per-file `msg_uuid` in the failover specs: the recovery
-  examples grep for messages that earlier examples logged, but a 2024
-  rubocop cleanup converted the shared `before(:all)` uuid into a
-  per-example `let`, so the recovery examples waited for messages that were
-  never logged
+- Run the failover acceptance tests in CI by moving them into the default
+  suite and restoring the second server host (#204)
+- Fix a stale `server-2` hostname in the doubleforward suite
+- Fix the failover specs: de-race the log assertions, account for rsyslog's
+  failover-detection and action-resume windows, set a queue size so the
+  disk-queue check can pass, and restore the once-per-file test uuid
 
 * Tue Sep 01 2026 Hazel Caballero <hazel@sicura.us> - 10.0.1
 - Manage `/etc/rsyslog.d/README_SIMP.conf` with mode `0640` instead of `0644`.
