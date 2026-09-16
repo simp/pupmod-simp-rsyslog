@@ -7,11 +7,13 @@ require 'spec_helper_acceptance'
 test_name 'client -> 2 server with TLS'
 
 describe 'rsyslog class' do
-  let(:msg_uuid) do
-    # Ensure that our test doesn't match messages from other tests
-    sleep(1)
-    Time.now.to_f.to_s.tr('.', '_') + '_WITH_TLS'
-  end
+  # Ensure that our test doesn't match messages from other tests or previous
+  # runs on the same hosts.
+  #
+  # This must be evaluated once per file, NOT once per example (let would
+  # re-evaluate it for every example): the recovery examples grep for
+  # messages that earlier examples logged.
+  msg_uuid = Time.now.to_f.to_s.tr('.', '_') + '_WITH_TLS' # rubocop:disable RSpec/LeakyLocalVariable
 
   let(:client) { only_host_with_role(hosts, 'client') }
   let(:client_fqdn) { fact_on(client, 'networking.fqdn') }
