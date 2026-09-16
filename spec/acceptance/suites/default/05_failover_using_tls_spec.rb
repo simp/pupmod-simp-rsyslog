@@ -7,11 +7,13 @@ require 'spec_helper_acceptance'
 test_name 'client -> 2 server with TLS'
 
 describe 'rsyslog class' do
-  let(:msg_uuid) do
-    # Ensure that our test doesn't match messages from other tests
-    sleep(1)
-    Time.now.to_f.to_s.tr('.', '_') + '_WITH_TLS'
-  end
+  # Ensure that our test doesn't match messages from other tests or previous
+  # runs on the same hosts.
+  #
+  # This must be evaluated once per file, NOT once per example (let would
+  # re-evaluate it for every example): the recovery examples grep for
+  # messages that earlier examples logged.
+  msg_uuid = Time.now.to_f.to_s.tr('.', '_') + '_WITH_TLS' # rubocop:disable RSpec/LeakyLocalVariable
 
   let(:client) { only_host_with_role(hosts, 'client') }
   let(:client_fqdn) { fact_on(client, 'networking.fqdn') }
@@ -64,14 +66,23 @@ describe 'rsyslog class' do
     }
   end
 
-  # This is used for testing the failover queueing
+  # This is used for testing the failover queueing.
+  #
+  # queue_size is required for the on-disk queue check: modern rsyslog only
+  # spills a disk-assisted queue to disk when the in-memory queue is
+  # actually full (queue.size), never at the high watermark alone.
+  #
+  # The queue filename must differ from the one in 04_failover_no_tls_spec
+  # (which runs on the same hosts) so the on-disk check can't pass on that
+  # spec's leftover queue files.
   let(:client_failover_manifest_small_queue) do
     <<-EOS
       include 'rsyslog'
 
       rsyslog::rule::remote { 'send_the_logs':
         rule                 => 'prifilt(\\'*.*\\')',
-        queue_filename       => 'test_queue',
+        queue_filename       => 'test_queue_tls',
+        queue_size           => 4,
         queue_high_watermark => 2,
         queue_low_watermark  => 1
       }
@@ -152,8 +163,7 @@ describe 'rsyslog class' do
       on client, "logger -t FOO TEST-1-#{msg_uuid}-MSG"
 
       servers.each do |server|
-        on server, "test -f #{remote_log}"
-        on server, "grep TEST-1-#{msg_uuid}-MSG #{remote_log}"
+        wait_for_log_message(server, remote_log, "TEST-1-#{msg_uuid}-MSG")
       end
 
       failover_servers.each do |server|
@@ -185,6 +195,10 @@ describe 'rsyslog class' do
       # Give it a couple of seconds
       sleep(2)
 
+      # Messages sent while rsyslog is still detecting the dead primaries are
+      # lost; only assert on messages sent after failover has engaged.
+      wait_for_failover_to_engage(client, failover_server, remote_log, msg_uuid)
+
       # Log test messages
       (11..20).each do |msg|
         on client, "logger -t FOO TEST-#{msg}-#{msg_uuid}-MSG"
@@ -210,14 +224,18 @@ describe 'rsyslog class' do
       set_hieradata_on(client, client_failover_small_queue_hieradata)
       apply_manifest_on(client, client_failover_manifest_small_queue, hiera_config: client.puppet['hiera_config'], catch_failures: true)
 
+      # The client rsyslog restarted with fresh action state, so the failover
+      # detection window applies again.
+      wait_for_failover_to_engage(client, failover_server, remote_log, msg_uuid)
+
       # Make sure logs are still hitting the failover server
       (21..30).each do |msg|
         on client, "logger -t FOO TEST-#{msg}-#{msg_uuid}-MSG"
       end
 
       # Validate Failover
-      on failover_server, "grep TEST-21-#{msg_uuid}-MSG #{remote_log}"
-      on failover_server, "grep TEST-29-#{msg_uuid}-MSG #{remote_log}"
+      wait_for_log_message(failover_server, remote_log, "TEST-21-#{msg_uuid}-MSG")
+      wait_for_log_message(failover_server, remote_log, "TEST-29-#{msg_uuid}-MSG")
 
       # Make sure that *all* remote logging is stopped
       (failover_servers + servers).each do |server|
@@ -238,7 +256,7 @@ describe 'rsyslog class' do
       end
 
       # Check to see if we now have a queue on disk
-      on client, 'test -f /var/spool/rsyslog/test_queue_action\.[[:digit:]][[:digit:]]*'
+      on client, 'test -f /var/spool/rsyslog/test_queue_tls_action\.[[:digit:]][[:digit:]]*'
     end
   end
 
@@ -278,6 +296,14 @@ describe 'rsyslog class' do
       end
       # Let the logs start flowing again
       sleep(2)
+
+      # rsyslog retries a suspended action lazily and with backoff, and
+      # messages logged before the retry fires are dropped for that action;
+      # wait until forwarding to every recovered primary has provably
+      # resumed before logging the messages we assert on.
+      servers.each do |server|
+        wait_for_forwarding_to_resume(client, server, remote_log, msg_uuid)
+      end
 
       (41..50).each do |msg|
         on client, "logger -t FOO TEST-#{msg}-#{msg_uuid}-MSG"

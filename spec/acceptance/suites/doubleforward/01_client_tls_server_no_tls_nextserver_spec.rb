@@ -46,7 +46,7 @@ describe 'rsyslog client -> 1 server using TLS -> 1 server using plain TCP' do
       }
 
       class { 'rsyslog':
-        log_servers        => ['server-2'],
+        log_servers        => ["#{nextserver_fqdn}"],
 
         # Outgoing logs should not be TLS-encrypted
         # NOTE:  If we need to send to some follow-on servers that are
