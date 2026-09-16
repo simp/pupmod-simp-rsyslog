@@ -1,11 +1,3 @@
-* Wed Sep 16 2026 Hazel Caballero <hazel@sicura.us> - 10.0.2
-- Run the failover acceptance tests in CI by moving them into the default
-  suite and restoring the second server host (#204)
-- Fix a stale `server-2` hostname in the doubleforward suite
-- Fix the failover specs: de-race the log assertions, account for rsyslog's
-  failover-detection and action-resume windows, set a queue size so the
-  disk-queue check can pass, and restore the once-per-file test uuid
-
 * Tue Sep 01 2026 Hazel Caballero <hazel@sicura.us> - 10.0.1
 - Manage `/etc/rsyslog.d/README_SIMP.conf` with mode `0640` instead of `0644`.
   Compliance benchmarks that require every rsyslog configuration file to be
