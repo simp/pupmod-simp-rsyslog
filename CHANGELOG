@@ -1,3 +1,12 @@
+* Wed Sep 16 2026 Hazel Caballero <hazel@sicura.us> - 10.0.2
+- Run the failover acceptance tests in CI by moving them back into the
+  default suite, completing the multi-host nodeset restoration from the
+  9.0.0 cleanup: restore the second `server`-role host (`server-2`) and
+  point the failover hieradata at the `failover-server` host that exists
+  (#204)
+- Fix a stale `server-2` hostname in the doubleforward suite's server
+  manifest (forward to the `nextserver` host's FQDN)
+
 * Tue Sep 01 2026 Hazel Caballero <hazel@sicura.us> - 10.0.1
 - Manage `/etc/rsyslog.d/README_SIMP.conf` with mode `0640` instead of `0644`.
   Compliance benchmarks that require every rsyslog configuration file to be

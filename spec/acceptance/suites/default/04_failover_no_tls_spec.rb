@@ -35,7 +35,7 @@ describe 'rsyslog class' do
   let(:client_failover_hieradata) do
     {
       'rsyslog::log_servers'          => ['server-1', 'server-2'],
-      'rsyslog::failover_log_servers' => ['server-3'],
+      'rsyslog::failover_log_servers' => ['failover-server'],
       'rsyslog::logrotate'            => true,
       'rsyslog::enable_tls_logging'   => false,
       'rsyslog::pki'                  => false,
@@ -45,7 +45,7 @@ describe 'rsyslog class' do
   let(:client_failover_small_queue_hieradata) do
     {
       'rsyslog::log_servers'                           => ['server-1', 'server-2'],
-      'rsyslog::failover_log_servers'                  => ['server-3'],
+      'rsyslog::failover_log_servers'                  => ['failover-server'],
       'rsyslog::logrotate'                             => true,
       'rsyslog::enable_tls_logging'                    => false,
       'rsyslog::pki'                                   => false,

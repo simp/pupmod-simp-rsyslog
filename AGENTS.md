@@ -243,20 +243,20 @@ OracleLinux 7/8/9; Rocky 8/9; AlmaLinux 8/9.
 - `metadata.json` — deps, optional deps, OS matrix, Puppet requirement.
 - `spec/classes/`, `spec/defines/`, `spec/unit/facter/` — rspec-puppet and
   fact unit tests.
-- `spec/acceptance/suites/{default,doubleforward,failover}/` — beaker
-  acceptance suites; nodesets under `spec/acceptance/nodesets/`
-  (`centos-7.yml`, `default.yml`, `oel.yml`).
+- `spec/acceptance/suites/{default,doubleforward}/` — beaker acceptance
+  suites (the failover specs live in the `default` suite as `04_*`/`05_*`);
+  shared multi-host nodesets under `spec/acceptance/nodesets/`.
 - There is **no** `data/` or `hiera.yaml` in this module — it ships no
   module-level Hiera data.
 
 ## Continuous integration
 
-`.github/workflows/pr_tests.yml` runs **six** jobs and no more:
-`puppet-syntax`, `puppet-style`, `ruby-style`, `file-checks`,
-`releng-checks`, and `spec-tests`. **There is no acceptance job in CI** — no
-beaker, no nodesets, and no `BEAKER_HYPERVISOR` in the workflow. The
-acceptance suites and nodesets ship in the repo but are **local-only**; run
-them by hand with beaker (see Common commands).
+`.github/workflows/pr_tests.yml` runs `puppet-syntax`, `puppet-style`,
+`ruby-style`, `file-checks`, `reference`, `releng-checks`, `spec-tests`, and
+an `acceptance` job. The acceptance job runs the **default suite only**
+(`beaker:suites[default,<node>]`) on an almalinux 8/9/10 matrix via
+vagrant-libvirt; the `doubleforward` suite is local-only — run it by hand
+with beaker (see Common commands).
 
 ## Common commands
 
@@ -279,7 +279,7 @@ bundle exec rake rubocop
 # Regenerate REFERENCE.md from puppet-strings docstrings
 puppet strings generate --format markdown --out REFERENCE.md
 
-# Run a beaker acceptance suite (LOCAL ONLY — not run in CI)
+# Run a beaker acceptance suite (default runs in CI; doubleforward is local-only)
 bundle exec rake beaker:suites[default]
 ```
 
