@@ -6,6 +6,9 @@
   (#204)
 - Fix a stale `server-2` hostname in the doubleforward suite's server
   manifest (forward to the `nextserver` host's FQDN)
+- De-race the failover spec's positive log assertions with
+  `wait_for_log_message`, matching its TLS twin — rsyslog failover is not
+  instantaneous, so bare `grep`s raced message delivery
 
 * Tue Sep 01 2026 Hazel Caballero <hazel@sicura.us> - 10.0.1
 - Manage `/etc/rsyslog.d/README_SIMP.conf` with mode `0640` instead of `0644`.

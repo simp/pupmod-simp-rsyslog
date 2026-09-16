@@ -140,8 +140,7 @@ describe 'rsyslog class' do
       on client, "logger -t FOO TEST-1-#{msg_uuid}-MSG"
 
       servers.each do |server|
-        on server, "test -f #{remote_log}"
-        on server, "grep TEST-1-#{msg_uuid}-MSG #{remote_log}"
+        wait_for_log_message(server, remote_log, "TEST-1-#{msg_uuid}-MSG")
       end
 
       failover_servers.each do |server|
@@ -162,7 +161,7 @@ describe 'rsyslog class' do
       on client, "logger -t FOO TEST-10-#{msg_uuid}-MSG"
 
       servers.each do |server|
-        on server, "grep TEST-10-#{msg_uuid}-MSG #{remote_log}"
+        wait_for_log_message(server, remote_log, "TEST-10-#{msg_uuid}-MSG")
       end
 
       # Force Failover
@@ -179,8 +178,8 @@ describe 'rsyslog class' do
       end
 
       # Validate Failover
-      on failover_server, "grep TEST-11-#{msg_uuid}-MSG #{remote_log}"
-      on failover_server, "grep TEST-19-#{msg_uuid}-MSG #{remote_log}"
+      wait_for_log_message(failover_server, remote_log, "TEST-11-#{msg_uuid}-MSG")
+      wait_for_log_message(failover_server, remote_log, "TEST-19-#{msg_uuid}-MSG")
 
       # Should not log to inactive servers
       servers.each do |server|
@@ -204,8 +203,8 @@ describe 'rsyslog class' do
       end
 
       # Validate Failover
-      on failover_server, "grep TEST-21-#{msg_uuid}-MSG #{remote_log}"
-      on failover_server, "grep TEST-29-#{msg_uuid}-MSG #{remote_log}"
+      wait_for_log_message(failover_server, remote_log, "TEST-21-#{msg_uuid}-MSG")
+      wait_for_log_message(failover_server, remote_log, "TEST-29-#{msg_uuid}-MSG")
 
       # Make sure that *all* remote logging is stopped
       (failover_servers + servers).each do |server|
