@@ -5,26 +5,35 @@ HOSTS:
     - default
     - master
     - client
-    platform: el-8-x86_64
-    box: generic/centos8
+    - el9
+    platform: el-9-x86_64
+    box: almalinux/9
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
-    family: centos-cloud/centos-stream-8
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
+    family: almalinux-cloud/almalinux-9
     gce_machine_type: n1-standard-2
-  server-1:
+  server:
     roles:
     - server
-    platform: el-8-x86_64
-    box: generic/centos8
+    - el9
+    platform: el-9-x86_64
+    box: almalinux/9
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
-    family: centos-cloud/centos-stream-8
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
+    family: almalinux-cloud/almalinux-9
     gce_machine_type: n1-standard-2
-  server-2:
+  nextserver:
     roles:
     - nextserver
-    platform: el-8-x86_64
-    box: generic/centos8
+    - el9
+    platform: el-9-x86_64
+    box: almalinux/9
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
-    family: centos-cloud/centos-stream-8
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
+    family: almalinux-cloud/almalinux-9
     gce_machine_type: n1-standard-2
 CONFIG:
   log_level: verbose
@@ -34,4 +43,4 @@ CONFIG:
     keepalive: true
     keepalive_interval: 10
     keepalive_maxcount: 60
-  puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'puppet7') %>"
+  puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>"
