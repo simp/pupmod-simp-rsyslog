@@ -253,10 +253,9 @@ OracleLinux 7/8/9; Rocky 8/9; AlmaLinux 8/9.
 
 `.github/workflows/pr_tests.yml` runs `puppet-syntax`, `puppet-style`,
 `ruby-style`, `file-checks`, `reference`, `releng-checks`, `spec-tests`, and
-an `acceptance` job. The acceptance job runs the **default suite only**
-(`beaker:suites[default,<node>]`) on an almalinux 8/9/10 matrix via
-vagrant-libvirt; the `doubleforward` suite is local-only — run it by hand
-with beaker (see Common commands).
+an `acceptance` job. The acceptance job runs the `default` and
+`doubleforward` suites (`beaker:suites[<suite>,<node>]`) on an
+almalinux 8/9/10 matrix via vagrant-libvirt.
 
 ## Common commands
 
@@ -279,8 +278,9 @@ bundle exec rake rubocop
 # Regenerate REFERENCE.md from puppet-strings docstrings
 puppet strings generate --format markdown --out REFERENCE.md
 
-# Run a beaker acceptance suite (default runs in CI; doubleforward is local-only)
+# Run a beaker acceptance suite (both suites also run in CI)
 bundle exec rake beaker:suites[default]
+bundle exec rake beaker:suites[doubleforward]
 ```
 
 Relevant gem pins (from `Gemfile`): `puppetlabs_spec_helper ~> 8.0.0`,
@@ -312,7 +312,8 @@ gem. `spec/spec_helper.rb` requires
 - `Gemfile`, `spec/spec_helper.rb`, and `.github/workflows/pr_tests.yml` carry
   a **puppetsync** notice — they are baseline-managed and the next sync
   overwrites local edits. Push changes to those files upstream to the
-  baseline, not here.
+  baseline, not here. Exception: the workflow's `jobs.acceptance` block is
+  repo-owned — puppetsync's workflow merge preserves it as-is.
 - Match the existing 2-space Puppet indentation and aligned-arrow parameter
   style used in the manifests.
 ```

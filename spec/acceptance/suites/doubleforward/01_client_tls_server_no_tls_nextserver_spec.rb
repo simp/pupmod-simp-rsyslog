@@ -174,14 +174,12 @@ describe 'rsyslog client -> 1 server using TLS -> 1 server using plain TCP' do
     it 'client should successfully send log messages using TLS to 1st server' do
       on client, 'logger -t FOO TEST-USING-TLS'
       server_remote_log = "/var/log/hosts/#{client_fqdn}/everything.log"
-      on server, "test -f #{server_remote_log}"
-      on server, "grep TEST-USING-TLS #{server_remote_log}"
+      wait_for_log_message(server, server_remote_log, 'TEST-USING-TLS')
     end
 
     it '1st server should forward messages to non-TLS server using plain TCP' do
       nextserver_remote_log = "/var/log/hosts/#{client_fqdn}/everything.log"
-      on nextserver, "test -f #{nextserver_remote_log}"
-      on nextserver, "grep TEST-USING-TLS #{nextserver_remote_log}"
+      wait_for_log_message(nextserver, nextserver_remote_log, 'TEST-USING-TLS')
     end
   end
 end
