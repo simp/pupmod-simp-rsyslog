@@ -133,6 +133,18 @@ RSpec.configure do |c|
   # Readable test descriptions
   c.formatter = :documentation
 
+  # When an example fails, show why rsyslog may not have started: the
+  # rsyslog.service unit discards rsyslogd's own output.
+  c.after(:each) do |example|
+    next unless example.exception
+
+    hosts.each do |host|
+      on(host, 'rsyslogd -N1', accept_all_exit_codes: true)
+      on(host, 'ausearch -m AVC,USER_AVC -ts recent', accept_all_exit_codes: true)
+      on(host, 'ls -lZR /etc/rsyslog.conf /etc/rsyslog.simp.d', accept_all_exit_codes: true)
+    end
+  end
+
   # Configure all nodes in nodeset
   c.before :suite do
     # Install modules and dependencies from spec/fixtures/modules

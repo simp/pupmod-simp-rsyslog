@@ -121,11 +121,8 @@ describe 'rsyslog class' do
   end
 
   context 'with a bare include' do
-    before(:context) do
-      set_hieradata_on(client, {})
-    end
-
     it 'installs the package without errors' do
+      set_hieradata_on(client, {})
       apply_manifest_on(client, "include 'rsyslog'", catch_failures: true)
     end
 
