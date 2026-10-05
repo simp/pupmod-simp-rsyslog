@@ -39,6 +39,7 @@
 - Ship the `simp:defaults` Compliance Engine profile, which restores the 10.x
   defaults, including the replaced `/etc/rsyslog.conf`, the purged rule
   directory and service management.
+- Allow `simp/iptables` 9.x.
 
 * Tue Sep 01 2026 Hazel Caballero <hazel@sicura.us> - 10.0.1
 - Manage `/etc/rsyslog.d/README_SIMP.conf` with mode `0640` instead of `0644`.
