@@ -754,7 +754,9 @@ class rsyslog::config (
       default => $localhostname,
     }
 
-    rsyslog::rule { '00_simp_pre_logging/11_global_localhostname.conf':
+    # The file name must not contain 'hostname': the SELinux policy labels
+    # /etc/.*hostname.* as hostname_etc_t, which rsyslog cannot read on EL10.
+    rsyslog::rule { '00_simp_pre_logging/11_global_localhost_name.conf':
       ensure  => bool2str($localhostname == 'absent', 'absent', 'present'),
       content => "global(localHostname=\"${_localhostname}\")\n",
     }
@@ -765,7 +767,10 @@ class rsyslog::config (
   }
 
   pick($extra_global_params, {}).each |$name, $value| {
-    rsyslog::rule { "00_simp_pre_logging/13_global_${name}.conf":
+    # Keep 'hostname' out of the file name (see 11_global_localhost_name.conf)
+    $_file_name = regsubst($name, 'hostname', 'host_name', 'G')
+
+    rsyslog::rule { "00_simp_pre_logging/13_global_${_file_name}.conf":
       ensure  => bool2str($value == 'absent', 'absent', 'present'),
       content => "global(${name}=\"${value}\")\n",
     }
