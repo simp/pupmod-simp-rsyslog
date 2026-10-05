@@ -147,8 +147,8 @@ RSpec.configure do |c|
       # TEMPORARY: find why rsyslog does not start on EL10
       on(host, 'ls -ldZ /var/spool/rsyslog /var/lib/rsyslog /etc/pki/simp-testing/pki /etc/pki/simp-testing/pki/*', accept_all_exit_codes: true)
       on(host, 'systemctl is-active rsyslog || (timeout 10 /usr/sbin/rsyslogd -n -iNONE; echo "rsyslogd exited $?")', accept_all_exit_codes: true)
+      on(host, 'systemctl is-active rsyslog || (semodule -DB; getsebool -a | grep -i -E 'syslog|nis'; ls -lZ /run/rsyslog* /dev/log 2>&1; systemctl restart rsyslog; sleep 2; timeout 60 ausearch --input-logs -m AVC,USER_AVC,SELINUX_ERR -ts recent; semodule -B)', accept_all_exit_codes: true)
       on(host, 'systemctl is-active rsyslog || (setenforce 0; systemctl restart rsyslog; systemctl is-active rsyslog; setenforce 1)', accept_all_exit_codes: true)
-      on(host, 'systemctl is-active rsyslog || (semodule -DB; systemctl restart rsyslog; sleep 2; timeout 60 ausearch --input-logs -m AVC,USER_AVC,SELINUX_ERR -ts recent; semodule -B)', accept_all_exit_codes: true)
     end
   end
 
