@@ -259,7 +259,7 @@ describe 'rsyslog' do
         let(:hieradata) { 'localhostname_auto' }
 
         it {
-          is_expected.to contain_rsyslog__rule('00_simp_pre_logging/11_global_localhostname.conf')
+          is_expected.to contain_rsyslog__rule('00_simp_pre_logging/11_global_localhost_name.conf')
             .with_content(%(global(localHostname="#{os_facts[:networking][:fqdn]}")\n))
         }
       end
@@ -267,7 +267,7 @@ describe 'rsyslog' do
       context 'with localhostname=absent' do
         let(:hieradata) { 'localhostname_absent' }
 
-        it { is_expected.to contain_rsyslog__rule('00_simp_pre_logging/11_global_localhostname.conf').with_ensure('absent') }
+        it { is_expected.to contain_rsyslog__rule('00_simp_pre_logging/11_global_localhost_name.conf').with_ensure('absent') }
       end
 
       context 'with some main queue settings' do
