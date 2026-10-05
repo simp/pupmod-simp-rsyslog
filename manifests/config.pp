@@ -760,7 +760,7 @@ class rsyslog::config (
     }
   }
 
-  if $rsyslog::enable_tls_logging or $_tls_tcp_server == true {
+  if $rsyslog::enable_tls_logging or $_tls_tcp_server {
     include 'rsyslog::config::tls'
   }
 
@@ -854,7 +854,7 @@ class rsyslog::config (
 
   $_pre_logging = "${rsyslog::rule_dir}/00_simp_pre_logging"
 
-  if $_tls_tcp_server == true {
+  if $_tls_tcp_server {
     rsyslog::config::statement { '40_imptcp':
       header => 'module(load="imptcp"',
       params => pick($extra_imptcp_mod_params, {}),
@@ -875,7 +875,7 @@ class rsyslog::config (
     }
   }
 
-  if $_tls_tcp_server == true or $_tcp_server == true {
+  if $_tls_tcp_server or $_tcp_server {
     $_imtcp_stream_driver_mode = pick(
       $imtcp_stream_driver_mode,
       ($rsyslog::pki or $_tls_tcp_server or $rsyslog::enable_tls_logging) ? { true => '1', default => '0' }
@@ -888,7 +888,7 @@ class rsyslog::config (
 
     $_permitted_peers = ["*.${facts['networking']['domain']}"]
 
-    if $_tls_tcp_server == true {
+    if $_tls_tcp_server {
       $_tls_params = {
         'StreamDriver.Mode'     => $_imtcp_stream_driver_mode,
         'StreamDriver.AuthMode' => $imtcp_stream_driver_auth_mode ? {
@@ -950,7 +950,7 @@ class rsyslog::config (
     }
   }
 
-  if $_udp_server == true {
+  if $_udp_server {
     rsyslog::config::statement { '42_imudp':
       header => 'module(load="imudp"',
       params => pick($extra_imudp_mod_params, {}),
