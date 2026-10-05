@@ -115,12 +115,25 @@ describe 'rsyslog::server' do
         end
       end
 
+      context 'rsyslog::server class with SELinux enforcing and enable_selinux unset' do
+        let(:facts) do
+          facts = os_facts.dup
+          facts = mock_selinux_enforcing_facts(facts)
+          facts
+        end
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.not_to contain_class('rsyslog::server::selinux') }
+        it { is_expected.not_to contain_selboolean('nis_enabled') }
+      end
+
       context 'rsyslog::server class with SELinux enabled' do
         let(:facts) do
           facts = os_facts.dup
           facts = mock_selinux_enforcing_facts(facts)
           facts
         end
+        let(:params) { { enable_selinux: true } }
 
         it { is_expected.to compile.with_all_deps }
         it_behaves_like 'a structured module'

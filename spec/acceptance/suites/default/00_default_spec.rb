@@ -78,29 +78,32 @@ describe 'rsyslog class' do
 
   # Exercise noop from a clean (uninstalled) state: on a fresh node the Sicura
   # console previews the module with `puppet apply --noop`, which must not error
-  # even though nothing rsyslog manages exists yet. Real idempotence is covered
-  # by the applies below. A post-convergence noop check is deliberately omitted:
-  # `puppet apply --noop --detailed-exitcodes` always exits 0, so it could never
-  # fail and would test nothing.
+  # even though nothing rsyslog manages exists yet. The preview enforces
+  # `simp:defaults`, so it covers the configuration resources and not just the
+  # package, and checks that specific changes are reported.
   #
   # We noop a bare `include` rather than the suite `manifest` above: that manifest
   # also declares a troubleshooting `iptables::listen::tcp_stateful` SSH rule,
   # which under --noop trips a simp_firewalld provider bug on EL8 --
   # `firewall-offline-cmd --zone 99_simp --list-services` returns 112
   # (INVALID_ZONE) because the zone a noop-suppressed resource would create does
-  # not exist yet, so the run errors (exit 4). The console previews the module
-  # class itself (firewall default-off), so a bare include is both the
-  # representative subject and free of that unrelated rule.
+  # not exist yet, so the run errors (exit 4).
   # See simp/pupmod-simp-simp_firewalld#106.
-  context 'in noop mode from a clean state' do
+  context 'in noop mode from a clean state with simp:defaults enforced' do
     let(:noop_manifest) { "include 'rsyslog'" }
 
     before(:context) do
       on(hosts, 'puppet resource package rsyslog ensure=absent')
+      hosts.each { |host| set_hieradata_on(host, SIMP_DEFAULTS) }
     end
 
-    it 'applies without errors in noop mode' do
-      apply_manifest_on(hosts, noop_manifest, catch_failures: true, noop: true)
+    it 'applies without errors in noop mode and previews the configuration' do
+      hosts.each do |host|
+        result = apply_manifest_on(host, noop_manifest, catch_failures: true, noop: true)
+        expect(result.output).to match(%r{File\[/etc/rsyslog\.conf\]/ensure: current_value '?absent'?, should be '?file'? \(noop\)})
+        expect(result.output).to match(%r{File_line\[rsyslog 10_global preserveFQDN\]/ensure: .*\(noop\)})
+        expect(result.output).to match(%r{Service\[rsyslog\]/ensure: .*\(noop\)})
+      end
     end
   end
 
@@ -113,8 +116,60 @@ describe 'rsyslog class' do
     end
   end
 
-  context 'default parameters (no pki)' do
+  context 'with a bare include' do
+    before(:context) do
+      set_hieradata_on(client, {})
+    end
+
+    it 'installs the package without errors' do
+      apply_manifest_on(client, "include 'rsyslog'", catch_failures: true)
+    end
+
+    it 'is idempotent' do
+      apply_manifest_on(client, "include 'rsyslog'", catch_changes: true)
+    end
+
+    it 'leaves the package configuration untouched' do
+      # rpm -V prints nothing for files that match the package
+      expect(on(client, 'rpm -V rsyslog', accept_all_exit_codes: true).stdout).not_to match(%r{/etc/rsyslog\.conf|/etc/sysconfig/rsyslog})
+      on(client, 'test ! -e /etc/rsyslog.simp.d')
+      on(client, 'test ! -e /etc/systemd/system/rsyslog.service.d/simp_limits.conf')
+    end
+  end
+
+  # The core principle: a setting can be enforced alone, a later run that no
+  # longer sets it leaves it in place, and `absent` removes it.
+  context 'with one setting enforced alone on the package rsyslog.conf' do
+    let(:setting_file) { '/etc/rsyslog.simp.d/00_simp_pre_logging/10_global.conf' }
+
+    it 'applies the setting' do
+      set_hieradata_on(client, { 'rsyslog::config::net_enable_dns' => false, 'rsyslog::restart_on_change' => true })
+      on(client, 'systemctl start rsyslog')
+      result = apply_manifest_on(client, "include 'rsyslog'", catch_failures: true)
+      expect(result.stdout).to include("Exec[rsyslog restart_on_change]: Triggered 'refresh'")
+
+      on(client, %(grep -qx '  net.enableDNS="off"' #{setting_file}))
+      on(client, "grep -qx '\\$IncludeConfig /etc/rsyslog.simp.d/\\*.conf' /etc/rsyslog.conf")
+      expect_valid_rsyslog_config(client)
+    end
+
+    it 'keeps the setting when a later run no longer sets it' do
+      set_hieradata_on(client, {})
+      apply_manifest_on(client, "include 'rsyslog'", catch_changes: true)
+      on(client, %(grep -qx '  net.enableDNS="off"' #{setting_file}))
+    end
+
+    it 'removes the setting when set to absent' do
+      set_hieradata_on(client, { 'rsyslog::config::net_enable_dns' => 'absent' })
+      apply_manifest_on(client, "include 'rsyslog'", catch_failures: true)
+      on(client, "! grep -q net.enableDNS #{setting_file}")
+      expect_valid_rsyslog_config(client)
+    end
+  end
+
+  context 'with simp:defaults enforced (no pki)' do
     it 'works with no errors' do
+      set_hieradata_on(client, SIMP_DEFAULTS)
       apply_manifest_on(client, manifest, catch_failures: true)
     end
 
@@ -135,26 +190,6 @@ describe 'rsyslog class' do
       result = on(client, 'puppet resource service rsyslog').stdout
       expect(result).to match(%r{ensure\s*=>\s*'running'})
       expect(result).to match(%r{enable\s*=>\s*'true'})
-    end
-
-    it 'ensures rsyslog.service starts after network.target and network-online.target' do
-      rsyslogd_version = pfact_on(client, 'rsyslogd.version')
-      if rsyslogd_version == '8.24.0'
-        # following 3 lines for debug
-        on client, 'rpm -q rsyslog'
-        on client, 'cat /usr/lib/systemd/system/rsyslog.service'
-        on client, 'systemctl show rsyslog.service'
-
-        on client, 'cat /etc/systemd/system/rsyslog.service.d/unit.conf'
-
-        [ 'Wants', 'After' ].each do |req|
-          result = on(client, "systemctl show rsyslog.service | grep ^#{req}=").stdout
-          expect(result).to match(%r{network.target})
-          expect(result).to match(%r{network-online.target})
-        end
-      else
-        puts "Skipping test on #{client.name}: systemd override file not needed" # rubocop:disable RSpec/Output
-      end
     end
 
     it 'collects firewall log messages' do

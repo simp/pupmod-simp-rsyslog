@@ -20,12 +20,17 @@
 #
 #   * This is provided, without formatting, directly into the target file
 #
+# @param ensure
+#   `absent` removes the rule file
+#
 define rsyslog::template::plugin (
-  String $plugin,
+  String                    $plugin,
+  Enum['present', 'absent'] $ensure = 'present',
 ) {
   $_safe_name = regsubst($name,'/','__')
 
   rsyslog::rule { "05_simp_templates/${_safe_name}.conf":
+    ensure  => $ensure,
     # lint:ignore:double_quoted_strings lint:ignore:only_variable_string
     content => @("EOM")
       template(name="${_safe_name}" plugin="string" plugin="${plugin}")

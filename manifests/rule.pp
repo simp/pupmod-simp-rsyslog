@@ -35,6 +35,12 @@
 # @param content
 #   The **exact content** of the rule to place in the target file
 #
+# @param ensure
+#   Whether the rule file should exist
+#
+#   * `absent` removes the rule file. Use this to remove a rule without
+#     enabling `rsyslog::config::purge_rule_dir`.
+#
 # @see https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system_administrators_guide/ch-viewing_and_managing_log_files#s1-basic_configuration_of_rsyslog.html Red Hat Basic Rsyslog Configuration
 #
 # @see https://www.rsyslog.com/doc/v8-stable/rainerscript/expressions.html Expressions in Rsyslog
@@ -42,7 +48,8 @@
 # @see https://www.rsyslog.com/doc/v8-stable/rainerscript/index.html RainerScript Documentation
 #
 define rsyslog::rule (
-  String $content
+  String                    $content,
+  Enum['present', 'absent'] $ensure = 'present',
 ) {
   if $name !~ Pattern['^[^/]\S+/\S+\.conf$'] {
     fail('The $name must be a valid un-pathed configuration file')
@@ -54,40 +61,21 @@ define rsyslog::rule (
   include 'rsyslog'
 
   $_name_array = split($name,'/')
-  $_base_directory = "${rsyslog::rule_dir}/${_name_array[0]}"
 
-  if !defined(File[$_base_directory]) {
-    # Be sure to notify on directory changes so that rsyslog service
-    # is restarted when rules are removed.
-    file { $_base_directory:
-      ensure  => 'directory',
-      owner   => 'root',
-      group   => 'root',
-      recurse => true,
-      purge   => true,
-      force   => true,
-      mode    => '0640',
-      notify  => Class['rsyslog::service']
-    }
-  }
+  ensure_resource('rsyslog::rule::directory', $_name_array[0])
 
-  if !defined(File["${_base_directory}.conf"]) {
-    file { "${_base_directory}.conf":
-      ensure  => 'file',
-      owner   => 'root',
-      group   => 'root',
-      mode    => '0640',
-      content => "\$IncludeConfig ${_base_directory}/*.conf\n",
-      notify  => Class['rsyslog::service']
-    }
+  $_ensure = $ensure ? {
+    'absent' => 'absent',
+    default  => 'file',
   }
 
   file { "${rsyslog::rule_dir}/${name}":
-    ensure  => 'file',
+    ensure  => $_ensure,
     owner   => 'root',
     group   => 'root',
     mode    => '0640',
     content => $content,
-    notify  => Class['rsyslog::service']
+    require => Class['rsyslog::install'],
+    notify  => Class['rsyslog::service'],
   }
 }

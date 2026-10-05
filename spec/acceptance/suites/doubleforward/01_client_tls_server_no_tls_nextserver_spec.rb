@@ -34,6 +34,7 @@ describe 'rsyslog client -> 1 server using TLS -> 1 server using plain TCP' do
       ---
       iptables::disable : false
       rsyslog::server::enable_firewall : true
+      compliance_engine::enforcement : ['simp:defaults']
     EOS
   end
 
@@ -156,6 +157,7 @@ describe 'rsyslog client -> 1 server using TLS -> 1 server using plain TCP' do
     end
 
     it 'configures client without errors' do
+      set_hieradata_on(client, SIMP_DEFAULTS)
       apply_manifest_on(client, client_manifest, catch_failures: true)
     end
 
@@ -180,6 +182,47 @@ describe 'rsyslog client -> 1 server using TLS -> 1 server using plain TCP' do
     it '1st server should forward messages to non-TLS server using plain TCP' do
       nextserver_remote_log = "/var/log/hosts/#{client_fqdn}/everything.log"
       wait_for_log_message(nextserver, nextserver_remote_log, 'TEST-USING-TLS')
+    end
+  end
+
+  # With TLS enabled globally, one rule can still forward in plain text.
+  context 'hybrid TLS and plain-text forwarding with use_tls' do
+    let(:hybrid_client_manifest) do
+      <<~EOS
+        #{client_manifest}
+
+        # Forward plain text directly to the non-TLS server
+        rsyslog::rule::remote { 'send_the_logs_plain_tcp':
+          rule    => '$programname == \\'HYBRID\\'',
+          dest    => ["#{nextserver_fqdn}"],
+          use_tls => false,
+        }
+      EOS
+    end
+
+    it 'configures the client without errors' do
+      apply_manifest_on(client, hybrid_client_manifest, catch_failures: true)
+    end
+
+    it 'configures the client idempotently' do
+      apply_manifest_on(client, hybrid_client_manifest, catch_changes: true)
+    end
+
+    it 'produces a valid rsyslog configuration' do
+      expect_valid_rsyslog_config(client)
+    end
+
+    it 'writes a plain-text action next to the TLS one' do
+      on(client, 'grep -q \'StreamDriver="ptcp"\' /etc/rsyslog.simp.d/10_simp_remote/send_the_logs_plain_tcp.conf')
+      on(client, 'grep -q \'StreamDriverMode="1"\' /etc/rsyslog.simp.d/10_simp_remote/send_the_logs_tls.conf')
+    end
+
+    it 'delivers to the non-TLS server both directly and through the TLS server' do
+      on client, 'logger -t HYBRID TEST-HYBRID-TLS'
+      wait_for_log_message(server, "/var/log/hosts/#{client_fqdn}/everything.log", 'TEST-HYBRID-TLS')
+
+      nextserver_remote_log = "/var/log/hosts/#{client_fqdn}/everything.log"
+      retry_on(nextserver, "test $(grep -c TEST-HYBRID-TLS #{nextserver_remote_log}) -ge 2", max_retries: 30, retry_interval: 2)
     end
   end
 end

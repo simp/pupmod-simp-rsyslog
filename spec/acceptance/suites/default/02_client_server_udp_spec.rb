@@ -71,7 +71,7 @@ describe 'rsyslog class' do
 
   context 'client -> server over UDP' do
     it 'configures the server without errors' do
-      set_hieradata_on(server, server_manifest_hieradata)
+      set_hieradata_on(server, server_manifest_hieradata.merge(SIMP_DEFAULTS))
       apply_manifest_on(server, server_manifest, catch_failures: true)
     end
 
@@ -80,7 +80,7 @@ describe 'rsyslog class' do
     end
 
     it 'configures the client without errors' do
-      set_hieradata_on(client, client_manifest_hieradata)
+      set_hieradata_on(client, client_manifest_hieradata.merge(SIMP_DEFAULTS))
       apply_manifest_on(client, client_manifest, catch_failures: true)
     end
 
