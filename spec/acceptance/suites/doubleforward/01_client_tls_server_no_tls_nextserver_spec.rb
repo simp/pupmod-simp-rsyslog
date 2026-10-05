@@ -185,17 +185,25 @@ describe 'rsyslog client -> 1 server using TLS -> 1 server using plain TCP' do
     end
   end
 
-  # With TLS enabled globally, one rule can still forward in plain text.
+  # With TLS enabled globally, one rule can still forward in plain text. The
+  # direct copy is marked with its own template: the relayed copy is otherwise
+  # identical, and $RepeatedMsgReduction would collapse the two.
   context 'hybrid TLS and plain-text forwarding with use_tls' do
     let(:hybrid_client_manifest) do
       <<~EOS
         #{client_manifest}
 
+        rsyslog::template::string { 'direct_marker':
+          string => '<%PRI%>%TIMESTAMP:::date-rfc3339% %HOSTNAME% %syslogtag%DIRECT%msg%\\n',
+        }
+
         # Forward plain text directly to the non-TLS server
         rsyslog::rule::remote { 'send_the_logs_plain_tcp':
-          rule    => '$programname == \\'HYBRID\\'',
-          dest    => ["#{nextserver_fqdn}"],
-          use_tls => false,
+          rule     => '$programname == \\'HYBRID\\'',
+          dest     => ["#{nextserver_fqdn}"],
+          template => 'direct_marker',
+          use_tls  => false,
+          require  => Rsyslog::Template::String['direct_marker'],
         }
       EOS
     end
@@ -217,12 +225,12 @@ describe 'rsyslog client -> 1 server using TLS -> 1 server using plain TCP' do
       on(client, 'grep -q \'StreamDriverMode="1"\' /etc/rsyslog.simp.d/10_simp_remote/send_the_logs_tls.conf')
     end
 
-    it 'delivers to the non-TLS server both directly and through the TLS server' do
+    it 'delivers over TLS to the TLS server and in plain text directly to the non-TLS server' do
       on client, 'logger -t HYBRID TEST-HYBRID-TLS'
-      wait_for_log_message(server, "/var/log/hosts/#{client_fqdn}/everything.log", 'TEST-HYBRID-TLS')
 
-      nextserver_remote_log = "/var/log/hosts/#{client_fqdn}/everything.log"
-      retry_on(nextserver, "test $(grep -c TEST-HYBRID-TLS #{nextserver_remote_log}) -ge 2", max_retries: 30, retry_interval: 2)
+      remote_log = "/var/log/hosts/#{client_fqdn}/everything.log"
+      wait_for_log_message(server, remote_log, 'TEST-HYBRID-TLS')
+      wait_for_log_message(nextserver, remote_log, "'DIRECT TEST-HYBRID-TLS'")
     end
   end
 end

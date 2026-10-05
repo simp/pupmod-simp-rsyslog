@@ -93,14 +93,18 @@ describe 'rsyslog class' do
     let(:noop_manifest) { "include 'rsyslog'" }
 
     before(:context) do
-      on(hosts, 'puppet resource package rsyslog ensure=absent')
+      # dnf also removes packages that depend on rsyslog (rsyslog-logrotate),
+      # which `rpm -e` would refuse.
+      on(hosts, 'dnf remove -y rsyslog')
+      on(hosts, 'test ! -e /etc/rsyslog.conf')
       hosts.each { |host| set_hieradata_on(host, SIMP_DEFAULTS) }
     end
 
     it 'applies without errors in noop mode and previews the configuration' do
       hosts.each do |host|
         result = apply_manifest_on(host, noop_manifest, catch_failures: true, noop: true)
-        expect(result.output).to match(%r{File\[/etc/rsyslog\.conf\]/ensure: current_value '?absent'?, should be '?file'? \(noop\)})
+        expect(result.output).to match(%r{Package\[rsyslog\.x86_64\]/ensure: .*\(noop\)})
+        expect(result.output).to match(%r{File\[/etc/rsyslog\.conf\]/ensure: .*\(noop\)})
         expect(result.output).to match(%r{File_line\[rsyslog 10_global preserveFQDN\]/ensure: .*\(noop\)})
         expect(result.output).to match(%r{Service\[rsyslog\]/ensure: .*\(noop\)})
       end
