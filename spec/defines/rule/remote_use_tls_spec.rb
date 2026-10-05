@@ -65,7 +65,7 @@ describe 'rsyslog::rule::remote' do
             it { is_expected.to contain_rsyslog__rule(rule_file).with_content(%r{port="6514"}) }
             it { is_expected.to contain_rsyslog__rule(rule_file).without_content(%r{ptcp}) }
             it { is_expected.to contain_class('rsyslog::config::tls') }
-            it { is_expected.to contain_package('rsyslog-gnutls') }
+            it { is_expected.to contain_package('rsyslog-gnutls').that_comes_before('Class[rsyslog::config::rule_tree]') }
             it { is_expected.to contain_file_line('rsyslog 12_global_tls defaultNetstreamDriver').with_line('  defaultNetstreamDriver="gtls"') }
           end
 
