@@ -10,21 +10,21 @@ class rsyslog::server::firewall {
 
   simplib::assert_optional_dependency($module_name, 'simp/iptables')
 
-  if $rsyslog::tls_tcp_server == true {
+  if $rsyslog::tls_tcp_server {
     iptables::listen::tcp_stateful { 'syslog_tls_tcp':
       trusted_nets => $rsyslog::trusted_nets,
       dports       => $rsyslog::tls_tcp_listen_port
     }
   }
 
-  if $rsyslog::tcp_server == true {
+  if $rsyslog::tcp_server {
     iptables::listen::tcp_stateful { 'syslog_tcp':
       trusted_nets => $rsyslog::trusted_nets,
       dports       => $rsyslog::tcp_listen_port
     }
   }
 
-  if $rsyslog::udp_server == true {
+  if $rsyslog::udp_server {
     iptables::listen::udp { 'syslog_udp':
       trusted_nets => $rsyslog::trusted_nets,
       dports       => $rsyslog::udp_listen_port
