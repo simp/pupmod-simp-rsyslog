@@ -140,7 +140,8 @@ RSpec.configure do |c|
 
     hosts.each do |host|
       on(host, 'rsyslogd -N1', accept_all_exit_codes: true)
-      on(host, 'ausearch -m AVC,USER_AVC -ts recent', accept_all_exit_codes: true)
+      # Without --input-logs, ausearch reads stdin when it is not a terminal
+      on(host, 'timeout 60 ausearch --input-logs -m AVC,USER_AVC -ts recent', accept_all_exit_codes: true)
       on(host, 'ls -lZR /etc/rsyslog.conf /etc/rsyslog.simp.d', accept_all_exit_codes: true)
     end
   end
