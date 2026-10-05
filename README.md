@@ -12,12 +12,17 @@
 <!-- vim-markdown-toc GFM -->
 
 * [Overview](#overview)
+* [Breaking changes in 11.0.0](#breaking-changes-in-1100)
+  * [Restoring the previous behavior](#restoring-the-previous-behavior)
+  * [Upgrading without the profile](#upgrading-without-the-profile)
 * [This is a SIMP module](#this-is-a-simp-module)
 * [Module Description](#module-description)
 * [Setup](#setup)
   * [What pupmod-simp-rsyslog affects](#what-pupmod-simp-rsyslog-affects)
   * [Setup Requirements](#setup-requirements)
   * [Beginning with pupmod-simp-rsyslog](#beginning-with-pupmod-simp-rsyslog)
+  * [How settings are applied](#how-settings-are-applied)
+  * [Applying changes while the service is unmanaged](#applying-changes-while-the-service-is-unmanaged)
 * [Usage](#usage)
   * [I want standard remote logging on a client](#i-want-standard-remote-logging-on-a-client)
   * [I want to send everything to rsyslog from a client](#i-want-to-send-everything-to-rsyslog-from-a-client)
@@ -25,6 +30,7 @@
   * [I want to set up an RSyslog Server](#i-want-to-set-up-an-rsyslog-server)
   * [I want to set up an Rsyslog Server without logrotate/pki/firewall](#i-want-to-set-up-an-rsyslog-server-without-logrotatepkifirewall)
   * [Central Log Forwarding](#central-log-forwarding)
+  * [Mixed TLS and plain-text forwarding](#mixed-tls-and-plain-text-forwarding)
 * [Reference](#reference)
 * [Limitations](#limitations)
 * [Development](#development)
@@ -35,8 +41,78 @@
 
 [pupmod-simp-rsyslog](https://github.com/simp/pupmod-simp-rsyslog) configures
 and manages RSyslog version 8 as built into either
-[RHEL](http://www.redhat.com/en) or [CentOS](https://www.centos.org/) versions
-7 and 8.
+[RHEL](http://www.redhat.com/en) and compatible distributions.
+
+## Breaking changes in 11.0.0
+
+A bare `include rsyslog` now installs the `rsyslog` package and changes nothing
+else. Every other behavior is turned on by a parameter. In particular, a bare
+`include` no longer:
+
+* replaces `/etc/rsyslog.conf` (`rsyslog::config::replace_rsyslog_conf`) or
+  `/etc/sysconfig/rsyslog` (`rsyslog::config::syslogd_options`);
+* purges `/etc/rsyslog.simp.d` and its subdirectories
+  (`rsyslog::config::purge_rule_dir`);
+* writes the global, module and main queue settings in
+  `00_simp_pre_logging` (each `rsyslog::config` parameter, now `undef` by
+  default);
+* writes SIMP's default logging rules (`rsyslog::config::enable_default_rules`)
+  or the systemd `LimitNOFILE` drop-in
+  (`rsyslog::config::ulimit_max_open_files`);
+* manages the `rsyslog` service (`rsyslog::service_ensure`,
+  `rsyslog::service_enable`);
+* turns on the `nis_enabled` SELinux boolean on an `rsyslog::server` when
+  SELinux is enforcing (`rsyslog::server::enable_selinux`).
+
+`rsyslog::tcp_server`, `rsyslog::tls_tcp_server`, `rsyslog::udp_server` and
+`rsyslog::read_journald` now default to `undef`: `true` adds the listener (or
+module), `false` removes it, and `undef` leaves it alone.
+
+Features driven by `simp_options::*` (PKI, logrotate, the firewall, the log
+servers and trusted networks) still follow those settings.
+
+The global settings that were in `00_simp_pre_logging/global.conf` are now
+split into one file per statement, such as `10_global.conf`,
+`31_imuxsock.conf` and `90_main_queue.conf`, and each setting is managed on
+its own line.
+
+### Restoring the previous behavior
+
+There are two ways to get the 10.x behavior back:
+
+1. **Enforce the `simp:defaults` profile.** This module ships a
+   [Compliance Engine](https://github.com/simp/rubygem-simp-compliance_engine)
+   profile that restores every 10.x default, including the destructive ones:
+   replacing `/etc/rsyslog.conf`, purging `/etc/rsyslog.simp.d`, and managing
+   the service. With the `compliance_engine` module installed, set:
+
+   ```yaml
+   compliance_engine::enforcement:
+     - simp:defaults
+   ```
+
+   The profile only fills in parameters that your Hiera does not set, so a
+   site that wants the old behavior without a destructive part can override
+   that one parameter, for example:
+
+   ```yaml
+   compliance_engine::enforcement:
+     - simp:defaults
+   rsyslog::config::purge_rule_dir: false
+   ```
+
+2. **Set the parameters you want** in Hiera, as listed above.
+
+### Upgrading without the profile
+
+Nothing that 10.x wrote is removed or rewritten on upgrade:
+`/etc/rsyslog.conf`, `/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf`
+and the rest stay as they are, and rsyslog keeps running with them.
+
+Before you set any of the `rsyslog::config` global, module or main queue
+parameters on such a node, either enforce `simp:defaults` (whose purge removes
+the old `global.conf`) or delete `global.conf` yourself. Otherwise rsyslog
+sees the same module loaded twice, which it rejects.
 
 ## This is a SIMP module
 
@@ -71,9 +147,13 @@ logging rules and manage server/client configurations.
 ### What pupmod-simp-rsyslog affects
 
 Files managed by
-[pupmod-simp-rsyslog](https://github.com/simp/pupmod-simp-rsyslog):
-* /etc/rsyslog.conf
+[pupmod-simp-rsyslog](https://github.com/simp/pupmod-simp-rsyslog), when the
+parameters that need them are set:
+* /etc/rsyslog.conf (one `$IncludeConfig` line, or the whole file with
+  `rsyslog::config::replace_rsyslog_conf`)
 * /etc/rsyslog.simp.d
+* /etc/sysconfig/rsyslog (the `SYSLOGD_OPTIONS` line)
+* /etc/systemd/system/rsyslog.service.d/simp_limits.conf
 
 In addition to these, the `rsyslog::rule::<all>` definitions will create
 numbered directories in the `$rsyslog_rule_dir`, by default
@@ -94,7 +174,7 @@ Services and operations managed or affected by
 Packages installed by
 [pupmod-simp-rsyslog](https://github.com/simp/pupmod-simp-rsyslog):
 * rsyslog
-* rsyslog-gnutls
+* rsyslog-gnutls (only when TLS is used)
 
 ### Setup Requirements
 
@@ -106,12 +186,19 @@ local requirements.
 
 ### Beginning with pupmod-simp-rsyslog
 
-Including ``rsyslog`` will install, configure, and start the rsyslog daemon on a
-client:
+Including ``rsyslog`` installs the rsyslog package. Set parameters, or enforce
+the `simp:defaults` profile, to configure and start it:
 
 **Puppet Code:**
 ```puppet
 include rsyslog
+```
+
+**Hiera Config:**
+```yaml
+rsyslog::service_ensure: running
+rsyslog::service_enable: true
+rsyslog::config::net_enable_dns: false
 ```
 
 Including ``rsyslog::server`` will additionally configure the system as an Rsyslog
@@ -122,11 +209,65 @@ server.
 include rsyslog::server
 ```
 
+### How settings are applied
+
+Every setting can be enforced on its own:
+
+* `undef` (the default) leaves the setting alone. Whatever an earlier run,
+  another tool or an administrator set stays.
+* A value sets it, replacing any earlier value.
+* `absent` removes it (`false` for Boolean toggles such as
+  `rsyslog::config::enable_default_rules` and the listeners).
+
+Settings are written under `/etc/rsyslog.simp.d/00_simp_pre_logging`, one
+line per setting. Rules from `rsyslog::rule` and its wrappers go in the
+numbered directories next to it. `rsyslog::rule` and every wrapper accept
+`ensure => absent`, which removes a rule without purging the directory.
+
+How rsyslog reads `/etc/rsyslog.simp.d` depends on
+`rsyslog::config::replace_rsyslog_conf`:
+
+* `false` (the default): the module adds one line,
+  `$IncludeConfig /etc/rsyslog.simp.d/*.conf`, to the package's
+  `/etc/rsyslog.conf`, after its `/etc/rsyslog.d` include. SIMP's settings and
+  rules then come after any `/etc/rsyslog.d` files and before the package's
+  own logging rules, so SIMP's drop rules apply to them.
+
+  The package's `/etc/rsyslog.conf` already sets `workDirectory` and loads the
+  `imuxsock`, `imjournal` and `omfile` modules, and rsyslog rejects a second
+  value for them. The parameters for those settings (`work_directory`,
+  `syssock_*`, `read_journald`, `default_file_template` and their `extra_*`
+  hashes) only warn in this mode. Set them in `/etc/rsyslog.conf` yourself, or
+  use `replace_rsyslog_conf`.
+* `true`: `/etc/rsyslog.conf` is replaced by one that includes only
+  `/etc/rsyslog.simp.d`, and the module loads the `imklog`, `imuxsock`,
+  `imjournal` and `imfile` modules itself. This discards the package's logging
+  rules, so pair it with `rsyslog::config::enable_default_rules: true`.
+
+A few settings that rsyslog needs to run safely are written, when they are
+missing, even if their parameter is unset: the TLS stream driver and
+certificate paths when TLS is in use, and `StreamDriver.AuthMode` and
+`PermittedPeer` for a TLS listener. An explicit value replaces them, and
+`absent` removes them.
+
+### Applying changes while the service is unmanaged
+
+When `rsyslog::service_ensure` and `rsyslog::service_enable` are both unset,
+the module writes configuration but does not restart rsyslog, so changes take
+effect the next time it restarts. To apply them by hand:
+
+```sh
+rsyslogd -N1 && systemctl restart rsyslog
+```
+
+Set `rsyslog::restart_on_change: true` to have the module run
+`systemctl try-restart rsyslog` whenever it changes the configuration. This
+never starts, stops, enables or disables the service.
+
 ## Usage
 
-*WARNING:* The version of rsyslog that is included with EL7 and EL8 systems is
-*not* the final stable upstream release. In particular, TLS may only be enabled
-or disabled *globally*, not per ruleset or action!
+The examples below assume that the `simp:defaults` profile is enforced, or
+that the service and other settings you need are set as described above.
 
 pupmod-simp-rsyslog is meant to be extremely customizable, and as such there is
 no single best way to use it. For the SIMP specific recommendations on how to
@@ -273,6 +414,26 @@ rsyslog::rule::remote { 'upstream':
   require  => Rsyslog::Template::String['upstream']
 }
 ```
+
+### Mixed TLS and plain-text forwarding
+
+`rsyslog::enable_tls_logging` sets whether remote rules use TLS by default.
+Set `use_tls` on an `rsyslog::rule::remote` to override it for that rule:
+
+**Puppet Code:**
+```puppet
+# With rsyslog::enable_tls_logging: true
+rsyslog::rule::remote { 'legacy_collector':
+  rule    => 'prifilt(\'*.*\')',
+  dest    => ['legacy.collector.fq.dn'],
+  use_tls => false,
+}
+```
+
+`use_tls => true` forwards one rule over TLS on a host where
+`enable_tls_logging` is `false`. It needs the TLS certificates, either copied
+by `rsyslog::pki` or staged at the paths in `rsyslog::config`. UDP destinations
+never use TLS.
 
 ## Reference
 

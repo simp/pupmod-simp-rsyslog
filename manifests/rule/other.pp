@@ -32,12 +32,17 @@
 #   The filename that you will be dropping into place.
 #fine: rsyslog::rule::other
 #
+# @param ensure
+#   `absent` removes the rule file
+#
 define rsyslog::rule::other (
-  String $rule,
+  String                    $rule,
+  Enum['present', 'absent'] $ensure = 'present',
 ) {
   $_safe_name = regsubst($name, '/', '__')
 
   rsyslog::rule { "20_simp_other/${_safe_name}.conf":
+    ensure  => $ensure,
     content => inline_epp('<%= $rule.split("\n").map |$x| { $x.lstrip() }.join("\n") %>'),
   }
 }

@@ -30,13 +30,18 @@
 #
 # @see https://www.rsyslog.com/doc/v8-stable/rainerscript/index.html RainerScript Documentation
 #
+# @param ensure
+#   `absent` removes the rule file
+#
 define rsyslog::rule::console (
-  String        $rule,
-  Array[String] $users,
+  String                    $rule,
+  Array[String]             $users,
+  Enum['present', 'absent'] $ensure = 'present',
 ) {
   $_safe_name = regsubst($name, '/', '__')
 
   rsyslog::rule { "06_simp_console/${_safe_name}.conf":
+    ensure  => $ensure,
     content => inline_epp('if (<%= $rule.split("\n").map |$x| { $x.lstrip() }.join("\n") %>) then action( type="omusrmsg"
   <%= $users.sort.map |$x| { "Users=\"${x}\"" }.join("\n  ") %>
 )'

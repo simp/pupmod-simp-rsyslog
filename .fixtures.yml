@@ -2,6 +2,11 @@
 fixtures:
   repositories:
     auditd: https://github.com/simp/pupmod-simp-auditd.git
+    # Only needed so spec tests can resolve `compliance_engine::enforcement`
+    # for the `simp:defaults` profile. NOT a module dependency (see metadata.json).
+    compliance_engine:
+      repo: https://github.com/simp/rubygem-simp-compliance_engine.git
+      ref: '1.1.0'
     augeas_core: https://github.com/simp/pupmod-puppetlabs-augeas_core.git
     augeasproviders_core: https://github.com/hercules-team/augeasproviders_core.git
     augeasproviders_grub: https://github.com/hercules-team/augeasproviders_grub.git

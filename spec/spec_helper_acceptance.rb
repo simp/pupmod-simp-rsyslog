@@ -36,6 +36,21 @@ def expect_valid_rsyslog_config(host)
   expect(issues).to be_empty, "rsyslogd -N1 exited #{result.exit_code}:\n#{result.output}"
 end
 
+# Hieradata that enforces the `simp:defaults` Compliance Engine profile, which
+# restores the configuration this module managed by default before 11.0.0.
+SIMP_DEFAULTS = { 'compliance_engine::enforcement' => ['simp:defaults'] }.freeze
+
+# The default environment's hiera.yaml with a Compliance Engine layer below the
+# test data, so tests can enforce `simp:defaults` with SIMP_DEFAULTS.
+HIERA_WITH_COMPLIANCE_ENGINE = {
+  'version' => 5,
+  'defaults' => { 'datadir' => 'data', 'data_hash' => 'yaml_data' },
+  'hierarchy' => [
+    { 'name' => 'Common', 'path' => 'common.yaml' },
+    { 'name' => 'Compliance Engine', 'lookup_key' => 'compliance_engine::enforcement' },
+  ],
+}.freeze
+
 require 'timeout'
 def wait_for_log_message(
   host,
@@ -122,6 +137,8 @@ RSpec.configure do |c|
   c.before :suite do
     # Install modules and dependencies from spec/fixtures/modules
     copy_fixture_modules_to(hosts)
+
+    hosts.each { |sut| set_hiera_config_on(sut, HIERA_WITH_COMPLIANCE_ENGINE) }
     begin
       server = only_host_with_role(hosts, 'server')
     rescue ArgumentError => e

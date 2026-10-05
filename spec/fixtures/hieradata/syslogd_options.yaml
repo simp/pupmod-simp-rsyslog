@@ -1,0 +1,2 @@
+---
+rsyslog::config::syslogd_options: "-x"

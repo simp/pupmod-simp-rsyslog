@@ -1,0 +1,4 @@
+---
+compliance_engine::enforcement:
+  - simp:defaults
+rsyslog::config::purge_rule_dir: false

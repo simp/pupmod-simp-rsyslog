@@ -36,12 +36,20 @@
 #
 #   The filename that you will be dropping into place.
 #
+# @param ensure
+#   `absent` removes the rule file
+#
 define rsyslog::rule::data_source (
-  String $rule,
+  String                    $rule,
+  Enum['present', 'absent'] $ensure = 'present',
 ) {
+  # input(type="imfile" ...) rules need the imfile module
+  include 'rsyslog::config::imfile'
+
   $_safe_name = regsubst($name, '/', '__')
 
   rsyslog::rule { "05_simp_data_sources/${_safe_name}.conf":
+    ensure  => $ensure,
     content => inline_epp('<%= $rule.split("\n").map |$x| { $x.lstrip() }.join("\n") %>'),
   }
 }
