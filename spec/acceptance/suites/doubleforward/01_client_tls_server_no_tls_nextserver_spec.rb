@@ -139,8 +139,6 @@ describe 'rsyslog client -> 1 server using TLS -> 1 server using plain TCP' do
 
   context 'client and server configuration' do
     it 'configures first server without errors' do
-      # TEMPORARY: keep rsyslogd's stderr, which rsyslog.service discards
-      on(server, %(mkdir -p /etc/systemd/system/rsyslog.service.d && printf '[Service]\\nStandardError=journal\\n' > /etc/systemd/system/rsyslog.service.d/zz_debug.conf && systemctl daemon-reload))
       set_hieradata_on(server, hieradata)
       apply_manifest_on(server, server_manifest, catch_failures: true)
     end

@@ -310,6 +310,7 @@ describe 'rsyslog' do
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to contain_class('rsyslog::config::tls') }
         it { is_expected.to contain_package('rsyslog-gnutls').with_ensure('installed') }
+        it { is_expected.to contain_package('rsyslog-gnutls').that_comes_before('File[/etc/rsyslog.simp.d]') }
 
         it 'writes the listeners and the TLS settings TLS needs' do
           expect(rendered).to eq(
