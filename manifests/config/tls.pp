@@ -15,10 +15,16 @@ class rsyslog::config::tls {
   assert_private()
 
   include 'rsyslog'
+  include 'rsyslog::config::rule_tree'
 
+  # Install the package before any configuration is written. A package
+  # transaction can restart a running rsyslog, and a restart with a half
+  # written configuration fails (for example with no actions yet) until
+  # systemd's start limit stops the later restart as well.
   package { $rsyslog::tls_package_name:
     ensure  => $rsyslog::install::ensure,
     require => Class['rsyslog::install'],
+    before  => Class['rsyslog::config::rule_tree'],
     notify  => Class['rsyslog::service'],
   }
 
