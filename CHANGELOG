@@ -31,6 +31,8 @@
   `read_journald`, `default_file_template` and their `extra_*` hashes) only
   take effect when `/etc/rsyslog.conf` is this module's: with
   `replace_rsyslog_conf`, or on a node configured by an earlier version.
+  There, `workDirectory` is written as `/var/spool/rsyslog` if no work
+  directory is set.
 - BREAKING CHANGE: The `/etc/rsyslog.d` directory is no longer managed, and
   `/etc/rsyslog.d/README_SIMP.conf` only with `replace_rsyslog_conf`.
   `/var/spool/rsyslog` is no longer managed as such; the directory set in
