@@ -5,7 +5,35 @@
 # work on other systems but they may have different/other bugs that have not
 # been addressed.
 #
+# A bare `include rsyslog` installs the package and makes no other change.
+# Every other behavior is turned on by setting a parameter, either here, in
+# `rsyslog::config`, or for every SIMP module at once with the `simp:defaults`
+# compliance_engine profile:
+#
+#   compliance_engine::enforcement:
+#     - simp:defaults
+#
 # See ``rsyslog::config`` for additional, detailed configuration.
+#
+# @param service_ensure
+#   The `ensure` value for the rsyslog service
+#
+#   * When this and `$service_enable` are both unset, the service is not
+#     managed. Configuration changes then reach the running daemon only after
+#     a manual `systemctl restart rsyslog`, unless `$restart_on_change` is
+#     set.
+#
+# @param service_enable
+#   The `enable` value for the rsyslog service
+#
+# @param restart_on_change
+#   Restart rsyslog when the module changes its configuration, while the
+#   service itself is not managed
+#
+#   * Runs `systemctl try-restart`, which does nothing when rsyslog is not
+#     running. Never starts, stops, enables or disables the service.
+#   * Has no effect when `$service_ensure` or `$service_enable` is set: the
+#     managed service is restarted instead.
 #
 # @param service_name
 #   The name of the Rsyslog service; typically ``rsyslog``
@@ -52,6 +80,8 @@
 # @param tcp_server
 #   Make this host listen for ``TCP`` connections
 #
+#   * `false` removes the listener, and undef leaves it alone.
+#
 #   * Ideally, all connections would be ``TLS`` enabled via ``$tls_tcp_server``
 #     instead.
 #   * Only enable this if necessary.
@@ -62,11 +92,16 @@
 # @param tls_tcp_server
 #   Make this host listen for ``TLS`` enabled ``TCP`` connections
 #
+#   * This also adds a plain ``TCP`` listener on ``$tcp_listen_port``.
+#   * `false` removes the listeners, and undef leaves them alone.
+#
 # @param tls_tcp_listen_port
 #   The port upon which to listen for ``TLS`` enabled ``TCP`` connections
 #
 # @param udp_server
 #   Make this host listen for ``UDP`` connections
+#
+#   * `false` removes the listener, and undef leaves it alone.
 #
 #   * This really should not be enabled unless you have devices that cannot
 #     speak ``TLS``
@@ -82,6 +117,9 @@
 #
 # @param read_journald
 #   Enable the processing of ``journald`` messages natively in Rsyslog
+#
+#   * Only takes effect when `rsyslog::config::replace_rsyslog_conf` is
+#     `true`. The package's `/etc/rsyslog.conf` already reads the journal.
 #
 # @param logrotate
 #   Ensure that ``logrotate`` is enabled on this system
@@ -115,38 +153,46 @@
 # @param rules
 #   A hash of rsyslog rules, this parameter will enable you to create rules via hieradata
 #
+#   * Set `ensure: absent` on an entry to remove its rule.
+#
 # @example Create rules via hieradata:
 #   rsyslog::rules:
 #     'some_path/99_collect_kernel_errors.conf':
 #       content: "if prifilt('kern.err') then /var/log/kernel_errors.log"
 #     'some_path/98_discard_info.conf':
 #       content: "if prifilt('*.info') then stop"
+#     'some_path/97_old_rule.conf':
+#       ensure: absent
+#       content: ''
 #
 # @author https://github.com/simp/pupmod-simp-rsyslog/graphs/contributors
 #
 class rsyslog (
-  String                        $service_name            = 'rsyslog',
-  String                        $package_name            = 'rsyslog',
-  Boolean                       $read_journald           = true,
-  String                        $tls_package_name        = "${package_name}-gnutls",
-  Simplib::Netlist              $trusted_nets            = simplib::lookup('simp_options::trusted_nets', { 'default_value'                  => ['127.0.0.1/32'] }),
-  Boolean                       $enable_tls_logging      = false,
-  Simplib::Netlist              $log_servers             = simplib::lookup('simp_options::syslog::log_servers', { 'default_value'          => [] }),
-  Simplib::Netlist              $failover_log_servers    = simplib::lookup('simp_options::syslog::failover_log_servers', { 'default_value' => [] }),
-  Stdlib::Absolutepath          $queue_spool_directory   = '/var/spool/rsyslog',
-  Stdlib::Absolutepath          $rule_dir                = '/etc/rsyslog.simp.d',
-  Boolean                       $tcp_server              = false,
-  Simplib::Port                 $tcp_listen_port         = 514,
-  Boolean                       $tls_tcp_server          = false,
-  Simplib::Port                 $tls_tcp_listen_port     = 6514,
-  Boolean                       $udp_server              = false,
-  String                        $udp_listen_address      = '127.0.0.1',
-  Simplib::Port                 $udp_listen_port         = 514,
-  Boolean                       $logrotate               = simplib::lookup('simp_options::logrotate', { 'default_value'                     => false }),
-  Variant[Boolean,Enum['simp']] $pki                     = simplib::lookup('simp_options::pki', { 'default_value'                           => false }),
-  String                        $app_pki_external_source = simplib::lookup('simp_options::pki::source', { 'default_value'                   => '/etc/pki/simp/x509' }),
-  Stdlib::Absolutepath          $app_pki_dir             = '/etc/pki/simp_apps/rsyslog/x509',
-  Hash                          $rules                   = {},
+  Optional[Stdlib::Ensure::Service] $service_ensure          = undef,
+  Optional[Boolean]                 $service_enable          = undef,
+  Boolean                           $restart_on_change       = false,
+  String                            $service_name            = 'rsyslog',
+  String                            $package_name            = 'rsyslog',
+  Optional[Boolean]                 $read_journald           = undef,
+  String                            $tls_package_name        = "${package_name}-gnutls",
+  Simplib::Netlist                  $trusted_nets            = simplib::lookup('simp_options::trusted_nets', { 'default_value'                  => ['127.0.0.1/32'] }),
+  Boolean                           $enable_tls_logging      = false,
+  Simplib::Netlist                  $log_servers             = simplib::lookup('simp_options::syslog::log_servers', { 'default_value'          => [] }),
+  Simplib::Netlist                  $failover_log_servers    = simplib::lookup('simp_options::syslog::failover_log_servers', { 'default_value' => [] }),
+  Stdlib::Absolutepath              $queue_spool_directory   = '/var/spool/rsyslog',
+  Stdlib::Absolutepath              $rule_dir                = '/etc/rsyslog.simp.d',
+  Optional[Boolean]                 $tcp_server              = undef,
+  Simplib::Port                     $tcp_listen_port         = 514,
+  Optional[Boolean]                 $tls_tcp_server          = undef,
+  Simplib::Port                     $tls_tcp_listen_port     = 6514,
+  Optional[Boolean]                 $udp_server              = undef,
+  String                            $udp_listen_address      = '127.0.0.1',
+  Simplib::Port                     $udp_listen_port         = 514,
+  Boolean                           $logrotate               = simplib::lookup('simp_options::logrotate', { 'default_value'                     => false }),
+  Variant[Boolean,Enum['simp']]     $pki                     = simplib::lookup('simp_options::pki', { 'default_value'                           => false }),
+  String                            $app_pki_external_source = simplib::lookup('simp_options::pki::source', { 'default_value'                   => '/etc/pki/simp/x509' }),
+  Stdlib::Absolutepath              $app_pki_dir             = '/etc/pki/simp_apps/rsyslog/x509',
+  Hash                              $rules                   = {},
 ) {
   if $facts['rsyslogd'] and versioncmp($facts['rsyslogd']['version'], '8.24.0') < 0 {
     warning("${module_name}: Rsyslog version ${facts['rsyslogd']} not supported. Use ${module_name} version 7.6.4 instead")

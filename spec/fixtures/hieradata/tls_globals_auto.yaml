@@ -1,0 +1,4 @@
+---
+rsyslog::config::default_net_stream_driver: auto
+rsyslog::config::default_net_stream_driver_ca_file: /etc/pki/ca.pem
+rsyslog::config::default_net_stream_driver_key_file: absent

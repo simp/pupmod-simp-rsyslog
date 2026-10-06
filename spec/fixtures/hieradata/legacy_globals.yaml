@@ -1,0 +1,4 @@
+---
+rsyslog::config::umask: '0027'
+rsyslog::config::extra_legacy_globals:
+  AbortOnUncleanConfig: 'absent'

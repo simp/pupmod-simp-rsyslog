@@ -1,3 +1,69 @@
+* Mon Oct 05 2026 Kendall Moore <kendall@sicura.us> - 11.0.0
+- BREAKING CHANGE: A bare `include rsyslog` now installs the package and
+  makes no other change. To keep the 10.x behavior, enforce the new
+  `simp:defaults` Compliance Engine profile
+  (`compliance_engine::enforcement: ['simp:defaults']`), or set the
+  parameters below. See "Breaking changes in 11.0.0" in the README.
+- BREAKING CHANGE: `/etc/rsyslog.conf` is no longer replaced unless
+  `rsyslog::config::replace_rsyslog_conf` is `true`. Otherwise a single
+  `$IncludeConfig` line for `/etc/rsyslog.simp.d` is added to the existing
+  file when anything is written there.
+- BREAKING CHANGE: `/etc/rsyslog.simp.d` and its subdirectories are only
+  purged when the new `rsyslog::config::purge_rule_dir` is `true`.
+  `rsyslog::rule`, its wrappers and the template defines accept
+  `ensure => absent` to remove a rule.
+- BREAKING CHANGE: The service is only managed when the new
+  `rsyslog::service_ensure` or `rsyslog::service_enable` is set. The new
+  `rsyslog::restart_on_change` restarts a running rsyslog after a
+  configuration change while the service is unmanaged.
+  `rsyslog::service::enable` is deprecated.
+- BREAKING CHANGE: Every `rsyslog::config` setting, and
+  `rsyslog::tcp_server`, `tls_tcp_server`, `udp_server` and `read_journald`,
+  now defaults to `undef`, which leaves the setting alone. A value sets it
+  and `absent` (or `false`) removes it. The values that were computed from
+  facts are available with `auto`.
+- BREAKING CHANGE: `00_simp_pre_logging/global.conf` is replaced by one file
+  per statement, with each setting managed on its own line. It is removed
+  when anything is written to `00_simp_pre_logging`; on a node upgraded
+  without `simp:defaults`, the settings it held that are not set again fall
+  back to rsyslog's defaults. Settings that the package's
+  `/etc/rsyslog.conf` already makes (`work_directory`, `syssock_*`,
+  `read_journald`, `default_file_template` and their `extra_*` hashes) only
+  take effect when `/etc/rsyslog.conf` is this module's: with
+  `replace_rsyslog_conf`, or on a node configured by an earlier version.
+  There, `workDirectory` is written as `/var/spool/rsyslog` if no work
+  directory is set.
+- BREAKING CHANGE: The `/etc/rsyslog.d` directory is no longer managed, and
+  `/etc/rsyslog.d/README_SIMP.conf` only with `replace_rsyslog_conf`.
+  `/var/spool/rsyslog` is no longer managed as such; the directory set in
+  `work_directory` is, when that setting takes effect.
+- BREAKING CHANGE: The UDP listener binds to `rsyslog::udp_listen_address`
+  (default `127.0.0.1`), which earlier versions ignored. Sites that receive
+  UDP syslog from other hosts must set it, for example to `0.0.0.0`.
+- BREAKING CHANGE: Rule file names never contain `hostname`, which is
+  written as `host_name`, because the SELinux policy labels such files
+  `hostname_etc_t` and rsyslog cannot read them on EL10. A file written
+  under the old name is removed.
+- BREAKING CHANGE: `/etc/sysconfig/rsyslog` is no longer replaced. Set the
+  new `rsyslog::config::syslogd_options` to manage its `SYSLOGD_OPTIONS`
+  line.
+- BREAKING CHANGE: `rsyslog::server::enable_selinux` now defaults to `undef`
+  instead of following the `os.selinux.enforced` fact.
+- The `rsyslog::server` firewall rule for a listener stays while the
+  listener is configured and its parameter is unset.
+- `rsyslog::rule::data_source` loads the `imfile` module itself.
+- Add the `rsyslog_simp_config` fact, which reports whether
+  `/etc/rsyslog.conf` is this module's and which settings files and
+  listeners exist.
+- Remove the systemd override for rsyslog 8.24.0 (EL7).
+  `rsyslog::config::systemd_override_file` is deprecated and has no effect.
+- Add `use_tls` to `rsyslog::rule::remote`, so one rule can forward over TLS
+  or in plain text regardless of `rsyslog::enable_tls_logging`.
+- Ship the `simp:defaults` Compliance Engine profile, which restores the 10.x
+  defaults, including the replaced `/etc/rsyslog.conf`, the purged rule
+  directory and service management.
+- Allow `simp/iptables` 9.x.
+
 * Tue Sep 01 2026 Hazel Caballero <hazel@sicura.us> - 10.0.1
 - Manage `/etc/rsyslog.d/README_SIMP.conf` with mode `0640` instead of `0644`.
   Compliance benchmarks that require every rsyslog configuration file to be

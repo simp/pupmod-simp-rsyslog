@@ -13,14 +13,21 @@
 
 #### Private Classes
 
-* `rsyslog::config`
+* `rsyslog::config`: Setup Rsyslog configuration
+* `rsyslog::config::failover_hack`: Add the no-op rule that rsyslog needs before any failover action
+* `rsyslog::config::imfile`: Load the `imfile` input module
 * `rsyslog::config::logrotate`: Default log rotation for RSyslog
+* `rsyslog::config::pre_logging`: Manage the first `global()` statement and the input modules in `00_simp_pre_logging`
+* `rsyslog::config::rule_tree`: Create `$rsyslog::rule_dir` and make rsyslog read it
+* `rsyslog::config::tls`: Install the TLS driver and set the global TLS stream driver settings
 * `rsyslog::install`: Installs the packages necessary for use of RSyslog
 * `rsyslog::server::firewall`: Sets up the firewall rules for RSyslog with management by ``simp/iptables``
 * `rsyslog::server::selinux`: Sets up SELinux for RSyslog
 * `rsyslog::service`: Manage the RSyslog service
 
 ### Defined types
+
+#### Public Defined types
 
 * [`rsyslog::rule`](#rsyslog--rule): Adds a rule
 * [`rsyslog::rule::console`](#rsyslog--rule--console): Add a rule for writing logs to the console
@@ -33,6 +40,21 @@
 * [`rsyslog::template::plugin`](#rsyslog--template--plugin): Add template plugins to the rsyslog configuration file.
 * [`rsyslog::template::string`](#rsyslog--template--string): Add template strings to the rsyslog configuration
 * [`rsyslog::template::subtree`](#rsyslog--template--subtree): Add template subtrees to the rsyslog configuration
+
+#### Private Defined types
+
+* `rsyslog::config::block`: Create a file in `00_simp_pre_logging` that holds one rsyslog statement
+* `rsyslog::config::line`: Manage a single line in a SIMP-owned rsyslog configuration file
+* `rsyslog::config::param`: Manage one `key="value"` parameter inside a `rsyslog::config::block`
+* `rsyslog::config::statement`: Manage one rsyslog statement (`global(...)`, `module(...)` or `main_queue(...)`) in `00_simp_pre_logging`
+* `rsyslog::rule::directory`: Create a numbered rule subdirectory under `$rsyslog::rule_dir`
+
+### Functions
+
+#### Private Functions
+
+* `rsyslog::existing_pre_logging`: The files that exist in `00_simp_pre_logging` on the node
+* `rsyslog::format_value`: Render a parameter value the way rsyslog expects it
 
 ### Data types
 
@@ -49,6 +71,14 @@ versions of rsyslog included with Enterprise Linux systems. It should still
 work on other systems but they may have different/other bugs that have not
 been addressed.
 
+A bare `include rsyslog` installs the package and makes no other change.
+Every other behavior is turned on by setting a parameter, either here, in
+`rsyslog::config`, or for every SIMP module at once with the `simp:defaults`
+compliance_engine profile:
+
+  compliance_engine::enforcement:
+    - simp:defaults
+
 See ``rsyslog::config`` for additional, detailed configuration.
 
 #### Examples
@@ -61,12 +91,18 @@ rsyslog::rules:
     content: "if prifilt('kern.err') then /var/log/kernel_errors.log"
   'some_path/98_discard_info.conf':
     content: "if prifilt('*.info') then stop"
+  'some_path/97_old_rule.conf':
+    ensure: absent
+    content: ''
 ```
 
 #### Parameters
 
 The following parameters are available in the `rsyslog` class:
 
+* [`service_ensure`](#-rsyslog--service_ensure)
+* [`service_enable`](#-rsyslog--service_enable)
+* [`restart_on_change`](#-rsyslog--restart_on_change)
 * [`service_name`](#-rsyslog--service_name)
 * [`package_name`](#-rsyslog--package_name)
 * [`tls_package_name`](#-rsyslog--tls_package_name)
@@ -89,6 +125,41 @@ The following parameters are available in the `rsyslog` class:
 * [`app_pki_external_source`](#-rsyslog--app_pki_external_source)
 * [`app_pki_dir`](#-rsyslog--app_pki_dir)
 * [`rules`](#-rsyslog--rules)
+
+##### <a name="-rsyslog--service_ensure"></a>`service_ensure`
+
+Data type: `Optional[Stdlib::Ensure::Service]`
+
+The `ensure` value for the rsyslog service
+
+* When this and `$service_enable` are both unset, the service is not
+  managed. Configuration changes then reach the running daemon only after
+  a manual `systemctl restart rsyslog`, unless `$restart_on_change` is
+  set.
+
+Default value: `undef`
+
+##### <a name="-rsyslog--service_enable"></a>`service_enable`
+
+Data type: `Optional[Boolean]`
+
+The `enable` value for the rsyslog service
+
+Default value: `undef`
+
+##### <a name="-rsyslog--restart_on_change"></a>`restart_on_change`
+
+Data type: `Boolean`
+
+Restart rsyslog when the module changes its configuration, while the
+service itself is not managed
+
+* Runs `systemctl try-restart`, which does nothing when rsyslog is not
+  running. Never starts, stops, enables or disables the service.
+* Has no effect when `$service_ensure` or `$service_enable` is set: the
+  managed service is restarted instead.
+
+Default value: `false`
 
 ##### <a name="-rsyslog--service_name"></a>`service_name`
 
@@ -179,15 +250,17 @@ Default value: `'/etc/rsyslog.simp.d'`
 
 ##### <a name="-rsyslog--tcp_server"></a>`tcp_server`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Make this host listen for ``TCP`` connections
+
+* `false` removes the listener, and undef leaves it alone.
 
 * Ideally, all connections would be ``TLS`` enabled via ``$tls_tcp_server``
   instead.
 * Only enable this if necessary.
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-rsyslog--tcp_listen_port"></a>`tcp_listen_port`
 
@@ -199,11 +272,14 @@ Default value: `514`
 
 ##### <a name="-rsyslog--tls_tcp_server"></a>`tls_tcp_server`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Make this host listen for ``TLS`` enabled ``TCP`` connections
 
-Default value: `false`
+* This also adds a plain ``TCP`` listener on ``$tcp_listen_port``.
+* `false` removes the listeners, and undef leaves them alone.
+
+Default value: `undef`
 
 ##### <a name="-rsyslog--tls_tcp_listen_port"></a>`tls_tcp_listen_port`
 
@@ -215,14 +291,16 @@ Default value: `6514`
 
 ##### <a name="-rsyslog--udp_server"></a>`udp_server`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Make this host listen for ``UDP`` connections
+
+* `false` removes the listener, and undef leaves it alone.
 
 * This really should not be enabled unless you have devices that cannot
   speak ``TLS``
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-rsyslog--udp_listen_address"></a>`udp_listen_address`
 
@@ -245,11 +323,14 @@ Default value: `514`
 
 ##### <a name="-rsyslog--read_journald"></a>`read_journald`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Enable the processing of ``journald`` messages natively in Rsyslog
 
-Default value: `true`
+* Only takes effect when `rsyslog::config::replace_rsyslog_conf` is
+  `true`. The package's `/etc/rsyslog.conf` already reads the journal.
+
+Default value: `undef`
 
 ##### <a name="-rsyslog--logrotate"></a>`logrotate`
 
@@ -306,6 +387,8 @@ Data type: `Hash`
 
 A hash of rsyslog rules, this parameter will enable you to create rules via hieradata
 
+* Set `ensure: absent` on an entry to remove its rule.
+
 Default value: `{}`
 
 ### <a name="rsyslog--server"></a>`rsyslog::server`
@@ -335,7 +418,11 @@ Data type: `Optional[Boolean]`
 
 Enable the SIMP SELinux rules for RSyslog
 
-Default value: `$facts['os']['selinux']['enforced']`
+* `true` turns on the `nis_enabled` SELinux boolean when SELinux is not
+  disabled.
+* `false` or undef leaves the boolean alone.
+
+Default value: `undef`
 
 ## Defined types
 
@@ -357,6 +444,10 @@ In general, the order will be:
   * 10 - Remote Rules
   * 20 - Other/Miscellaneous Rules
   * 99 - Local Rules
+
+The file name never contains `hostname`: the SELinux policy labels
+`/etc/.*hostname.*` as `hostname_etc_t`, which rsyslog cannot read on EL10,
+so `hostname` in the name is written as `host_name`.
 
 * **See also**
   * https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system_administrators_guide/ch-viewing_and_managing_log_files#s1-basic_configuration_of_rsyslog.html
@@ -390,6 +481,8 @@ The following parameters are available in the `rsyslog::rule` defined type:
 
 * [`name`](#-rsyslog--rule--name)
 * [`content`](#-rsyslog--rule--content)
+* [`ensure`](#-rsyslog--rule--ensure)
+* [`replace`](#-rsyslog--rule--replace)
 
 ##### <a name="-rsyslog--rule--name"></a>`name`
 
@@ -404,6 +497,27 @@ The filename that you will be dropping into place
 Data type: `String`
 
 The **exact content** of the rule to place in the target file
+
+##### <a name="-rsyslog--rule--ensure"></a>`ensure`
+
+Data type: `Enum['present', 'absent']`
+
+Whether the rule file should exist
+
+* `absent` removes the rule file. Use this to remove a rule without
+  enabling `rsyslog::config::purge_rule_dir`. Nothing else is created.
+
+Default value: `'present'`
+
+##### <a name="-rsyslog--rule--replace"></a>`replace`
+
+Data type: `Boolean`
+
+Whether an existing file is rewritten with `$content`
+
+* `false` writes the file only when it does not exist yet.
+
+Default value: `true`
 
 ### <a name="rsyslog--rule--console"></a>`rsyslog::rule::console`
 
@@ -442,6 +556,7 @@ The following parameters are available in the `rsyslog::rule::console` defined t
 * [`name`](#-rsyslog--rule--console--name)
 * [`rule`](#-rsyslog--rule--console--rule)
 * [`users`](#-rsyslog--rule--console--users)
+* [`ensure`](#-rsyslog--rule--console--ensure)
 
 ##### <a name="-rsyslog--rule--console--name"></a>`name`
 
@@ -460,6 +575,14 @@ The Rsyslog ``EXPRESSION`` to filter on
 Data type: `Array[String]`
 
 Users to which to send the console messages
+
+##### <a name="-rsyslog--rule--console--ensure"></a>`ensure`
+
+Data type: `Enum['present', 'absent']`
+
+`absent` removes the rule file
+
+Default value: `'present'`
 
 ### <a name="rsyslog--rule--data_source"></a>`rsyslog::rule::data_source`
 
@@ -506,6 +629,7 @@ The following parameters are available in the `rsyslog::rule::data_source` defin
 
 * [`name`](#-rsyslog--rule--data_source--name)
 * [`rule`](#-rsyslog--rule--data_source--rule)
+* [`ensure`](#-rsyslog--rule--data_source--ensure)
 
 ##### <a name="-rsyslog--rule--data_source--name"></a>`name`
 
@@ -518,6 +642,14 @@ The filename that you will be dropping into place
 Data type: `String`
 
 The Rsyslog ``EXPRESSION`` to filter on
+
+##### <a name="-rsyslog--rule--data_source--ensure"></a>`ensure`
+
+Data type: `Enum['present', 'absent']`
+
+`absent` removes the rule file
+
+Default value: `'present'`
 
 ### <a name="rsyslog--rule--drop"></a>`rsyslog::rule::drop`
 
@@ -556,6 +688,7 @@ The following parameters are available in the `rsyslog::rule::drop` defined type
 
 * [`name`](#-rsyslog--rule--drop--name)
 * [`rule`](#-rsyslog--rule--drop--rule)
+* [`ensure`](#-rsyslog--rule--drop--ensure)
 
 ##### <a name="-rsyslog--rule--drop--name"></a>`name`
 
@@ -568,6 +701,14 @@ The filename that you will be dropping into place
 Data type: `String`
 
 The Rsyslog ``EXPRESSION`` to filter on
+
+##### <a name="-rsyslog--rule--drop--ensure"></a>`ensure`
+
+Data type: `Enum['present', 'absent']`
+
+`absent` removes the rule file
+
+Default value: `'present'`
 
 ### <a name="rsyslog--rule--local"></a>`rsyslog::rule::local`
 
@@ -676,6 +817,7 @@ The following parameters are available in the `rsyslog::rule::local` defined typ
 * [`queue_dequeue_time_begin`](#-rsyslog--rule--local--queue_dequeue_time_begin)
 * [`queue_dequeue_time_end`](#-rsyslog--rule--local--queue_dequeue_time_end)
 * [`content`](#-rsyslog--rule--local--content)
+* [`ensure`](#-rsyslog--rule--local--ensure)
 
 ##### <a name="-rsyslog--rule--local--name"></a>`name`
 
@@ -1135,6 +1277,14 @@ the **entire* content of the rsyslog::rule
 
 Default value: `undef`
 
+##### <a name="-rsyslog--rule--local--ensure"></a>`ensure`
+
+Data type: `Enum['present', 'absent']`
+
+`absent` removes the rule file
+
+Default value: `'present'`
+
 ### <a name="rsyslog--rule--other"></a>`rsyslog::rule::other`
 
 The main reason to use this is to ensure proper ordering in the stack. If you
@@ -1177,6 +1327,7 @@ The following parameters are available in the `rsyslog::rule::other` defined typ
 
 * [`name`](#-rsyslog--rule--other--name)
 * [`rule`](#-rsyslog--rule--other--rule)
+* [`ensure`](#-rsyslog--rule--other--ensure)
 
 ##### <a name="-rsyslog--rule--other--name"></a>`name`
 
@@ -1189,6 +1340,14 @@ The filename that you will be dropping into place
 Data type: `String`
 
 The Rsyslog ``EXPRESSION`` to filter on
+
+##### <a name="-rsyslog--rule--other--ensure"></a>`ensure`
+
+Data type: `Enum['present', 'absent']`
+
+`absent` removes the rule file
+
+Default value: `'present'`
 
 ### <a name="rsyslog--rule--remote"></a>`rsyslog::rule::remote`
 
@@ -1205,19 +1364,11 @@ In general, the order will be:
   * Other/Miscellaneous Rules
   * Local Rules
 
-In general, individual send stream driver settings are properly supported
-with the Rsyslog 8 EL versions available for CentOS 7 and the Rsyslog 7
-EL versions available for CentOS 6. However, for TLS support, you must
-also configure global Rsyslog parameters as follows:
-
-* TLS sending and/or receiving requires the global DefaultNetStreamDriver,
-  DefaultNetStreamDriverCAFile, DefaultNetStreamDriverCertFile, and
-  DefaultNetStreamDriverKeyFile parameters to be configure via
-  ``rsyslog::config``.
-
-* TLS sending for Rsyslog 7 EL versions requires the global
-  ActionSendStreamDriverMode configuration parameter to be configured via
-  ``rsyslog::config`` **IN ADDITION TO** the ``$stream_driver_mode``.
+TLS sending requires the global DefaultNetStreamDriver,
+DefaultNetStreamDriverCAFile, DefaultNetStreamDriverCertFile, and
+DefaultNetStreamDriverKeyFile parameters (see ``rsyslog::config``). They are
+set whenever a rule uses TLS, either because ``$use_tls`` is ``true`` or
+because ``rsyslog::enable_tls_logging`` is ``true``.
 
 ------------------------------------------------------------------------
 
@@ -1278,6 +1429,7 @@ The following parameters are available in the `rsyslog::rule::remote` defined ty
 * [`keep_alive_time`](#-rsyslog--rule--remote--keep_alive_time)
 * [`action_resume_interval`](#-rsyslog--rule--remote--action_resume_interval)
 * [`action_resume_retry_count`](#-rsyslog--rule--remote--action_resume_retry_count)
+* [`use_tls`](#-rsyslog--rule--remote--use_tls)
 * [`stream_driver`](#-rsyslog--rule--remote--stream_driver)
 * [`stream_driver_mode`](#-rsyslog--rule--remote--stream_driver_mode)
 * [`stream_driver_auth_mode`](#-rsyslog--rule--remote--stream_driver_auth_mode)
@@ -1311,6 +1463,7 @@ The following parameters are available in the `rsyslog::rule::remote` defined ty
 * [`queue_dequeue_time_begin`](#-rsyslog--rule--remote--queue_dequeue_time_begin)
 * [`queue_dequeue_time_end`](#-rsyslog--rule--remote--queue_dequeue_time_end)
 * [`content`](#-rsyslog--rule--remote--content)
+* [`ensure`](#-rsyslog--rule--remote--ensure)
 
 ##### <a name="-rsyslog--rule--remote--name"></a>`name`
 
@@ -1482,6 +1635,23 @@ Data type: `Integer[-1]`
 
 
 Default value: `-1`
+
+##### <a name="-rsyslog--rule--remote--use_tls"></a>`use_tls`
+
+Data type: `Optional[Boolean]`
+
+Whether this rule forwards over TLS
+
+* undef (the default) follows ``rsyslog::enable_tls_logging``.
+* ``false`` forwards in plain text, with an explicit
+  ``StreamDriver="ptcp"`` so that a global TLS stream driver does not
+  apply to this rule.
+* ``true`` forwards over TLS even when ``rsyslog::enable_tls_logging`` is
+  ``false``. This needs the TLS certificates, either copied by
+  ``rsyslog::pki`` or staged at the ``rsyslog::config`` TLS paths.
+* Ignored when ``$dest_type`` is ``udp``, which never uses TLS.
+
+Default value: `undef`
 
 ##### <a name="-rsyslog--rule--remote--stream_driver"></a>`stream_driver`
 
@@ -1784,6 +1954,14 @@ the **entire* content of the rsyslog::rule
 
 Default value: `undef`
 
+##### <a name="-rsyslog--rule--remote--ensure"></a>`ensure`
+
+Data type: `Enum['present', 'absent']`
+
+`absent` removes the rule file
+
+Default value: `'present'`
+
 ### <a name="rsyslog--template--list"></a>`rsyslog::template::list`
 
 RSyslog list templates can contain properties and constants. In order to
@@ -1818,6 +1996,7 @@ The following parameters are available in the `rsyslog::template::list` defined 
 
 * [`name`](#-rsyslog--template--list--name)
 * [`content`](#-rsyslog--template--list--content)
+* [`ensure`](#-rsyslog--template--list--ensure)
 
 ##### <a name="-rsyslog--template--list--name"></a>`name`
 
@@ -1830,6 +2009,14 @@ The literal name (not path) of the ``file`` that will be written
 Data type: `Hash[String,String,1]`
 
 The rsyslog list content that you wish to add to the system, as a Hash
+
+##### <a name="-rsyslog--template--list--ensure"></a>`ensure`
+
+Data type: `Enum['present', 'absent']`
+
+`absent` removes the rule file
+
+Default value: `'present'`
 
 ### <a name="rsyslog--template--plugin"></a>`rsyslog::template::plugin`
 
@@ -1856,6 +2043,7 @@ The following parameters are available in the `rsyslog::template::plugin` define
 
 * [`name`](#-rsyslog--template--plugin--name)
 * [`plugin`](#-rsyslog--template--plugin--plugin)
+* [`ensure`](#-rsyslog--template--plugin--ensure)
 
 ##### <a name="-rsyslog--template--plugin--name"></a>`name`
 
@@ -1870,6 +2058,14 @@ Data type: `String`
 The rsyslog plugin content that you wish to add to the system
 
 * This is provided, without formatting, directly into the target file
+
+##### <a name="-rsyslog--template--plugin--ensure"></a>`ensure`
+
+Data type: `Enum['present', 'absent']`
+
+`absent` removes the rule file
+
+Default value: `'present'`
 
 ### <a name="rsyslog--template--string"></a>`rsyslog::template::string`
 
@@ -1898,6 +2094,7 @@ The following parameters are available in the `rsyslog::template::string` define
 
 * [`name`](#-rsyslog--template--string--name)
 * [`string`](#-rsyslog--template--string--string)
+* [`ensure`](#-rsyslog--template--string--ensure)
 
 ##### <a name="-rsyslog--template--string--name"></a>`name`
 
@@ -1912,6 +2109,14 @@ Data type: `String`
 The rsyslog template string that you wish to add to the system
 
 * This is fed, without formatting, directly into the target file
+
+##### <a name="-rsyslog--template--string--ensure"></a>`ensure`
+
+Data type: `Enum['present', 'absent']`
+
+`absent` removes the rule file
+
+Default value: `'present'`
 
 ### <a name="rsyslog--template--subtree"></a>`rsyslog::template::subtree`
 
@@ -1942,6 +2147,7 @@ The following parameters are available in the `rsyslog::template::subtree` defin
 * [`name`](#-rsyslog--template--subtree--name)
 * [`subtree`](#-rsyslog--template--subtree--subtree)
 * [`variables`](#-rsyslog--template--subtree--variables)
+* [`ensure`](#-rsyslog--template--subtree--ensure)
 
 ##### <a name="-rsyslog--template--subtree--name"></a>`name`
 
@@ -1965,6 +2171,14 @@ Variables to be set **prior** to the template being created
 
 Default value: `[]`
 
+##### <a name="-rsyslog--template--subtree--ensure"></a>`ensure`
+
+Data type: `Enum['present', 'absent']`
+
+`absent` removes the rule file
+
+Default value: `'present'`
+
 ## Data types
 
 ### <a name="Rsyslog--Boolean"></a>`Rsyslog::Boolean`
@@ -1985,4 +2199,3 @@ Alias of `Hash[String, Variant[Numeric,String]]`
 Rsyslog Queue Types
 
 Alias of `Enum['FixedArray', 'LinkedList', 'Direct', 'Disk']`
-

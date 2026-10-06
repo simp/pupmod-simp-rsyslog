@@ -1,124 +1,15 @@
 require 'spec_helper'
+require_relative '../lib/rendered_config'
 
 describe 'rsyslog' do
-  shared_examples_for 'a structured module' do
-    it { is_expected.to compile.with_all_deps }
-    it { is_expected.to create_class('rsyslog') }
-    it { is_expected.to contain_class('rsyslog::config') }
-    it { is_expected.to contain_class('rsyslog::install').that_comes_before('Class[rsyslog::config]') }
-    it { is_expected.to contain_class('rsyslog::service').that_subscribes_to('Class[rsyslog::config]') }
-  end
-
-  shared_examples_for 'rsyslog base install' do
-    it { is_expected.to contain_package('rsyslog.x86_64').with_ensure('installed') }
-    it { is_expected.to contain_package('rsyslog.i386').with_ensure('absent') }
-  end
-
-  shared_examples_for 'rsyslog base configuration' do
-    it {
-      is_expected.to contain_file('/etc/rsyslog.simp.d').with(
-      ensure: 'directory',
-      mode: '0750',
-    )
-    }
-
-    it {
-      is_expected.to contain_file('/etc/rsyslog.d').with(
-      ensure: 'directory',
-      mode: '0755',
-    )
-    }
-
-    it {
-      expected = <<~EOM
-        # In Puppet hieradata, set 'rsyslog::config::include_rsyslog_d' to true
-        # and place ".conf" files that rsyslog should process independently of
-        # SIMP into this directory.
-      EOM
-      is_expected.to contain_file('/etc/rsyslog.d/README_SIMP.conf').with(
-        ensure: 'file',
-        owner: 'root',
-        group: 'root',
-        mode: '0640',
-        content: expected,
-      )
-    }
-
-    it {
-      is_expected.to contain_file('/var/spool/rsyslog').with(
-      ensure: 'directory',
-      mode: '0700',
-    )
-    }
-
-    it {
-      expected = <<~EOM
-        # This file is managed by Puppet (simp/rsyslog module).
-        # Any changes will be overwritten.
-        $IncludeConfig /etc/rsyslog.simp.d/*.conf
-      EOM
-      is_expected.to contain_file('/etc/rsyslog.conf').with_content(expected)
-    }
-
-    it {
-      is_expected.to contain_file('/etc/sysconfig/rsyslog').with_content(<<~EOM,
-        # This file is managed by Puppet (simp/rsyslog module).
-        # Any changes will be overwritten.
-        SYSLOGD_OPTIONS=""
-      EOM
-                                                                        )
-    }
-
-    it { is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf') }
-    it { is_expected.to contain_rsyslog__rule('09_failover_hack/failover_hack.conf') }
-    it {
-      expected = <<~EOM
-        # This file is managed by Puppet (simp/rsyslog module).
-        # Any changes will be overwritten.
-        [Service]
-        LimitNOFILE=infinity
-      EOM
-
-      is_expected.to contain_systemd__dropin_file('simp_limits.conf').with(
-        unit: 'rsyslog.service',
-        content: expected,
-      ).that_notifies('Class[rsyslog::service]')
-    }
-    it { is_expected.not_to contain_init_ulimit('mod_open_files_rsyslog') }
-  end
-
-  shared_examples_for 'rsyslog base service' do
-    it {
-      is_expected.to contain_service('rsyslog').with(
-      ensure: 'running',
-      enable: true,
-      hasrestart: true,
-      hasstatus: true,
-    )
-    }
-  end
-
-  shared_examples_for 'a rsyslog manager' do
-    it_behaves_like 'a structured module'
-    it_behaves_like 'rsyslog base install'
-    it_behaves_like 'rsyslog base configuration'
-    it_behaves_like 'rsyslog base service'
-  end
-
-  let(:exp_dir) { File.join(__dir__, 'expected') }
+  let(:pre_logging) { '/etc/rsyslog.simp.d/00_simp_pre_logging' }
 
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
       let(:facts) do
         custom = os_facts.dup
 
-        version = if os_facts[:os][:release][:major].to_i < 8
-                    '8.24.0' # CentOS 7: 7.4 and later
-                  else
-                    '8.1911.0' # CentOS 8: 8.2 and later
-                  end
-
-        custom[:rsyslogd] = { 'version' => version }
+        custom[:rsyslogd] = { 'version' => '8.2102.0' }
         custom[:memory][:system][:total_bytes] = 268_435_456
         custom[:processors][:count] = 4
 
@@ -134,142 +25,137 @@ describe 'rsyslog' do
         custom
       end
 
-      let(:global_conf_file) { '/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf' }
+      let(:rendered) { RenderedConfig.files(catalogue) }
 
-      context 'default parameters' do
-        let(:params) { {} }
-        let(:global_expected) { File.read("#{exp_dir}/global_default.txt") }
+      context 'with default parameters (bare include)' do
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_class('rsyslog::install').that_comes_before('Class[rsyslog::config]') }
+        it { is_expected.to contain_class('rsyslog::service').that_subscribes_to('Class[rsyslog::config]') }
+        it { is_expected.to contain_package('rsyslog.x86_64').with_ensure('installed') }
+        it { is_expected.to contain_package('rsyslog.i386').with_ensure('absent') }
 
-        it_behaves_like 'a rsyslog manager'
-        it { is_expected.to contain_class('rsyslog').with_trusted_nets(['127.0.0.1/32']) }
-        it { is_expected.to contain_class('rsyslog').with_tls_package_name('rsyslog-gnutls') }
-        it { is_expected.to contain_rsyslog__rule('99_simp_local/ZZ_default.conf') }
-        it { is_expected.to contain_rsyslog__rule('00_simp_pre_logging/global.conf') }
-        it { is_expected.to contain_file(global_conf_file).with_content(global_expected) }
-
-        if os_facts[:os][:release][:major].to_i < 8
-          it do
-            expected = <<~EOM
-              # This file is managed by Puppet.
-
-              [Unit]
-
-              Wants=network.target network-online.target
-              After=network.target network-online.target
-            EOM
-
-            is_expected.to contain_systemd__dropin_file('unit.conf')
-              .with(
-                unit: 'rsyslog.service',
-                content: expected,
-              ).that_comes_before('Class[rsyslog::service]')
-          end
+        it 'declares nothing but the packages' do
+          declared = catalogue.resources.map(&:type).uniq - ['Class', 'Stage', 'Node', 'Package']
+          expect(declared).to be_empty
         end
 
-        it 'no file resources should have a literal \n' do
-          expect(
-            catalogue.resources.select do |resource|
-              resource.type == 'File' &&
-                resource[:content] &&
-                resource[:content].include?('\n')
-            end,
-          ).to be_empty
-        end
+        it { is_expected.not_to contain_package('rsyslog-gnutls') }
+        it { is_expected.not_to contain_service('rsyslog') }
       end
 
-      context 'rsyslog class with logrotate enabled' do
-        let(:params) { { logrotate: true } }
+      context 'without the facts that only exist once rsyslog is installed' do
+        let(:facts) do
+          custom = os_facts.dup
+          custom.delete(:rsyslogd)
+          custom[:custom_hiera] = 'replace_rsyslog_conf'
+          custom
+        end
 
         it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_class('rsyslog::config::logrotate') }
-        it { is_expected.to contain_logrotate__rule('syslog') }
+      end
+
+      context 'with service_ensure and service_enable set' do
+        let(:params) { { service_ensure: 'running', service_enable: true } }
 
         it {
-          is_expected.to create_file('/etc/logrotate.simp.d/syslog').with_content(
-          %r{/usr/bin/systemctl restart rsyslog > /dev/null 2>&1 || true"},
-        )
+          is_expected.to contain_service('rsyslog').with(
+            ensure: 'running',
+            enable: true,
+            hasrestart: true,
+            hasstatus: true,
+          )
         }
+        it { is_expected.not_to contain_exec('rsyslog restart_on_change') }
       end
 
-      context 'rsyslog class with pki = simp' do
-        let(:params) { { pki: 'simp' } }
+      context 'with only service_enable set' do
+        let(:params) { { service_enable: false } }
+
+        it { is_expected.to contain_service('rsyslog').with_enable(false).without_ensure }
+      end
+
+      context 'with the deprecated rsyslog::service::enable set' do
+        let(:hieradata) { 'service_enable_deprecated' }
+
+        it { is_expected.to contain_service('rsyslog').with(ensure: 'stopped', enable: false) }
+      end
+
+      context 'with restart_on_change set and the service unmanaged' do
+        let(:params) { { restart_on_change: true } }
+        let(:hieradata) { 'single_setting' }
+
+        it { is_expected.not_to contain_service('rsyslog') }
+        it {
+          is_expected.to contain_exec('rsyslog restart_on_change').with(
+            command: 'systemctl try-restart rsyslog.service',
+            refreshonly: true,
+          )
+        }
+        it { is_expected.to contain_file_line('rsyslog 10_global net.enableDNS').that_notifies('Class[rsyslog::service]') }
+      end
+
+      context 'with restart_on_change and service management set' do
+        let(:params) { { restart_on_change: true, service_ensure: 'running' } }
+
+        it { is_expected.to contain_service('rsyslog') }
+        it { is_expected.not_to contain_exec('rsyslog restart_on_change') }
+      end
+
+      context 'with replace_rsyslog_conf set' do
+        let(:hieradata) { 'replace_rsyslog_conf' }
 
         it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_class('pki') }
-        it { is_expected.to contain_pki__copy('rsyslog') }
-        it { is_expected.to contain_file('/etc/pki/simp_apps/rsyslog/x509') }
-      end
 
-      context 'rsyslog class without TLS logging' do
-        # enable_tls_logging and pki are actually set to false by default,
-        # but checks separated out here for easy comparison with
-        # 'rsyslog class with TLS logging'
-        let(:params) do
-          {
-            enable_tls_logging: false,
-            pki: false,
-          }
+        it {
+          is_expected.to contain_file('/etc/rsyslog.conf').with_content(<<~EOM)
+            # This file is managed by Puppet (simp/rsyslog module).
+            # Any changes will be overwritten.
+            $IncludeConfig /etc/rsyslog.simp.d/*.conf
+          EOM
+        }
+
+        it { is_expected.not_to contain_file_line('rsyslog rsyslog.conf include rule_dir') }
+        it { is_expected.to contain_file('/etc/rsyslog.simp.d').with_ensure('directory').without_purge }
+        it { is_expected.to contain_file('/etc/rsyslog.d/README_SIMP.conf').with_mode('0640') }
+        it { is_expected.to contain_rsyslog__rule('09_failover_hack/failover_hack.conf') }
+        it 'writes the default rules only if they are missing, since the package rules are discarded' do
+          is_expected.to contain_rsyslog__rule('99_simp_local/ZZ_default.conf').with(ensure: 'present', replace: false)
+        end
+        it { is_expected.not_to contain_service('rsyslog') }
+
+        it 'loads the input modules and the work directory that a replaced rsyslog.conf needs, and nothing else' do
+          expect(rendered).to eq(
+            '10_global.conf' => "global(\n  workDirectory=\"/var/spool/rsyslog\"\n)\n",
+            '30_imklog.conf' => "module(load=\"imklog\"\n)\n",
+            '31_imuxsock.conf' => "module(load=\"imuxsock\"\n)\n",
+            '32_imjournal.conf' => "module(load=\"imjournal\"\n  StateFile=\"imjournal.state\"\n)\n",
+            '33_imfile.conf' => "module(load=\"imfile\"\n)\n",
+          )
         end
 
-        it { is_expected.to compile.with_all_deps }
-        it { is_expected.not_to contain_package('rsyslog-gnutls') }
-        it { is_expected.not_to contain_class('pki') }
-        it { is_expected.not_to contain_pki__copy('rsyslog') }
-        it { is_expected.not_to contain_file('/etc/pki/simp_apps/rsyslog/x509') }
-        it { is_expected.not_to contain_file(global_conf_file).with_content(%r{defaultNetStreamDriverCertFile}) }
-        it { is_expected.not_to contain_file(global_conf_file).with_content(%r{defaultNetStreamDriver}) }
-        it { is_expected.not_to contain_file(global_conf_file).with_content(%r{defaultNetStreamDriverCAFile}) }
-        it { is_expected.not_to contain_file(global_conf_file).with_content(%r{defaultNetStreamDriverKeyFile}) }
+        it { is_expected.to contain_file("#{pre_logging}/31_imuxsock.conf").with_replace(false) }
+        it { is_expected.to contain_file_line('rsyslog 32_imjournal StateFile').with_replace(false) }
+        it { is_expected.to contain_file_line('rsyslog 10_global workDirectory').with_replace(false) }
+        it { is_expected.to contain_file('/var/spool/rsyslog').with_ensure('directory').without_mode }
       end
 
-      context 'rsyslog class with TLS logging' do
-        let(:params) do
-          {
-            enable_tls_logging: true,
-            pki: true,
-          }
-        end
-
-        let(:global_expected) { File.read("#{exp_dir}/global_tls_logging.txt") }
-
-        it { is_expected.to compile.with_all_deps }
-        it { is_expected.not_to contain_class('pki') }
-        it { is_expected.to contain_pki__copy('rsyslog') }
-        it { is_expected.to contain_file('/etc/pki/simp_apps/rsyslog/x509') }
-        it { is_expected.to contain_file(global_conf_file).with_content(global_expected) }
-      end
-
-      context 'rsyslog server with TLS enabled' do
-        let(:params) { { tls_tcp_server: true } }
-        let(:global_expected) { File.read("#{exp_dir}/global_tls_tcp_server.txt") }
-
-        it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_file(global_conf_file).with_content(global_expected) }
-      end
-
-      context 'rsyslog server without TLS' do
-        let(:params) { { tcp_server: true } }
-        let(:global_expected) { File.read("#{exp_dir}/global_tcp_server.txt") }
-
-        it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_file(global_conf_file).with_content(global_expected) }
-      end
-
-      context 'rsyslog server with UDP' do
-        let(:params) { { udp_server: true } }
-        let(:global_expected) { File.read("#{exp_dir}/global_udp_server.txt") }
-
-        it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_file(global_conf_file).with_content(global_expected) }
-      end
-
-      context 'with read_journald=false' do
+      context 'with replace_rsyslog_conf and read_journald=false' do
+        let(:hieradata) { 'replace_rsyslog_conf' }
         let(:params) { { read_journald: false } }
 
-        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_file("#{pre_logging}/32_imjournal.conf").with_ensure('absent') }
+      end
+
+      context 'with custom_conf_content set' do
+        let(:hieradata) { 'custom_conf_content' }
+
         it {
-          is_expected.not_to contain_file(global_conf_file)
-            .with_content(%r{module\(load="imjournal"})
+          is_expected.to contain_file('/etc/rsyslog.conf').with_content(<<~EOM)
+            # This file is managed by Puppet (simp/rsyslog module).
+            # Any changes will be overwritten.
+            $IncludeConfig /etc/rsyslog.simp.d/*.conf
+            $WorkDirectory /var/spool/rsyslog
+          EOM
         }
       end
 
@@ -278,130 +164,443 @@ describe 'rsyslog' do
 
         it {
           is_expected.to contain_rsyslog__rule('15_include_default_rsyslog/include_default_rsyslog.conf')
+            .with_ensure('present')
             .with_content("$IncludeConfig /etc/rsyslog.d/*.conf\n")
         }
+      end
+
+      context 'with a single setting and the package rsyslog.conf' do
+        let(:hieradata) { 'single_setting' }
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.not_to contain_file('/etc/rsyslog.conf') }
+
+        it {
+          is_expected.to contain_file_line('rsyslog rsyslog.conf include rule_dir').with(
+            path: '/etc/rsyslog.conf',
+            line: '$IncludeConfig /etc/rsyslog.simp.d/*.conf',
+            after: '^\s*(include\(file="/etc/rsyslog\.d/\*\.conf"|\$IncludeConfig\s+/etc/rsyslog\.d/\*\.conf)',
+          )
+        }
+
+        it { is_expected.to contain_file('/etc/rsyslog.simp.d').with_ensure('directory').without_purge }
+        it { is_expected.to contain_file("#{pre_logging}/10_global.conf").with(content: "global(\n)\n", replace: false) }
+
+        it {
+          is_expected.to contain_file_line('rsyslog 10_global net.enableDNS').with(
+            path: "#{pre_logging}/10_global.conf",
+            line: '  net.enableDNS="off"',
+            match: '^\s*net\.enableDNS\s*=',
+            after: '^global\(\s*$',
+          )
+        }
+
+        it 'writes only that setting' do
+          expect(rendered).to eq('10_global.conf' => "global(\n  net.enableDNS=\"off\"\n)\n")
+        end
+
+        it { is_expected.not_to contain_rsyslog__rule('09_failover_hack/failover_hack.conf') }
+        it { is_expected.not_to contain_systemd__dropin_file('simp_limits.conf') }
+      end
+
+      context 'with a setting set to absent' do
+        let(:hieradata) { 'single_setting_absent' }
+        let(:facts) do
+          super().merge(rsyslog_simp_config: { 'conf_managed' => false, 'rule_dir' => '/etc/rsyslog.simp.d', 'pre_logging' => ['10_global.conf'], 'inputs' => [] })
+        end
+
+        it {
+          is_expected.to contain_file_line('rsyslog 10_global net.enableDNS').with(
+            ensure: 'absent',
+            match: '^\s*net\.enableDNS\s*=',
+            match_for_absence: true,
+          )
+        }
+      end
+
+      context 'with a setting set to absent when its file does not exist' do
+        let(:hieradata) { 'single_setting_absent' }
+
+        it 'declares no resources but the packages' do
+          declared = catalogue.resources.map(&:type).uniq.reject { |t| t.start_with?('Rsyslog::') } - ['Class', 'Stage', 'Node', 'Package']
+          expect(declared).to be_empty
+        end
+      end
+
+      context 'with settings the package rsyslog.conf already makes' do
+        let(:hieradata) { 'package_conf_settings_drop_in' }
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.not_to contain_file_line('rsyslog 10_global workDirectory') }
+        it { is_expected.not_to contain_file('/var/spool/rsyslog') }
+        it { is_expected.not_to contain_rsyslog__config__statement('31_imuxsock') }
+        it { is_expected.not_to contain_rsyslog__rule('00_simp_pre_logging/20_omfile.conf') }
+      end
+
+      context 'with settings the package rsyslog.conf already makes and replace_rsyslog_conf' do
+        let(:hieradata) { 'package_conf_settings_drop_in' }
+        let(:facts) do
+          super().merge(extra_hiera: 'replace_rsyslog_conf')
+        end
+        let(:hiera_config) do
+          File.expand_path('../fixtures/hieradata/hiera_compliance_engine.yaml', __dir__)
+        end
+
+        it { is_expected.to contain_file_line('rsyslog 10_global workDirectory').with_line('  workDirectory="/var/spool/rsyslog"') }
+        it { is_expected.to contain_file('/var/spool/rsyslog').with(ensure: 'directory', mode: '0700') }
+        it { is_expected.to contain_file_line('rsyslog 31_imuxsock SysSock.Use').with_line('  SysSock.Use="on"') }
+        it {
+          is_expected.to contain_rsyslog__rule('00_simp_pre_logging/20_omfile.conf')
+            .with_content(%(module(load="builtin:omfile" template="RSYSLOG_FileFormat")\n))
+        }
+      end
+
+      context 'with purge_rule_dir set' do
+        let(:hieradata) { 'purge_rule_dir' }
+        let(:params) { { rules: { 'some_path/a.conf' => { content: 'x' } } } }
+
+        it { is_expected.to contain_file('/etc/rsyslog.simp.d').with(recurse: true, purge: true, force: true) }
+        it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path').with(recurse: true, purge: true, force: true) }
+      end
+
+      context 'with legacy globals' do
+        let(:hieradata) { 'legacy_globals' }
+
+        it { is_expected.to contain_file("#{pre_logging}/00_legacy.conf").with(content: '', replace: false) }
+        it { is_expected.to contain_file_line('rsyslog 00_legacy UMASK').with(line: '$UMASK 0027', match: '^\$UMASK\s') }
+        it { is_expected.to contain_file_line('rsyslog 00_legacy AbortOnUncleanConfig').with_ensure('absent') }
+        it { is_expected.not_to contain_file_line('rsyslog 00_legacy RepeatedMsgReduction') }
+      end
+
+      context 'with localhostname=auto' do
+        let(:hieradata) { 'localhostname_auto' }
+
+        it {
+          is_expected.to contain_rsyslog__rule('00_simp_pre_logging/11_global_localhost_name.conf')
+            .with_content(%(global(localHostname="#{os_facts[:networking][:fqdn]}")\n))
+        }
+      end
+
+      context 'with localhostname=absent' do
+        let(:hieradata) { 'localhostname_absent' }
+
+        it { is_expected.to contain_rsyslog__rule('00_simp_pre_logging/11_global_localhost_name.conf').with_ensure('absent') }
+      end
+
+      context 'with some main queue settings' do
+        let(:hieradata) { 'main_queue_partial' }
+
+        it 'writes only those settings, computing auto from the set queue size' do
+          expect(rendered).to eq('90_main_queue.conf' => "main_queue(\n  queue.highwatermark=\"900\"\n  queue.size=\"1000\"\n)\n")
+        end
+      end
+
+      context 'with extra main queue settings' do
+        let(:hieradata) { 'extra_main_queue_params' }
+
+        it { is_expected.to contain_file_line('rsyslog 90_main_queue queue.maxdiskspace').with_line('  queue.maxdiskspace="200"') }
+        it { is_expected.to contain_file_line('rsyslog 90_main_queue queue.checkpointinterval').with_line('  queue.checkpointinterval="10"') }
+      end
+
+      context 'with extra global parameters' do
+        let(:hieradata) { 'extra_globals' }
+
+        it {
+          is_expected.to contain_rsyslog__rule('00_simp_pre_logging/13_global_janitorInterval.conf')
+            .with_content(%(global(janitorInterval="1000")\n))
+        }
+        it { is_expected.to contain_file_line('rsyslog 00_legacy FailOnChownFailure').with_line('$FailOnChownFailure on') }
+      end
+
+      context 'with extra imklog and imfile parameters on the package rsyslog.conf' do
+        let(:hieradata) { 'extra_misc_input_module_params' }
+
+        it { is_expected.to contain_file_line('rsyslog 30_imklog RateLimitInterval').with_line('  RateLimitInterval="5"') }
+        it { is_expected.to contain_file_line('rsyslog 33_imfile mode').with_line('  mode="inotify"') }
+        it { is_expected.not_to contain_rsyslog__config__statement('31_imuxsock') }
+        it { is_expected.not_to contain_rsyslog__config__statement('32_imjournal') }
+      end
+
+      context 'rsyslog server with TLS enabled' do
+        let(:params) { { tls_tcp_server: true } }
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_class('rsyslog::config::tls') }
+        it { is_expected.to contain_package('rsyslog-gnutls').with_ensure('installed') }
+        it { is_expected.to contain_package('rsyslog-gnutls').that_comes_before('File[/etc/rsyslog.simp.d]') }
+
+        it 'writes the listeners and the TLS settings TLS needs' do
+          expect(rendered).to eq(
+            '12_global_tls.conf' => <<~EOM,
+              global(
+                defaultNetstreamDriverKeyFile="/etc/pki/simp_apps/rsyslog/x509/private/#{os_facts[:networking][:fqdn]}.pem"
+                defaultNetstreamDriverCertFile="/etc/pki/simp_apps/rsyslog/x509/public/#{os_facts[:networking][:fqdn]}.pub"
+                defaultNetstreamDriverCAFile="/etc/pki/simp_apps/rsyslog/x509/cacerts/cacerts.pem"
+                defaultNetstreamDriver="gtls"
+              )
+            EOM
+            '40_imptcp.conf' => "module(load=\"imptcp\"\n)\ninput(type=\"imptcp\" port=\"514\")\n",
+            '41_imtcp.conf' => <<~EOM,
+              module(load="imtcp"
+                PermittedPeer=["*.#{os_facts[:networking][:domain]}"]
+                StreamDriver.AuthMode="x509/name"
+                StreamDriver.Mode="1"
+              )
+              input(type="imtcp" port="6514")
+            EOM
+          )
+        end
+
+        it { is_expected.to contain_file_line('rsyslog 41_imtcp StreamDriver.Mode').with_replace(true) }
+        it { is_expected.to contain_file_line('rsyslog 41_imtcp StreamDriver.AuthMode').with_replace(false) }
+        it { is_expected.to contain_file_line('rsyslog 41_imtcp PermittedPeer').with_replace(false) }
+        it { is_expected.to contain_file_line('rsyslog 12_global_tls defaultNetstreamDriverCAFile').with_replace(false) }
+      end
+
+      context 'rsyslog server without TLS' do
+        let(:params) { { tcp_server: true } }
+
+        it 'writes a plain listener' do
+          expect(rendered).to eq('41_imtcp.conf' => "module(load=\"imtcp\"\n)\ninput(type=\"imtcp\" port=\"514\")\n")
+        end
+
+        it { is_expected.not_to contain_class('rsyslog::config::tls') }
+      end
+
+      context 'rsyslog server with TLS explicitly disabled and TCP enabled' do
+        let(:params) { { tls_tcp_server: false, tcp_server: true } }
+
+        it { is_expected.to contain_file("#{pre_logging}/40_imptcp.conf").with_ensure('absent') }
+        it { is_expected.to contain_file_line('rsyslog 41_imtcp StreamDriver.Mode').with_ensure('absent') }
+        it { is_expected.to contain_file_line('rsyslog 41_imtcp PermittedPeer').with_ensure('absent') }
+        it { is_expected.to contain_file_line('rsyslog 41_imtcp input').with_line('input(type="imtcp" port="514")') }
+      end
+
+      context 'rsyslog server with every listener disabled' do
+        let(:params) { { tls_tcp_server: false, tcp_server: false, udp_server: false } }
+
+        it { is_expected.to contain_file("#{pre_logging}/40_imptcp.conf").with_ensure('absent') }
+        it { is_expected.to contain_file("#{pre_logging}/41_imtcp.conf").with_ensure('absent') }
+        it { is_expected.to contain_file("#{pre_logging}/42_imudp.conf").with_ensure('absent') }
+      end
+
+      context 'rsyslog server with only TCP disabled' do
+        let(:params) { { tcp_server: false } }
+
+        it 'leaves a TLS listener from an earlier run alone' do
+          is_expected.not_to contain_rsyslog__config__statement('41_imtcp')
+        end
+      end
+
+      context 'rsyslog server with UDP' do
+        let(:params) { { udp_server: true } }
+
+        it 'writes the listener' do
+          expect(rendered).to eq('42_imudp.conf' => "module(load=\"imudp\"\n)\ninput(type=\"imudp\" address=\"127.0.0.1\" port=\"514\")\n")
+        end
+      end
+
+      context 'rsyslog class with TLS logging' do
+        let(:params) { { enable_tls_logging: true, pki: true } }
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.not_to contain_class('pki') }
+        it { is_expected.to contain_pki__copy('rsyslog') }
+        it { is_expected.to contain_class('rsyslog::config::tls') }
+        it { is_expected.to contain_package('rsyslog-gnutls') }
+      end
+
+      context 'with TLS settings set to auto, a value and absent' do
+        let(:params) { { enable_tls_logging: true } }
+        let(:hieradata) { 'tls_globals_auto' }
+
+        it { is_expected.to contain_file_line('rsyslog 12_global_tls defaultNetstreamDriver').with(line: '  defaultNetstreamDriver="gtls"', replace: true) }
+        it { is_expected.to contain_file_line('rsyslog 12_global_tls defaultNetstreamDriverCAFile').with(line: '  defaultNetstreamDriverCAFile="/etc/pki/ca.pem"', replace: true) }
+        it { is_expected.to contain_file_line('rsyslog 12_global_tls defaultNetstreamDriverKeyFile').with_ensure('absent') }
+        it { is_expected.to contain_file_line('rsyslog 12_global_tls defaultNetstreamDriverCertFile').with_replace(false) }
+      end
+
+      context 'rsyslog class without TLS logging' do
+        let(:params) { { enable_tls_logging: false, pki: false } }
+
+        it { is_expected.not_to contain_package('rsyslog-gnutls') }
+        it { is_expected.not_to contain_class('pki') }
+        it { is_expected.not_to contain_pki__copy('rsyslog') }
+        it { is_expected.not_to contain_class('rsyslog::config::tls') }
+      end
+
+      context 'rsyslog class with logrotate enabled' do
+        let(:params) { { logrotate: true } }
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_class('rsyslog::config::logrotate') }
+        it { is_expected.to contain_logrotate__rule('syslog') }
+      end
+
+      context 'rsyslog class with pki = simp' do
+        let(:params) { { pki: 'simp' } }
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_class('pki') }
+        it { is_expected.to contain_pki__copy('rsyslog') }
+      end
+
+      context 'with rsyslog::config::enable_default_rules=true' do
+        let(:hieradata) { 'enable_default_rules' }
+
+        it { is_expected.to contain_rsyslog__rule('99_simp_local/ZZ_default.conf').with_ensure('present') }
       end
 
       context 'with rsyslog::config::enable_default_rules=false' do
         let(:hieradata) { 'disable_default_rules' }
 
-        it { is_expected.not_to contain_rsyslog__rule('99_simp_local/ZZ_default.conf') }
+        it { is_expected.to contain_rsyslog__rule('99_simp_local/ZZ_default.conf').with_ensure('absent') }
       end
 
-      context 'with rsyslog::config::default_file_template = traditional' do
-        let(:hieradata) { 'traditional_default_file_template' }
+      context 'with syslogd_options set' do
+        let(:hieradata) { 'syslogd_options' }
 
         it {
-          is_expected.to contain_file(global_conf_file).with_content(
-          %r{module\(load="builtin:omfile" template="RSYSLOG_TraditionalFileFormat"},
-        )
+          is_expected.to contain_file_line('rsyslog sysconfig SYSLOGD_OPTIONS').with(
+            path: '/etc/sysconfig/rsyslog',
+            line: 'SYSLOGD_OPTIONS="-x"',
+            match: '^\s*SYSLOGD_OPTIONS=',
+          )
         }
       end
 
-      context 'with rsyslog::config::default_file_template = forward' do
-        let(:hieradata) { 'forward_default_file_template' }
+      {
+        'traditional' => 'RSYSLOG_TraditionalFileFormat',
+        'forward' => 'RSYSLOG_ForwardFormat',
+        'mytemplate' => 'mytemplate',
+      }.each do |template, expected|
+        context "with rsyslog::config::default_file_template = #{template}" do
+          let(:hieradata) { "#{template}_default_file_template" }
 
-        it {
-          is_expected.to contain_file(global_conf_file).with_content(
-          %r{module\(load="builtin:omfile" template="RSYSLOG_ForwardFormat"},
-        )
-        }
-      end
-
-      context 'with rsyslog::config::default_file_template = mytemplate' do
-        let(:hieradata) { 'mytemplate_default_file_template' }
-
-        it {
-          is_expected.to contain_file(global_conf_file).with_content(
-          %r{module\(load="builtin:omfile" template="mytemplate"},
-        )
-        }
-      end
-
-      context 'with extra global and legacy global parameters set' do
-        let(:hieradata) { 'extra_globals' }
-        let(:global_expected) { File.read("#{exp_dir}/global_extra_globals.txt") }
-
-        it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_file(global_conf_file).with_content(global_expected) }
-      end
-
-      context 'with optional imklog, imuxsock, imjournal, and imfile module parameters set' do
-        let(:hieradata) { 'extra_misc_input_module_params' }
-        let(:global_expected) { File.read("#{exp_dir}/global_extra_misc_input_module_params.txt") }
-
-        it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_file(global_conf_file).with_content(global_expected) }
-      end
-
-      context 'rsyslog server with TLS and optional config parameters set' do
-        let(:params) { { tls_tcp_server: true } }
-        let(:hieradata) { 'extra_tcp_input_module_params' }
-        let(:global_expected) { File.read("#{exp_dir}/global_extra_tls_tcp_server_input_module_params.txt") }
-
-        it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_file(global_conf_file).with_content(global_expected) }
-      end
-
-      context 'rsyslog server simple TCP and optional config parameters set' do
-        let(:params) { { tcp_server: true } }
-        let(:hieradata) { 'extra_tcp_input_module_params' }
-        let(:global_expected) { File.read("#{exp_dir}/global_extra_tcp_server_input_module_params.txt") }
-
-        it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_file(global_conf_file).with_content(global_expected) }
-      end
-
-      context 'rsyslog server with UDP and optional config parameters set' do
-        let(:params) { { udp_server: true } }
-        let(:hieradata) { 'extra_udp_input_module_params' }
-        let(:global_expected) { File.read("#{exp_dir}/global_extra_udp_server_input_module_params.txt") }
-
-        it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_file(global_conf_file).with_content(global_expected) }
-      end
-
-      context 'with optional main_queue config parameters set' do
-        let(:hieradata) { 'extra_main_queue_params' }
-        let(:global_expected) { File.read("#{exp_dir}/global_extra_main_queue_params.txt") }
-
-        it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_file(global_conf_file).with_content(global_expected) }
-      end
-
-      context 'with custom_conf_content set' do
-        let(:hieradata) { 'custom_conf_content' }
-
-        it { is_expected.to compile.with_all_deps }
-        it {
-          expected = <<~EOM
-            # This file is managed by Puppet (simp/rsyslog module).
-            # Any changes will be overwritten.
-            $IncludeConfig /etc/rsyslog.simp.d/*.conf
-            $WorkDirectory /var/spool/rsyslog
-          EOM
-          is_expected.to contain_file('/etc/rsyslog.conf').with_content(expected)
-        }
+          it {
+            is_expected.to contain_rsyslog__rule('00_simp_pre_logging/20_omfile.conf')
+              .with_content(%(module(load="builtin:omfile" template="#{expected}")\n))
+          }
+        end
       end
 
       context 'with ulimit_max_open_files set to an integer' do
         let(:hieradata) { 'ulimit_max_open_files_integer' }
 
-        it { is_expected.to compile.with_all_deps }
         it {
           is_expected.to contain_systemd__dropin_file('simp_limits.conf')
+            .with_ensure('present')
+            .with_unit('rsyslog.service')
             .with_content(%r{LimitNOFILE=65536})
+            .that_notifies('Class[rsyslog::service]')
         }
       end
 
       context "with the deprecated ulimit_max_open_files value 'unlimited'" do
         let(:hieradata) { 'ulimit_max_open_files_unlimited' }
 
-        it { is_expected.to compile.with_all_deps }
-        it {
-          is_expected.to contain_systemd__dropin_file('simp_limits.conf')
-            .with_content(%r{LimitNOFILE=infinity})
-        }
+        it { is_expected.to contain_systemd__dropin_file('simp_limits.conf').with_content(%r{LimitNOFILE=infinity}) }
+      end
+
+      context 'with ulimit_max_open_files set to absent' do
+        let(:hieradata) { 'ulimit_max_open_files_absent' }
+
+        it { is_expected.to contain_systemd__dropin_file('simp_limits.conf').with_ensure('absent') }
+      end
+
+      context 'on a node configured by 10.x' do
+        let(:facts) do
+          super().merge(
+            rsyslog_simp_config: {
+              'conf_managed' => true,
+              'rule_dir'     => '/etc/rsyslog.simp.d',
+              'pre_logging'  => ['global.conf'],
+              'inputs'       => [],
+            },
+          )
+        end
+
+        context 'with a bare include' do
+          it 'declares nothing but the packages' do
+            declared = catalogue.resources.map(&:type).uniq - ['Class', 'Stage', 'Node', 'Package']
+            expect(declared).to be_empty
+          end
+        end
+
+        context 'with a single setting' do
+          let(:hieradata) { 'single_setting' }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf').with_ensure('absent') }
+          it { is_expected.not_to contain_file('/etc/rsyslog.conf') }
+          it { is_expected.not_to contain_rsyslog__rule('99_simp_local/ZZ_default.conf') }
+
+          it 'loads the inputs global.conf loaded, since rsyslog.conf includes only the rule directory' do
+            expect(rendered.keys).to eq(['10_global.conf', '30_imklog.conf', '31_imuxsock.conf', '32_imjournal.conf', '33_imfile.conf'])
+          end
+        end
+
+        context 'with settings the package rsyslog.conf would make' do
+          let(:hieradata) { 'package_conf_settings_drop_in' }
+
+          it { is_expected.to contain_file_line('rsyslog 10_global workDirectory') }
+          it { is_expected.to contain_file_line('rsyslog 31_imuxsock SysSock.Use').with_line('  SysSock.Use="on"') }
+        end
+
+        context 'with purge_rule_dir set' do
+          let(:hieradata) { 'purge_rule_dir' }
+
+          it { is_expected.to contain_file('/etc/rsyslog.simp.d').with_purge(true) }
+          it { is_expected.to contain_rsyslog__rule('99_simp_local/ZZ_default.conf').with(ensure: 'present', replace: false) }
+
+          it 'keeps rsyslog working: inputs and default rules' do
+            expect(rendered.keys).to include('31_imuxsock.conf', '32_imjournal.conf')
+          end
+        end
+      end
+
+      context 'with a rule removed' do
+        let(:params) { { rules: { 'some_path/a.conf' => { ensure: 'absent', content: '' } } } }
+
+        it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path/a.conf').with_ensure('absent') }
+        it { is_expected.not_to contain_file('/etc/rsyslog.simp.d/some_path') }
+        it { is_expected.not_to contain_file('/etc/rsyslog.simp.d') }
+        it { is_expected.not_to contain_file_line('rsyslog rsyslog.conf include rule_dir') }
+      end
+
+      context "with 'hostname' in a rule name" do
+        let(:params) { { rules: { 'some_path/remote_hostname.conf' => { content: 'x' } } } }
+
+        it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path/remote_host_name.conf').with_content('x') }
+        it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path/remote_hostname.conf').with_ensure('absent') }
+      end
+
+      {
+        'TLS' => [{ tls_tcp_server: false }, '6514', true],
+        'plain TCP' => [{ tcp_server: false }, '514', false],
+      }.each do |listener, (listener_params, port, tls_settings)|
+        context "with only the #{listener} listener turned off" do
+          let(:params) { listener_params }
+
+          context 'when 41_imtcp.conf exists' do
+            let(:facts) do
+              super().merge(rsyslog_simp_config: { 'conf_managed' => false, 'rule_dir' => '/etc/rsyslog.simp.d', 'pre_logging' => ['41_imtcp.conf'], 'inputs' => [] })
+            end
+
+            it { is_expected.to contain_file_line('rsyslog 41_imtcp input').with(ensure: 'absent', match: %(^\\s*input\\(type="imtcp" port="#{port}"\\))) }
+            it { is_expected.not_to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/41_imtcp.conf').with_ensure('absent') }
+
+            if tls_settings
+              it { is_expected.to contain_file_line('rsyslog 41_imtcp StreamDriver.Mode').with_ensure('absent') }
+              it { is_expected.to contain_file_line('rsyslog 41_imtcp PermittedPeer').with_ensure('absent') }
+            end
+          end
+
+          context 'when 41_imtcp.conf does not exist' do
+            it { is_expected.not_to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/41_imtcp.conf') }
+            it { is_expected.not_to contain_file_line('rsyslog 41_imtcp input') }
+          end
+        end
       end
 
       context 'with a rules hash defined' do
@@ -411,12 +610,18 @@ describe 'rsyslog' do
               'some_path/99_collect_kernel_errors.conf' => {
                 content: "if prifilt('kern.err') then /var/log/kernel_errors.log",
               },
+              'some_path/98_old.conf' => {
+                ensure: 'absent',
+                content: '',
+              },
             },
           }
         end
 
         it { is_expected.to contain_rsyslog__rule('some_path/99_collect_kernel_errors.conf').with_content("if prifilt('kern.err') then /var/log/kernel_errors.log") }
+        it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path/98_old.conf').with_ensure('absent') }
+        it { is_expected.to contain_file_line('rsyslog rsyslog.conf include rule_dir') }
       end
-    end # end `context "on #{os}"...`
-  end # end `on_supported_os.each...`
+    end
+  end
 end

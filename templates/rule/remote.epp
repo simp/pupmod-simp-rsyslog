@@ -49,6 +49,7 @@
   Optional[Integer[0]]                  $queue_dequeue_time_end,
   String[1]                             $safe_name,
   Boolean                               $use_tls,
+  Boolean                               $force_plaintext,
 | -%>
 <%
   $bool_xlat = {
@@ -184,6 +185,8 @@ ruleset(
        }
 -%>
     StreamDriverPermittedPeers="<%= $permitted_peers %>"
+<%   } elsif $force_plaintext { -%>
+    StreamDriver="ptcp"
 <%   } -%>
     ResendLastMSGOnReconnect="<%= $bool_xlat[$resend_last_msg_on_reconnect] %>"
   )
@@ -320,6 +323,8 @@ ruleset(
          }
 -%>
     StreamDriverPermittedPeers="<%= $permitted_peers %>"
+<%     } elsif $force_plaintext { -%>
+    StreamDriver="ptcp"
 <%     } -%>
     ResendLastMSGOnReconnect="<%= $bool_xlat[$resend_last_msg_on_reconnect] %>"
     action.resumeRetryCount="<%= $action_resume_retry_count %>"
