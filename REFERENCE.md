@@ -17,6 +17,7 @@
 * `rsyslog::config::failover_hack`: Add the no-op rule that rsyslog needs before any failover action
 * `rsyslog::config::imfile`: Load the `imfile` input module
 * `rsyslog::config::logrotate`: Default log rotation for RSyslog
+* `rsyslog::config::pre_logging`: Load the input modules in `00_simp_pre_logging`
 * `rsyslog::config::rule_tree`: Create `$rsyslog::rule_dir` and make rsyslog read it
 * `rsyslog::config::tls`: Install the TLS driver and set the global TLS stream driver settings
 * `rsyslog::install`: Installs the packages necessary for use of RSyslog
@@ -52,6 +53,7 @@
 
 #### Private Functions
 
+* `rsyslog::existing_pre_logging`: The files that exist in `00_simp_pre_logging` on the node
 * `rsyslog::format_value`: Render a parameter value the way rsyslog expects it
 
 ### Data types
@@ -443,6 +445,10 @@ In general, the order will be:
   * 20 - Other/Miscellaneous Rules
   * 99 - Local Rules
 
+The file name never contains `hostname`: the SELinux policy labels
+`/etc/.*hostname.*` as `hostname_etc_t`, which rsyslog cannot read on EL10,
+so `hostname` in the name is written as `host_name`.
+
 * **See also**
   * https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system_administrators_guide/ch-viewing_and_managing_log_files#s1-basic_configuration_of_rsyslog.html
     * Red Hat Basic Rsyslog Configuration
@@ -476,6 +482,7 @@ The following parameters are available in the `rsyslog::rule` defined type:
 * [`name`](#-rsyslog--rule--name)
 * [`content`](#-rsyslog--rule--content)
 * [`ensure`](#-rsyslog--rule--ensure)
+* [`replace`](#-rsyslog--rule--replace)
 
 ##### <a name="-rsyslog--rule--name"></a>`name`
 
@@ -498,9 +505,19 @@ Data type: `Enum['present', 'absent']`
 Whether the rule file should exist
 
 * `absent` removes the rule file. Use this to remove a rule without
-  enabling `rsyslog::config::purge_rule_dir`.
+  enabling `rsyslog::config::purge_rule_dir`. Nothing else is created.
 
 Default value: `'present'`
+
+##### <a name="-rsyslog--rule--replace"></a>`replace`
+
+Data type: `Boolean`
+
+Whether an existing file is rewritten with `$content`
+
+* `false` writes the file only when it does not exist yet.
+
+Default value: `true`
 
 ### <a name="rsyslog--rule--console"></a>`rsyslog::rule::console`
 

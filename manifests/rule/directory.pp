@@ -5,6 +5,10 @@
 # The directory is purged only when `rsyslog::config::purge_rule_dir` is
 # `true`.
 #
+# For `00_simp_pre_logging`, this also removes the `global.conf` that versions
+# before 11.0.0 wrote. It holds the same statements as the files that replace
+# it, and rsyslog rejects a module loaded twice.
+#
 # @api private
 #
 define rsyslog::rule::directory {
@@ -32,5 +36,14 @@ define rsyslog::rule::directory {
     mode    => '0640',
     content => "\$IncludeConfig ${_base_directory}/*.conf\n",
     notify  => Class['rsyslog::service'],
+  }
+
+  if $name == '00_simp_pre_logging' {
+    file { "${_base_directory}/global.conf":
+      ensure => 'absent',
+      notify => Class['rsyslog::service'],
+    }
+
+    include 'rsyslog::config::pre_logging'
   }
 }
