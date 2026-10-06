@@ -28,7 +28,7 @@ describe 'upgrading from simp/rsyslog 10.x' do
   end
 
   it 'installs simp/rsyslog 10.0.1' do
-    on(client, 'puppet module install simp-rsyslog --version 10.0.1 --ignore-dependencies --target-dir /root/rsyslog10')
+    on(client, 'mkdir -p /root/rsyslog10 && puppet module install simp-rsyslog --version 10.0.1 --ignore-dependencies --modulepath /root/rsyslog10')
   end
 
   context 'with a bare include and no profile' do
