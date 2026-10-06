@@ -36,6 +36,8 @@ describe 'rsyslog class' do
     {
       'iptables::disable'                   => false,
       'rsyslog::udp_server'                 => true,
+      # The listener binds to 127.0.0.1 unless told otherwise
+      'rsyslog::udp_listen_address'         => '0.0.0.0',
       'rsyslog::logrotate'                  => true,
       'rsyslog::pki'                        => false,
       'rsyslog::trusted_nets'               => ['any'],

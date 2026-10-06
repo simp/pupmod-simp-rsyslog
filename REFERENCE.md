@@ -2199,4 +2199,3 @@ Alias of `Hash[String, Variant[Numeric,String]]`
 Rsyslog Queue Types
 
 Alias of `Enum['FixedArray', 'LinkedList', 'Direct', 'Disk']`
-
