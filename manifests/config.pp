@@ -225,8 +225,12 @@
 # @param work_directory
 #   The directory that rsyslog uses for work files, e.g. imfile state or queue spool files
 #
-#   * Only takes effect when `$replace_rsyslog_conf` is `true`, in which case
-#     the directory is also managed.
+#   * Only takes effect when `/etc/rsyslog.conf` is this module's (with
+#     `$replace_rsyslog_conf`, or written by an earlier version), in which
+#     case the directory is also managed.
+#   * When unset there, `/var/spool/rsyslog` is written only if no work
+#     directory is set, since imjournal and imfile otherwise keep their state
+#     in the current directory.
 #
 # @param tls_tcp_max_sessions
 #   The maximum number of sessions to support
@@ -584,6 +588,17 @@ class rsyslog::config (
   $_conf_managed = $facts.dig('rsyslog_simp_config', 'conf_managed') == true
   $simp_conf = $replace_rsyslog_conf or $_conf_managed
 
+  # global() settings, with the work directory, are in rsyslog::config::pre_logging
+  $global_settings = {
+    'preserveFQDN'                            => $preserve_fqdn,
+    'dropMsgsWithMaliciousDnsPTRRecords'      => $drop_msgs_with_malicious_dns_ptr_records,
+    'workDirectory'                           => $simp_conf ? { true => $work_directory, default => undef },
+    'net.permitACLWarning'                    => $net_permit_acl_warning,
+    'net.enableDNS'                           => $net_enable_dns,
+    'parser.escapeControlCharactersOnReceive' => $escape_control_characters_on_receive,
+    'parser.controlCharacterEscapePrefix'     => $control_character_escape_prefix,
+  }.filter |$k, $v| { $v =~ NotUndef }
+
   # Settings that the package's /etc/rsyslog.conf already makes. Rsyslog
   # rejects a second value for them, so they can only be set when
   # /etc/rsyslog.conf is this module's.
@@ -743,36 +758,8 @@ class rsyslog::config (
   #   global().
   ##############################################################################
 
-  $_work_directory = $simp_conf ? {
-    true    => $work_directory,
-    default => undef,
-  }
-
-  if $_work_directory =~ Stdlib::Absolutepath {
-    file { $_work_directory:
-      ensure  => 'directory',
-      owner   => 'root',
-      group   => 'root',
-      mode    => '0700',
-      require => Class['rsyslog::install'],
-    }
-  }
-
-  $_global = {
-    'preserveFQDN'                            => $preserve_fqdn,
-    'dropMsgsWithMaliciousDnsPTRRecords'      => $drop_msgs_with_malicious_dns_ptr_records,
-    'workDirectory'                           => $_work_directory,
-    'net.permitACLWarning'                    => $net_permit_acl_warning,
-    'net.enableDNS'                           => $net_enable_dns,
-    'parser.escapeControlCharactersOnReceive' => $escape_control_characters_on_receive,
-    'parser.controlCharacterEscapePrefix'     => $control_character_escape_prefix,
-  }.filter |$k, $v| { $v =~ NotUndef }
-
-  unless empty($_global) {
-    rsyslog::config::statement { '10_global':
-      header => 'global(',
-      params => $_global,
-    }
+  unless empty($global_settings) {
+    include 'rsyslog::config::pre_logging'
   }
 
   if $localhostname =~ NotUndef {

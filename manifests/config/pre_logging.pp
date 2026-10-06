@@ -1,7 +1,11 @@
-# @summary Load the input modules in `00_simp_pre_logging`
+# @summary Manage the first `global()` statement and the input modules in `00_simp_pre_logging`
 #
 # Included whenever anything is written to `00_simp_pre_logging`, which also
 # removes the `global.conf` that versions before 11.0.0 wrote there.
+#
+# When `/etc/rsyslog.conf` is this module's, `workDirectory` is written if it
+# is missing (`/var/spool/rsyslog`, as before 11.0.0), since without it
+# imjournal and imfile keep their state in the current directory.
 #
 # * When `/etc/rsyslog.conf` is this module's (`rsyslog::config::simp_conf`),
 #   it includes only the rule directory, so `imklog`, `imuxsock`,
@@ -17,6 +21,34 @@ class rsyslog::config::pre_logging {
   assert_private()
 
   include 'rsyslog'
+
+  $_work_directory = $rsyslog::config::global_settings['workDirectory']
+  $_work_directory_fallback = $rsyslog::config::simp_conf ? {
+    true    => { 'workDirectory' => '/var/spool/rsyslog' },
+    default => {},
+  }
+
+  rsyslog::config::statement { '10_global':
+    header    => 'global(',
+    params    => $rsyslog::config::global_settings,
+    fallbacks => $_work_directory_fallback,
+  }
+
+  if $_work_directory =~ Stdlib::Absolutepath {
+    file { $_work_directory:
+      ensure  => 'directory',
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0700',
+      require => Class['rsyslog::install'],
+    }
+  }
+  elsif $_work_directory =~ Undef and $rsyslog::config::simp_conf {
+    file { '/var/spool/rsyslog':
+      ensure  => 'directory',
+      require => Class['rsyslog::install'],
+    }
+  }
 
   if $rsyslog::config::simp_conf or $rsyslog::config::extra_imklog_mod_params =~ NotUndef {
     rsyslog::config::statement { '30_imklog':

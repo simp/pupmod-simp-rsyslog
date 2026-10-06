@@ -275,8 +275,9 @@ rsyslog cannot read on EL10. For the same reason, don't use a `rule_dir` with
 
 A few settings that rsyslog needs to run safely are written, when they are
 missing, even if their parameter is unset: the TLS stream driver and
-certificate paths when TLS is in use, and `StreamDriver.AuthMode` and
-`PermittedPeer` for a TLS listener. An explicit value replaces them, and
+certificate paths when TLS is in use, `StreamDriver.AuthMode` and
+`PermittedPeer` for a TLS listener, and, when `/etc/rsyslog.conf` is this
+module's, `workDirectory` (`/var/spool/rsyslog`) and imjournal's `StateFile`. An explicit value replaces them, and
 `absent` removes them.
 
 ### Applying changes while the service is unmanaged

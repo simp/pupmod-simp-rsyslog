@@ -17,7 +17,7 @@
 * `rsyslog::config::failover_hack`: Add the no-op rule that rsyslog needs before any failover action
 * `rsyslog::config::imfile`: Load the `imfile` input module
 * `rsyslog::config::logrotate`: Default log rotation for RSyslog
-* `rsyslog::config::pre_logging`: Load the input modules in `00_simp_pre_logging`
+* `rsyslog::config::pre_logging`: Manage the first `global()` statement and the input modules in `00_simp_pre_logging`
 * `rsyslog::config::rule_tree`: Create `$rsyslog::rule_dir` and make rsyslog read it
 * `rsyslog::config::tls`: Install the TLS driver and set the global TLS stream driver settings
 * `rsyslog::install`: Installs the packages necessary for use of RSyslog
