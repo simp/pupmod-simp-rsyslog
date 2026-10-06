@@ -42,13 +42,20 @@ define rsyslog::config::statement (
   $_params = $params.filter |$k, $v| { $v =~ NotUndef }
   $_fallbacks = $fallbacks.filter |$k, $v| { $v =~ NotUndef and !($k in $_params) }
 
+  $_removals = $_params.filter |$k, $v| { $v == 'absent' }
+  $_settings = $_params - $_removals
+
   if $ensure == 'absent' {
     rsyslog::config::block { $title:
       ensure => 'absent',
       seed   => '',
     }
   }
-  elsif $create or !empty($_params) or !empty($_fallbacks) {
+  elsif !$create and empty($_settings) and empty($_fallbacks) and
+  (empty($_removals) or !("${title}.conf" in rsyslog::existing_pre_logging())) {
+    # Nothing to set, and nothing to remove from a file that exists
+  }
+  else {
     rsyslog::config::block { $title:
       seed => "${header}\n)\n",
     }

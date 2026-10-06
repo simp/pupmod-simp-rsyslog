@@ -58,8 +58,11 @@ describe 'rsyslog' do
 
       let(:rendered) { RenderedConfig.statements(RenderedConfig.render(catalogue)) }
 
+      # 11.0.0 binds the UDP listener to rsyslog::udp_listen_address, which
+      # 10.x ignored
       def expected_statements(name)
-        RenderedConfig.statements(File.read(File.join(exp_dir, name)))
+        content = File.read(File.join(exp_dir, name))
+        RenderedConfig.statements(content.gsub('input(type="imudp" port=', 'input(type="imudp" address="127.0.0.1" port='))
       end
 
       context 'when enforcing simp:defaults' do

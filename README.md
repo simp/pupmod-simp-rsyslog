@@ -66,7 +66,13 @@ else. Every other behavior is turned on by a parameter. In particular, a bare
 
 `rsyslog::tcp_server`, `rsyslog::tls_tcp_server`, `rsyslog::udp_server` and
 `rsyslog::read_journald` now default to `undef`: `true` adds the listener (or
-module), `false` removes it, and `undef` leaves it alone.
+module), `false` removes it, and `undef` leaves it alone. With
+`rsyslog::server`, a listener's firewall rule stays while the listener is
+configured and its parameter is unset.
+
+The UDP listener now binds to `rsyslog::udp_listen_address` (default
+`127.0.0.1`), which 10.x ignored. To receive UDP syslog from other hosts, set
+it, for example to `0.0.0.0`.
 
 Features driven by `simp_options::*` (PKI, logrotate, the firewall, the log
 servers and trusted networks) still follow those settings.
@@ -105,14 +111,25 @@ There are two ways to get the 10.x behavior back:
 
 ### Upgrading without the profile
 
-Nothing that 10.x wrote is removed or rewritten on upgrade:
-`/etc/rsyslog.conf`, `/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf`
-and the rest stay as they are, and rsyslog keeps running with them.
+With a bare `include`, nothing that 10.x wrote is removed or rewritten on
+upgrade: `/etc/rsyslog.conf`, `/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf`
+and the rest stay as they are, and rsyslog keeps running with them. Rules
+that other modules declare are still written to the rule directory, which the
+10.x `/etc/rsyslog.conf` already includes.
 
-Before you set any of the `rsyslog::config` global, module or main queue
-parameters on such a node, either enforce `simp:defaults` (whose purge removes
-the old `global.conf`) or delete `global.conf` yourself. Otherwise rsyslog
-sees the same module loaded twice, which it rejects.
+The module recognizes the `/etc/rsyslog.conf` that 10.x wrote (through the
+`rsyslog_simp_config` fact) and treats it like one written with
+`replace_rsyslog_conf`: it includes only the rule directory, so the module
+loads `imklog`, `imuxsock`, `imjournal` and `imfile` itself, and the
+`work_directory`, `syssock_*` and `default_file_template` settings take
+effect.
+
+The first time anything is written to `00_simp_pre_logging` (any global,
+module or main queue setting, a TLS rule, or an `rsyslog::rule::data_source`),
+the 10.x `global.conf` is removed, because the new files hold the same
+statements and rsyslog rejects a module loaded twice. Settings that
+`global.conf` held and that are not set again fall back to rsyslog's
+defaults. Enforce `simp:defaults` to keep all of them.
 
 ## This is a SIMP module
 
@@ -242,7 +259,19 @@ How rsyslog reads `/etc/rsyslog.simp.d` depends on
 * `true`: `/etc/rsyslog.conf` is replaced by one that includes only
   `/etc/rsyslog.simp.d`, and the module loads the `imklog`, `imuxsock`,
   `imjournal` and `imfile` modules itself. This discards the package's logging
-  rules, so pair it with `rsyslog::config::enable_default_rules: true`.
+  rules, so SIMP's default rules (`rsyslog::config::enable_default_rules`) are
+  written if they are missing: rsyslog does not start without any rule.
+  `enable_default_rules: false` opts out.
+
+If the package's `/etc/rsyslog.conf` has no line including `/etc/rsyslog.d`,
+the `$IncludeConfig` line is added at the end of the file, after the package's
+rules. The module leaves an existing line where it is, so you can move it
+ahead of your rules.
+
+Rule file names never contain `hostname` (it is written as `host_name`): the
+SELinux policy labels `/etc/.*hostname.*` files `hostname_etc_t`, which
+rsyslog cannot read on EL10. For the same reason, don't use a `rule_dir` with
+`hostname` in its path.
 
 A few settings that rsyslog needs to run safely are written, when they are
 missing, even if their parameter is unset: the TLS stream driver and
