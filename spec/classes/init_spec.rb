@@ -123,8 +123,9 @@ describe 'rsyslog' do
         end
         it { is_expected.not_to contain_service('rsyslog') }
 
-        it 'loads the input modules that a replaced rsyslog.conf needs, and nothing else' do
+        it 'loads the input modules and the work directory that a replaced rsyslog.conf needs, and nothing else' do
           expect(rendered).to eq(
+            '10_global.conf' => "global(\n  workDirectory=\"/var/spool/rsyslog\"\n)\n",
             '30_imklog.conf' => "module(load=\"imklog\"\n)\n",
             '31_imuxsock.conf' => "module(load=\"imuxsock\"\n)\n",
             '32_imjournal.conf' => "module(load=\"imjournal\"\n  StateFile=\"imjournal.state\"\n)\n",
@@ -134,6 +135,8 @@ describe 'rsyslog' do
 
         it { is_expected.to contain_file("#{pre_logging}/31_imuxsock.conf").with_replace(false) }
         it { is_expected.to contain_file_line('rsyslog 32_imjournal StateFile').with_replace(false) }
+        it { is_expected.to contain_file_line('rsyslog 10_global workDirectory').with_replace(false) }
+        it { is_expected.to contain_file('/var/spool/rsyslog').with_ensure('directory').without_mode }
       end
 
       context 'with replace_rsyslog_conf and read_journald=false' do
