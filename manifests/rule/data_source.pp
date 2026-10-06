@@ -44,7 +44,9 @@ define rsyslog::rule::data_source (
   Enum['present', 'absent'] $ensure = 'present',
 ) {
   # input(type="imfile" ...) rules need the imfile module
-  include 'rsyslog::config::imfile'
+  if $ensure == 'present' {
+    include 'rsyslog::config::imfile'
+  }
 
   $_safe_name = regsubst($name, '/', '__')
 

@@ -118,7 +118,9 @@ describe 'rsyslog' do
         it { is_expected.to contain_file('/etc/rsyslog.simp.d').with_ensure('directory').without_purge }
         it { is_expected.to contain_file('/etc/rsyslog.d/README_SIMP.conf').with_mode('0640') }
         it { is_expected.to contain_rsyslog__rule('09_failover_hack/failover_hack.conf') }
-        it { is_expected.not_to contain_rsyslog__rule('99_simp_local/ZZ_default.conf') }
+        it 'writes the default rules only if they are missing, since the package rules are discarded' do
+          is_expected.to contain_rsyslog__rule('99_simp_local/ZZ_default.conf').with(ensure: 'present', replace: false)
+        end
         it { is_expected.not_to contain_service('rsyslog') }
 
         it 'loads the input modules that a replaced rsyslog.conf needs, and nothing else' do
@@ -174,7 +176,7 @@ describe 'rsyslog' do
           is_expected.to contain_file_line('rsyslog rsyslog.conf include rule_dir').with(
             path: '/etc/rsyslog.conf',
             line: '$IncludeConfig /etc/rsyslog.simp.d/*.conf',
-            after: '^include\(file="/etc/rsyslog\.d/\*\.conf"',
+            after: '^\s*(include\(file="/etc/rsyslog\.d/\*\.conf"|\$IncludeConfig\s+/etc/rsyslog\.d/\*\.conf)',
           )
         }
 
@@ -200,6 +202,9 @@ describe 'rsyslog' do
 
       context 'with a setting set to absent' do
         let(:hieradata) { 'single_setting_absent' }
+        let(:facts) do
+          super().merge(rsyslog_simp_config: { 'conf_managed' => false, 'rule_dir' => '/etc/rsyslog.simp.d', 'pre_logging' => ['10_global.conf'], 'inputs' => [] })
+        end
 
         it {
           is_expected.to contain_file_line('rsyslog 10_global net.enableDNS').with(
@@ -208,6 +213,15 @@ describe 'rsyslog' do
             match_for_absence: true,
           )
         }
+      end
+
+      context 'with a setting set to absent when its file does not exist' do
+        let(:hieradata) { 'single_setting_absent' }
+
+        it 'declares no resources but the packages' do
+          declared = catalogue.resources.map(&:type).uniq.reject { |t| t.start_with?('Rsyslog::') } - ['Class', 'Stage', 'Node', 'Package']
+          expect(declared).to be_empty
+        end
       end
 
       context 'with settings the package rsyslog.conf already makes' do
@@ -379,7 +393,7 @@ describe 'rsyslog' do
         let(:params) { { udp_server: true } }
 
         it 'writes the listener' do
-          expect(rendered).to eq('42_imudp.conf' => "module(load=\"imudp\"\n)\ninput(type=\"imudp\" port=\"514\")\n")
+          expect(rendered).to eq('42_imudp.conf' => "module(load=\"imudp\"\n)\ninput(type=\"imudp\" address=\"127.0.0.1\" port=\"514\")\n")
         end
       end
 
@@ -489,6 +503,101 @@ describe 'rsyslog' do
         let(:hieradata) { 'ulimit_max_open_files_absent' }
 
         it { is_expected.to contain_systemd__dropin_file('simp_limits.conf').with_ensure('absent') }
+      end
+
+      context 'on a node configured by 10.x' do
+        let(:facts) do
+          super().merge(
+            rsyslog_simp_config: {
+              'conf_managed' => true,
+              'rule_dir'     => '/etc/rsyslog.simp.d',
+              'pre_logging'  => ['global.conf'],
+              'inputs'       => [],
+            },
+          )
+        end
+
+        context 'with a bare include' do
+          it 'declares nothing but the packages' do
+            declared = catalogue.resources.map(&:type).uniq - ['Class', 'Stage', 'Node', 'Package']
+            expect(declared).to be_empty
+          end
+        end
+
+        context 'with a single setting' do
+          let(:hieradata) { 'single_setting' }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/global.conf').with_ensure('absent') }
+          it { is_expected.not_to contain_file('/etc/rsyslog.conf') }
+          it { is_expected.not_to contain_rsyslog__rule('99_simp_local/ZZ_default.conf') }
+
+          it 'loads the inputs global.conf loaded, since rsyslog.conf includes only the rule directory' do
+            expect(rendered.keys).to eq(['10_global.conf', '30_imklog.conf', '31_imuxsock.conf', '32_imjournal.conf', '33_imfile.conf'])
+          end
+        end
+
+        context 'with settings the package rsyslog.conf would make' do
+          let(:hieradata) { 'package_conf_settings_drop_in' }
+
+          it { is_expected.to contain_file_line('rsyslog 10_global workDirectory') }
+          it { is_expected.to contain_file_line('rsyslog 31_imuxsock SysSock.Use').with_line('  SysSock.Use="on"') }
+        end
+
+        context 'with purge_rule_dir set' do
+          let(:hieradata) { 'purge_rule_dir' }
+
+          it { is_expected.to contain_file('/etc/rsyslog.simp.d').with_purge(true) }
+          it { is_expected.to contain_rsyslog__rule('99_simp_local/ZZ_default.conf').with(ensure: 'present', replace: false) }
+
+          it 'keeps rsyslog working: inputs and default rules' do
+            expect(rendered.keys).to include('31_imuxsock.conf', '32_imjournal.conf')
+          end
+        end
+      end
+
+      context 'with a rule removed' do
+        let(:params) { { rules: { 'some_path/a.conf' => { ensure: 'absent', content: '' } } } }
+
+        it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path/a.conf').with_ensure('absent') }
+        it { is_expected.not_to contain_file('/etc/rsyslog.simp.d/some_path') }
+        it { is_expected.not_to contain_file('/etc/rsyslog.simp.d') }
+        it { is_expected.not_to contain_file_line('rsyslog rsyslog.conf include rule_dir') }
+      end
+
+      context "with 'hostname' in a rule name" do
+        let(:params) { { rules: { 'some_path/remote_hostname.conf' => { content: 'x' } } } }
+
+        it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path/remote_host_name.conf').with_content('x') }
+        it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path/remote_hostname.conf').with_ensure('absent') }
+      end
+
+      {
+        'TLS' => [{ tls_tcp_server: false }, '6514', true],
+        'plain TCP' => [{ tcp_server: false }, '514', false],
+      }.each do |listener, (listener_params, port, tls_settings)|
+        context "with only the #{listener} listener turned off" do
+          let(:params) { listener_params }
+
+          context 'when 41_imtcp.conf exists' do
+            let(:facts) do
+              super().merge(rsyslog_simp_config: { 'conf_managed' => false, 'rule_dir' => '/etc/rsyslog.simp.d', 'pre_logging' => ['41_imtcp.conf'], 'inputs' => [] })
+            end
+
+            it { is_expected.to contain_file_line('rsyslog 41_imtcp input').with(ensure: 'absent', match: %(^\\s*input\\(type="imtcp" port="#{port}"\\))) }
+            it { is_expected.not_to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/41_imtcp.conf').with_ensure('absent') }
+
+            if tls_settings
+              it { is_expected.to contain_file_line('rsyslog 41_imtcp StreamDriver.Mode').with_ensure('absent') }
+              it { is_expected.to contain_file_line('rsyslog 41_imtcp PermittedPeer').with_ensure('absent') }
+            end
+          end
+
+          context 'when 41_imtcp.conf does not exist' do
+            it { is_expected.not_to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/41_imtcp.conf') }
+            it { is_expected.not_to contain_file_line('rsyslog 41_imtcp input') }
+          end
+        end
       end
 
       context 'with a rules hash defined' do

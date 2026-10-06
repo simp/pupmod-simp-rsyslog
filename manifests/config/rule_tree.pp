@@ -7,7 +7,9 @@
 #   `$rsyslog::rule_dir`.
 # * Otherwise, a single `$IncludeConfig` line for `$rsyslog::rule_dir` is
 #   added to the existing `/etc/rsyslog.conf`, after the line that includes
-#   `/etc/rsyslog.d`. Nothing else in the file is changed.
+#   `/etc/rsyslog.d` (in either syntax), or at the end of the file when there
+#   is none. An existing line is left where it is, so a site can move it, for
+#   example ahead of its own rules. Nothing else in the file is changed.
 #
 # @api private
 #
@@ -60,7 +62,7 @@ class rsyslog::config::rule_tree {
       path  => '/etc/rsyslog.conf',
       line  => $_include,
       match => "^\\\$IncludeConfig\\s+${regexpescape($rsyslog::rule_dir)}/\\*\\.conf\\s*$",
-      after => '^include\(file="/etc/rsyslog\.d/\*\.conf"',
+      after => '^\s*(include\(file="/etc/rsyslog\.d/\*\.conf"|\$IncludeConfig\s+/etc/rsyslog\.d/\*\.conf)',
     }
   }
 }

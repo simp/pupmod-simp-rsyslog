@@ -20,23 +20,28 @@ define rsyslog::config::block (
 ) {
   assert_private()
 
-  include 'rsyslog::config::rule_tree'
+  $_path = "${rsyslog::rule_dir}/00_simp_pre_logging/${title}.conf"
 
-  ensure_resource('rsyslog::rule::directory', '00_simp_pre_logging')
-
-  $_ensure = $ensure ? {
-    'absent' => 'absent',
-    default  => 'file',
+  if $ensure == 'absent' {
+    file { $_path:
+      ensure => 'absent',
+      notify => Class['rsyslog::service'],
+    }
   }
+  else {
+    include 'rsyslog::config::rule_tree'
 
-  file { "${rsyslog::rule_dir}/00_simp_pre_logging/${title}.conf":
-    ensure  => $_ensure,
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0640',
-    content => $seed,
-    replace => false,
-    require => Class['rsyslog::install'],
-    notify  => Class['rsyslog::service'],
+    ensure_resource('rsyslog::rule::directory', '00_simp_pre_logging')
+
+    file { $_path:
+      ensure  => 'file',
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0640',
+      content => $seed,
+      replace => false,
+      require => Class['rsyslog::install'],
+      notify  => Class['rsyslog::service'],
+    }
   }
 }

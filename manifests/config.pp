@@ -574,9 +574,19 @@ class rsyslog::config (
   $_tcp_server = $rsyslog::tcp_server
   $_udp_server = $rsyslog::udp_server
 
+  if $rsyslog::rule_dir =~ /hostname/ {
+    warning("rsyslog::rule_dir '${rsyslog::rule_dir}' contains 'hostname'. SELinux labels files under such a path hostname_etc_t, which rsyslog cannot read on EL10.")
+  }
+
+  # Whether /etc/rsyslog.conf is this module's: replaced in this run, or
+  # written by an earlier run or an earlier version of the module. It then
+  # includes only the rule directory, so the module loads rsyslog's inputs.
+  $_conf_managed = $facts.dig('rsyslog_simp_config', 'conf_managed') == true
+  $simp_conf = $replace_rsyslog_conf or $_conf_managed
+
   # Settings that the package's /etc/rsyslog.conf already makes. Rsyslog
-  # rejects a second value for them, so they can only be set when this module
-  # replaces /etc/rsyslog.conf.
+  # rejects a second value for them, so they can only be set when
+  # /etc/rsyslog.conf is this module's.
   $_package_conf_settings = {
     'default_file_template'       => $default_file_template,
     'work_directory'              => $work_directory,
@@ -596,16 +606,19 @@ class rsyslog::config (
     'read_journald'               => $read_journald,
     'extra_imuxsock_mod_params'   => $extra_imuxsock_mod_params,
     'extra_imjournal_mod_params'  => $extra_imjournal_mod_params,
-    'custom_conf_content'         => $custom_conf_content,
     'include_rsyslog_d'           => $include_rsyslog_d ? { true => true, default => undef },
   }
 
-  unless $replace_rsyslog_conf {
+  unless $simp_conf {
     $_package_conf_settings.each |$setting, $value| {
       if $value =~ NotUndef {
         warning("rsyslog::config::${setting} has no effect unless rsyslog::config::replace_rsyslog_conf is true, because the package's /etc/rsyslog.conf already sets it. Set it in /etc/rsyslog.conf instead.")
       }
     }
+  }
+
+  if $custom_conf_content =~ NotUndef and !$replace_rsyslog_conf {
+    warning('rsyslog::config::custom_conf_content has no effect unless rsyslog::config::replace_rsyslog_conf is true')
   }
 
   if $rsyslog::pki {
@@ -640,28 +653,42 @@ class rsyslog::config (
       require => Class['rsyslog::install'],
     }
 
-    if $include_rsyslog_d =~ Boolean {
-      rsyslog::rule { '15_include_default_rsyslog/include_default_rsyslog.conf':
-        ensure  => bool2str($include_rsyslog_d, 'present', 'absent'),
-        content => "\$IncludeConfig /etc/rsyslog.d/*.conf\n",
-      }
-    }
+    # The modules a replaced rsyslog.conf needs
+    include 'rsyslog::config::pre_logging'
   }
-  elsif $include_rsyslog_d == false {
-    rsyslog::rule { '15_include_default_rsyslog/include_default_rsyslog.conf':
-      ensure  => 'absent',
-      content => '',
+  elsif $purge_rule_dir {
+    include 'rsyslog::config::rule_tree'
+
+    # The purge removes the global.conf of earlier versions, which loaded the
+    # inputs a module-owned rsyslog.conf needs
+    if $simp_conf {
+      include 'rsyslog::config::pre_logging'
     }
   }
 
-  if $enable_default_rules =~ Boolean {
-    if $enable_default_rules and !$replace_rsyslog_conf {
+  # The package's /etc/rsyslog.conf already includes /etc/rsyslog.d
+  if $include_rsyslog_d == false or ($include_rsyslog_d and $simp_conf) {
+    rsyslog::rule { '15_include_default_rsyslog/include_default_rsyslog.conf':
+      ensure  => bool2str($include_rsyslog_d, 'present', 'absent'),
+      content => "\$IncludeConfig /etc/rsyslog.d/*.conf\n",
+    }
+  }
+
+  # rsyslog does not start without any action. When this run replaces the
+  # package's rsyslog.conf (and with it the package's rules), or purges the
+  # rule directory of a module-owned rsyslog.conf, write SIMP's default rules
+  # if they are missing.
+  $_seed_default_rules = $simp_conf and ($purge_rule_dir or !$_conf_managed)
+
+  if $enable_default_rules =~ Boolean or $_seed_default_rules {
+    if $enable_default_rules and !$simp_conf {
       warning('rsyslog::config::enable_default_rules duplicates the rules in the package\'s /etc/rsyslog.conf unless rsyslog::config::replace_rsyslog_conf is true')
     }
 
     rsyslog::rule { '99_simp_local/ZZ_default.conf':
-      ensure  => bool2str($enable_default_rules, 'present', 'absent'),
+      ensure  => bool2str($enable_default_rules == false, 'absent', 'present'),
       content => file("${module_name}/config/rsyslog.default"),
+      replace => $enable_default_rules =~ Boolean,
     }
   }
 
@@ -716,7 +743,7 @@ class rsyslog::config (
   #   global().
   ##############################################################################
 
-  $_work_directory = $replace_rsyslog_conf ? {
+  $_work_directory = $simp_conf ? {
     true    => $work_directory,
     default => undef,
   }
@@ -767,10 +794,7 @@ class rsyslog::config (
   }
 
   pick($extra_global_params, {}).each |$name, $value| {
-    # Keep 'hostname' out of the file name (see 11_global_localhost_name.conf)
-    $_file_name = regsubst($name, 'hostname', 'host_name', 'G')
-
-    rsyslog::rule { "00_simp_pre_logging/13_global_${_file_name}.conf":
+    rsyslog::rule { "00_simp_pre_logging/13_global_${name}.conf":
       ensure  => bool2str($value == 'absent', 'absent', 'present'),
       content => "global(${name}=\"${value}\")\n",
     }
@@ -780,7 +804,7 @@ class rsyslog::config (
   # 00_simp_pre_logging: output and input modules
   ##############################################################################
 
-  if $replace_rsyslog_conf and $default_file_template =~ NotUndef {
+  if $simp_conf and $default_file_template =~ NotUndef {
     $_default_file_template = $default_file_template ? {
       'traditional' => 'RSYSLOG_TraditionalFileFormat',
       'original'    => 'RSYSLOG_FileFormat',
@@ -801,48 +825,10 @@ class rsyslog::config (
     }
   }
 
-  if $replace_rsyslog_conf or $extra_imklog_mod_params =~ NotUndef {
-    rsyslog::config::statement { '30_imklog':
-      header => 'module(load="imklog"',
-      params => pick($extra_imklog_mod_params, {}),
-      create => true,
-    }
-  }
-
-  if $replace_rsyslog_conf {
-    rsyslog::config::statement { '31_imuxsock':
-      header => 'module(load="imuxsock"',
-      params => {
-        'SysSock.IgnoreTimestamp'    => $syssock_ignore_timestamp,
-        'SysSock.IgnoreOwnMessages'  => $syssock_ignore_own_messages,
-        'SysSock.Use'                => $syssock_use,
-        'SysSock.Name'               => $syssock_name,
-        'SysSock.FlowControl'        => $syssock_flow_control,
-        'SysSock.UsePIDFromSystem'   => $syssock_use_pid_from_system,
-        'SysSock.RateLimit.Interval' => $syssock_rate_limit_interval,
-        'SysSock.RateLimit.Burst'    => $syssock_rate_limit_burst,
-        'SysSock.RateLimit.Severity' => $syssock_rate_limit_severity,
-        'SysSock.UseSysTimeStamp'    => $syssock_use_sys_timestamp,
-        'SysSock.Annotate'           => $syssock_annotate,
-        'SysSock.ParseTrusted'       => $syssock_parse_trusted,
-        'SysSock.Unlink'             => $syssock_unlink,
-      } + pick($extra_imuxsock_mod_params, {}),
-      create => true,
-    }
-
-    # Without imjournal, a replaced /etc/rsyslog.conf would read nothing from
-    # the journal, so it is loaded unless read_journald is false.
-    rsyslog::config::statement { '32_imjournal':
-      ensure    => bool2str($read_journald == false, 'absent', 'present'),
-      header    => 'module(load="imjournal"',
-      params    => pick($extra_imjournal_mod_params, {}),
-      fallbacks => { 'StateFile' => 'imjournal.state' },
-      create    => true,
-    }
-  }
-
-  if $replace_rsyslog_conf or $extra_imfile_mod_params =~ NotUndef {
-    include 'rsyslog::config::imfile'
+  # imklog, imuxsock, imjournal and imfile
+  if $extra_imklog_mod_params =~ NotUndef or $extra_imfile_mod_params =~ NotUndef or
+  ($simp_conf and !empty($_package_conf_settings.filter |$k, $v| { $v =~ NotUndef })) {
+    include 'rsyslog::config::pre_logging'
   }
 
   ##############################################################################
@@ -852,12 +838,21 @@ class rsyslog::config (
   #   imtcp listener on tls_tcp_listen_port
   # * tcp_server (without tls_tcp_server): a plain imtcp listener on
   #   tcp_listen_port
-  # * udp_server: an imudp listener on udp_listen_port
+  # * udp_server: an imudp listener on udp_listen_address:udp_listen_port
   #
-  # `false` removes a listener and undef leaves it alone.
+  # `false` removes a listener and undef leaves it alone. The TLS and plain
+  # imtcp listeners share 41_imtcp.conf (rsyslog loads imtcp once), so turning
+  # one off removes its input and settings and leaves the other's.
   ##############################################################################
 
   $_pre_logging = "${rsyslog::rule_dir}/00_simp_pre_logging"
+  $_imtcp_exists = '41_imtcp.conf' in rsyslog::existing_pre_logging()
+  $_tls_off = {
+    'StreamDriver.Mode'     => 'absent',
+    'StreamDriver.AuthMode' => 'absent',
+    'PermittedPeer'         => 'absent',
+    'MaxSessions'           => 'absent',
+  }
 
   if $_tls_tcp_server {
     rsyslog::config::statement { '40_imptcp':
@@ -917,12 +912,7 @@ class rsyslog::config (
     }
     else {
       $_tls_params = $_tls_tcp_server ? {
-        false   => {
-          'StreamDriver.Mode'     => 'absent',
-          'StreamDriver.AuthMode' => 'absent',
-          'PermittedPeer'         => 'absent',
-          'MaxSessions'           => 'absent',
-        },
+        false   => $_tls_off,
         default => {},
       }
 
@@ -954,6 +944,29 @@ class rsyslog::config (
       header => 'module(load="imtcp"',
     }
   }
+  elsif $_imtcp_exists and ($_tls_tcp_server == false or $_tcp_server == false) {
+    # Remove one listener and leave the other's
+    if $_tls_tcp_server == false {
+      $_off_params = $_tls_off
+      $_off_port = $rsyslog::tls_tcp_listen_port
+    }
+    else {
+      $_off_params = {}
+      $_off_port = $rsyslog::tcp_listen_port
+    }
+
+    rsyslog::config::statement { '41_imtcp':
+      header => 'module(load="imtcp"',
+      params => $_off_params,
+    }
+
+    rsyslog::config::line { '41_imtcp input':
+      ensure => 'absent',
+      path   => "${_pre_logging}/41_imtcp.conf",
+      line   => "input(type=\"imtcp\" port=\"${_off_port}\")",
+      match  => "^\\s*input\\(type=\"imtcp\" port=\"${_off_port}\"\\)",
+    }
+  }
 
   if $_udp_server {
     rsyslog::config::statement { '42_imudp':
@@ -964,7 +977,7 @@ class rsyslog::config (
 
     rsyslog::config::line { '42_imudp input':
       path    => "${_pre_logging}/42_imudp.conf",
-      line    => "input(type=\"imudp\" port=\"${rsyslog::udp_listen_port}\")",
+      line    => "input(type=\"imudp\" address=\"${rsyslog::udp_listen_address}\" port=\"${rsyslog::udp_listen_port}\")",
       match   => '^\s*input\(type="imudp"',
       require => Rsyslog::Config::Block['42_imudp'],
     }

@@ -260,7 +260,9 @@ define rsyslog::rule::remote (
   include 'rsyslog'
 
   # Rsyslog will not parse a failover action unless a rule precedes it.
-  include 'rsyslog::config::failover_hack'
+  if $ensure == 'present' {
+    include 'rsyslog::config::failover_hack'
+  }
 
   if $max_error_messages =~ NotUndef {
     # use_strict_setting => false: warn without failing compilation under
@@ -312,7 +314,7 @@ define rsyslog::rule::remote (
     $_use_tls = ( $_tls_requested and $dest_type != 'udp' )
     $_force_plaintext = ( $use_tls == false and $dest_type != 'udp' )
 
-    if $_use_tls {
+    if $_use_tls and $ensure == 'present' {
       include 'rsyslog::config::tls'
     }
 
