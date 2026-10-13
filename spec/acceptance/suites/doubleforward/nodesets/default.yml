@@ -43,4 +43,4 @@ CONFIG:
     keepalive: true
     keepalive_interval: 10
     keepalive_maxcount: 60
-  puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>"
+  puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox9') %>"
