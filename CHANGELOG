@@ -1,3 +1,7 @@
+* Tue Oct 13 2026 Steven Pritchard <steve@sicura.us> - 10.2.0
+- Add support for OpenVox 9
+- Update metadata.json dependency ranges from the Forge
+
 * Thu Oct 08 2026 Steven Pritchard <steve@sicura.us> - 10.1.0
 - Add support for OpenVox 9
 - Update metadata.json dependency ranges from the Forge
