@@ -1,0 +1,2 @@
+---
+rsyslog::config::net_enable_dns: false

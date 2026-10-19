@@ -127,6 +127,9 @@
 #
 # @see https://www.rsyslog.com/doc/v8-stable/rainerscript/index.html RainerScript Documentation
 #
+# @param ensure
+#   `absent` removes the rule file
+#
 define rsyslog::rule::local (
   Optional[String[1]]            $rule                                 = undef,
   Optional[Stdlib::Absolutepath] $target_log_file                      = undef,
@@ -182,6 +185,7 @@ define rsyslog::rule::local (
   Optional[Integer[0]]           $queue_dequeue_time_begin             = undef,
   Optional[Integer[0]]           $queue_dequeue_time_end               = undef,
   Optional[String[1]]            $content                              = undef,
+  Enum['present', 'absent']      $ensure                               = 'present',
 ) {
   unless ($rule or $content) {
     fail('You must specify "$rule" if you are not specifying "$content"')
@@ -292,6 +296,7 @@ define rsyslog::rule::local (
   }
 
   rsyslog::rule { "99_simp_local/${_safe_name}.conf":
+    ensure  => $ensure,
     content => $_content,
   }
 }

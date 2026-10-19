@@ -5,10 +5,13 @@ This file provides guidance to AI agents when working with code in this reposito
 ## What this module does
 
 `simp-rsyslog` is a SIMP Puppet module that installs, configures, and manages
-**Rsyslog version 8** on Enterprise Linux systems. It writes a minimal
-`/etc/rsyslog.conf` that does nothing but `$IncludeConfig` a SIMP-owned drop-in
-directory (`/etc/rsyslog.simp.d`), then populates that directory with numbered
-`.conf` fragments so that rule ordering is deterministic. On top of the base
+**Rsyslog version 8** on Enterprise Linux systems. A bare `include rsyslog`
+installs the package and nothing else; every other behavior is opt-in through
+a parameter (see "Blast radius and the `simp:defaults` profile" below). When
+configured, it writes numbered `.conf` fragments to a SIMP-owned directory
+(`/etc/rsyslog.simp.d`) so that rule ordering is deterministic, and hooks that
+directory into rsyslog either with one `$IncludeConfig` line in the package's
+`/etc/rsyslog.conf` or, with `replace_rsyslog_conf`, by replacing that file. On top of the base
 client configuration it layers a server role (listeners for TCP, TLS-TCP, and
 UDP), TLS/PKI for encrypted log transport, optional `logrotate`, and — for a
 server — optional `iptables` and SELinux integration.
@@ -23,8 +26,39 @@ fact (`lib/facter/rsyslogd.rb`) that parses `rsyslogd -v`.
 Everything is driven through a rich set of defined types: rules
 (`rsyslog::rule` and its typed wrappers) and templates
 (`rsyslog::template::*`). Rules are dropped into numbered subdirectories of
-`$rule_dir` so their evaluation order is fixed, and the whole directory is
-managed with `purge => true` — anything not managed by Puppet is removed.
+`$rule_dir` so their evaluation order is fixed. The directory is purged only
+when `rsyslog::config::purge_rule_dir` is `true`; otherwise rules are removed
+with `ensure => absent`.
+
+## Blast radius and the `simp:defaults` profile
+
+Since 11.0.0 every setting is independently enforceable:
+
+- `undef` (the default) leaves the setting alone; a value sets it; `absent`
+  (or `false` for Boolean toggles) removes it. Never add a parameter whose
+  unset value writes something.
+- Global settings live in `00_simp_pre_logging/<NN>_<statement>.conf`. A
+  multi-parameter statement (`global(`, `module(load=...`, `main_queue(`) is
+  a file created once with `replace => false` (`rsyslog::config::block`),
+  and each parameter is its own `file_line` inserted after the header line
+  (`rsyslog::config::param`, `rsyslog::config::statement`). A
+  single-setting statement is a whole `rsyslog::rule` file. Never render a
+  file that holds several independent settings from a template.
+- Rsyslog rejects a second load of a module, a repeated `global()` key and a
+  second `main_queue()`. The package's `/etc/rsyslog.conf` already loads
+  `imuxsock`, `imjournal` and `omfile` and sets `workDirectory`, so the
+  parameters for those only take effect with `replace_rsyslog_conf` and
+  otherwise warn (`$_package_conf_settings` in `config.pp`).
+- Values that rsyslog needs to run safely (TLS driver/cert paths, a TLS
+  listener's `AuthMode`/`PermittedPeer`, imjournal's `StateFile`) are
+  written as `fallbacks` with `replace => false`. Values that used to be
+  computed from facts are available with `auto`.
+- `SIMP/compliance_profiles/` ships the `simp:defaults` profile, which
+  restores the 10.x defaults, destructive ones included.
+  `spec/classes/simp_defaults_profile_spec.rb` renders the files the catalogue
+  would write (`spec/lib/rendered_config.rb`) and compares them with the
+  complete 10.x `global.conf` files in `spec/classes/expected/`. Add a check
+  there for any new parameter whose behavior changes the old default.
 
 ## Business logic
 
@@ -50,20 +84,27 @@ Class['rsyslog::install'] -> Class['rsyslog::config'] ~> Class['rsyslog::service
   (`manifests/init.pp`), which is how rules can be created purely from
   Hiera.
 - **`rsyslog::install` (`manifests/install.pp`)** — `assert_private()`
-  (`install.pp`). Installs the core package and, where relevant, the TLS
-  (`rsyslog-gnutls`) package; handles i386-on-x86_64 package removal.
+  (`install.pp`). Installs the core package and handles i386-on-x86_64
+  package removal. The TLS package is installed by `rsyslog::config::tls`.
 - **`rsyslog::config` (`manifests/config.pp`)** — `assert_private()`
-  (`config.pp`). The heart of the module. Writes `/etc/rsyslog.conf`,
-  `/etc/sysconfig/rsyslog`, the managed rule directory, and the base rule
-  fragments (`00_simp_pre_logging/global.conf` from
-  `templates/config/pre_logging.conf.epp`, a `09_failover_hack` no-op rule
-  needed so failover parses, and — when `enable_default_rules` — a
-  `99_simp_local/ZZ_default.conf`). It carries the bulk of the tunable
+  (`config.pp`). The heart of the module. Declares nothing when every
+  parameter is unset. Otherwise writes the `00_simp_pre_logging` settings,
+  the `SYSLOGD_OPTIONS` line in `/etc/sysconfig/rsyslog`, the `LimitNOFILE`
+  systemd drop-in, `99_simp_local/ZZ_default.conf` (`enable_default_rules`)
+  and, with `replace_rsyslog_conf`, a replaced `/etc/rsyslog.conf`
+  (`rsyslog::config::rule_tree`). It carries the bulk of the tunable
   parameters (imuxsock `SysSock.*`, main-message-queue sizing, TLS stream
-  driver settings, `imtcp` keep-alive, DNS/ACL behavior). It also handles the
-  PKI branch and an EL7-specific systemd override (see Gotchas).
+  driver settings, `imtcp` keep-alive, DNS/ACL behavior) and the PKI branch.
+  Private helpers: `config::rule_tree` (rule directory and the
+  `rsyslog.conf` hook), `config::tls` (TLS package and driver globals),
+  `config::imfile`, `config::failover_hack`, and the `config::block`,
+  `config::param`, `config::statement` and `config::line` defines.
 - **`rsyslog::service` (`manifests/service.pp`)** — `assert_private()`
-  (`service.pp`). Manages the `rsyslog` service state.
+  (`service.pp`). Declares the service only when `rsyslog::service_ensure`
+  or `rsyslog::service_enable` (or the deprecated `rsyslog::service::enable`)
+  is set. Otherwise, with `rsyslog::restart_on_change`, a refresh-only
+  `systemctl try-restart` exec. Every configuration resource notifies this
+  class, which is always contained.
 - **`rsyslog::config::logrotate` (`manifests/config/logrotate.pp`)** —
   `assert_private()` (`config/logrotate.pp`); asserts the optional
   `simp/logrotate` dependency (`config/logrotate.pp`) and proxies its
@@ -81,8 +122,9 @@ that must **receive** logs. It `include`s `rsyslog` and then conditionally
   Enabled by `simp_options::firewall`.
 - **`rsyslog::server::selinux`** — `assert_private()`
   (`manifests/server/selinux.pp`). Sets the `nis_enabled` SELinux boolean when
-  SELinux is enforcing. Enabled by default from the
-  `os.selinux.enforced` fact (`server.pp`); ordered **before** the service.
+  SELinux is not disabled. Enabled only by `enable_selinux: true`
+  (`server.pp`; the `simp:defaults` profile sets it when
+  `os.selinux.enforced`); ordered **before** the service.
 
 ### Rules and templates (defined types)
 
@@ -109,14 +151,11 @@ Templates map to the four Rsyslog template kinds, each written under
 
 ## Gotchas / non-obvious details
 
-- **The managed rule directory is purged.** `$rule_dir`
-  (`/etc/rsyslog.simp.d`) is declared with `recurse => true, purge => true,
-  force => true` (`config.pp`). Any `.conf` not managed by a
-  `rsyslog::rule` (directly or via the `rules` Hiera hash) will be deleted on
-  the next run. To ship files that SIMP should *not* manage, set
-  `rsyslog::config::include_rsyslog_d: true` and drop them in
-  `/etc/rsyslog.d` (see the generated `README_SIMP.conf`,
-  `config.pp`, `config.pp`).
+- **The rule directory is purged only on request.** With
+  `rsyslog::config::purge_rule_dir: true` (set by `simp:defaults`), `$rule_dir`
+  and each rule subdirectory are declared with `recurse`, `purge` and `force`
+  (`config/rule_tree.pp`, `rule/directory.pp`), so any `.conf` not managed by
+  an `rsyslog::rule` is deleted on the next run.
 - **Rule ordering is encoded in directory-number prefixes.** The `NN_simp_*`
   prefixes (`00_simp_pre_logging`, `05_*`, `06_*`, `07_*`, `09_failover_hack`,
   `10_simp_remote`, `20_simp_other`, `99_simp_local`) exist so `$IncludeConfig
@@ -124,14 +163,9 @@ Templates map to the four Rsyslog template kinds, each written under
   adding rule types.
 - **The `09_failover_hack` rule is load-bearing.** Rsyslog will not parse a
   failover action definition unless at least one rule already exists, so the
-  module emits a no-op `continue` rule first (`config.pp`). Don't
-  remove it.
-- **EL7 (`rsyslogd` 8.24.0) gets a systemd drop-in.** When the installed
-  version is exactly `8.24.0`, `rsyslog::config` writes a
-  `systemd::dropin_file` adding `network.target`/`network-online.target` to
-  the unit's `Wants`/`After` to fix a service-ordering bug in
-  `rsyslog-8.24.0-12.el7` (`config.pp`). It is harmless on builds that
-  already have the fix because the lists are de-duplicated.
+  module emits a no-op `continue` rule first (`config/failover_hack.pp`,
+  included by every `rsyslog::rule::remote` and with `replace_rsyslog_conf`).
+  Don't remove it.
 - **Versions older than 8.24.0 are unsupported.** the `rsyslog` class warns and
   points at module `7.6.4` (`init.pp`). This gate depends on the
   custom `rsyslogd` fact (`lib/facter/rsyslogd.rb`) being present.
@@ -141,7 +175,8 @@ Templates map to the four Rsyslog template kinds, each written under
   auth mode then defaults from that (`anon` vs `x509/name`,
   `config.pp`). The CA/cert/key paths default under `$app_pki_dir`
   (`/etc/pki/simp_apps/rsyslog/x509`) and are the **only** way to set the TLS
-  material (`config.pp`).
+  material (`config/tls.pp`). `rsyslog::rule::remote`'s `use_tls` overrides
+  `enable_tls_logging` per rule; `false` writes `StreamDriver="ptcp"`.
 - **PKI is gated behind an optional dependency.** `rsyslog::config` only pulls
   in PKI when `$rsyslog::pki` is truthy, and asserts `simp/pki` at runtime
   before calling `pki::copy` (`config.pp`). `pki` accepts `'simp'`,
@@ -154,15 +189,20 @@ Templates map to the four Rsyslog template kinds, each written under
   (`config.pp`). Prefer the replacements
   (`default_file_template`, `imtcp_stream_driver_*`, `net_permit_acl_warning`,
   `net_enable_dns`).
-- **Queue sizing is fact-derived math.** The main-message-queue size and its
-  high/low/discard watermarks and worker-thread counts are computed from
-  `memory.system.total_bytes` and `processors.count`
-  (`config.pp`); the per-rule `local`/`remote` defines re-validate
+- **Queue sizing is fact-derived math, on request.** With `auto`, the
+  main-message-queue size and its high/low/discard watermarks and
+  worker-thread counts are computed from `memory.system.total_bytes` and
+  `processors.count` (`config.pp`); the per-rule `local`/`remote` defines re-validate
   supplied queue parameters against each other.
 - **`simp/simp_options` is NOT a declared dependency** in `metadata.json`, yet
   the manifests consume the `simp_options::*` seam via `simplib::lookup`
   (provided by `simp/simplib`). `simp_options` appears only as a fixture
   (`.fixtures.yml`).
+- **`compliance_engine` is a test fixture, not a dependency.** It is in
+  `.fixtures.yml` only so the profile specs can resolve
+  `compliance_engine::enforcement`. Don't add it to `metadata.json`. On Ruby
+  >= 3.4 its library needs the `observer` gem, which the puppetsync `Gemfile`
+  does not include; add it locally with a `Gemfile.local`.
 
 ## The `simp_options` / `simplib::lookup` seam
 
@@ -236,13 +276,16 @@ OracleLinux 7/8/9; Rocky 8/9; AlmaLinux 8/9.
 - `types/options.pp` — `Rsyslog::Options = Hash[String,Variant[Numeric,String]]`.
 - `types/queuetype.pp` — `Rsyslog::QueueType =
   Enum['FixedArray','LinkedList','Direct','Disk']`.
-- `templates/config/pre_logging.conf.epp` — the global pre-logging fragment.
+- `manifests/config/*.pp` — private helpers (see `rsyslog::config` above).
+- `functions/format_value.pp` — renders Booleans as `on`/`off`.
+- `SIMP/compliance_profiles/` — the `simp:defaults` profile and its checks.
 - `templates/rule/local.epp`, `templates/rule/remote.epp` — rule bodies.
 - `lib/facter/rsyslogd.rb` — custom fact parsing `rsyslogd -v` into
   `{ version, features }`; drives the version gate in `init.pp`.
 - `metadata.json` — deps, optional deps, OS matrix, Puppet requirement.
 - `spec/classes/`, `spec/defines/`, `spec/unit/facter/` — rspec-puppet and
-  fact unit tests.
+  fact unit tests. `spec/lib/rendered_config.rb` renders the
+  `00_simp_pre_logging` files a catalogue would write.
 - `spec/acceptance/suites/{default,doubleforward}/` — beaker acceptance
   suites (the failover specs live in the `default` suite as `04_*`/`05_*`);
   shared multi-host nodesets under `spec/acceptance/nodesets/`.
@@ -307,8 +350,8 @@ gem. `spec/spec_helper.rb` requires
   'default_value' => … })` with an explicit default rather than assuming
   `simp_options` is included.
 - Add new rules under the correct `NN_simp_*` numeric prefix so include
-  ordering stays deterministic; the rule directory is purged, so every file
-  must be a managed `rsyslog::rule`.
+  ordering stays deterministic. Every file must be a managed `rsyslog::rule`,
+  since sites may enable `purge_rule_dir`.
 - `Gemfile`, `spec/spec_helper.rb`, and `.github/workflows/pr_tests.yml` carry
   a **puppetsync** notice — they are baseline-managed and the next sync
   overwrites local edits. Push changes to those files upstream to the

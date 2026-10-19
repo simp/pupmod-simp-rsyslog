@@ -1,0 +1,62 @@
+---
+version: 2.0.0
+profiles:
+  simp:defaults:
+    checks:
+      simp:defaults.rsyslog.service_ensure: true
+      simp:defaults.rsyslog.service_enable: true
+      simp:defaults.rsyslog.read_journald: true
+      simp:defaults.rsyslog.tcp_server: true
+      simp:defaults.rsyslog.tls_tcp_server: true
+      simp:defaults.rsyslog.udp_server: true
+      simp:defaults.rsyslog.config.replace_rsyslog_conf: true
+      simp:defaults.rsyslog.config.purge_rule_dir: true
+      simp:defaults.rsyslog.config.syslogd_options: true
+      simp:defaults.rsyslog.config.ulimit_max_open_files: true
+      simp:defaults.rsyslog.config.enable_default_rules: true
+      simp:defaults.rsyslog.config.include_rsyslog_d: true
+      simp:defaults.rsyslog.config.umask: true
+      simp:defaults.rsyslog.config.repeated_msg_reduction: true
+      simp:defaults.rsyslog.config.localhostname: true
+      simp:defaults.rsyslog.config.preserve_fqdn: true
+      simp:defaults.rsyslog.config.drop_msgs_with_malicious_dns_ptr_records: true
+      simp:defaults.rsyslog.config.work_directory: true
+      simp:defaults.rsyslog.config.net_permit_acl_warning: true
+      simp:defaults.rsyslog.config.net_enable_dns: true
+      simp:defaults.rsyslog.config.escape_control_characters_on_receive: true
+      simp:defaults.rsyslog.config.control_character_escape_prefix: true
+      simp:defaults.rsyslog.config.default_file_template: true
+      simp:defaults.rsyslog.config.default_forward_template: true
+      simp:defaults.rsyslog.config.syssock_ignore_timestamp: true
+      simp:defaults.rsyslog.config.syssock_ignore_own_messages: true
+      simp:defaults.rsyslog.config.syssock_use: true
+      simp:defaults.rsyslog.config.syssock_flow_control: true
+      simp:defaults.rsyslog.config.syssock_use_pid_from_system: true
+      simp:defaults.rsyslog.config.syssock_rate_limit_interval: true
+      simp:defaults.rsyslog.config.syssock_rate_limit_burst: true
+      simp:defaults.rsyslog.config.syssock_rate_limit_severity: true
+      simp:defaults.rsyslog.config.syssock_use_sys_timestamp: true
+      simp:defaults.rsyslog.config.syssock_annotate: true
+      simp:defaults.rsyslog.config.syssock_parse_trusted: true
+      simp:defaults.rsyslog.config.syssock_unlink: true
+      simp:defaults.rsyslog.config.main_msg_queue_type: true
+      simp:defaults.rsyslog.config.main_msg_queue_filename: true
+      simp:defaults.rsyslog.config.main_msg_queue_max_file_size: true
+      simp:defaults.rsyslog.config.main_msg_queue_size: true
+      simp:defaults.rsyslog.config.main_msg_queue_high_watermark: true
+      simp:defaults.rsyslog.config.main_msg_queue_low_watermark: true
+      simp:defaults.rsyslog.config.main_msg_queue_discardmark: true
+      simp:defaults.rsyslog.config.main_msg_queue_worker_thread_minimum_messages: true
+      simp:defaults.rsyslog.config.main_msg_queue_worker_threads: true
+      simp:defaults.rsyslog.config.main_msg_queue_timeout_enqueue: true
+      simp:defaults.rsyslog.config.main_msg_queue_dequeue_slowdown: true
+      simp:defaults.rsyslog.config.main_msg_queue_save_on_shutdown: true
+      simp:defaults.rsyslog.config.main_msg_queue_max_disk_space: true
+      simp:defaults.rsyslog.config.tls_tcp_max_sessions: true
+      simp:defaults.rsyslog.config.tls_input_tcp_server_stream_driver_permitted_peers: true
+      simp:defaults.rsyslog.config.imtcp_stream_driver_auth_mode: true
+      simp:defaults.rsyslog.config.default_net_stream_driver: true
+      simp:defaults.rsyslog.config.default_net_stream_driver_ca_file: true
+      simp:defaults.rsyslog.config.default_net_stream_driver_cert_file: true
+      simp:defaults.rsyslog.config.default_net_stream_driver_key_file: true
+      simp:defaults.rsyslog.server.enable_selinux.selinux_enforced: true

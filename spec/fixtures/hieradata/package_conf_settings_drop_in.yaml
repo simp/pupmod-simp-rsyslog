@@ -1,0 +1,4 @@
+---
+rsyslog::config::work_directory: /var/spool/rsyslog
+rsyslog::config::syssock_use: true
+rsyslog::config::default_file_template: RSYSLOG_FileFormat

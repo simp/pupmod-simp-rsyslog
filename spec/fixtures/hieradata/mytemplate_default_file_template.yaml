@@ -1,2 +1,3 @@
 ---
 rsyslog::config::default_file_template: mytemplate
+rsyslog::config::replace_rsyslog_conf: true

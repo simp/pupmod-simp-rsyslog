@@ -36,6 +36,8 @@ describe 'rsyslog class' do
     {
       'iptables::disable'                   => false,
       'rsyslog::udp_server'                 => true,
+      # The listener binds to 127.0.0.1 unless told otherwise
+      'rsyslog::udp_listen_address'         => '0.0.0.0',
       'rsyslog::logrotate'                  => true,
       'rsyslog::pki'                        => false,
       'rsyslog::trusted_nets'               => ['any'],
@@ -71,7 +73,7 @@ describe 'rsyslog class' do
 
   context 'client -> server over UDP' do
     it 'configures the server without errors' do
-      set_hieradata_on(server, server_manifest_hieradata)
+      set_hieradata_on(server, server_manifest_hieradata.merge(SIMP_DEFAULTS))
       apply_manifest_on(server, server_manifest, catch_failures: true)
     end
 
@@ -80,7 +82,7 @@ describe 'rsyslog class' do
     end
 
     it 'configures the client without errors' do
-      set_hieradata_on(client, client_manifest_hieradata)
+      set_hieradata_on(client, client_manifest_hieradata.merge(SIMP_DEFAULTS))
       apply_manifest_on(client, client_manifest, catch_failures: true)
     end
 
