@@ -1,4 +1,4 @@
-* Mon Oct 05 2026 Kendall Moore <kendall@sicura.us> - 11.0.0
+* Mon Oct 19 2026 Kendall Moore <kendall@sicura.us> - 11.0.0
 - BREAKING CHANGE: A bare `include rsyslog` now installs the package and
   makes no other change. To keep the 10.x behavior, enforce the new
   `simp:defaults` Compliance Engine profile
@@ -63,6 +63,10 @@
   defaults, including the replaced `/etc/rsyslog.conf`, the purged rule
   directory and service management.
 - Allow `simp/iptables` 9.x.
+
+* Thu Oct 08 2026 Steven Pritchard <steve@sicura.us> - 10.1.0
+- Add support for OpenVox 9
+- Update metadata.json dependency ranges from the Forge
 
 * Tue Sep 01 2026 Hazel Caballero <hazel@sicura.us> - 10.0.1
 - Manage `/etc/rsyslog.d/README_SIMP.conf` with mode `0640` instead of `0644`.
