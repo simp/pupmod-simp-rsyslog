@@ -29,6 +29,21 @@ describe 'rsyslog::rule' do
 
         it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path/test_name.conf').with_content(%r{random junk}) }
         it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path/test_name.conf').that_notifies('Class[rsyslog::service]') }
+        it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path').without_purge }
+        it { is_expected.to contain_file('/etc/rsyslog.simp.d').with_ensure('directory').without_purge }
+
+        it 'adds the rule directory to the package rsyslog.conf' do
+          is_expected.to contain_file_line('rsyslog rsyslog.conf include rule_dir').with(
+            path: '/etc/rsyslog.conf',
+            line: '$IncludeConfig /etc/rsyslog.simp.d/*.conf',
+          )
+        end
+
+        context 'with ensure=absent' do
+          let(:params) { { content: 'random junk', ensure: 'absent' } }
+
+          it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path/test_name.conf').with_ensure('absent') }
+        end
 
         context 'it should fail when provided with an absolute path name' do
           let(:title) do

@@ -131,7 +131,7 @@ describe 'rsyslog class' do
   context 'client -> 2 server without TLS' do
     it 'configures the servers without errors' do
       (servers + failover_servers).each do |server|
-        set_hieradata_on(server, server_manifest_hieradata)
+        set_hieradata_on(server, server_manifest_hieradata.merge(SIMP_DEFAULTS))
         apply_manifest_on(server, server_manifest, hiera_config: client.puppet['hiera_config'], catch_failures: true)
       end
     end
@@ -143,7 +143,7 @@ describe 'rsyslog class' do
     end
 
     it 'configures the client without errors' do
-      set_hieradata_on(client, client_manifest_hieradata)
+      set_hieradata_on(client, client_manifest_hieradata.merge(SIMP_DEFAULTS))
       apply_manifest_on(client, client_manifest, hiera_config: client.puppet['hiera_config'], catch_failures: true)
     end
 
@@ -172,7 +172,7 @@ describe 'rsyslog class' do
     end
 
     it 'is able to enable failover on the client' do
-      set_hieradata_on(client, client_failover_hieradata)
+      set_hieradata_on(client, client_failover_hieradata.merge(SIMP_DEFAULTS))
       apply_manifest_on(client, client_manifest, hiera_config: client.puppet['hiera_config'], catch_failures: true)
     end
 
@@ -221,7 +221,7 @@ describe 'rsyslog class' do
       failover_server = failover_servers.first
       remote_log = "/var/log/hosts/#{client_fqdn}/everything.log"
 
-      set_hieradata_on(client, client_failover_small_queue_hieradata)
+      set_hieradata_on(client, client_failover_small_queue_hieradata.merge(SIMP_DEFAULTS))
       apply_manifest_on(client, client_failover_manifest_small_queue, hiera_config: client.puppet['hiera_config'], catch_failures: true)
 
       # The client rsyslog restarted with fresh action state, so the failover

@@ -28,12 +28,17 @@
 #
 #   The filename that you will be dropping into place.
 #
+# @param ensure
+#   `absent` removes the rule file
+#
 define rsyslog::rule::drop (
-  String $rule
+  String                    $rule,
+  Enum['present', 'absent'] $ensure = 'present',
 ) {
   $_safe_name = regsubst($name,'/','__')
 
   rsyslog::rule { "07_simp_drop_rules/${_safe_name}.conf":
+    ensure  => $ensure,
     content => inline_epp('if (<%= $rule.split("\n").map |$x| { $x.lstrip() }.join("\n") %>) then stop\n" %>')
   }
 }

@@ -41,6 +41,7 @@ describe 'rsyslog client -> 1 server using TLS' do
       ---
       iptables::disable : false
       rsyslog::server::enable_firewall : true
+      compliance_engine::enforcement : ['simp:defaults']
     EOS
   end
   let(:server_manifest) do
@@ -92,6 +93,7 @@ describe 'rsyslog client -> 1 server using TLS' do
     end
 
     it 'configures client without errors' do
+      set_hieradata_on(client, SIMP_DEFAULTS)
       apply_manifest_on(client, client_manifest, catch_failures: true)
     end
 
