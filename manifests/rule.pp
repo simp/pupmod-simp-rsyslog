@@ -70,8 +70,8 @@ define rsyslog::rule (
 
   include 'rsyslog'
 
-  $_name_array = split($name,'/')
   $_file_name = regsubst($name, 'hostname', 'host_name', 'G')
+  $_name_array = split($_file_name,'/')
   $_path = "${rsyslog::rule_dir}/${_file_name}"
 
   if $ensure == 'absent' {
