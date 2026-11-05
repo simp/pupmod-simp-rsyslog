@@ -416,7 +416,8 @@
 #   Additional imptcp module parameters to be added to the imptcp load
 #   statement in 00_simp_pre_logging/40_imptcp.conf
 #
-#   * Only applies when $rsyslog::tls_tcp_server` is set to `true`
+#   * Only applies when $rsyslog::tls_tcp_server` is set to `true`, or when
+#     it is unset, a TLS listener exists and `$rsyslog::tcp_server` is `true`
 #   * A value of `absent` removes the parameter.
 #   * No validation of parameter names or values is done
 #
@@ -830,10 +831,21 @@ class rsyslog::config (
   # `false` removes a listener and undef leaves it alone. The TLS and plain
   # imtcp listeners share 41_imtcp.conf (rsyslog loads imtcp once), so turning
   # one off removes its input and settings and leaves the other's.
+  #
+  # With tls_tcp_server unset and a TLS listener from an earlier run,
+  # tcp_server uses the tls_tcp_server layout, so that its plain listener
+  # does not replace the TLS one in 41_imtcp.conf.
   ##############################################################################
 
   $_pre_logging = "${rsyslog::rule_dir}/00_simp_pre_logging"
   $_imtcp_exists = '41_imtcp.conf' in rsyslog::existing_pre_logging()
+  $_inputs = $facts.dig('rsyslog_simp_config', 'rule_dir') == $rsyslog::rule_dir ? {
+    true    => pick($facts.dig('rsyslog_simp_config', 'inputs'), []),
+    default => [],
+  }
+  $_keep_tls = $_tls_tcp_server =~ Undef and !$_inputs.filter |$i| {
+    $i['type'] == 'imtcp' and $i['port'] == $rsyslog::tls_tcp_listen_port
+  }.empty
   $_tls_off = {
     'StreamDriver.Mode'     => 'absent',
     'StreamDriver.AuthMode' => 'absent',
@@ -841,7 +853,7 @@ class rsyslog::config (
     'MaxSessions'           => 'absent',
   }
 
-  if $_tls_tcp_server {
+  if $_tls_tcp_server or ($_keep_tls and $_tcp_server) {
     rsyslog::config::statement { '40_imptcp':
       header => 'module(load="imptcp"',
       params => pick($extra_imptcp_mod_params, {}),
@@ -862,7 +874,18 @@ class rsyslog::config (
     }
   }
 
-  if $_tls_tcp_server or $_tcp_server {
+  if $_keep_tls and $_tcp_server {
+    # Leave the TLS listener alone; its plain companion is in 40_imptcp
+    rsyslog::config::statement { '41_imtcp':
+      header => 'module(load="imtcp"',
+      params => {
+        'KeepAlive'       => $keep_alive,
+        'KeepAliveProbes' => $keep_alive_probes,
+        'KeepAliveTime'   => $keep_alive_time,
+      } + pick($extra_imtcp_mod_params, {}),
+    }
+  }
+  elsif $_tls_tcp_server or $_tcp_server {
     $_imtcp_stream_driver_mode = pick(
       $imtcp_stream_driver_mode,
       ($rsyslog::pki or $_tls_tcp_server or $rsyslog::enable_tls_logging) ? { true => '1', default => '0' }

@@ -392,6 +392,30 @@ describe 'rsyslog' do
         end
       end
 
+      context 'rsyslog server with TCP enabled and TLS unset' do
+        let(:params) { { tcp_server: true } }
+        let(:facts) do
+          super().merge(rsyslog_simp_config: { 'conf_managed' => false, 'rule_dir' => '/etc/rsyslog.simp.d', 'pre_logging' => ['41_imtcp.conf'], 'inputs' => inputs })
+        end
+
+        context 'with a TLS listener from an earlier run' do
+          let(:inputs) { [{ 'type' => 'imtcp', 'port' => 6514 }] }
+
+          it { is_expected.to contain_file_line('rsyslog 40_imptcp input').with_line('input(type="imptcp" port="514")') }
+          it { is_expected.not_to contain_file_line('rsyslog 41_imtcp input') }
+          it { is_expected.not_to contain_file_line('rsyslog 41_imtcp StreamDriver.Mode') }
+          it { is_expected.not_to contain_file_line('rsyslog 41_imtcp PermittedPeer') }
+          it { is_expected.not_to contain_file("#{pre_logging}/41_imtcp.conf") }
+        end
+
+        context 'with a plain listener from an earlier run' do
+          let(:inputs) { [{ 'type' => 'imtcp', 'port' => 514 }] }
+
+          it { is_expected.to contain_file_line('rsyslog 41_imtcp input').with_line('input(type="imtcp" port="514")') }
+          it { is_expected.not_to contain_rsyslog__config__statement('40_imptcp') }
+        end
+      end
+
       context 'rsyslog server with UDP' do
         let(:params) { { udp_server: true } }
 
