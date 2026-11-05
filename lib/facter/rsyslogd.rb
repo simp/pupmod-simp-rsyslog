@@ -7,7 +7,7 @@ Facter.add('rsyslogd') do
   confine { rsyslogd }
 
   setcode do
-    rsyslogd_info = Facter::Core::Execution.exec("#{rsyslogd} -v").strip.lines
+    rsyslogd_info = Facter::Core::Execution.execute("#{rsyslogd} -v", on_fail: nil).strip.lines
 
     response = {
       'version'  => nil,
