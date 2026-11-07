@@ -6,6 +6,8 @@ describe 'custom fact rsyslog_simp_config' do
   subject(:fact) { Facter.fact('rsyslog_simp_config').value }
 
   let(:pre_logging) { '/etc/rsyslog.simp.d/00_simp_pre_logging' }
+  let(:remote) { '/etc/rsyslog.simp.d/10_simp_remote' }
+  let(:remote_files) { {} }
 
   before(:each) do
     Facter.clear
@@ -16,6 +18,8 @@ describe 'custom fact rsyslog_simp_config' do
     allow(Dir).to receive(:glob).and_call_original
     allow(Dir).to receive(:glob).with("#{pre_logging}/*.conf").and_return(files.keys.map { |f| "#{pre_logging}/#{f}" })
     files.each { |f, content| allow(File).to receive(:read).with("#{pre_logging}/#{f}").and_return(content) }
+    allow(Dir).to receive(:glob).with("#{remote}/*.conf").and_return(remote_files.keys.map { |f| "#{remote}/#{f}" })
+    remote_files.each { |f, content| allow(File).to receive(:read).with("#{remote}/#{f}").and_return(content) }
   end
 
   context 'with the rsyslog.conf this module writes' do
@@ -34,6 +38,12 @@ describe 'custom fact rsyslog_simp_config' do
         'global.conf' => %(module(load="imklog")\n),
       }
     end
+    let(:remote_files) do
+      {
+        'plain.conf' => %(  action(\n    type="omfwd"\n    StreamDriver="ptcp"\n  )\n),
+        'tls.conf' => %(  action(\n    type="omfwd"\n    StreamDriverMode="1"\n    StreamDriverPermittedPeers="logs.example.com"\n  )\n),
+      }
+    end
 
     it do
       is_expected.to eq(
@@ -45,6 +55,7 @@ describe 'custom fact rsyslog_simp_config' do
           { 'type' => 'imtcp', 'port' => 6514 },
           { 'type' => 'imudp', 'port' => 514 },
         ],
+        'remote_tls' => ['tls.conf'],
       )
     end
   end
@@ -65,6 +76,7 @@ describe 'custom fact rsyslog_simp_config' do
         'rule_dir'     => '/etc/rsyslog.simp.d',
         'pre_logging'  => [],
         'inputs'       => [],
+        'remote_tls'   => [],
       )
     end
   end

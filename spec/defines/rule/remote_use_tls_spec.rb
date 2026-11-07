@@ -5,12 +5,14 @@ describe 'rsyslog::rule::remote' do
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
       let(:title) { 'test_name' }
-      let(:facts) { os_facts.merge(custom_hiera: global_tls ? 'rsyslog_tls' : 'rsyslog__rule__remote') }
+      let(:facts) { os_facts.merge(custom_hiera: hiera, rsyslog_simp_config: simp_config) }
       let(:rule_file) { '10_simp_remote/test_name.conf' }
+      let(:simp_config) { { 'conf_managed' => false, 'rule_dir' => '/etc/rsyslog.simp.d', 'pre_logging' => [], 'inputs' => [], 'remote_tls' => remote_tls } }
+      let(:remote_tls) { [] }
 
-      [true, false].each do |tls|
-        context "with rsyslog::enable_tls_logging=#{tls}" do
-          let(:global_tls) { tls }
+      { true => 'rsyslog_tls', false => 'rsyslog_no_tls', nil => 'default' }.each do |tls, hiera_file|
+        context "with rsyslog::enable_tls_logging=#{tls.inspect}" do
+          let(:hiera) { hiera_file }
 
           context 'with use_tls unset' do
             let(:params) { { rule: 'test_rule', dest: ['logs.example.com'] } }
@@ -26,6 +28,19 @@ describe 'rsyslog::rule::remote' do
               it { is_expected.to contain_rsyslog__rule(rule_file).without_content(%r{StreamDriver}) }
               it { is_expected.to contain_rsyslog__rule(rule_file).with_content(%r{port="514"}) }
               it { is_expected.not_to contain_class('rsyslog::config::tls') }
+            end
+
+            context 'when the rule file already forwards over TLS' do
+              let(:remote_tls) { ['test_name.conf'] }
+
+              if tls == false
+                it { is_expected.to contain_rsyslog__rule(rule_file).without_content(%r{StreamDriver}) }
+              else
+                # Unset keeps the file's TLS state
+                it { is_expected.to contain_rsyslog__rule(rule_file).with_content(%r{StreamDriverMode="1"}) }
+                it { is_expected.to contain_rsyslog__rule(rule_file).with_content(%r{port="6514"}) }
+                it { is_expected.to contain_class('rsyslog::config::tls') }
+              end
             end
           end
 

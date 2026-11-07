@@ -14,6 +14,7 @@
 # * rule_dir:     the rule directory /etc/rsyslog.conf includes
 # * pre_logging:  the files in <rule_dir>/00_simp_pre_logging
 # * inputs:       the input(type=... port=...) listeners those files define
+# * remote_tls:   the files in <rule_dir>/10_simp_remote that forward over TLS
 #
 Facter.add('rsyslog_simp_config') do
   confine { File.exist?('/etc/rsyslog.conf') }
@@ -34,11 +35,18 @@ Facter.add('rsyslog_simp_config') do
       []
     end
 
+    remote_tls = Dir.glob(File.join(rule_dir, '10_simp_remote', '*.conf')).sort.select do |path|
+      File.read(path).match?(%r{^\s*StreamDriverPermittedPeers=})
+    rescue SystemCallError
+      false
+    end
+
     {
       'conf_managed' => conf.include?('managed by Puppet (simp/rsyslog module)'),
       'rule_dir'     => rule_dir,
       'pre_logging'  => pre_logging.map { |path| File.basename(path) },
       'inputs'       => inputs,
+      'remote_tls'   => remote_tls.map { |path| File.basename(path) },
     }
   rescue SystemCallError
     nil

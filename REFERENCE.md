@@ -198,16 +198,20 @@ Default value: `simplib::lookup('simp_options::trusted_nets', { 'default_value' 
 
 ##### <a name="-rsyslog--enable_tls_logging"></a>`enable_tls_logging`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
-Enable the TLS libraries where applicable
+Whether ``rsyslog::rule::remote`` rules that leave ``use_tls`` unset
+forward over TLS
 
-* If enabled, clients will encrypt all log data being sent to the given log
-  servers.  Also, all log servers specified to use TLS (see
-  ``rsyslog::server::tls_tcp_server``) will load the ``imtcp`` module and
-  configure it for TLS.
+* ``true`` forwards them over TLS and sets the global TLS stream driver
+  settings.
+* ``false`` forwards them in plain text.
+* undef (the default) keeps each rule's current TLS state: a rule whose
+  file already forwards over TLS keeps TLS, and a new rule forwards in
+  plain text. A run that no longer sets this parameter therefore never
+  switches forwarding from TLS to plain text.
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-rsyslog--log_servers"></a>`log_servers`
 
@@ -1367,8 +1371,7 @@ In general, the order will be:
 TLS sending requires the global DefaultNetStreamDriver,
 DefaultNetStreamDriverCAFile, DefaultNetStreamDriverCertFile, and
 DefaultNetStreamDriverKeyFile parameters (see ``rsyslog::config``). They are
-set whenever a rule uses TLS, either because ``$use_tls`` is ``true`` or
-because ``rsyslog::enable_tls_logging`` is ``true``.
+set whenever a rule uses TLS (see ``$use_tls``).
 
 ------------------------------------------------------------------------
 
@@ -1642,7 +1645,9 @@ Data type: `Optional[Boolean]`
 
 Whether this rule forwards over TLS
 
-* undef (the default) follows ``rsyslog::enable_tls_logging``.
+* undef (the default) follows ``rsyslog::enable_tls_logging``. When that
+  is also unset, the rule keeps the TLS state of its existing file, and a
+  new rule forwards in plain text.
 * ``false`` forwards in plain text, with an explicit
   ``StreamDriver="ptcp"`` so that a global TLS stream driver does not
   apply to this rule.

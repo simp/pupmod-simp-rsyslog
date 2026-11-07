@@ -49,12 +49,17 @@
   line.
 - BREAKING CHANGE: `rsyslog::server::enable_selinux` now defaults to `undef`
   instead of following the `os.selinux.enforced` fact.
+- BREAKING CHANGE: `rsyslog::enable_tls_logging` now defaults to `undef`.
+  With it and a rule's `use_tls` both unset, an `rsyslog::rule::remote` keeps
+  the TLS state of its existing file, and a new rule forwards in plain text,
+  so a run that stops setting `enable_tls_logging` no longer switches
+  forwarding from TLS to plain text. `false` still forces plain text.
 - The `rsyslog::server` firewall rule for a listener stays while the
   listener is configured and its parameter is unset.
 - `rsyslog::rule::data_source` loads the `imfile` module itself.
 - Add the `rsyslog_simp_config` fact, which reports whether
-  `/etc/rsyslog.conf` is this module's and which settings files and
-  listeners exist.
+  `/etc/rsyslog.conf` is this module's, which settings files and listeners
+  exist, and which remote rules forward over TLS.
 - Remove the systemd override for rsyslog 8.24.0 (EL7).
   `rsyslog::config::systemd_override_file` is deprecated and has no effect.
 - Add `use_tls` to `rsyslog::rule::remote`, so one rule can forward over TLS
