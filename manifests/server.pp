@@ -10,9 +10,13 @@
 # @param enable_selinux
 #   Enable the SIMP SELinux rules for RSyslog
 #
+#   * `true` turns on the `nis_enabled` SELinux boolean when SELinux is not
+#     disabled.
+#   * `false` or undef leaves the boolean alone.
+#
 class rsyslog::server (
   Boolean           $enable_firewall    = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
-  Optional[Boolean] $enable_selinux     = $facts['os']['selinux']['enforced'],
+  Optional[Boolean] $enable_selinux     = undef,
 ) {
   include 'rsyslog'
 

@@ -1,0 +1,14 @@
+---
+version: 5
+defaults:
+  data_hash: yaml_data
+  datadir: '.'
+hierarchy:
+  - name: "Extra Test Hiera"
+    path: "%{extra_hiera}.yaml"
+  - name: "Custom Test Hiera"
+    path: "%{custom_hiera}.yaml"
+  - name: "Common"
+    path: default.yaml
+  - name: "Compliance Engine"
+    lookup_key: "compliance_engine::enforcement"

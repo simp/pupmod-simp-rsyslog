@@ -13,19 +13,10 @@
 #   * Other/Miscellaneous Rules
 #   * Local Rules
 #
-# In general, individual send stream driver settings are properly supported
-# with the Rsyslog 8 EL versions available for CentOS 7 and the Rsyslog 7
-# EL versions available for CentOS 6. However, for TLS support, you must
-# also configure global Rsyslog parameters as follows:
-#
-# * TLS sending and/or receiving requires the global DefaultNetStreamDriver,
-#   DefaultNetStreamDriverCAFile, DefaultNetStreamDriverCertFile, and
-#   DefaultNetStreamDriverKeyFile parameters to be configure via
-#   ``rsyslog::config``.
-#
-# * TLS sending for Rsyslog 7 EL versions requires the global
-#   ActionSendStreamDriverMode configuration parameter to be configured via
-#   ``rsyslog::config`` **IN ADDITION TO** the ``$stream_driver_mode``.
+# TLS sending requires the global DefaultNetStreamDriver,
+# DefaultNetStreamDriverCAFile, DefaultNetStreamDriverCertFile, and
+# DefaultNetStreamDriverKeyFile parameters (see ``rsyslog::config``). They are
+# set whenever a rule uses TLS (see ``$use_tls``).
 #
 # ------------------------------------------------------------------------
 #
@@ -106,6 +97,20 @@
 # @param keep_alive_time
 # @param action_resume_interval
 # @param action_resume_retry_count
+#
+# @param use_tls
+#   Whether this rule forwards over TLS
+#
+#   * undef (the default) follows ``rsyslog::enable_tls_logging``. When that
+#     is also unset, the rule keeps the TLS state of its existing file, and a
+#     new rule forwards in plain text.
+#   * ``false`` forwards in plain text, with an explicit
+#     ``StreamDriver="ptcp"`` so that a global TLS stream driver does not
+#     apply to this rule.
+#   * ``true`` forwards over TLS even when ``rsyslog::enable_tls_logging`` is
+#     ``false``. This needs the TLS certificates, either copied by
+#     ``rsyslog::pki`` or staged at the ``rsyslog::config`` TLS paths.
+#   * Ignored when ``$dest_type`` is ``udp``, which never uses TLS.
 #
 # @param stream_driver
 #   * This is only used to set the StreamDriver directive in the forwarding
@@ -195,6 +200,9 @@
 # @see https://www.rsyslog.com/doc/v8-stable/rainerscript/index.html RainerScript Documentation
 #
 # @see https://simp.readthedocs.io/en/stable/user_guide/HOWTO/Central_Log_Collection.html
+# @param ensure
+#   `absent` removes the rule file
+#
 define rsyslog::rule::remote (
   Optional[String[1]]                   $rule                                 = undef,
   Boolean                               $stop_processing                      = false,
@@ -247,8 +255,15 @@ define rsyslog::rule::remote (
   Optional[Integer[0]]                  $queue_dequeue_time_begin             = undef,
   Optional[Integer[0]]                  $queue_dequeue_time_end               = undef,
   Optional[String[1]]                   $content                              = undef,
+  Optional[Boolean]                     $use_tls                              = undef,
+  Enum['present', 'absent']             $ensure                               = 'present',
 ) {
   include 'rsyslog'
+
+  # Rsyslog will not parse a failover action unless a rule precedes it.
+  if $ensure == 'present' {
+    include 'rsyslog::config::failover_hack'
+  }
 
   if $max_error_messages =~ NotUndef {
     # use_strict_setting => false: warn without failing compilation under
@@ -292,7 +307,19 @@ define rsyslog::rule::remote (
       $_queue_spool_directory = $rsyslog::queue_spool_directory
     } # FIXME: This appears to be unused
 
-    $_use_tls = ( $rsyslog::enable_tls_logging and $dest_type != 'udp' )
+    # With neither set, keep the TLS state of the rule's existing file, so a
+    # run that no longer sets enable_tls_logging can't switch it to plain text
+    $_file_name = regsubst("${_safe_name}.conf", 'hostname', 'host_name', 'G')
+    $_tls_now = $_file_name in pick($facts.dig('rsyslog_simp_config', 'remote_tls'), [])
+
+    $_tls_requested = pick($use_tls, $rsyslog::enable_tls_logging, $_tls_now)
+
+    $_use_tls = ( $_tls_requested and $dest_type != 'udp' )
+    $_force_plaintext = ( $use_tls == false and $dest_type != 'udp' )
+
+    if $_use_tls and $ensure == 'present' {
+      include 'rsyslog::config::tls'
+    }
 
     if empty($failover_log_servers) {
       $_failover_servers = $rsyslog::failover_log_servers
@@ -418,10 +445,12 @@ define rsyslog::rule::remote (
       'queue_dequeue_time_end'               => $queue_dequeue_time_end,
       'safe_name'                            => $_safe_name,
       'use_tls'                              => $_use_tls,
+      'force_plaintext'                      => $_force_plaintext,
     )
   }
 
   rsyslog::rule { "10_simp_remote/${_safe_name}.conf":
+    ensure  => $ensure,
     content => $_content,
   }
 }

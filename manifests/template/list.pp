@@ -27,14 +27,19 @@
 # @param content
 #   The rsyslog list content that you wish to add to the system, as a Hash
 #
+# @param ensure
+#   `absent` removes the rule file
+#
 define rsyslog::template::list (
-  Hash[String,String,1] $content
+  Hash[String,String,1]     $content,
+  Enum['present', 'absent'] $ensure = 'present',
 ) {
   $_safe_name = regsubst($name,'/','__')
 
   $_content = join(map($content) |$key, $value| { "${key}(${value})" }, "\n  ")
 
   rsyslog::rule { "05_simp_templates/${_safe_name}.conf":
+    ensure  => $ensure,
     # lint:ignore:variables_not_enclosed
     content => @("EOM")
       template(name="${name}" type="list") {

@@ -115,12 +115,66 @@ describe 'rsyslog::server' do
         end
       end
 
+      context 'rsyslog::server class with firewall enabled and the listener parameters unset' do
+        let(:params) { { enable_firewall: true } }
+
+        context 'with listeners configured by an earlier run' do
+          let(:facts) do
+            mock_selinux_false_facts(os_facts.dup).merge(
+              rsyslog_simp_config: {
+                'conf_managed' => true,
+                'rule_dir'     => '/etc/rsyslog.simp.d',
+                'pre_logging'  => ['40_imptcp.conf', '41_imtcp.conf', '42_imudp.conf'],
+                'inputs'       => [
+                  { 'type' => 'imptcp', 'port' => 514 },
+                  { 'type' => 'imtcp', 'port' => 6514 },
+                  { 'type' => 'imudp', 'port' => 514 },
+                ],
+              },
+            )
+          end
+
+          it 'keeps the ports of the configured listeners open' do
+            is_expected.to create_iptables__listen__tcp_stateful('syslog_tls_tcp').with_dports(6514)
+            is_expected.to create_iptables__listen__udp('syslog_udp').with_dports(514)
+          end
+
+          # 10.x never opened the TLS listener's plain imptcp companion
+          it { is_expected.not_to create_iptables__listen__tcp_stateful('syslog_tcp') }
+
+          context 'and a listener turned off' do
+            let(:pre_condition) { 'class { "rsyslog": tls_tcp_server => false }' }
+
+            it { is_expected.not_to create_iptables__listen__tcp_stateful('syslog_tls_tcp') }
+            it { is_expected.to create_iptables__listen__udp('syslog_udp') }
+          end
+        end
+
+        context 'without configured listeners' do
+          it { is_expected.not_to create_iptables__listen__tcp_stateful('syslog_tls_tcp') }
+          it { is_expected.not_to create_iptables__listen__udp('syslog_udp') }
+        end
+      end
+
+      context 'rsyslog::server class with SELinux enforcing and enable_selinux unset' do
+        let(:facts) do
+          facts = os_facts.dup
+          facts = mock_selinux_enforcing_facts(facts)
+          facts
+        end
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.not_to contain_class('rsyslog::server::selinux') }
+        it { is_expected.not_to contain_selboolean('nis_enabled') }
+      end
+
       context 'rsyslog::server class with SELinux enabled' do
         let(:facts) do
           facts = os_facts.dup
           facts = mock_selinux_enforcing_facts(facts)
           facts
         end
+        let(:params) { { enable_selinux: true } }
 
         it { is_expected.to compile.with_all_deps }
         it_behaves_like 'a structured module'

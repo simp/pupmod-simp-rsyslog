@@ -1,5 +1,8 @@
 # @summary Installs the packages necessary for use of RSyslog
 #
+# The TLS package is installed by `rsyslog::config::tls`, only when TLS is
+# used.
+#
 # @param ensure
 #   How to install the packages
 #
@@ -25,13 +28,6 @@ class rsyslog::install (
     package { "${rsyslog::package_name}.i386":
       ensure => 'absent',
       before => Package[$_full_rsyslog_package]
-    }
-  }
-
-  if ( $rsyslog::enable_tls_logging or $rsyslog::tls_tcp_server ) {
-    package { $rsyslog::tls_package_name:
-      ensure  => $ensure,
-      require => Package[$_full_rsyslog_package]
     }
   }
 }
