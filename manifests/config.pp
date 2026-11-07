@@ -867,7 +867,8 @@ class rsyslog::config (
       require => Rsyslog::Config::Block['40_imptcp'],
     }
   }
-  elsif $_tls_tcp_server == false {
+  elsif $_tls_tcp_server == false or ($_tls_tcp_server =~ Undef and $_tcp_server == false) {
+    # With tls_tcp_server unset, 40_imptcp only holds tcp_server's listener
     rsyslog::config::statement { '40_imptcp':
       ensure => 'absent',
       header => 'module(load="imptcp"',

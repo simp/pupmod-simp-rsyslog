@@ -416,6 +416,29 @@ describe 'rsyslog' do
         end
       end
 
+      context 'rsyslog server with TCP disabled, TLS unset and a TLS listener from an earlier run' do
+        let(:params) { { tcp_server: false } }
+        let(:facts) do
+          super().merge(
+            rsyslog_simp_config: {
+              'conf_managed' => false,
+              'rule_dir'     => '/etc/rsyslog.simp.d',
+              'pre_logging'  => ['40_imptcp.conf', '41_imtcp.conf'],
+              'inputs'       => [{ 'type' => 'imptcp', 'port' => 514 }, { 'type' => 'imtcp', 'port' => 6514 }],
+            },
+          )
+        end
+
+        it 'removes the plain listener' do
+          is_expected.to contain_file("#{pre_logging}/40_imptcp.conf").with_ensure('absent')
+        end
+
+        it 'leaves the TLS listener alone' do
+          is_expected.not_to contain_file("#{pre_logging}/41_imtcp.conf")
+          is_expected.not_to contain_file_line('rsyslog 41_imtcp StreamDriver.Mode')
+        end
+      end
+
       context 'rsyslog server with UDP' do
         let(:params) { { udp_server: true } }
 
