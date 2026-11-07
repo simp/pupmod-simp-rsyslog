@@ -70,6 +70,12 @@ module), `false` removes it, and `undef` leaves it alone. With
 `rsyslog::server`, a listener's firewall rule stays while the listener is
 configured and its parameter is unset.
 
+`rsyslog::enable_tls_logging` now defaults to `undef`. An
+`rsyslog::rule::remote` that sets neither it nor `use_tls` keeps the TLS state
+of its existing rule file, and a new rule forwards in plain text. A run that no
+longer sets `enable_tls_logging` therefore doesn't switch forwarding from TLS to
+plain text; set it to `false` (or `use_tls => false`) to do that.
+
 The UDP listener now binds to `rsyslog::udp_listen_address` (default
 `127.0.0.1`), which 10.x ignored. To receive UDP syslog from other hosts, set
 it, for example to `0.0.0.0`.
@@ -448,7 +454,9 @@ rsyslog::rule::remote { 'upstream':
 ### Mixed TLS and plain-text forwarding
 
 `rsyslog::enable_tls_logging` sets whether remote rules use TLS by default.
-Set `use_tls` on an `rsyslog::rule::remote` to override it for that rule:
+When it's unset, each rule keeps the TLS state of its existing file, and a new
+rule forwards in plain text. Set `use_tls` on an `rsyslog::rule::remote` to
+override it for that rule:
 
 **Puppet Code:**
 ```puppet

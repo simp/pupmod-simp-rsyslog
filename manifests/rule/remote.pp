@@ -16,8 +16,7 @@
 # TLS sending requires the global DefaultNetStreamDriver,
 # DefaultNetStreamDriverCAFile, DefaultNetStreamDriverCertFile, and
 # DefaultNetStreamDriverKeyFile parameters (see ``rsyslog::config``). They are
-# set whenever a rule uses TLS, either because ``$use_tls`` is ``true`` or
-# because ``rsyslog::enable_tls_logging`` is ``true``.
+# set whenever a rule uses TLS (see ``$use_tls``).
 #
 # ------------------------------------------------------------------------
 #
@@ -102,7 +101,9 @@
 # @param use_tls
 #   Whether this rule forwards over TLS
 #
-#   * undef (the default) follows ``rsyslog::enable_tls_logging``.
+#   * undef (the default) follows ``rsyslog::enable_tls_logging``. When that
+#     is also unset, the rule keeps the TLS state of its existing file, and a
+#     new rule forwards in plain text.
 #   * ``false`` forwards in plain text, with an explicit
 #     ``StreamDriver="ptcp"`` so that a global TLS stream driver does not
 #     apply to this rule.
@@ -306,10 +307,12 @@ define rsyslog::rule::remote (
       $_queue_spool_directory = $rsyslog::queue_spool_directory
     } # FIXME: This appears to be unused
 
-    $_tls_requested = $use_tls ? {
-      undef   => $rsyslog::enable_tls_logging,
-      default => $use_tls,
-    }
+    # With neither set, keep the TLS state of the rule's existing file, so a
+    # run that no longer sets enable_tls_logging can't switch it to plain text
+    $_file_name = regsubst("${_safe_name}.conf", 'hostname', 'host_name', 'G')
+    $_tls_now = $_file_name in pick($facts.dig('rsyslog_simp_config', 'remote_tls'), [])
+
+    $_tls_requested = pick($use_tls, $rsyslog::enable_tls_logging, $_tls_now)
 
     $_use_tls = ( $_tls_requested and $dest_type != 'udp' )
     $_force_plaintext = ( $use_tls == false and $dest_type != 'udp' )

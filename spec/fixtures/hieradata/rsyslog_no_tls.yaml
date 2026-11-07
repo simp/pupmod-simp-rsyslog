@@ -1,0 +1,2 @@
+---
+rsyslog::enable_tls_logging: false

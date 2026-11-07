@@ -51,12 +51,16 @@
 #     to allow connections from within the given subnets.
 #
 # @param enable_tls_logging
-#   Enable the TLS libraries where applicable
+#   Whether ``rsyslog::rule::remote`` rules that leave ``use_tls`` unset
+#   forward over TLS
 #
-#   * If enabled, clients will encrypt all log data being sent to the given log
-#     servers.  Also, all log servers specified to use TLS (see
-#     ``rsyslog::server::tls_tcp_server``) will load the ``imtcp`` module and
-#     configure it for TLS.
+#   * ``true`` forwards them over TLS and sets the global TLS stream driver
+#     settings.
+#   * ``false`` forwards them in plain text.
+#   * undef (the default) keeps each rule's current TLS state: a rule whose
+#     file already forwards over TLS keeps TLS, and a new rule forwards in
+#     plain text. A run that no longer sets this parameter therefore never
+#     switches forwarding from TLS to plain text.
 #
 # @param log_servers
 #   A list of primary Rsyslog servers
@@ -176,7 +180,7 @@ class rsyslog (
   Optional[Boolean]                 $read_journald           = undef,
   String                            $tls_package_name        = "${package_name}-gnutls",
   Simplib::Netlist                  $trusted_nets            = simplib::lookup('simp_options::trusted_nets', { 'default_value'                  => ['127.0.0.1/32'] }),
-  Boolean                           $enable_tls_logging      = false,
+  Optional[Boolean]                 $enable_tls_logging      = undef,
   Simplib::Netlist                  $log_servers             = simplib::lookup('simp_options::syslog::log_servers', { 'default_value'          => [] }),
   Simplib::Netlist                  $failover_log_servers    = simplib::lookup('simp_options::syslog::failover_log_servers', { 'default_value' => [] }),
   Stdlib::Absolutepath              $queue_spool_directory   = '/var/spool/rsyslog',
