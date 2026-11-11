@@ -1,6 +1,6 @@
 {
   "name": "simp-rsyslog",
-  "version": "10.1.1",
+  "version": "10.2.0",
   "author": "SIMP Team",
   "summary": "A puppet module to support RSyslog version 8.",
   "license": "Apache-2.0",
@@ -16,7 +16,7 @@
   "dependencies": [
     {
       "name": "puppet/systemd",
-      "version_requirement": ">= 4.0.2 < 11.0.0"
+      "version_requirement": ">= 4.0.2 < 12.0.0"
     },
     {
       "name": "puppetlabs/stdlib",
