@@ -142,6 +142,21 @@ describe 'rsyslog::server' do
           # 10.x never opened the TLS listener's plain imptcp companion
           it { is_expected.not_to create_iptables__listen__tcp_stateful('syslog_tcp') }
 
+          context "and tcp_server's marker in 40_imptcp.conf" do
+            let(:facts) do
+              super().merge(rsyslog_simp_config: super()[:rsyslog_simp_config].merge('imptcp_tcp_server' => true))
+            end
+
+            it { is_expected.to create_iptables__listen__tcp_stateful('syslog_tcp').with_dports(514) }
+            it { is_expected.to create_iptables__listen__tcp_stateful('syslog_tls_tcp').with_dports(6514) }
+
+            context 'and tcp_server turned off' do
+              let(:pre_condition) { 'class { "rsyslog": tcp_server => false }' }
+
+              it { is_expected.not_to create_iptables__listen__tcp_stateful('syslog_tcp') }
+            end
+          end
+
           context 'and a listener turned off' do
             let(:pre_condition) { 'class { "rsyslog": tls_tcp_server => false }' }
 

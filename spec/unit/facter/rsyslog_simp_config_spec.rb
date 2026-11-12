@@ -47,16 +47,25 @@ describe 'custom fact rsyslog_simp_config' do
 
     it do
       is_expected.to eq(
-        'conf_managed' => true,
-        'rule_dir'     => '/etc/rsyslog.simp.d',
-        'pre_logging'  => ['40_imptcp.conf', '41_imtcp.conf', '42_imudp.conf', 'global.conf'],
-        'inputs'       => [
+        'conf_managed'      => true,
+        'rule_dir'          => '/etc/rsyslog.simp.d',
+        'pre_logging'       => ['40_imptcp.conf', '41_imtcp.conf', '42_imudp.conf', 'global.conf'],
+        'inputs'            => [
           { 'type' => 'imptcp', 'port' => 514 },
           { 'type' => 'imtcp', 'port' => 6514 },
           { 'type' => 'imudp', 'port' => 514 },
         ],
-        'remote_tls' => ['tls.conf'],
+        'imptcp_tcp_server' => false,
+        'remote_tls'        => ['tls.conf'],
       )
+    end
+
+    context "with tcp_server's marker in 40_imptcp.conf" do
+      let(:files) do
+        { '40_imptcp.conf' => %(module(load="imptcp"\n)\ninput(type="imptcp" port="514")\n# rsyslog::tcp_server\n) }
+      end
+
+      it { expect(fact['imptcp_tcp_server']).to be true }
     end
   end
 
@@ -72,11 +81,12 @@ describe 'custom fact rsyslog_simp_config' do
 
     it do
       is_expected.to eq(
-        'conf_managed' => false,
-        'rule_dir'     => '/etc/rsyslog.simp.d',
-        'pre_logging'  => [],
-        'inputs'       => [],
-        'remote_tls'   => [],
+        'conf_managed'      => false,
+        'rule_dir'          => '/etc/rsyslog.simp.d',
+        'pre_logging'       => [],
+        'inputs'            => [],
+        'imptcp_tcp_server' => false,
+        'remote_tls'        => [],
       )
     end
   end

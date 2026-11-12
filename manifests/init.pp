@@ -87,6 +87,11 @@
 #   Make this host listen for ``TCP`` connections
 #
 #   * `false` removes the listener, and undef leaves it alone.
+#   * Next to a ``TLS`` listener, the plain listener is written as `imptcp` in
+#     `00_simp_pre_logging/40_imptcp.conf`, with a `# rsyslog::tcp_server`
+#     line. The line tells it apart from the plain listener that
+#     `$tls_tcp_server` always adds, so that `rsyslog::server` keeps its
+#     firewall rule while this is unset.
 #
 #   * Ideally, all connections would be ``TLS`` enabled via ``$tls_tcp_server``
 #     instead.
