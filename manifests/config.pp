@@ -871,6 +871,19 @@ class rsyslog::config (
       match   => '^\s*input\(type="imptcp"',
       require => Rsyslog::Config::Block['40_imptcp'],
     }
+
+    # Marks the input as tcp_server's listener, which rsyslog::server::firewall
+    # keeps open while tcp_server is unset. Without it, the input is only the
+    # TLS listener's plain companion, which was never opened.
+    if $_tcp_server =~ Boolean {
+      rsyslog::config::line { '40_imptcp tcp_server':
+        ensure  => bool2str($_tcp_server, 'present', 'absent'),
+        path    => "${_pre_logging}/40_imptcp.conf",
+        line    => '# rsyslog::tcp_server',
+        match   => '^\s*#\s*rsyslog::tcp_server\s*$',
+        require => Rsyslog::Config::Block['40_imptcp'],
+      }
+    }
   }
   elsif $_tls_tcp_server == false or ($_tls_tcp_server =~ Undef and $_tcp_server == false) {
     # With tls_tcp_server unset, 40_imptcp only holds tcp_server's listener

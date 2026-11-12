@@ -10,11 +10,13 @@
 #
 # Only reads files.
 #
-# * conf_managed: /etc/rsyslog.conf was written by this module
-# * rule_dir:     the rule directory /etc/rsyslog.conf includes
-# * pre_logging:  the files in <rule_dir>/00_simp_pre_logging
-# * inputs:       the input(type=... port=...) listeners those files define
-# * remote_tls:   the files in <rule_dir>/10_simp_remote that forward over TLS
+# * conf_managed:      /etc/rsyslog.conf was written by this module
+# * rule_dir:          the rule directory /etc/rsyslog.conf includes
+# * pre_logging:       the files in <rule_dir>/00_simp_pre_logging
+# * inputs:            the input(type=... port=...) listeners those files define
+# * imptcp_tcp_server: 40_imptcp.conf holds rsyslog::tcp_server's listener,
+#                      not only the TLS listener's plain companion
+# * remote_tls:        the files in <rule_dir>/10_simp_remote that forward over TLS
 #
 Facter.add('rsyslog_simp_config') do
   confine { File.exist?('/etc/rsyslog.conf') }
@@ -35,6 +37,14 @@ Facter.add('rsyslog_simp_config') do
       []
     end
 
+    imptcp = pre_logging.find { |path| File.basename(path) == '40_imptcp.conf' }
+    imptcp_tcp_server =
+      begin
+        !imptcp.nil? && File.read(imptcp).match?(%r{^\s*#\s*rsyslog::tcp_server\s*$})
+      rescue SystemCallError
+        false
+      end
+
     remote_tls = Dir.glob(File.join(rule_dir, '10_simp_remote', '*.conf')).sort.select do |path|
       File.read(path).match?(%r{^\s*StreamDriverPermittedPeers=})
     rescue SystemCallError
@@ -42,11 +52,12 @@ Facter.add('rsyslog_simp_config') do
     end
 
     {
-      'conf_managed' => conf.include?('managed by Puppet (simp/rsyslog module)'),
-      'rule_dir'     => rule_dir,
-      'pre_logging'  => pre_logging.map { |path| File.basename(path) },
-      'inputs'       => inputs,
-      'remote_tls'   => remote_tls.map { |path| File.basename(path) },
+      'conf_managed'      => conf.include?('managed by Puppet (simp/rsyslog module)'),
+      'rule_dir'          => rule_dir,
+      'pre_logging'       => pre_logging.map { |path| File.basename(path) },
+      'inputs'            => inputs,
+      'imptcp_tcp_server' => imptcp_tcp_server,
+      'remote_tls'        => remote_tls.map { |path| File.basename(path) },
     }
   rescue SystemCallError
     nil

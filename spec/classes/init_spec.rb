@@ -408,6 +408,31 @@ describe 'rsyslog' do
         it { is_expected.not_to contain_class('rsyslog::config::tls') }
       end
 
+      context 'rsyslog server with TLS enabled and tcp_server unset' do
+        let(:params) { { tls_tcp_server: true } }
+
+        # The plain imptcp listener is only the TLS listener's companion
+        it { is_expected.not_to contain_file_line('rsyslog 40_imptcp tcp_server') }
+      end
+
+      context 'rsyslog server with TLS and TCP enabled' do
+        let(:params) { { tls_tcp_server: true, tcp_server: true } }
+
+        it 'marks the plain imptcp listener as tcp_server\'s' do
+          is_expected.to contain_file_line('rsyslog 40_imptcp tcp_server').with(
+            ensure: 'present',
+            path: "#{pre_logging}/40_imptcp.conf",
+            line: '# rsyslog::tcp_server',
+          )
+        end
+      end
+
+      context 'rsyslog server with TLS enabled and TCP disabled' do
+        let(:params) { { tls_tcp_server: true, tcp_server: false } }
+
+        it { is_expected.to contain_file_line('rsyslog 40_imptcp tcp_server').with_ensure('absent') }
+      end
+
       context 'rsyslog server with TLS explicitly disabled and TCP enabled' do
         let(:params) { { tls_tcp_server: false, tcp_server: true } }
 
@@ -443,6 +468,7 @@ describe 'rsyslog' do
           let(:inputs) { [{ 'type' => 'imtcp', 'port' => 6514 }] }
 
           it { is_expected.to contain_file_line('rsyslog 40_imptcp input').with_line('input(type="imptcp" port="514")') }
+          it { is_expected.to contain_file_line('rsyslog 40_imptcp tcp_server').with_ensure('present') }
           it { is_expected.not_to contain_file_line('rsyslog 41_imtcp input') }
           it { is_expected.not_to contain_file_line('rsyslog 41_imtcp StreamDriver.Mode') }
           it { is_expected.not_to contain_file_line('rsyslog 41_imtcp PermittedPeer') }
