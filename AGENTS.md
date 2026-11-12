@@ -101,8 +101,8 @@ Class['rsyslog::install'] -> Class['rsyslog::config'] ~> Class['rsyslog::service
   `config::param`, `config::statement` and `config::line` defines.
 - **`rsyslog::service` (`manifests/service.pp`)** — `assert_private()`
   (`service.pp`). Declares the service only when `rsyslog::service_ensure`
-  or `rsyslog::service_enable` (or the deprecated `rsyslog::service::enable`)
-  is set. Otherwise, with `rsyslog::restart_on_change`, a refresh-only
+  or `rsyslog::service_enable` (or the deprecated `rsyslog::service::enable`,
+  which takes precedence while it is set) is set. Otherwise, with `rsyslog::restart_on_change`, a refresh-only
   `systemctl try-restart` exec. Every configuration resource notifies this
   class, which is always contained.
 - **`rsyslog::config::logrotate` (`manifests/config/logrotate.pp`)** —

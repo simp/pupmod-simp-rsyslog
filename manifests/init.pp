@@ -22,6 +22,8 @@
 #     managed. Configuration changes then reach the running daemon only after
 #     a manual `systemctl restart rsyslog`, unless `$restart_on_change` is
 #     set.
+#   * The deprecated `rsyslog::service::enable` takes precedence over this
+#     and `$service_enable` while it is set.
 #
 # @param service_enable
 #   The `enable` value for the rsyslog service

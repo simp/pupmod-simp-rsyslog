@@ -55,6 +55,7 @@
 
 * `rsyslog::existing_pre_logging`: The files that exist in `00_simp_pre_logging` on the node
 * `rsyslog::format_value`: Render a parameter value the way rsyslog expects it
+* `rsyslog::removals_only`: Whether a Hash of parameters only removes parameters
 
 ### Data types
 
@@ -136,6 +137,8 @@ The `ensure` value for the rsyslog service
   managed. Configuration changes then reach the running daemon only after
   a manual `systemctl restart rsyslog`, unless `$restart_on_change` is
   set.
+* The deprecated `rsyslog::service::enable` takes precedence over this
+  and `$service_enable` while it is set.
 
 Default value: `undef`
 

@@ -308,9 +308,12 @@ define rsyslog::rule::remote (
     } # FIXME: This appears to be unused
 
     # With neither set, keep the TLS state of the rule's existing file, so a
-    # run that no longer sets enable_tls_logging can't switch it to plain text
+    # run that no longer sets enable_tls_logging can't switch it to plain text.
+    # The pre-rename name is checked too, which an upgraded node still has on
+    # disk.
     $_file_name = regsubst("${_safe_name}.conf", 'hostname', 'host_name', 'G')
-    $_tls_now = $_file_name in pick($facts.dig('rsyslog_simp_config', 'remote_tls'), [])
+    $_tls_files = pick($facts.dig('rsyslog_simp_config', 'remote_tls'), [])
+    $_tls_now = ($_file_name in $_tls_files) or ("${_safe_name}.conf" in $_tls_files)
 
     $_tls_requested = pick($use_tls, $rsyslog::enable_tls_logging, $_tls_now)
 
