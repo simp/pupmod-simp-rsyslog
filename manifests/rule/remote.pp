@@ -260,10 +260,19 @@ define rsyslog::rule::remote (
 ) {
   include 'rsyslog'
 
-  # Rsyslog will not parse a failover action unless a rule precedes it.
-  if $ensure == 'present' {
-    include 'rsyslog::config::failover_hack'
+  $_safe_name = regsubst($name,'/','__')
+
+  # Removing a rule needs only its name
+  if $ensure == 'absent' {
+    rsyslog::rule { "10_simp_remote/${_safe_name}.conf":
+      ensure => 'absent',
+    }
+
+    return()
   }
+
+  # Rsyslog will not parse a failover action unless a rule precedes it.
+  include 'rsyslog::config::failover_hack'
 
   if $max_error_messages =~ NotUndef {
     # use_strict_setting => false: warn without failing compilation under
@@ -273,8 +282,6 @@ define rsyslog::rule::remote (
   }
 
   $_notify_msg = 'TLS is being used and stream_driver_permitted_peers is undefined. In this case, rsyslog::remote::rule uses the name supplied in the dest and/or failover_log_server field for the action. If IP Addresses are being used, this will probably not match the CN or fingerprint of the certificate being presented from the log server and the connection will be denied.  The StreamDriverPermittedPeers directive was defaulted to "*.${facts["domain"]}".  The rule being defined should be reviewed to ensure this is valid. It is recommended to use FQDN in the dest and failover_log_server parameters if TLS is being used or specifically set the stream_driver_permitted_peers parameter' # lint:ignore:single_quote_string_with_variables
-
-  $_safe_name = regsubst($name,'/','__')
 
   unless ($rule or $content) {
     fail('You must specify "$rule" if you are not specifying "$content"')
@@ -311,8 +318,8 @@ define rsyslog::rule::remote (
     # run that no longer sets enable_tls_logging can't switch it to plain text.
     # The pre-rename name is checked too, which an upgraded node still has on
     # disk.
-    $_file_name = regsubst("${_safe_name}.conf", 'hostname', 'host_name', 'G')
-    $_tls_files = pick($facts.dig('rsyslog_simp_config', 'remote_tls'), [])
+    $_file_name = rsyslog::rule_file_name("${_safe_name}.conf")
+    $_tls_files = pick(rsyslog::existing_config()['remote_tls'], [])
     $_tls_now = ($_file_name in $_tls_files) or ("${_safe_name}.conf" in $_tls_files)
 
     $_tls_requested = pick($use_tls, $rsyslog::enable_tls_logging, $_tls_now)
@@ -320,7 +327,7 @@ define rsyslog::rule::remote (
     $_use_tls = ( $_tls_requested and $dest_type != 'udp' )
     $_force_plaintext = ( $use_tls == false and $dest_type != 'udp' )
 
-    if $_use_tls and $ensure == 'present' {
+    if $_use_tls {
       include 'rsyslog::config::tls'
     }
 
@@ -453,7 +460,6 @@ define rsyslog::rule::remote (
   }
 
   rsyslog::rule { "10_simp_remote/${_safe_name}.conf":
-    ensure  => $ensure,
     content => $_content,
   }
 }

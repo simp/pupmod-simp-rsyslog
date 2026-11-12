@@ -11,7 +11,7 @@
 - BREAKING CHANGE: `/etc/rsyslog.simp.d` and its subdirectories are only
   purged when the new `rsyslog::config::purge_rule_dir` is `true`.
   `rsyslog::rule`, its wrappers and the template defines accept
-  `ensure => absent` to remove a rule.
+  `ensure => absent` to remove a rule, which needs only the rule's name.
 - BREAKING CHANGE: The service is only managed when the new
   `rsyslog::service_ensure` or `rsyslog::service_enable` is set. The new
   `rsyslog::restart_on_change` restarts a running rsyslog after a
@@ -58,6 +58,10 @@
 - The `rsyslog::server` firewall rule for a listener stays while the
   listener is configured and its parameter is unset.
 - `rsyslog::rule::data_source` loads the `imfile` module itself.
+- `rsyslog::config::extra_global_params` fails compilation for a key that a
+  parameter of `rsyslog::config` sets, such as `preserveFQDN`, which rsyslog
+  would reject as a second value.
+- Fix `rsyslog::rule::drop`, which wrote a rule that rsyslog could not parse.
 - Add the `rsyslog_simp_config` fact, which reports whether
   `/etc/rsyslog.conf` is this module's, which settings files and listeners
   exist, and which remote rules forward over TLS.
@@ -68,7 +72,6 @@
 - Ship the `simp:defaults` Compliance Engine profile, which restores the 10.x
   defaults, including the replaced `/etc/rsyslog.conf`, the purged rule
   directory and service management.
-- Allow `simp/iptables` 9.x.
 
 * Wed Nov 11 2026 Steven Pritchard <steve@sicura.us> - 10.2.0
 - Support puppet/systemd 11

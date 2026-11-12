@@ -53,9 +53,11 @@
 
 #### Private Functions
 
+* `rsyslog::existing_config`: The `rsyslog_simp_config` fact, when it describes `rsyslog::rule_dir`
 * `rsyslog::existing_pre_logging`: The files that exist in `00_simp_pre_logging` on the node
 * `rsyslog::format_value`: Render a parameter value the way rsyslog expects it
 * `rsyslog::removals_only`: Whether a Hash of parameters only removes parameters
+* `rsyslog::rule_file_name`: The path, relative to `rsyslog::rule_dir`, that a rule is written to
 
 ### Data types
 
@@ -94,7 +96,6 @@ rsyslog::rules:
     content: "if prifilt('*.info') then stop"
   'some_path/97_old_rule.conf':
     ensure: absent
-    content: ''
 ```
 
 #### Parameters
@@ -506,9 +507,13 @@ The filename that you will be dropping into place
 
 ##### <a name="-rsyslog--rule--content"></a>`content`
 
-Data type: `String`
+Data type: `Optional[String]`
 
 The **exact content** of the rule to place in the target file
+
+* Required unless `$ensure` is `absent`.
+
+Default value: `undef`
 
 ##### <a name="-rsyslog--rule--ensure"></a>`ensure`
 
@@ -541,6 +546,8 @@ These rules first in priority. In general, the order will be:
   * Remote Rules
   * Other/Miscellaneous Rules
   * Local Rules
+
+  * Required unless `$ensure` is `absent`.
 
 * **See also**
   * https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system_administrators_guide/ch-viewing_and_managing_log_files#s1-basic_configuration_of_rsyslog.html
@@ -578,15 +585,21 @@ The filename that you will be dropping into place
 
 ##### <a name="-rsyslog--rule--console--rule"></a>`rule`
 
-Data type: `String`
+Data type: `Optional[String]`
 
 The Rsyslog ``EXPRESSION`` to filter on
 
+* Required unless `$ensure` is `absent`.
+
+Default value: `undef`
+
 ##### <a name="-rsyslog--rule--console--users"></a>`users`
 
-Data type: `Array[String]`
+Data type: `Optional[Array[String]]`
 
 Users to which to send the console messages
+
+Default value: `undef`
 
 ##### <a name="-rsyslog--rule--console--ensure"></a>`ensure`
 
@@ -651,9 +664,13 @@ The filename that you will be dropping into place
 
 ##### <a name="-rsyslog--rule--data_source--rule"></a>`rule`
 
-Data type: `String`
+Data type: `Optional[String]`
 
 The Rsyslog ``EXPRESSION`` to filter on
+
+* Required unless `$ensure` is `absent`.
+
+Default value: `undef`
 
 ##### <a name="-rsyslog--rule--data_source--ensure"></a>`ensure`
 
@@ -710,9 +727,13 @@ The filename that you will be dropping into place
 
 ##### <a name="-rsyslog--rule--drop--rule"></a>`rule`
 
-Data type: `String`
+Data type: `Optional[String]`
 
 The Rsyslog ``EXPRESSION`` to filter on
+
+* Required unless `$ensure` is `absent`.
+
+Default value: `undef`
 
 ##### <a name="-rsyslog--rule--drop--ensure"></a>`ensure`
 
@@ -1349,9 +1370,13 @@ The filename that you will be dropping into place
 
 ##### <a name="-rsyslog--rule--other--rule"></a>`rule`
 
-Data type: `String`
+Data type: `Optional[String]`
 
 The Rsyslog ``EXPRESSION`` to filter on
+
+* Required unless `$ensure` is `absent`.
+
+Default value: `undef`
 
 ##### <a name="-rsyslog--rule--other--ensure"></a>`ensure`
 
@@ -2019,9 +2044,13 @@ The literal name (not path) of the ``file`` that will be written
 
 ##### <a name="-rsyslog--template--list--content"></a>`content`
 
-Data type: `Hash[String,String,1]`
+Data type: `Optional[Hash[String,String,1]]`
 
 The rsyslog list content that you wish to add to the system, as a Hash
+
+* Required unless `$ensure` is `absent`.
+
+Default value: `undef`
 
 ##### <a name="-rsyslog--template--list--ensure"></a>`ensure`
 
@@ -2066,11 +2095,14 @@ The literal name of the ``file`` (not the full path) that will be used
 
 ##### <a name="-rsyslog--template--plugin--plugin"></a>`plugin`
 
-Data type: `String`
+Data type: `Optional[String]`
 
 The rsyslog plugin content that you wish to add to the system
 
+* Required unless `$ensure` is `absent`.
 * This is provided, without formatting, directly into the target file
+
+Default value: `undef`
 
 ##### <a name="-rsyslog--template--plugin--ensure"></a>`ensure`
 
@@ -2117,11 +2149,14 @@ The literal name of the ``file`` (not file path) that will be used
 
 ##### <a name="-rsyslog--template--string--string"></a>`string`
 
-Data type: `String`
+Data type: `Optional[String]`
 
 The rsyslog template string that you wish to add to the system
 
+* Required unless `$ensure` is `absent`.
 * This is fed, without formatting, directly into the target file
+
+Default value: `undef`
 
 ##### <a name="-rsyslog--template--string--ensure"></a>`ensure`
 
@@ -2170,11 +2205,14 @@ The literal name of the ``file`` (not a path) that will be used
 
 ##### <a name="-rsyslog--template--subtree--subtree"></a>`subtree`
 
-Data type: `String`
+Data type: `Optional[String]`
 
 The rsyslog subtree content that you wish to add to the system
 
+* Required unless `$ensure` is `absent`.
 * This is fed, without formatting, directly into the subtree parameter
+
+Default value: `undef`
 
 ##### <a name="-rsyslog--template--subtree--variables"></a>`variables`
 

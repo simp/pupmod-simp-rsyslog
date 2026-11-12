@@ -21,6 +21,7 @@
 # @param subtree
 #   The rsyslog subtree content that you wish to add to the system
 #
+#   * Required unless `$ensure` is `absent`.
 #   * This is fed, without formatting, directly into the subtree parameter
 #
 # @param variables
@@ -30,22 +31,32 @@
 #   `absent` removes the rule file
 #
 define rsyslog::template::subtree (
-  String                    $subtree,
+  Optional[String]          $subtree   = undef,
   Array[String]             $variables = [],
-  Enum['present', 'absent'] $ensure = 'present',
+  Enum['present', 'absent'] $ensure    = 'present',
 ) {
   $_safe_name = regsubst($name,'/','__')
 
-  $_variables = join($variables,"\n")
+  if $ensure == 'absent' {
+    rsyslog::rule { "05_simp_templates/${_safe_name}.conf":
+      ensure => 'absent',
+    }
+  }
+  else {
+    if $subtree =~ Undef {
+      fail('$subtree is required unless $ensure is absent')
+    }
 
-  rsyslog::rule { "05_simp_templates/${_safe_name}.conf":
-    ensure  => $ensure,
-    # lint:ignore:variables_not_enclosed
-    content => @("EOM")
-      $_variables
+    $_variables = join($variables,"\n")
 
-      template(name="${name}" type="subtree" subtree="${subtree}")
-      |EOM
-    # lint:endignore
+    rsyslog::rule { "05_simp_templates/${_safe_name}.conf":
+      # lint:ignore:variables_not_enclosed
+      content => @("EOM")
+        $_variables
+
+        template(name="${name}" type="subtree" subtree="${subtree}")
+        |EOM
+      # lint:endignore
+    }
   }
 }

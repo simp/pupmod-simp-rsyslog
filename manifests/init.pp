@@ -174,7 +174,6 @@
 #       content: "if prifilt('*.info') then stop"
 #     'some_path/97_old_rule.conf':
 #       ensure: absent
-#       content: ''
 #
 # @author https://github.com/simp/pupmod-simp-rsyslog/graphs/contributors
 #

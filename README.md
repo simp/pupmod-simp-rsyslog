@@ -94,7 +94,7 @@ There are two ways to get the 10.x behavior back:
 
 1. **Enforce the `simp:defaults` profile.** This module ships a
    [Compliance Engine](https://github.com/simp/rubygem-simp-compliance_engine)
-   profile that restores every 10.x default, including the destructive ones:
+   profile that restores the 10.x defaults, including the destructive ones:
    replacing `/etc/rsyslog.conf`, purging `/etc/rsyslog.simp.d`, and managing
    the service. With the `compliance_engine` module installed, set:
 
@@ -114,6 +114,13 @@ There are two ways to get the 10.x behavior back:
    ```
 
 2. **Set the parameters you want** in Hiera, as listed above.
+
+Some things differ from 10.x on purpose, even with `simp:defaults`:
+
+* `/etc/sysconfig/rsyslog` is no longer managed as a whole file with mode
+  `0640`. Only its `SYSLOGD_OPTIONS` line is managed.
+* The UDP listener binds to `rsyslog::udp_listen_address` (default
+  `127.0.0.1`) instead of every interface.
 
 ### Upgrading without the profile
 
@@ -244,8 +251,9 @@ Every setting can be enforced on its own:
 
 Settings are written under `/etc/rsyslog.simp.d/00_simp_pre_logging`, one
 line per setting. Rules from `rsyslog::rule` and its wrappers go in the
-numbered directories next to it. `rsyslog::rule` and every wrapper accept
-`ensure => absent`, which removes a rule without purging the directory.
+numbered directories next to it. `rsyslog::rule`, every wrapper and the
+template defines accept `ensure => absent`, which removes a rule without
+purging the directory and needs only the rule's name.
 
 How rsyslog reads `/etc/rsyslog.simp.d` depends on
 `rsyslog::config::replace_rsyslog_conf`:

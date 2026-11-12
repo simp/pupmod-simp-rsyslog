@@ -17,14 +17,15 @@ class rsyslog::server::firewall {
 
   simplib::assert_optional_dependency($module_name, 'simp/iptables')
 
-  $_inputs = pick($facts.dig('rsyslog_simp_config', 'inputs'), [])
+  $_existing = rsyslog::existing_config()
+  $_inputs = pick($_existing['inputs'], [])
 
   $_tls_listening = !$_inputs.filter |$i| {
     $i['type'] == 'imtcp' and $i['port'] == $rsyslog::tls_tcp_listen_port
   }.empty
   # The TLS listener's plain imptcp companion was never opened in the firewall,
   # so an imptcp input counts only when tcp_server wrote it
-  $_imptcp_tcp_server = $facts.dig('rsyslog_simp_config', 'imptcp_tcp_server') == true
+  $_imptcp_tcp_server = $_existing['imptcp_tcp_server'] == true
   $_tcp_listening = !$_inputs.filter |$i| {
     $i['port'] == $rsyslog::tcp_listen_port and
     ($i['type'] == 'imtcp' or ($i['type'] == 'imptcp' and $_imptcp_tcp_server))

@@ -157,6 +157,15 @@ describe 'rsyslog::server' do
             end
           end
 
+          context 'in a rule directory other than rsyslog::rule_dir' do
+            let(:facts) do
+              super().merge(rsyslog_simp_config: super()[:rsyslog_simp_config].merge('rule_dir' => '/etc/rsyslog.old.d'))
+            end
+
+            it { is_expected.not_to create_iptables__listen__tcp_stateful('syslog_tls_tcp') }
+            it { is_expected.not_to create_iptables__listen__udp('syslog_udp') }
+          end
+
           context 'and a listener turned off' do
             let(:pre_condition) { 'class { "rsyslog": tls_tcp_server => false }' }
 

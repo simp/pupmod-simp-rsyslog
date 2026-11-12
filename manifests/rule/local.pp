@@ -187,11 +187,20 @@ define rsyslog::rule::local (
   Optional[String[1]]            $content                              = undef,
   Enum['present', 'absent']      $ensure                               = 'present',
 ) {
+  $_safe_name = regsubst($name,'/','__')
+
+  # Removing a rule needs only its name
+  if $ensure == 'absent' {
+    rsyslog::rule { "99_simp_local/${_safe_name}.conf":
+      ensure => 'absent',
+    }
+
+    return()
+  }
+
   unless ($rule or $content) {
     fail('You must specify "$rule" if you are not specifying "$content"')
   }
-
-  $_safe_name = regsubst($name,'/','__')
 
   if $content {
     $_content = $content
@@ -296,7 +305,6 @@ define rsyslog::rule::local (
   }
 
   rsyslog::rule { "99_simp_local/${_safe_name}.conf":
-    ensure  => $ensure,
     content => $_content,
   }
 }

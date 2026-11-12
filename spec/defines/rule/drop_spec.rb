@@ -19,7 +19,13 @@ describe 'rsyslog::rule::drop' do
         end
 
         it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_rsyslog__rule('07_simp_drop_rules/test_name.conf').with_content(%r{if\s+\(#{params[:rule]}\)\s+then\s+stop}) }
+        it { is_expected.to contain_file('/etc/rsyslog.simp.d/07_simp_drop_rules/test_name.conf').with_content("if (test_rule) then stop\n") }
+
+        context 'with a multi-line rule' do
+          let(:params) { { rule: "$msg contains 'a'\n  or $msg contains 'b'" } }
+
+          it { is_expected.to contain_file('/etc/rsyslog.simp.d/07_simp_drop_rules/test_name.conf').with_content("if ($msg contains 'a'\nor $msg contains 'b') then stop\n") }
+        end
       end
     end
   end

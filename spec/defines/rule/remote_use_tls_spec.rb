@@ -44,6 +44,18 @@ describe 'rsyslog::rule::remote' do
             end
           end
 
+          context 'with use_tls unset and a TLS rule file in another rule directory' do
+            let(:params) { { rule: 'test_rule', dest: ['logs.example.com'] } }
+            let(:simp_config) { { 'conf_managed' => false, 'rule_dir' => '/etc/rsyslog.old.d', 'pre_logging' => [], 'inputs' => [], 'remote_tls' => ['test_name.conf'] } }
+
+            if tls
+              it { is_expected.to contain_rsyslog__rule(rule_file).with_content(%r{StreamDriverMode="1"}) }
+            else
+              # The file this run writes is new, so it forwards in plain text
+              it { is_expected.to contain_rsyslog__rule(rule_file).without_content(%r{StreamDriver}) }
+            end
+          end
+
           context 'with use_tls unset and hostname in the rule name' do
             let(:title) { 'forward_hostname' }
             # rsyslog::rule writes it as 10_simp_remote/forward_host_name.conf

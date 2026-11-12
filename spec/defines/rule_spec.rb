@@ -53,8 +53,16 @@ describe 'rsyslog::rule' do
           it { is_expected.to contain_file('/etc/rsyslog.simp.d/host_name_logs.conf').with_content(%r{/etc/rsyslog.simp.d/host_name_logs/\*\.conf}) }
           it { is_expected.to contain_file('/etc/rsyslog.simp.d/host_name_logs/host_name.conf').with_content(%r{random junk}) }
           it { is_expected.to contain_file('/etc/rsyslog.simp.d/hostname_logs/hostname.conf').with_ensure('absent') }
+          # The old directory may hold files the module does not manage
           it { is_expected.not_to contain_file('/etc/rsyslog.simp.d/hostname_logs') }
-          it { is_expected.not_to contain_file('/etc/rsyslog.simp.d/hostname_logs.conf') }
+          it { is_expected.to contain_file('/etc/rsyslog.simp.d/hostname_logs.conf').with_ensure('absent') }
+        end
+
+        context "with 'hostname' only in the file part of the name" do
+          let(:title) { 'some_path/hostname.conf' }
+
+          it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path/hostname.conf').with_ensure('absent') }
+          it { is_expected.to contain_file('/etc/rsyslog.simp.d/some_path.conf').with_ensure('file') }
         end
 
         context 'it should fail when provided with an absolute path name' do
