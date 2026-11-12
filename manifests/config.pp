@@ -729,9 +729,11 @@ class rsyslog::config (
   $_legacy_set = $_legacy.filter |$k, $v| { $v =~ NotUndef }
 
   # Removals alone touch nothing when the file doesn't exist, as in
-  # rsyslog::config::statement
+  # rsyslog::config::statement. When rsyslog.conf is this module's, the
+  # settings may still be in the global.conf of earlier versions, which
+  # writing to 00_simp_pre_logging removes.
   unless empty($_legacy_set) or
-  (rsyslog::removals_only($_legacy_set) and !('00_legacy.conf' in rsyslog::existing_pre_logging())) {
+  (!$simp_conf and rsyslog::removals_only($_legacy_set) and !('00_legacy.conf' in rsyslog::existing_pre_logging())) {
     rsyslog::config::block { '00_legacy':
       seed => '',
     }

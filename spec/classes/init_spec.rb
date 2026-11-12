@@ -247,6 +247,17 @@ describe 'rsyslog' do
         it { is_expected.to contain_file_line('rsyslog 00_legacy UMASK').with_ensure('absent') }
       end
 
+      context 'with a legacy global set to absent on a node upgraded from 10.x' do
+        let(:hieradata) { 'legacy_globals_absent' }
+        let(:facts) do
+          super().merge(rsyslog_simp_config: { 'conf_managed' => true, 'rule_dir' => '/etc/rsyslog.simp.d', 'pre_logging' => ['global.conf'], 'inputs' => [] })
+        end
+
+        # global.conf of 10.x holds $UMASK
+        it { is_expected.to contain_file("#{pre_logging}/global.conf").with_ensure('absent') }
+        it { is_expected.to contain_file_line('rsyslog 00_legacy UMASK').with_ensure('absent') }
+      end
+
       context 'with only removals in extra_imklog_mod_params and extra_imfile_mod_params when their files exist' do
         let(:hieradata) { 'extra_mod_params_absent' }
         let(:facts) do
