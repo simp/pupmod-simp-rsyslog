@@ -20,6 +20,18 @@ describe 'rsyslog::rule::data_source' do
 
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to contain_rsyslog__rule('05_simp_data_sources/test_name.conf').with_content(%r{test_rule}) }
+
+        context 'with ensure=absent' do
+          let(:params) { { rule: 'test_rule', ensure: 'absent' } }
+
+          it { is_expected.not_to contain_class('rsyslog::config::imfile') }
+          it { is_expected.not_to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/33_imfile.conf') }
+        end
+
+        it 'loads the imfile module that imfile inputs need' do
+          is_expected.to contain_file('/etc/rsyslog.simp.d/00_simp_pre_logging/33_imfile.conf')
+            .with(content: "module(load=\"imfile\"\n)\n", replace: false)
+        end
       end
     end
   end

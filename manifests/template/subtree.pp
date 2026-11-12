@@ -26,15 +26,20 @@
 # @param variables
 #   Variables to be set **prior** to the template being created
 #
+# @param ensure
+#   `absent` removes the rule file
+#
 define rsyslog::template::subtree (
-  String        $subtree,
-  Array[String] $variables = []
+  String                    $subtree,
+  Array[String]             $variables = [],
+  Enum['present', 'absent'] $ensure = 'present',
 ) {
   $_safe_name = regsubst($name,'/','__')
 
   $_variables = join($variables,"\n")
 
   rsyslog::rule { "05_simp_templates/${_safe_name}.conf":
+    ensure  => $ensure,
     # lint:ignore:variables_not_enclosed
     content => @("EOM")
       $_variables

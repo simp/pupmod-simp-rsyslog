@@ -1,0 +1,303 @@
+# Compliance Engine checks that restore the rsyslog configuration this module
+# managed by default before 11.0.0, where a bare `include rsyslog` installs only
+# the package. One `puppet-class-parameter` check per restored parameter; the
+# `simp:defaults` profile lists them directly (see profile-simp_defaults.yaml).
+#
+# `auto` makes the module write the value it used to compute from facts (queue
+# sizing, FQDN, domain, PKI paths).
+#
+# Parameters whose default is a `simp_options::*` lookup (pki, logrotate,
+# log_servers, trusted_nets, rsyslog::server::enable_firewall) keep that lookup
+# and have no check here.
+---
+version: 2.0.0
+checks:
+  simp:defaults.rsyslog.service_ensure:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::service_ensure
+      value: 'running'
+  simp:defaults.rsyslog.service_enable:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::service_enable
+      value: true
+  simp:defaults.rsyslog.read_journald:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::read_journald
+      value: true
+  simp:defaults.rsyslog.tcp_server:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::tcp_server
+      value: false
+  simp:defaults.rsyslog.tls_tcp_server:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::tls_tcp_server
+      value: false
+  simp:defaults.rsyslog.udp_server:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::udp_server
+      value: false
+  simp:defaults.rsyslog.config.replace_rsyslog_conf:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::replace_rsyslog_conf
+      value: true
+  simp:defaults.rsyslog.config.purge_rule_dir:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::purge_rule_dir
+      value: true
+  simp:defaults.rsyslog.config.syslogd_options:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::syslogd_options
+      value: ''
+  simp:defaults.rsyslog.config.ulimit_max_open_files:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::ulimit_max_open_files
+      value: 'infinity'
+  simp:defaults.rsyslog.config.enable_default_rules:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::enable_default_rules
+      value: true
+  simp:defaults.rsyslog.config.include_rsyslog_d:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::include_rsyslog_d
+      value: false
+  simp:defaults.rsyslog.config.umask:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::umask
+      value: '0027'
+  simp:defaults.rsyslog.config.repeated_msg_reduction:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::repeated_msg_reduction
+      value: true
+  simp:defaults.rsyslog.config.localhostname:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::localhostname
+      value: 'auto'
+  simp:defaults.rsyslog.config.preserve_fqdn:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::preserve_fqdn
+      value: true
+  simp:defaults.rsyslog.config.drop_msgs_with_malicious_dns_ptr_records:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::drop_msgs_with_malicious_dns_ptr_records
+      value: false
+  simp:defaults.rsyslog.config.work_directory:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::work_directory
+      value: '/var/spool/rsyslog'
+  simp:defaults.rsyslog.config.net_permit_acl_warning:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::net_permit_acl_warning
+      value: true
+  simp:defaults.rsyslog.config.net_enable_dns:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::net_enable_dns
+      value: true
+  simp:defaults.rsyslog.config.escape_control_characters_on_receive:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::escape_control_characters_on_receive
+      value: true
+  simp:defaults.rsyslog.config.control_character_escape_prefix:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::control_character_escape_prefix
+      value: '#'
+  simp:defaults.rsyslog.config.default_file_template:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::default_file_template
+      value: 'RSYSLOG_FileFormat'
+  simp:defaults.rsyslog.config.default_forward_template:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::default_forward_template
+      value: 'RSYSLOG_ForwardFormat'
+  simp:defaults.rsyslog.config.syssock_ignore_timestamp:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::syssock_ignore_timestamp
+      value: true
+  simp:defaults.rsyslog.config.syssock_ignore_own_messages:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::syssock_ignore_own_messages
+      value: true
+  simp:defaults.rsyslog.config.syssock_use:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::syssock_use
+      value: true
+  simp:defaults.rsyslog.config.syssock_flow_control:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::syssock_flow_control
+      value: false
+  simp:defaults.rsyslog.config.syssock_use_pid_from_system:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::syssock_use_pid_from_system
+      value: false
+  simp:defaults.rsyslog.config.syssock_rate_limit_interval:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::syssock_rate_limit_interval
+      value: 0
+  simp:defaults.rsyslog.config.syssock_rate_limit_burst:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::syssock_rate_limit_burst
+      value: 1000
+  simp:defaults.rsyslog.config.syssock_rate_limit_severity:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::syssock_rate_limit_severity
+      value: 5
+  simp:defaults.rsyslog.config.syssock_use_sys_timestamp:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::syssock_use_sys_timestamp
+      value: true
+  simp:defaults.rsyslog.config.syssock_annotate:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::syssock_annotate
+      value: false
+  simp:defaults.rsyslog.config.syssock_parse_trusted:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::syssock_parse_trusted
+      value: false
+  simp:defaults.rsyslog.config.syssock_unlink:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::syssock_unlink
+      value: true
+  simp:defaults.rsyslog.config.main_msg_queue_type:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::main_msg_queue_type
+      value: 'LinkedList'
+  simp:defaults.rsyslog.config.main_msg_queue_filename:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::main_msg_queue_filename
+      value: 'main_msg_queue'
+  simp:defaults.rsyslog.config.main_msg_queue_max_file_size:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::main_msg_queue_max_file_size
+      value: 5
+  simp:defaults.rsyslog.config.main_msg_queue_size:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::main_msg_queue_size
+      value: 'auto'
+  simp:defaults.rsyslog.config.main_msg_queue_high_watermark:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::main_msg_queue_high_watermark
+      value: 'auto'
+  simp:defaults.rsyslog.config.main_msg_queue_low_watermark:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::main_msg_queue_low_watermark
+      value: 'auto'
+  simp:defaults.rsyslog.config.main_msg_queue_discardmark:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::main_msg_queue_discardmark
+      value: 'auto'
+  simp:defaults.rsyslog.config.main_msg_queue_worker_thread_minimum_messages:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::main_msg_queue_worker_thread_minimum_messages
+      value: 'auto'
+  simp:defaults.rsyslog.config.main_msg_queue_worker_threads:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::main_msg_queue_worker_threads
+      value: 'auto'
+  simp:defaults.rsyslog.config.main_msg_queue_timeout_enqueue:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::main_msg_queue_timeout_enqueue
+      value: 100
+  simp:defaults.rsyslog.config.main_msg_queue_dequeue_slowdown:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::main_msg_queue_dequeue_slowdown
+      value: 0
+  simp:defaults.rsyslog.config.main_msg_queue_save_on_shutdown:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::main_msg_queue_save_on_shutdown
+      value: true
+  simp:defaults.rsyslog.config.main_msg_queue_max_disk_space:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::main_msg_queue_max_disk_space
+      value: 'auto'
+  simp:defaults.rsyslog.config.tls_tcp_max_sessions:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::tls_tcp_max_sessions
+      value: 200
+  simp:defaults.rsyslog.config.tls_input_tcp_server_stream_driver_permitted_peers:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::tls_input_tcp_server_stream_driver_permitted_peers
+      value: 'auto'
+  simp:defaults.rsyslog.config.imtcp_stream_driver_auth_mode:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::imtcp_stream_driver_auth_mode
+      value: 'auto'
+  simp:defaults.rsyslog.config.default_net_stream_driver:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::default_net_stream_driver
+      value: 'auto'
+  simp:defaults.rsyslog.config.default_net_stream_driver_ca_file:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::default_net_stream_driver_ca_file
+      value: 'auto'
+  simp:defaults.rsyslog.config.default_net_stream_driver_cert_file:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::default_net_stream_driver_cert_file
+      value: 'auto'
+  simp:defaults.rsyslog.config.default_net_stream_driver_key_file:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::config::default_net_stream_driver_key_file
+      value: 'auto'
+  # Before 11.0.0, the SELinux rules were enabled whenever SELinux was
+  # enforcing.
+  simp:defaults.rsyslog.server.enable_selinux.selinux_enforced:
+    type: puppet-class-parameter
+    settings:
+      parameter: rsyslog::server::enable_selinux
+      value: true
+    confine:
+      os.selinux.enforced: true

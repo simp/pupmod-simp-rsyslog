@@ -1,2 +1,3 @@
 ---
 rsyslog::config::include_rsyslog_d: true
+rsyslog::config::replace_rsyslog_conf: true

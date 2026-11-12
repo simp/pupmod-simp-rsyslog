@@ -1,0 +1,2 @@
+---
+rsyslog::config::replace_rsyslog_conf: true
