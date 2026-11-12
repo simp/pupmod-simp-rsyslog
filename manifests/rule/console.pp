@@ -21,8 +21,12 @@
 # @param rule
 #   The Rsyslog ``EXPRESSION`` to filter on
 #
+#   * Required unless `$ensure` is `absent`.
+#
 # @param users
 #    Users to which to send the console messages
+#
+#   * Required unless `$ensure` is `absent`.
 #
 # @see https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system_administrators_guide/ch-viewing_and_managing_log_files#s1-basic_configuration_of_rsyslog.html Red Hat Basic Rsyslog Configuration
 #
@@ -34,17 +38,27 @@
 #   `absent` removes the rule file
 #
 define rsyslog::rule::console (
-  String                    $rule,
-  Array[String]             $users,
+  Optional[String]          $rule   = undef,
+  Optional[Array[String]]   $users  = undef,
   Enum['present', 'absent'] $ensure = 'present',
 ) {
   $_safe_name = regsubst($name, '/', '__')
 
-  rsyslog::rule { "06_simp_console/${_safe_name}.conf":
-    ensure  => $ensure,
-    content => inline_epp('if (<%= $rule.split("\n").map |$x| { $x.lstrip() }.join("\n") %>) then action( type="omusrmsg"
+  if $ensure == 'absent' {
+    rsyslog::rule { "06_simp_console/${_safe_name}.conf":
+      ensure => 'absent',
+    }
+  }
+  else {
+    if $rule =~ Undef or $users =~ Undef {
+      fail('$rule and $users are required unless $ensure is absent')
+    }
+
+    rsyslog::rule { "06_simp_console/${_safe_name}.conf":
+      content => inline_epp('if (<%= $rule.split("\n").map |$x| { $x.lstrip() }.join("\n") %>) then action( type="omusrmsg"
   <%= $users.sort.map |$x| { "Users=\"${x}\"" }.join("\n  ") %>
 )'
-    )
+      )
+    }
   }
 }

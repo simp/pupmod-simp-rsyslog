@@ -270,6 +270,7 @@
 #
 #   * When unset, `gtls` is written only if the setting is missing.
 #   * `auto` always writes `gtls`.
+#   * `absent` removes it, also while TLS is off.
 #
 # @param default_net_stream_driver_ca_file
 #   When ``TLS`` is enabled (client and/or server), used to set the global
@@ -278,6 +279,7 @@
 #   * When unset, `$rsyslog::app_pki_dir/cacerts/cacerts.pem` is written only
 #     if the setting is missing.
 #   * `auto` always writes `$rsyslog::app_pki_dir/cacerts/cacerts.pem`.
+#   * `absent` removes it, also while TLS is off.
 #
 # @param default_net_stream_driver_cert_file
 #   When ``TLS`` is enabled (client and/or server), used to set the global
@@ -286,6 +288,7 @@
 #   * When unset, `$rsyslog::app_pki_dir/public/<fqdn>.pub` is written only if
 #     the setting is missing.
 #   * `auto` always writes `$rsyslog::app_pki_dir/public/<fqdn>.pub`.
+#   * `absent` removes it, also while TLS is off.
 #
 # @param default_net_stream_driver_key_file
 #   When ``TLS`` is enabled (client and/or server), used to set the global
@@ -294,6 +297,7 @@
 #   * When unset, `$rsyslog::app_pki_dir/private/<fqdn>.pem` is written only
 #     if the setting is missing.
 #   * `auto` always writes `$rsyslog::app_pki_dir/private/<fqdn>.pem`.
+#   * `absent` removes it, also while TLS is off.
 #
 # @param action_send_stream_driver_mode
 #   **DEPRECATED** Use ``imtcp_stream_driver_mode.
@@ -302,9 +306,9 @@
 #   When ``$rsyslog::tls_tcp_server = true``, used to set the imtcp module's
 #   default StreamDriver.Mode
 #
-#   * When unset, `1` is used when any of `$rsyslog::pki`,
-#     `$rsyslog::tls_tcp_server` or `$rsyslog::enable_tls_logging` is set,
-#     and `0` otherwise.
+#   * When unset, it is written only when the file has no value for it yet:
+#     `1` when any of `$rsyslog::pki`, `$rsyslog::tls_tcp_server` or
+#     `$rsyslog::enable_tls_logging` is set, and `0` otherwise.
 #
 # @param action_send_stream_driver_auth_mode
 #   **DEPRECATED** Use ``imtcp_stream_driver_auth_mode``.
@@ -381,7 +385,11 @@
 #   `00_simp_pre_logging/13_global_<name>.conf`
 #
 #   * A value of `absent` removes the parameter.
-#   * No validation of parameter names or values is done
+#   * A key that a parameter of this class sets (for example `preserveFQDN`,
+#     `workDirectory` or `localHostname`, and the `defaultNetstreamDriver*`
+#     keys while TLS is on) fails compilation, because rsyslog rejects a
+#     second value for it. Use that parameter instead.
+#   * No other validation of parameter names or values is done
 #
 # @param extra_legacy_globals
 #   Additional Legacy-style global parameters to be added to
@@ -782,11 +790,54 @@ class rsyslog::config (
     }
   }
 
-  if $rsyslog::enable_tls_logging or $_tls_tcp_server {
-    include 'rsyslog::config::tls'
+  $_tls_on = $rsyslog::enable_tls_logging or $_tls_tcp_server
+  $_tls_driver_settings = {
+    'defaultNetstreamDriver'         => 'default_net_stream_driver',
+    'defaultNetstreamDriverCAFile'   => 'default_net_stream_driver_ca_file',
+    'defaultNetstreamDriverCertFile' => 'default_net_stream_driver_cert_file',
+    'defaultNetstreamDriverKeyFile'  => 'default_net_stream_driver_key_file',
   }
 
+  if $_tls_on {
+    include 'rsyslog::config::tls'
+  }
+  elsif '12_global_tls.conf' in rsyslog::existing_pre_logging() {
+    # rsyslog::config::tls also writes the settings TLS needs and installs the
+    # TLS package, so without TLS only the removals are applied
+    $_tls_driver_settings.each |$key, $param| {
+      if getvar("rsyslog::config::${param}") == 'absent' {
+        rsyslog::config::line { "12_global_tls ${key} without TLS":
+          ensure => 'absent',
+          path   => "${rsyslog::rule_dir}/00_simp_pre_logging/12_global_tls.conf",
+          line   => "  ${key}=",
+          match  => "^\\s*${regexpescape($key)}\\s*=",
+        }
+      }
+    }
+  }
+
+  # Keys that a parameter of this class sets, or that rsyslog.conf sets,
+  # since rsyslog rejects a second value for a global() key
+  $_reserved_globals = {
+    'preserveFQDN'                            => 'preserve_fqdn',
+    'dropMsgsWithMaliciousDnsPTRRecords'      => 'drop_msgs_with_malicious_dns_ptr_records',
+    'workDirectory'                           => 'work_directory',
+    'net.permitACLWarning'                    => 'net_permit_acl_warning',
+    'net.enableDNS'                           => 'net_enable_dns',
+    'parser.escapeControlCharactersOnReceive' => 'escape_control_characters_on_receive',
+    'parser.controlCharacterEscapePrefix'     => 'control_character_escape_prefix',
+    'localHostname'                           => 'localhostname',
+  } + ($_tls_on ? { true => $_tls_driver_settings, default => {} })
+
+  $_reserved = $_reserved_globals.reduce({}) |$memo, $kv| { $memo + { downcase($kv[0]) => $kv[1] } }
+
   pick($extra_global_params, {}).each |$name, $value| {
+    $_param = $_reserved[downcase($name)]
+
+    if $_param and $value != 'absent' {
+      fail("rsyslog::config::extra_global_params cannot set '${name}'. Use rsyslog::config::${_param} instead.")
+    }
+
     rsyslog::rule { "00_simp_pre_logging/13_global_${name}.conf":
       ensure  => bool2str($value == 'absent', 'absent', 'present'),
       content => "global(${name}=\"${value}\")\n",
@@ -844,10 +895,7 @@ class rsyslog::config (
 
   $_pre_logging = "${rsyslog::rule_dir}/00_simp_pre_logging"
   $_imtcp_exists = '41_imtcp.conf' in rsyslog::existing_pre_logging()
-  $_inputs = $facts.dig('rsyslog_simp_config', 'rule_dir') == $rsyslog::rule_dir ? {
-    true    => pick($facts.dig('rsyslog_simp_config', 'inputs'), []),
-    default => [],
-  }
+  $_inputs = pick(rsyslog::existing_config()['inputs'], [])
   $_keep_tls = $_tls_tcp_server =~ Undef and !$_inputs.filter |$i| {
     $i['type'] == 'imtcp' and $i['port'] == $rsyslog::tls_tcp_listen_port
   }.empty
@@ -919,7 +967,7 @@ class rsyslog::config (
 
     if $_tls_tcp_server {
       $_tls_params = {
-        'StreamDriver.Mode'     => $_imtcp_stream_driver_mode,
+        'StreamDriver.Mode'     => $imtcp_stream_driver_mode,
         'StreamDriver.AuthMode' => $imtcp_stream_driver_auth_mode ? {
           'auto'  => $_derived_auth_mode,
           default => $imtcp_stream_driver_auth_mode,
@@ -933,6 +981,7 @@ class rsyslog::config (
 
       # The TLS listener cannot work without these.
       $_tls_fallbacks = {
+        'StreamDriver.Mode'     => $_imtcp_stream_driver_mode,
         'StreamDriver.AuthMode' => $_derived_auth_mode,
         'PermittedPeer'         => $_permitted_peers,
       }

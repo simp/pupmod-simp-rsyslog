@@ -35,6 +35,8 @@
 # @param content
 #   The **exact content** of the rule to place in the target file
 #
+#   * Required unless `$ensure` is `absent`.
+#
 # @param ensure
 #   Whether the rule file should exist
 #
@@ -57,7 +59,7 @@
 # @see https://www.rsyslog.com/doc/v8-stable/rainerscript/index.html RainerScript Documentation
 #
 define rsyslog::rule (
-  String                    $content,
+  Optional[String]          $content = undef,
   Enum['present', 'absent'] $ensure  = 'present',
   Boolean                   $replace = true,
 ) {
@@ -70,7 +72,7 @@ define rsyslog::rule (
 
   include 'rsyslog'
 
-  $_file_name = regsubst($name, 'hostname', 'host_name', 'G')
+  $_file_name = rsyslog::rule_file_name($name)
   $_name_array = split($_file_name,'/')
   $_path = "${rsyslog::rule_dir}/${_file_name}"
 
@@ -81,6 +83,10 @@ define rsyslog::rule (
     }
   }
   else {
+    if $content =~ Undef {
+      fail('$content is required unless $ensure is absent')
+    }
+
     ensure_resource('rsyslog::rule::directory', $_name_array[0])
 
     file { $_path:
@@ -100,6 +106,18 @@ define rsyslog::rule (
     file { "${rsyslog::rule_dir}/${name}":
       ensure => 'absent',
       notify => Class['rsyslog::service'],
+    }
+
+    # and, when the directory was renamed, the file that included it. The old
+    # directory itself is left alone, since it may hold files the module does
+    # not manage.
+    $_old_directory = split($name, '/')[0]
+
+    if $_old_directory != $_name_array[0] {
+      ensure_resource('file', "${rsyslog::rule_dir}/${_old_directory}.conf", {
+        'ensure' => 'absent',
+        'notify' => Class['rsyslog::service'],
+      })
     }
   }
 }

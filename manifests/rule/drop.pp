@@ -20,6 +20,8 @@
 # @param rule
 #   The Rsyslog ``EXPRESSION`` to filter on
 #
+#   * Required unless `$ensure` is `absent`.
+#
 # @see https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system_administrators_guide/ch-viewing_and_managing_log_files#s1-basic_configuration_of_rsyslog.html Red Hat Basic Rsyslog Configuration
 #
 # @see https://www.rsyslog.com/doc/v8-stable/rainerscript/expressions.html Expressions in Rsyslog
@@ -32,13 +34,25 @@
 #   `absent` removes the rule file
 #
 define rsyslog::rule::drop (
-  String                    $rule,
+  Optional[String]          $rule   = undef,
   Enum['present', 'absent'] $ensure = 'present',
 ) {
   $_safe_name = regsubst($name,'/','__')
 
-  rsyslog::rule { "07_simp_drop_rules/${_safe_name}.conf":
-    ensure  => $ensure,
-    content => inline_epp('if (<%= $rule.split("\n").map |$x| { $x.lstrip() }.join("\n") %>) then stop\n" %>')
+  if $ensure == 'absent' {
+    rsyslog::rule { "07_simp_drop_rules/${_safe_name}.conf":
+      ensure => 'absent',
+    }
+  }
+  else {
+    if $rule =~ Undef {
+      fail('$rule is required unless $ensure is absent')
+    }
+
+    $_rule = $rule.split("\n").map |$x| { $x.lstrip() }.join("\n")
+
+    rsyslog::rule { "07_simp_drop_rules/${_safe_name}.conf":
+      content => "if (${_rule}) then stop\n",
+    }
   }
 }

@@ -9,12 +9,5 @@
 # @api private
 #
 function rsyslog::existing_pre_logging() >> Array[String] {
-  $_config = $facts['rsyslog_simp_config']
-
-  if $_config =~ Hash and $_config['rule_dir'] == $rsyslog::rule_dir {
-    pick($_config['pre_logging'], [])
-  }
-  else {
-    []
-  }
+  pick(rsyslog::existing_config()['pre_logging'], [])
 }

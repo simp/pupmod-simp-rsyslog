@@ -392,7 +392,8 @@ describe 'rsyslog' do
           )
         end
 
-        it { is_expected.to contain_file_line('rsyslog 41_imtcp StreamDriver.Mode').with_replace(true) }
+        # Unset, it is a fallback, so that a value set by an earlier run stays
+        it { is_expected.to contain_file_line('rsyslog 41_imtcp StreamDriver.Mode').with(line: '  StreamDriver.Mode="1"', replace: false) }
         it { is_expected.to contain_file_line('rsyslog 41_imtcp StreamDriver.AuthMode').with_replace(false) }
         it { is_expected.to contain_file_line('rsyslog 41_imtcp PermittedPeer').with_replace(false) }
         it { is_expected.to contain_file_line('rsyslog 12_global_tls defaultNetstreamDriverCAFile').with_replace(false) }
@@ -406,6 +407,57 @@ describe 'rsyslog' do
         end
 
         it { is_expected.not_to contain_class('rsyslog::config::tls') }
+      end
+
+      context 'rsyslog server with TLS enabled and imtcp_stream_driver_mode set' do
+        let(:params) { { tls_tcp_server: true } }
+        let(:hieradata) { 'imtcp_stream_driver_mode' }
+
+        it { is_expected.to contain_file_line('rsyslog 41_imtcp StreamDriver.Mode').with(line: '  StreamDriver.Mode="0"', replace: true) }
+      end
+
+      context 'with a TLS driver setting set to absent and TLS off' do
+        let(:hieradata) { 'tls_driver_absent' }
+
+        context 'when 12_global_tls.conf exists' do
+          let(:facts) do
+            super().merge(rsyslog_simp_config: { 'conf_managed' => false, 'rule_dir' => '/etc/rsyslog.simp.d', 'pre_logging' => ['12_global_tls.conf'], 'inputs' => [] })
+          end
+
+          it 'removes only that setting' do
+            is_expected.to contain_file_line('rsyslog 12_global_tls defaultNetstreamDriverCertFile without TLS').with(
+              ensure: 'absent',
+              path: "#{pre_logging}/12_global_tls.conf",
+              match: '^\s*defaultNetstreamDriverCertFile\s*=',
+            )
+          end
+
+          it { is_expected.not_to contain_class('rsyslog::config::tls') }
+          it { is_expected.not_to contain_file_line('rsyslog 12_global_tls defaultNetstreamDriverCAFile') }
+        end
+
+        context 'when 12_global_tls.conf does not exist' do
+          it { is_expected.not_to contain_file_line('rsyslog 12_global_tls defaultNetstreamDriverCertFile without TLS') }
+        end
+      end
+
+      context 'with extra_global_params setting a key that a parameter sets' do
+        let(:hieradata) { 'extra_global_reserved' }
+
+        it { is_expected.to compile.and_raise_error(%r{cannot set 'PreserveFQDN'. Use rsyslog::config::preserve_fqdn instead}) }
+      end
+
+      context 'with extra_global_params removing a reserved key and setting a TLS driver key with TLS off' do
+        let(:hieradata) { 'extra_global_reserved_allowed' }
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_file("#{pre_logging}/13_global_preserveFQDN.conf").with_ensure('absent') }
+
+        context 'and TLS on' do
+          let(:params) { { tls_tcp_server: true } }
+
+          it { is_expected.to compile.and_raise_error(%r{Use rsyslog::config::default_net_stream_driver_ca_file instead}) }
+        end
       end
 
       context 'rsyslog server with TLS enabled and tcp_server unset' do
@@ -608,6 +660,14 @@ describe 'rsyslog' do
             .with_content(%r{LimitNOFILE=65536})
             .that_notifies('Class[rsyslog::service]')
         }
+
+        context 'with restart_on_change' do
+          let(:params) { { restart_on_change: true } }
+
+          it 'restarts rsyslog only after systemd reloads the drop-in' do
+            is_expected.to contain_exec('systemd-rsyslog.service-systemctl-daemon-reload').that_comes_before('Exec[rsyslog restart_on_change]')
+          end
+        end
       end
 
       context "with the deprecated ulimit_max_open_files value 'unlimited'" do

@@ -202,7 +202,7 @@ Templates map to the four Rsyslog template kinds, each written under
   `.fixtures.yml` only so the profile specs can resolve
   `compliance_engine::enforcement`. Don't add it to `metadata.json`. On Ruby
   >= 3.4 its library needs the `observer` gem, which the puppetsync `Gemfile`
-  does not include; add it locally with a `Gemfile.local`.
+  includes.
 
 ## The `simp_options` / `simplib::lookup` seam
 

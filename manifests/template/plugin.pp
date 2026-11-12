@@ -18,23 +18,34 @@
 # @param plugin
 #   The rsyslog plugin content that you wish to add to the system
 #
+#   * Required unless `$ensure` is `absent`.
 #   * This is provided, without formatting, directly into the target file
 #
 # @param ensure
 #   `absent` removes the rule file
 #
 define rsyslog::template::plugin (
-  String                    $plugin,
+  Optional[String]          $plugin = undef,
   Enum['present', 'absent'] $ensure = 'present',
 ) {
   $_safe_name = regsubst($name,'/','__')
 
-  rsyslog::rule { "05_simp_templates/${_safe_name}.conf":
-    ensure  => $ensure,
-    # lint:ignore:double_quoted_strings lint:ignore:only_variable_string
-    content => @("EOM")
-      template(name="${_safe_name}" plugin="string" plugin="${plugin}")
-      |EOM
-    # lint:endignore
+  if $ensure == 'absent' {
+    rsyslog::rule { "05_simp_templates/${_safe_name}.conf":
+      ensure => 'absent',
+    }
+  }
+  else {
+    if $plugin =~ Undef {
+      fail('$plugin is required unless $ensure is absent')
+    }
+
+    rsyslog::rule { "05_simp_templates/${_safe_name}.conf":
+      # lint:ignore:double_quoted_strings lint:ignore:only_variable_string
+      content => @("EOM")
+        template(name="${_safe_name}" plugin="string" plugin="${plugin}")
+        |EOM
+      # lint:endignore
+    }
   }
 }

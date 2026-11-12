@@ -1,0 +1,2 @@
+---
+rsyslog::config::default_net_stream_driver_cert_file: 'absent'

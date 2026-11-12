@@ -20,23 +20,34 @@
 # @param string
 #   The rsyslog template string that you wish to add to the system
 #
+#   * Required unless `$ensure` is `absent`.
 #   * This is fed, without formatting, directly into the target file
 #
 # @param ensure
 #   `absent` removes the rule file
 #
 define rsyslog::template::string (
-  String                    $string,
+  Optional[String]          $string = undef,
   Enum['present', 'absent'] $ensure = 'present',
 ) {
   $_safe_name = regsubst($name,'/','__')
 
-  rsyslog::rule { "05_simp_templates/${_safe_name}.conf":
-    ensure  => $ensure,
-    # lint:ignore:double_quoted_strings lint:ignore:only_variable_string
-    content => @("EOM")
-      template(name="${_safe_name}" type="string" string="${string}")
-      |EOM
-    #lint:endignore
+  if $ensure == 'absent' {
+    rsyslog::rule { "05_simp_templates/${_safe_name}.conf":
+      ensure => 'absent',
+    }
+  }
+  else {
+    if $string =~ Undef {
+      fail('$string is required unless $ensure is absent')
+    }
+
+    rsyslog::rule { "05_simp_templates/${_safe_name}.conf":
+      # lint:ignore:double_quoted_strings lint:ignore:only_variable_string
+      content => @("EOM")
+        template(name="${_safe_name}" type="string" string="${string}")
+        |EOM
+      #lint:endignore
+    }
   }
 }

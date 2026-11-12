@@ -1,0 +1,2 @@
+---
+rsyslog::config::imtcp_stream_driver_mode: '0'
