@@ -891,14 +891,31 @@ class rsyslog::config (
   # With tls_tcp_server unset and a TLS listener from an earlier run,
   # tcp_server uses the tls_tcp_server layout, so that its plain listener
   # does not replace the TLS one in 41_imtcp.conf.
+  #
+  # With tcp_server unset, turning tls_tcp_server on or off moves tcp_server's
+  # listener from an earlier run to the other layout instead of dropping it:
+  # a plain imtcp listener becomes a marked imptcp one, and a marked imptcp
+  # listener becomes a plain imtcp one.
   ##############################################################################
 
   $_pre_logging = "${rsyslog::rule_dir}/00_simp_pre_logging"
   $_imtcp_exists = '41_imtcp.conf' in rsyslog::existing_pre_logging()
-  $_inputs = pick(rsyslog::existing_config()['inputs'], [])
+  $_existing = rsyslog::existing_config()
+  $_inputs = pick($_existing['inputs'], [])
   $_keep_tls = $_tls_tcp_server =~ Undef and !$_inputs.filter |$i| {
     $i['type'] == 'imtcp' and $i['port'] == $rsyslog::tls_tcp_listen_port
   }.empty
+  $_plain_imtcp_exists = !$_inputs.filter |$i| {
+    $i['type'] == 'imtcp' and $i['port'] == $rsyslog::tcp_listen_port
+  }.empty
+  $_tcp_moved = $_tcp_server =~ Undef and (
+    ($_tls_tcp_server == true and $_plain_imtcp_exists) or
+    ($_tls_tcp_server == false and $_existing['imptcp_tcp_server'] == true)
+  )
+  $_tcp_listener = $_tcp_moved ? {
+    true    => true,
+    default => $_tcp_server,
+  }
   $_tls_off = {
     'StreamDriver.Mode'     => 'absent',
     'StreamDriver.AuthMode' => 'absent',
@@ -906,7 +923,7 @@ class rsyslog::config (
     'MaxSessions'           => 'absent',
   }
 
-  if $_tls_tcp_server or ($_keep_tls and $_tcp_server) {
+  if $_tls_tcp_server or ($_keep_tls and $_tcp_listener) {
     rsyslog::config::statement { '40_imptcp':
       header => 'module(load="imptcp"',
       params => pick($extra_imptcp_mod_params, {}),
@@ -923,9 +940,9 @@ class rsyslog::config (
     # Marks the input as tcp_server's listener, which rsyslog::server::firewall
     # keeps open while tcp_server is unset. Without it, the input is only the
     # TLS listener's plain companion, which was never opened.
-    if $_tcp_server =~ Boolean {
+    if $_tcp_listener =~ Boolean {
       rsyslog::config::line { '40_imptcp tcp_server':
-        ensure  => bool2str($_tcp_server, 'present', 'absent'),
+        ensure  => bool2str($_tcp_listener, 'present', 'absent'),
         path    => "${_pre_logging}/40_imptcp.conf",
         line    => '# rsyslog::tcp_server',
         match   => '^\s*#\s*rsyslog::tcp_server\s*$',
@@ -933,7 +950,7 @@ class rsyslog::config (
       }
     }
   }
-  elsif $_tls_tcp_server == false or ($_tls_tcp_server =~ Undef and $_tcp_server == false) {
+  elsif $_tls_tcp_server == false or ($_tls_tcp_server =~ Undef and $_tcp_listener == false) {
     # With tls_tcp_server unset, 40_imptcp only holds tcp_server's listener
     rsyslog::config::statement { '40_imptcp':
       ensure => 'absent',
@@ -941,7 +958,7 @@ class rsyslog::config (
     }
   }
 
-  if $_keep_tls and $_tcp_server {
+  if $_keep_tls and $_tcp_listener {
     # Leave the TLS listener alone; its plain companion is in 40_imptcp
     rsyslog::config::statement { '41_imtcp':
       header => 'module(load="imtcp"',
@@ -952,7 +969,7 @@ class rsyslog::config (
       } + pick($extra_imtcp_mod_params, {}),
     }
   }
-  elsif $_tls_tcp_server or $_tcp_server {
+  elsif $_tls_tcp_server or $_tcp_listener {
     $_imtcp_stream_driver_mode = pick(
       $imtcp_stream_driver_mode,
       ($rsyslog::pki or $_tls_tcp_server or $rsyslog::enable_tls_logging) ? { true => '1', default => '0' }
@@ -1016,13 +1033,13 @@ class rsyslog::config (
       require => Rsyslog::Config::Block['41_imtcp'],
     }
   }
-  elsif $_tls_tcp_server == false and $_tcp_server == false {
+  elsif $_tls_tcp_server == false and $_tcp_listener == false {
     rsyslog::config::statement { '41_imtcp':
       ensure => 'absent',
       header => 'module(load="imtcp"',
     }
   }
-  elsif $_imtcp_exists and ($_tls_tcp_server == false or $_tcp_server == false) {
+  elsif $_imtcp_exists and ($_tls_tcp_server == false or $_tcp_listener == false) {
     # Remove one listener and leave the other's
     if $_tls_tcp_server == false {
       $_off_params = $_tls_off

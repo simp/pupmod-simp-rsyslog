@@ -155,6 +155,14 @@ describe 'rsyslog::server' do
 
               it { is_expected.not_to create_iptables__listen__tcp_stateful('syslog_tcp') }
             end
+
+            context 'and tls_tcp_server turned off' do
+              let(:pre_condition) { 'class { "rsyslog": tls_tcp_server => false }' }
+
+              # tcp_server's listener moves to a plain imtcp listener
+              it { is_expected.to create_iptables__listen__tcp_stateful('syslog_tcp').with_dports(514) }
+              it { is_expected.not_to create_iptables__listen__tcp_stateful('syslog_tls_tcp') }
+            end
           end
 
           context 'in a rule directory other than rsyslog::rule_dir' do
@@ -172,6 +180,26 @@ describe 'rsyslog::server' do
             it { is_expected.not_to create_iptables__listen__tcp_stateful('syslog_tls_tcp') }
             it { is_expected.to create_iptables__listen__udp('syslog_udp') }
           end
+        end
+
+        context 'with a plain TCP listener from an earlier run and tls_tcp_server turned on' do
+          let(:pre_condition) { 'class { "rsyslog": tls_tcp_server => true }' }
+          let(:facts) do
+            mock_selinux_false_facts(os_facts.dup).merge(
+              rsyslog_simp_config: {
+                'conf_managed' => true,
+                'rule_dir'     => '/etc/rsyslog.simp.d',
+                'pre_logging'  => ['41_imtcp.conf'],
+                'inputs'       => [{ 'type' => 'imtcp', 'port' => 514 }],
+              },
+            )
+          end
+
+          it { is_expected.to create_iptables__listen__tcp_stateful('syslog_tcp').with_dports(514) }
+          it { is_expected.to create_iptables__listen__tcp_stateful('syslog_tls_tcp').with_dports(6514) }
+
+          # so the next run, with the listener in 40_imptcp, keeps the rule too
+          it { is_expected.to contain_file_line('rsyslog 40_imptcp tcp_server').with_ensure('present') }
         end
 
         context 'without configured listeners' do
