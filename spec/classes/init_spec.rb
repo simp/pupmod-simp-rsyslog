@@ -227,6 +227,36 @@ describe 'rsyslog' do
         end
       end
 
+      ['legacy_globals_absent', 'extra_mod_params_absent'].each do |data|
+        context "with only removals in #{data} when their files do not exist" do
+          let(:hieradata) { data }
+
+          it 'declares no resources but the packages' do
+            declared = catalogue.resources.map(&:type).uniq.reject { |t| t.start_with?('Rsyslog::') } - ['Class', 'Stage', 'Node', 'Package']
+            expect(declared).to be_empty
+          end
+        end
+      end
+
+      context 'with a legacy global set to absent when 00_legacy.conf exists' do
+        let(:hieradata) { 'legacy_globals_absent' }
+        let(:facts) do
+          super().merge(rsyslog_simp_config: { 'conf_managed' => false, 'rule_dir' => '/etc/rsyslog.simp.d', 'pre_logging' => ['00_legacy.conf'], 'inputs' => [] })
+        end
+
+        it { is_expected.to contain_file_line('rsyslog 00_legacy UMASK').with_ensure('absent') }
+      end
+
+      context 'with only removals in extra_imklog_mod_params and extra_imfile_mod_params when their files exist' do
+        let(:hieradata) { 'extra_mod_params_absent' }
+        let(:facts) do
+          super().merge(rsyslog_simp_config: { 'conf_managed' => false, 'rule_dir' => '/etc/rsyslog.simp.d', 'pre_logging' => ['30_imklog.conf', '33_imfile.conf'], 'inputs' => [] })
+        end
+
+        it { is_expected.to contain_file_line('rsyslog 30_imklog ratelimit.burst').with_ensure('absent') }
+        it { is_expected.to contain_file_line('rsyslog 33_imfile PollingInterval').with_ensure('absent') }
+      end
+
       context 'with settings the package rsyslog.conf already makes' do
         let(:hieradata) { 'package_conf_settings_drop_in' }
 

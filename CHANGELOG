@@ -16,7 +16,8 @@
   `rsyslog::service_ensure` or `rsyslog::service_enable` is set. The new
   `rsyslog::restart_on_change` restarts a running rsyslog after a
   configuration change while the service is unmanaged.
-  `rsyslog::service::enable` is deprecated.
+  `rsyslog::service::enable` is deprecated, and takes precedence over the new
+  parameters while it is set.
 - BREAKING CHANGE: Every `rsyslog::config` setting, and
   `rsyslog::tcp_server`, `tls_tcp_server`, `udp_server` and `read_journald`,
   now defaults to `undef`, which leaves the setting alone. A value sets it

@@ -50,11 +50,16 @@ class rsyslog::config::pre_logging {
     }
   }
 
+  # A Hash of extra_*_mod_params that only removes parameters must not load the
+  # module; it applies only to a file that exists
+  $_imklog_removals_only = rsyslog::removals_only($rsyslog::config::extra_imklog_mod_params)
+  $_imfile_removals_only = rsyslog::removals_only($rsyslog::config::extra_imfile_mod_params)
+
   if $rsyslog::config::simp_conf or $rsyslog::config::extra_imklog_mod_params =~ NotUndef {
     rsyslog::config::statement { '30_imklog':
       header => 'module(load="imklog"',
       params => pick($rsyslog::config::extra_imklog_mod_params, {}),
-      create => true,
+      create => $rsyslog::config::simp_conf or !$_imklog_removals_only,
     }
   }
 
@@ -90,7 +95,10 @@ class rsyslog::config::pre_logging {
     }
   }
 
-  if $rsyslog::config::simp_conf or $rsyslog::config::extra_imfile_mod_params =~ NotUndef {
+  # rsyslog::config::imfile always creates its file
+  if $rsyslog::config::simp_conf or
+  ($rsyslog::config::extra_imfile_mod_params =~ NotUndef and !$_imfile_removals_only) or
+  ($_imfile_removals_only and '33_imfile.conf' in rsyslog::existing_pre_logging()) {
     include 'rsyslog::config::imfile'
   }
 }

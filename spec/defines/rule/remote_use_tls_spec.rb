@@ -44,6 +44,25 @@ describe 'rsyslog::rule::remote' do
             end
           end
 
+          context 'with use_tls unset and hostname in the rule name' do
+            let(:title) { 'forward_hostname' }
+            # rsyslog::rule writes it as 10_simp_remote/forward_host_name.conf
+            let(:rule_file) { '10_simp_remote/forward_hostname.conf' }
+            let(:params) { { rule: 'test_rule', dest: ['logs.example.com'] } }
+
+            context 'when the file written before the rename forwards over TLS' do
+              let(:remote_tls) { ['forward_hostname.conf'] }
+
+              if tls == false
+                it { is_expected.to contain_rsyslog__rule(rule_file).without_content(%r{StreamDriver}) }
+              else
+                # The upgraded node still has the pre-rename name on disk
+                it { is_expected.to contain_rsyslog__rule(rule_file).with_content(%r{StreamDriverMode="1"}) }
+                it { is_expected.to contain_rsyslog__rule(rule_file).with_content(%r{port="6514"}) }
+              end
+            end
+          end
+
           context 'with use_tls=false' do
             let(:params) do
               {

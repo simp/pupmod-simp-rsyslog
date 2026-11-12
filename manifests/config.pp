@@ -728,7 +728,10 @@ class rsyslog::config (
 
   $_legacy_set = $_legacy.filter |$k, $v| { $v =~ NotUndef }
 
-  unless empty($_legacy_set) {
+  # Removals alone touch nothing when the file doesn't exist, as in
+  # rsyslog::config::statement
+  unless empty($_legacy_set) or
+  (rsyslog::removals_only($_legacy_set) and !('00_legacy.conf' in rsyslog::existing_pre_logging())) {
     rsyslog::config::block { '00_legacy':
       seed => '',
     }

@@ -9,8 +9,9 @@
 #   **DEPRECATED**. Use `rsyslog::service_ensure` and
 #   `rsyslog::service_enable` instead.
 #
-#   * Still used when neither of those is set: `true` keeps the service
-#     running and enabled, and `false` stopped and disabled.
+#   * While it is set, it takes precedence over those two, which may come from
+#     the `simp:defaults` profile: `true` keeps the service running and
+#     enabled, and `false` stopped and disabled.
 #
 # @api private
 #
@@ -30,13 +31,15 @@ class rsyslog::service (
     default => undef,
   }
 
-  if $rsyslog::service_ensure =~ NotUndef or $rsyslog::service_enable =~ NotUndef {
-    $_ensure = $rsyslog::service_ensure
-    $_enable = $rsyslog::service_enable
-  }
-  else {
+  # The deprecated parameter is only ever set by the site, so it wins over
+  # values that may come from the simp:defaults profile
+  if $enable =~ NotUndef {
     $_ensure = $_legacy_ensure
     $_enable = $enable
+  }
+  else {
+    $_ensure = $rsyslog::service_ensure
+    $_enable = $rsyslog::service_enable
   }
 
   if $_ensure =~ NotUndef or $_enable =~ NotUndef {

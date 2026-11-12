@@ -185,6 +185,14 @@ describe 'rsyslog' do
 
         it { is_expected.to contain_service('rsyslog').with_ensure('running') }
       end
+
+      context 'when enforcing simp:defaults with the deprecated rsyslog::service::enable set' do
+        let(:hiera_file) { 'simp_defaults_with_legacy_service' }
+
+        it 'lets the deprecated parameter win over the profile' do
+          is_expected.to contain_service('rsyslog').with(ensure: 'stopped', enable: false)
+        end
+      end
     end
   end
 end

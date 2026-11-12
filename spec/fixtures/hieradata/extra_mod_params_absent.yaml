@@ -1,0 +1,5 @@
+---
+rsyslog::config::extra_imklog_mod_params:
+  ratelimit.burst: 'absent'
+rsyslog::config::extra_imfile_mod_params:
+  PollingInterval: 'absent'
