@@ -1,4 +1,4 @@
-* Thu Nov 05 2026 Kendall Moore <kendall@sicura.us> - 11.0.0
+* Thu Nov 12 2026 Kendall Moore <kendall@sicura.us> - 11.0.0
 - BREAKING CHANGE: A bare `include rsyslog` now installs the package and
   makes no other change. To keep the 10.x behavior, enforce the new
   `simp:defaults` Compliance Engine profile
@@ -68,6 +68,9 @@
   defaults, including the replaced `/etc/rsyslog.conf`, the purged rule
   directory and service management.
 - Allow `simp/iptables` 9.x.
+
+* Wed Nov 11 2026 Steven Pritchard <steve@sicura.us> - 10.2.0
+- Support puppet/systemd 11
 
 * Thu Nov 05 2026 Steven Pritchard <steve@sicura.us> - 10.1.1
 - Fixed an OpenVox 9 (OpenFact 6) deprecation warning from the `rsyslogd` fact
