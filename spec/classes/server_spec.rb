@@ -163,6 +163,13 @@ describe 'rsyslog::server' do
               it { is_expected.to create_iptables__listen__tcp_stateful('syslog_tcp').with_dports(514) }
               it { is_expected.not_to create_iptables__listen__tcp_stateful('syslog_tls_tcp') }
             end
+
+            context 'and tls_tcp_server turned off with a new tcp_listen_port' do
+              let(:pre_condition) { 'class { "rsyslog": tls_tcp_server => false, tcp_listen_port => 1514 }' }
+
+              # The listener moves to 1514, which no input had at the start of the run
+              it { is_expected.to create_iptables__listen__tcp_stateful('syslog_tcp').with_dports(1514) }
+            end
           end
 
           context 'in a rule directory other than rsyslog::rule_dir' do
@@ -190,7 +197,7 @@ describe 'rsyslog::server' do
                 'conf_managed' => true,
                 'rule_dir'     => '/etc/rsyslog.simp.d',
                 'pre_logging'  => ['41_imtcp.conf'],
-                'inputs'       => [{ 'type' => 'imtcp', 'port' => 514 }],
+                'inputs'       => [{ 'type' => 'imtcp', 'port' => 514, 'file' => '41_imtcp.conf' }],
               },
             )
           end

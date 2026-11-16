@@ -895,7 +895,10 @@ class rsyslog::config (
   # With tcp_server unset, turning tls_tcp_server on or off moves tcp_server's
   # listener from an earlier run to the other layout instead of dropping it:
   # a plain imtcp listener becomes a marked imptcp one, and a marked imptcp
-  # listener becomes a plain imtcp one.
+  # listener becomes a plain imtcp one. Only a plain imtcp listener in
+  # 41_imtcp.conf, or in the global.conf of versions before 11.0.0 (which
+  # wrote one there only for tcp_server), is tcp_server's; one in a site's
+  # own file is left alone.
   ##############################################################################
 
   $_pre_logging = "${rsyslog::rule_dir}/00_simp_pre_logging"
@@ -906,7 +909,8 @@ class rsyslog::config (
     $i['type'] == 'imtcp' and $i['port'] == $rsyslog::tls_tcp_listen_port
   }.empty
   $_plain_imtcp_exists = !$_inputs.filter |$i| {
-    $i['type'] == 'imtcp' and $i['port'] == $rsyslog::tcp_listen_port
+    $i['type'] == 'imtcp' and $i['port'] == $rsyslog::tcp_listen_port and
+    $i['file'] in ['41_imtcp.conf', 'global.conf']
   }.empty
   $_tcp_moved = $_tcp_server =~ Undef and (
     ($_tls_tcp_server == true and $_plain_imtcp_exists) or

@@ -13,7 +13,8 @@
 # * conf_managed:      /etc/rsyslog.conf was written by this module
 # * rule_dir:          the rule directory /etc/rsyslog.conf includes
 # * pre_logging:       the files in <rule_dir>/00_simp_pre_logging
-# * inputs:            the input(type=... port=...) listeners those files define
+# * inputs:            the input(type=... port=...) listeners those files define,
+#                      each with the name of its file
 # * imptcp_tcp_server: 40_imptcp.conf holds rsyslog::tcp_server's listener,
 #                      not only the TLS listener's plain companion
 # * remote_tls:        the files in <rule_dir>/10_simp_remote that forward over TLS
@@ -31,7 +32,7 @@ Facter.add('rsyslog_simp_config') do
 
     inputs = pre_logging.flat_map do |path|
       File.read(path).scan(%r{^\s*input\(type="(\w+)"[^)]*\bport="(\d+)"}).map do |type, port|
-        { 'type' => type, 'port' => port.to_i }
+        { 'type' => type, 'port' => port.to_i, 'file' => File.basename(path) }
       end
     rescue SystemCallError
       []
