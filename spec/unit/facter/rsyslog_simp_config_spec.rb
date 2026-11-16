@@ -51,9 +51,9 @@ describe 'custom fact rsyslog_simp_config' do
         'rule_dir'          => '/etc/rsyslog.simp.d',
         'pre_logging'       => ['40_imptcp.conf', '41_imtcp.conf', '42_imudp.conf', 'global.conf'],
         'inputs'            => [
-          { 'type' => 'imptcp', 'port' => 514 },
-          { 'type' => 'imtcp', 'port' => 6514 },
-          { 'type' => 'imudp', 'port' => 514 },
+          { 'type' => 'imptcp', 'port' => 514, 'file' => '40_imptcp.conf' },
+          { 'type' => 'imtcp', 'port' => 6514, 'file' => '41_imtcp.conf' },
+          { 'type' => 'imudp', 'port' => 514, 'file' => '42_imudp.conf' },
         ],
         'imptcp_tcp_server' => false,
         'remote_tls'        => ['tls.conf'],

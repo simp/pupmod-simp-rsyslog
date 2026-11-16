@@ -41,7 +41,11 @@ class rsyslog::server::firewall {
     }
   }
 
-  if $rsyslog::tcp_server or ($rsyslog::tcp_server =~ Undef and $_tcp_listening) {
+  # rsyslog::config moves tcp_server's listener when tls_tcp_server changes
+  # its layout, possibly to a new tcp_listen_port that no input has yet
+  $_tcp_moved = $rsyslog::config::_tcp_moved
+
+  if $rsyslog::tcp_server or ($rsyslog::tcp_server =~ Undef and ($_tcp_listening or $_tcp_moved)) {
     iptables::listen::tcp_stateful { 'syslog_tcp':
       trusted_nets => $rsyslog::trusted_nets,
       dports       => $rsyslog::tcp_listen_port
