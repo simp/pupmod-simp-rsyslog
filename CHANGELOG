@@ -1,3 +1,6 @@
+* Mon Nov 23 2026 Steven Pritchard <steve@sicura.us> - 11.0.1
+- Allow simp/iptables 10.x
+
 * Thu Nov 12 2026 Kendall Moore <kendall@sicura.us> - 11.0.0
 - BREAKING CHANGE: A bare `include rsyslog` now installs the package and
   makes no other change. To keep the 10.x behavior, enforce the new
